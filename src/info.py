@@ -9,6 +9,7 @@ from rubber import *
 
 def _ (txt): return txt
 
+re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_hvbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
 
 class LogInfo (LogCheck):
@@ -23,6 +24,7 @@ class LogInfo (LogCheck):
 		"""
 		pos = []
 		last_file = None
+		page = 1
 		something = 0
 		for line in self.lines:
 			line = line.rstrip()
@@ -30,8 +32,20 @@ class LogInfo (LogCheck):
 				if pos[-1] != last_file:
 					last_file = pos[-1]
 					self.msg(0, _("in file %s:") % last_file)
-				self.msg(0, line)
+				self.msg(0, _("%s (page %d)") % (line, page))
 				something = 1
 			else:
 				self.update_file(line, pos)
+				page = self.update_page(line, page)
 		return something
+
+	def update_page (self, line, before):
+		"""
+		Parse the given line and return the number of the page that is being
+		built after that line, assuming the current page before the line was
+		`before'.
+		"""
+		ms = re_page.findall(line)
+		if ms == []:
+			return before
+		return int(ms[-1]) + 1
