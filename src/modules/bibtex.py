@@ -16,6 +16,8 @@ from rubber.util import *
 def _ (txt):
 	return txt
 
+re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
+
 class Module:
 	"""
 	This class is the module that handles BibTeX in Rubber.
@@ -34,13 +36,9 @@ class Module:
 		self.run_needed = 0
 
 		bbl = env.src_base + ".bbl"
-		#env.depends[bbl] = DependLeaf([bbl])
 		env.ext_building.append(self.first_bib)
 		env.compile_process.append(self.check_bib)
 		env.cleaning_process.append(self.clean)
-
-		self.re_cite = re.compile(
-			"LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 
 	def add_db (self, name):
 		"""
@@ -115,13 +113,13 @@ class Module:
 		log.close()
 		return 0
 
-	def list_cites (self):
+	def list_undefs (self):
 		"""
 		Return the list of all undefined citations.
 		"""
 		list = []
 		for line in self.env.log.lines:
-			match = self.re_cite.match(line)
+			match = re_undef.match(line)
 			if match:
 				cite = match.group("cite")
 				pos = bisect_left(list, cite)
@@ -168,7 +166,7 @@ class Module:
 		self.msg(2, _("checking if BibTeX must be run..."))
 
 		if self.undef_cites:
-			new = self.list_cites()
+			new = self.list_undefs()
 			if new == []:
 				self.msg(2, _("no more undefined citations"))
 				self.undef_cites = new
@@ -180,7 +178,7 @@ class Module:
 			self.msg(2, _("the undefined citations are the same"))
 			return 0
 		
-		self.undef_cites = self.list_cites()
+		self.undef_cites = self.list_undefs()
 
 		blg = self.env.src_base + ".blg"
 		if not exists(blg):
