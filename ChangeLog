@@ -1,5 +1,8 @@
 2003-10-20  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/...: Added a reference to the message writer in dependency
+	nodes. Used it to make cleaning more verbose.
+
 	* src/__init__.py (Environment): Added method "prog_available" to
 	check for external programs.
 

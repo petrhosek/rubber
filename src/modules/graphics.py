@@ -61,8 +61,8 @@ class PSTDep (Depend):
 		source, the LaTeX source produced, the EPS figure produced, the name
 		to use for it (probably the same one), and the environment.
 		"""
-		leaf = DependLeaf([fig])
-		Depend.__init__(self, [tex, eps], { fig: leaf })
+		leaf = DependLeaf([fig], env.msg)
+		Depend.__init__(self, [tex, eps], { fig: leaf }, env.msg)
 		self.env = env
 		self.fig = fig
 		self.cmd_t = ["fig2dev", "-L", "pstex_t", "-p", epsname, fig, tex ]
@@ -129,7 +129,7 @@ class Module (rubber.Module):
 
 		d = rubber.graphics.dep_file(name, suffixes, self.prefixes, self.env)
 		if d:
-			self.msg(1, _("graphics %s found") % name)
+			self.msg(2, _("graphics %s found") % name)
 			for file in d.prods:
 				self.env.depends[file] = d;
 			self.files.append(d)

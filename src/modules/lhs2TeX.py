@@ -15,9 +15,9 @@ from rubber.util import *
 
 class Dep (Depend):
 	def __init__ (self, source, target, env):
-		leaf = DependLeaf([source])
+		leaf = DependLeaf([source], env.msg)
 		tg_base = target[:-4]
-		Depend.__init__(self, [target], { source: leaf })
+		Depend.__init__(self, [target], { source: leaf }, env.msg)
 		self.env = env
 		self.source = source
 		self.target = target

@@ -67,5 +67,5 @@ def dep_file (base, suffixes, prefixes, env):
 
 	for file in targets:
 		if exists(file):
-			return DependLeaf([file])
+			return DependLeaf([file], env.msg)
 	return None

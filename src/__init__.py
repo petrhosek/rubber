@@ -12,10 +12,10 @@ from os.path import *
 import re
 import string
 
-from rubber.util import *
-
 # The function `_' is defined here to prepare for internationalization.
 def _ (txt): return txt
+
+from rubber.util import *
 
 #---------------------------------------
 
@@ -501,7 +501,7 @@ class Environment:
 		elif cmd == "depend":
 			file = self.conf.find_input(arg)
 			if file:
-				self.depends[file] = DependLeaf([file])
+				self.depends[file] = DependLeaf([file], self.msg)
 			else:
 				self.msg(1, _("dependency '%s' not found") % arg)
 
@@ -560,7 +560,7 @@ class Environment:
 		self.msg(2, _("parsing %s") % path)
 		file = open(path)
 		if not self.depends.has_key(path):
-			self.depends[path] = DependLeaf([path])
+			self.depends[path] = DependLeaf([path], self.msg)
 		self.do_process(file)
 		file.close()
 		self.msg(3, _("end of %s") % path)
@@ -818,7 +818,7 @@ class Environment:
 
 		for file in self.removed_files:
 			if exists(file):
-				self.msg(3, _("removing %s") % file)
+				self.msg(1, _("removing %s") % file)
 				os.unlink(file)
 
 		self.msg(2, _("cleaning additional files..."))
@@ -948,7 +948,7 @@ class Environment:
 		for suffix in list:
 			file = self.src_base + suffix
 			if exists(file):
-				self.msg(3, _("removing %s") % file)
+				self.msg(1, _("removing %s") % file)
 				os.unlink(file)
 
 	###  program execution

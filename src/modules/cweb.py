@@ -15,10 +15,11 @@ from rubber.util import *
 
 class Dep (Depend):
 	def __init__ (self, source, target, env):
-		leaf = DependLeaf([source])
+		leaf = DependLeaf([source], env.msg)
 		tg_base = target[:-4]
 		Depend.__init__(self,
-			[target, tg_base + ".idx", tg_base + ".scn"], { source: leaf })
+			[target, tg_base + ".idx", tg_base + ".scn"], { source: leaf },
+			env.msg)
 		self.env = env
 		self.source = source
 		self.target = target

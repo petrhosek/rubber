@@ -12,6 +12,8 @@ import imp
 import time
 import re, string
 
+from rubber import _
+
 #-- MD5 computation
 
 def md5_file (fname):
@@ -146,13 +148,15 @@ class Depend:
 	rebuild the files of this node, returning zero on success and something
 	else on failure.
 	"""
-	def __init__ (self, prods, sources):
+	def __init__ (self, prods, sources, msg):
 		"""
 		Initialize the object for a given set of output files and a given set
 		of sources. The argument `prods' is a list of file names, and the
 		argument `sources' is a dictionary that associates file names with
-		dependency nodes.
+		dependency nodes. The argument `msg' is an object that is used to
+		issue progress messages (see the Message class for details).
 		"""
+		self.msg = msg
 		self.prods = prods
 		try:
 			# We set the node's date to that of the most recently modified
@@ -217,6 +221,7 @@ class Depend:
 		"""
 		for file in self.prods:
 			if exists(file):
+				self.msg(1, _("removing %s") % file)
 				os.unlink(file)
 		for src in self.sources.values():
 			src.clean()
@@ -238,19 +243,19 @@ class DependLeaf (Depend):
 	This class specializes Depend for leaf nodes, i.e. source files with no
 	dependencies.
 	"""
-	def __init__ (self, dest):
+	def __init__ (self, dest, msg):
 		"""
 		Initialize the node. The argument of this method is a *list* of file
 		names, since one single node may contain several files.
 		"""
-		Depend.__init__(self, dest, {})
+		Depend.__init__(self, dest, {}, msg)
 
 	def run (self):
 		# FIXME
 		if len(self.prods) == 1:
-			print "%r does not exit" % self.prods[0]
+			self.msg(0, _("%r does not exit") % self.prods[0])
 		else:
-			print "one of %r does not exit" % self.prods
+			self.msg(0, _("one of %r does not exit") % self.prods)
 		return 1
 
 	def clean (self):

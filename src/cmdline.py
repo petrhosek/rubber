@@ -110,7 +110,7 @@ available options:
 		self.clean = 0
 		self.force = 0
 		args = self.parse_opts(cmdline)
-		self.msg(1, _("This is Rubber version %s.") % version)
+		self.msg(2, _("This is Rubber version %s.") % version)
 		first = 1
 		for src in args:
 			if not first:

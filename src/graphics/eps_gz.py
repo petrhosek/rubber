@@ -14,8 +14,8 @@ re_bbox = re.compile("%[%\w]*BoundingBox:")
 
 class Dep (Depend):
 	def __init__ (self, target, source, env):
-		leaf = DependLeaf([source])
-		Depend.__init__(self, [target], {source: leaf})
+		leaf = DependLeaf([source], env.msg)
+		Depend.__init__(self, [target], {source: leaf}, env.msg)
 		self.env = env
 		self.source = source
 		self.target = target

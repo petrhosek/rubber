@@ -50,8 +50,8 @@ class Dep (Depend):
 		sources = []
 		self.include(source, sources)
 		env.msg(2, _("%s is made from %r") % (target, sources))
-		self.leaf = DependLeaf(sources)
-		Depend.__init__(self, [target], {source: self.leaf})
+		self.leaf = DependLeaf(sources, env.msg)
+		Depend.__init__(self, [target], {source: self.leaf}, env.msg)
 		self.env = env
 		self.base = source[:-3]
 		self.cmd = ["mpost", "\\batchmode;input %s" %

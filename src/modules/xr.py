@@ -20,7 +20,7 @@ class Module (rubber.Module):
 	def externaldocument (self, dict):
 		aux = self.env.conf.find_input(dict["arg"] + ".aux")
 		if aux:
-			self.env.depends[aux] = DependLeaf([aux])
+			self.env.depends[aux] = DependLeaf([aux], self.env.msg)
 			self.env.msg(2, _(
 				"dependency %s added for external references") % aux)
 		else:
