@@ -1,3 +1,8 @@
+2004-01-21  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/pdftex.py, src/modules/graphics.py: Added support for
+	DVI generation by pdfTeX.
+
 2004-01-20  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Added a hook for \end{document}.

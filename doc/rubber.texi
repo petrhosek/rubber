@@ -396,10 +396,10 @@ useful in the case of tables of contents, for instance.
 @chapter Modules
 
 @menu
-* Packages::
-* Pre-processing::
-* Post-processing::
-* Compiler choice::
+* Packages::           Supported LaTeX packages.
+* Pre-processing::     Files format that can be converted into LaTeX.
+* Post-processing::    Post-processing the compiler's output.
+* Compiler choice::    Choosing which LaTeX compiler to use.
 @end menu
 
 @node Packages, Pre-processing, Modules, Modules
@@ -510,8 +510,11 @@ The following modules are used to change the LaTeX compiler:
 @vtable @command
 @item pdftex
 Instructs Rubber to use @command{pdflatex} instead of @command{latex} to
-compile the document into a PDF instead of a DVI. This module is also loaded
-by the command line option @option{--pdf}.
+compile the document. By default, this produces a PDF file instead of a DVI,
+but when loading the module with the option @option{dvi} (for instance by
+saying @option{-m pdftex:dvi}) the document is compiled into DVI using
+@command{pdflatex}.  This module is also loaded by the command line option
+@option{--pdf}.
 
 @item vtex
 Instructs Rubber to use the VTeX compiler. By default this uses

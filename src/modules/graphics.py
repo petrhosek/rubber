@@ -98,7 +98,7 @@ class Module (rubber.Module):
 		self.files = []
 
 		# I take dvips as the default, but it is not portable.
-		if env.conf.tex == "pdfTeX":
+		if env.conf.tex == "pdfTeX" and env.out_ext == ".pdf":
 			self.suffixes = drv_suffixes["pdftex"]
 		elif env.conf.tex == "VTeX":
 			self.suffixes = drv_suffixes["vtex"]

@@ -249,8 +249,15 @@ Indique à Rubber d'utiliser
 .BR pdflatex (1)
 au lieu de
 .BR latex (1)
-pour compiler le document afin de produire un PDF au lieu d'un DVI. Ce module
-est aussi chargé par l'option de ligne de commande
+pour compiler le document. Par défaut, celà a pour effet
+de produire un fichier PDF au lieu d'un DVI, mais si le module est chargé avec
+l'option
+.B dvi
+(par exemple en disant
+.IR -m\ pdftex:dvi )
+le document est compilé en DVI par
+.BR pdflatex .
+Ce module est aussi chargé par l'option de ligne de commande
 .IR --pdf .
 .TP
 .B vtex

@@ -231,7 +231,7 @@ Produce an expanded LaTeX source by replacing \\input macros by included
 files, bibliography macros by the bibliography produced by
 .BR bibtex (1),
 and local classes and packages by their source. The module options
-.I nobib, nocls, nopkg
+.B nobib, nocls, nopkg
 turn off specific expansions. If the main file is
 .I foo.tex
 then then expanded file will be named
@@ -243,11 +243,17 @@ The following modules are used to change the LaTeX compiler:
 .TP
 .B pdftex
 Instructs Rubber to use
-.B pdflatex
+.BR pdflatex (1)
 instead of
-.B latex
-to compile the document into a PDF instead of a DVI. This module is also
-loaded by the command line option
+.BR latex (1)
+to compile the document. By default, this produces a PDF file instead of a
+DVI, but when loading the module with the option
+.B dvi
+(for instance by saying
+.IR -m\ pdftex:dvi )
+the document is compiled into DVI using
+.BR pdflatex .
+This module is also loaded by the command line option
 .IR --pdf .
 .TP
 .B vtex
