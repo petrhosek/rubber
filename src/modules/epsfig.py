@@ -35,4 +35,7 @@ class Module (rubber.modules.graphics.Module):
 		opts = rubber.util.parse_keyval(arg)
 		if not opts.has_key("file"):
 			return
-		self.includegraphics({ "arg": opts["file"], "opt": arg })
+		fake = dict.copy()
+		fake["arg"] = opts["file"]
+		fake["opt"] = arg
+		self.includegraphics(fake)

@@ -1,3 +1,13 @@
+2004-06-18  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/graphics.py: Added support for combined PDF/LaTeX.
+	Ignore file names that contain \ and #.
+
+	* src/modules/epsfig.py: Fixed the translation into \inclugraphics
+	style arguments.
+
+	* src/__init__.py: Check for program availability in execute().
+
 2004-06-15  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Added support for \includeonly.

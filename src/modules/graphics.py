@@ -154,6 +154,9 @@ class Module (rubber.Module):
 				if opts["ext"]:
 					name = name + opts["ext"]
 
+		if name.find("\\") >= 0 or name.find("#") >= 0:
+			return
+
 		d = rubber.graphics.dep_file(name, suffixes, self.prefixes, self.env)
 		if d:
 			self.msg(2, _("graphics `%s' found") % name)
