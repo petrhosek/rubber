@@ -474,7 +474,7 @@ class Environment:
 					from rubber.rules.cweb import CWebDep
 					self.src_node = CWebDep(self, src, path)
 				elif ext == "lhs":
-					from rubber.rules.latex.lhs2TeX import LHSDep
+					from rubber.rules.lhs2TeX import LHSDep
 					self.src_node = LHSDep(self, src, path)
 
 		if src is None:
