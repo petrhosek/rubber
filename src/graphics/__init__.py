@@ -1,5 +1,5 @@
 # This file is covered by the GPL as part of Rubber.
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2004
 """
 Graphics file converters.
 
@@ -50,22 +50,18 @@ def dep_file (base, suffixes, prefixes, env):
 	"""
 	Search the given path list (prefix list, more precisely) for a file with
 	the given basename and one of the given suffixes. If some transformation
-	can be applied from an existing file, then a dependency tree is returned
-	for this tranformation. If no transformation is found but an appropriate
-	file is found, a dependency node for this file (as a leaf) is returned. If
-	all fails, return None.
+	can be applied from an existing file that may not be generated,
+	then a dependency tree is returned for this tranformation. If no
+	transformation is found but an appropriate file is found, a dependency
+	node for this file (as a leaf) is returned. If all fails, return None.
 	"""
 	targets = []
 	for p in prefixes:
 		for s in suffixes:
-			targets.append(p + base + s)
-
-	for target in targets:
-		dep = convert(target, env)
-		if dep:
-			return dep
-
-	for file in targets:
-		if exists(file):
-			return DependLeaf([file], env.msg)
+			target = p + base + s
+			dep = convert(target, env)
+			if dep:
+				return dep
+			if exists(target):
+				return DependLeaf([target], env.msg)
 	return None
