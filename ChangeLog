@@ -1,5 +1,8 @@
 2002-11-06  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py, src/modules/minitoc.py: Fixed file name computation
+	for minitoc and multiple .aux files.
+
 	* src/graphics/epstopdf.py: Hacked the epstopdf command to make it
 	work with bad executables.
 

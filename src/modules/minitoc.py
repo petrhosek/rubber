@@ -28,11 +28,10 @@ class Module:
 		path = self.env.src_path
 		base = self.env.src_base + "."
 		ln = len(base)
-		for file in os.listdir(path):
+		for file in os.listdir("."):
 			if file[:ln] == base:
 				ext = file[ln:]
 				m = re_tocext.match(ext)
 				if m and ext[m.end():] == "":
-					file = os.path.join(path, file)
 					self.env.msg(3, _("removing %s") % file)
 					os.unlink(file)

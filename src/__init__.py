@@ -442,7 +442,7 @@ class Environment:
 				self.process(file)
 				if file[-4:] == ".tex":
 					file = file[:-4]
-				self.removed_files.append(file + ".aux")
+				self.removed_files.append(basename(file) + ".aux")
 
 	def h_documentclass (self, dict):
 		"""
