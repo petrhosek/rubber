@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003
+# (c) Emmanuel Beffara, 2003--2004
 """
 This module is used to produce a final self-contained version of the source of
 a document, as may be required when preparing a manuscript for an editor. It
@@ -9,8 +9,8 @@ The expansion also works in a naive way with local packages and classes,
 though the result is likely to fail if a local package uses options.
 
 This package accepts the following options (separated by commas):
+  - class : expand \\documentclass even when the class is local
   - nopkg : don't expand \\usepackage even for local packages
-  - nocls : don't expand \\documentclass even when the class is local
   - nobib : don't include the bibliography explicitly
 """
 
@@ -20,6 +20,7 @@ import string, re
 
 import rubber
 from rubber import _
+from rubber.util import *
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):
@@ -46,6 +47,13 @@ class Module (rubber.Module):
 			"end{document}" : env.h_end_document
 		}
 
+		self.pkg_hooks = {
+			"NeedsTeXFormat" : self.x_remove_b,
+			"ProvidesPackage" : self.x_remove_b,
+			"DeclareOption" : self.x_option,
+			"ProcessOptions" : self.x_process
+		}
+
 		if dict.has_key("opt") and dict["opt"]:
 			for opt in string.split(dict["opt"], ","):
 				if opt == "class":
@@ -57,11 +65,14 @@ class Module (rubber.Module):
 					del self.hooks["bibliography"]
 					del self.hooks["bibliographystyle"]
 
-		self.seq = re.compile("\
-\\\\(?P<name>%s)\*?\
- *(\\[(?P<opt>[^\\]]*)\\])?\
- *({(?P<arg>[^{}]*)}|(?=[^A-Za-z]))"
-			% string.join(self.hooks.keys(), "|"))
+#		self.seq = re.compile("\
+#\\\\(?P<name>%s)\*?\
+# *(\\[(?P<opt>[^\\]]*)\\])?\
+# *({(?P<arg>[^{}]*)}|(?=[^A-Za-z]))"
+#			% string.join(self.hooks.keys(), "|"))
+
+		self.opt_lists = []   # stack of package option lists
+		self.opt_texts = []   # stack of used options
 
 	def clean (self):
 		self.env.remove_suffixes(["-final.tex"])
@@ -101,8 +112,9 @@ class Module (rubber.Module):
 		# the environment with our own, in order to reuse the parsing routine.
 
 		env = self.env
-		saved_seq = env.seq ; env.seq = self.seq
+		saved_seq = env.seq #; env.seq = self.seq
 		saved_hooks = env.hooks ; env.hooks = self.hooks
+		env.update_seq()
 		try:
 			self.env.do_process(file, path, dump=self.out_stream)
 		finally:
@@ -111,7 +123,9 @@ class Module (rubber.Module):
 			file.close()
 		# self.out_stream.write("%%--- end of file %s\n" % path)
 
-	# The expansion hooks
+	#
+	#  The simple expansion hooks
+	#
 
 	def x_remove (self, dict):
 		pass
@@ -126,6 +140,16 @@ class Module (rubber.Module):
 		else:
 			self.out_stream.write(dict["match"])
 
+	def x_bibliographystyle (self, dict):
+		if not dict["arg"]: return
+		bbl = self.env.src_base + ".bbl"
+		if exists(bbl):
+			self.expand_path(bbl)
+
+	#
+	#  Package expansion
+	#
+
 	def x_usepackage (self, dict):
 		if not dict["arg"]: return
 		remaining = []
@@ -135,9 +159,38 @@ class Module (rubber.Module):
 		for name in string.split(dict["arg"], ","):
 			file = self.env.conf.find_input(name + ".sty")
 			if file and not exists(name + ".py"):
-				self.out_stream.write("\\makeatletter\n")
+
+				# switch to package mode if needed
+
+				if self.opt_lists == []:
+					self.out_stream.write("\\makeatletter\n")
+				if dict["opt"] is None:
+					self.opt_lists.append([])
+				else:
+					self.opt_lists.append(string.split(dict["opt"], ","))
+				self.opt_texts.append("")
+
+				# register new macros
+
+				for key, val in self.pkg_hooks.items():
+					self.env.hooks[key] = val
+				self.env.update_seq()
+
+				# expand the package
+
 				self.expand_path(file)
-				self.out_stream.write("\\makeatother\n")
+
+				# switch back to normal mode
+
+				self.opt_lists.pop()
+				self.opt_texts.pop()
+				if self.opt_lists == []:
+					self.out_stream.write("\\makeatother\n")
+
+				for key in self.pkg_hooks.keys():
+					del self.env.hooks[key]
+				self.env.update_seq()
+
 			else:
 				remaining.append(name)
 
@@ -149,8 +202,24 @@ class Module (rubber.Module):
 					self.out_stream.write("[%s]" % dict["opt"])
 			self.out_stream.write("{%s}" % string.join(remaining, ","))
 
-	def x_bibliographystyle (self, dict):
-		if not dict["arg"]: return
-		bbl = self.env.src_base + ".bbl"
-		if exists(bbl):
-			self.expand_path(bbl)
+	def x_remove_b (self, dict):
+		"""
+		This is used to remove a macro and a possibly following argument in
+		brackets, as in \\ProvidesPackage{foo}[2003/10/15].
+		"""
+		print "FIXME: x_remove_b"
+
+	def x_option (self, dict):
+		"""
+		Parse an option definition.
+		"""
+		line = string.lstrip(dict["line"])
+		if len(line) == 0 or line[0] != "{":
+			print "FIXME: option %r"
+			return
+		arg, next = match_brace(line[1:])
+		self.opt_texts[-1] = self.opt_texts[-1] + arg
+		dict["line"] = next
+
+	def x_process (self, dict):
+		self.out_stream.write(self.opt_texts[-1])

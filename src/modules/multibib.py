@@ -11,6 +11,7 @@ each of those files.
 
 import os
 from os.path import *
+import string
 
 import rubber, rubber.modules, rubber.modules.bibtex
 from rubber import _
@@ -18,6 +19,15 @@ from rubber import _
 class Biblio (rubber.modules.bibtex.Module):
 	def __init__ (self, env, name):
 		rubber.modules.bibtex.Module.__init__(self, env, {}, name)
+		env.add_hook("bibliographystyle" + name, self.bibstyle)
+		env.add_hook("bibliography" + name, self.biblio)
+
+	def bibstyle (self, dict):
+		self.set_style(dict["arg"])
+
+	def biblio (self, dict):
+		for bib in string.split(dict["arg"], ","):
+			self.add_db(bib)
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):

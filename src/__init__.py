@@ -255,6 +255,10 @@ class EndDocument:
 	""" This is the exception raised when \\end{document} is found. """
 	pass
 
+class EndInput:
+	""" This is the exception raised when \\endinput is found. """
+	pass
+
 class Environment (object):
 	"""
 	This class represents the building process for the document. It handles
@@ -329,6 +333,7 @@ class Environment (object):
 			"listoftables" : self.h_listoftables,
 			"bibliography" : self.h_bibliography,
 			"bibliographystyle" : self.h_bibliographystyle,
+			"endinput" : self.h_endinput,
 			"end{document}" : self.h_end_document
 		}
 		self.update_seq()
@@ -517,10 +522,13 @@ class Environment (object):
 		if not self.depends.has_key(path):
 			self.depends[path] = DependLeaf([path], self.msg)
 		try:
-			self.do_process(file, path)
-		finally:
-			file.close()
-			self.msg(3, _("end of %s") % path)
+			try:
+				self.do_process(file, path)
+			finally:
+				file.close()
+				self.msg(3, _("end of %s") % path)
+		except EndInput:
+			pass
 
 	def input_file (self, name):
 		"""
@@ -649,6 +657,13 @@ class Environment (object):
 		if dict["arg"]:
 			self.modules.register("bibtex", dict)
 			self.modules["bibtex"].set_style(dict["arg"])
+
+	def h_endinput (self, dict):
+		"""
+		Called when \\endinput is found. This stops the processing of the
+		current input file, thus ignoring any code that appears afterwards.
+		"""
+		raise EndInput
 
 	def h_end_document (self, dict):
 		"""

@@ -1,3 +1,13 @@
+2004-02-14  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/multibib.py: Added hooks for local \bibliography and
+	\bibliographystyle.
+
+	* src/__init__.py: Added a hook for \endinput.
+
+	* src/modules/expand.py: Added some option processing in source
+	expansion.
+
 2004-02-11  Emmanuel Beffara  <manu@beffara.org>
 
 	* doc/...: Documentation updates.
