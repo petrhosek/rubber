@@ -1,3 +1,8 @@
+2003-04-21  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py (update_seq): Added a space in the regexp for control
+	sequences.
+
 2003-04-17  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/bibtex.py: Added a missing return statement.
