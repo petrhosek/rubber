@@ -51,15 +51,7 @@ class Main (rubber.cmdline.Main):
 		"""
 		Create the object used for message output.
 		"""
-		self.msg = MessageErr()
-
-	def short_help (self):
-		"""
-		Display a short description of the command line.
-		"""
-		self.msg (0, _("""\
-usage: rubber-pipe [options]
-For more information, try `rubber-pipe --help'."""))
+		self.msg = MessageErr(level=-1)
 
 	def help (self):
 		"""
@@ -156,7 +148,8 @@ available options:
 		self.prepare(src)
 		error = env.make()
 		if error:
-			self.msg(-1, _("There were errors."))
+			if not self.msg.short:
+				self.msg(-1, _("There were errors."))
 			if error == 1:
 				env.log.show_errors()
 			return error
@@ -168,3 +161,10 @@ available options:
 			env.clean()
 			os.unlink(src)
 		return 0
+
+	def __call__ (self, cmdline):
+		try:
+			return self.main(cmdline)
+		except KeyboardInterrupt:
+			self.msg(0, _("*** interrupted"))
+			return 2
