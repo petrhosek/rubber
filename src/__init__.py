@@ -11,7 +11,6 @@ import os, sys, posix
 from os.path import *
 import re
 import string
-import thread
 
 from rubber.util import *
 
@@ -890,18 +889,23 @@ class Environment:
 		# buffer. To solve this, we add a thread to read on the program's
 		# standard output. The thread simply discards this output unless the
 		# optional argument is used.
+		#
+		# In fact, we fork a new process instead of using a thread, because it
+		# is more robust (Vim-Python hangs when using a thread).
 
-		def reader (file, out):
+		pid2 = os.fork()
+		if pid2 == 0:
 			if out:
 				while 1:
-					line = file.readline()
+					line = f_out.readline()
 					if line == "": break
 					out(line)
 			else:
-				while file.readline() != "": pass
-			file.close()
-			
-		thread.start_new_thread(reader, (f_out, out))
+				while f_out.readline() != "": pass
+			f_out.close()
+			os._exit(0)
+		else:
+			f_out.close()
 
 		# At this point, all we have to do is read lines from the error stream
 		# and parse them for relevant messages.
@@ -924,6 +928,7 @@ class Environment:
 		# code.
 
 		(p, ret) = os.waitpid(pid, 0)
+		os.waitpid(pid2, 0)
 		f_err.close()
 		self.msg(3, _("process %d (%s) returned %d") % (pid, prog[0], ret))
 

@@ -40,15 +40,6 @@ it by hand if you are brave.)"""
 There is no os.fork() function. Rubber needs it to run external programs, so
 it won't run on this system."""
 	print "There is a function os.fork(), good."
-	try:
-		import thread
-		print "The system provides threads, good."
-	except ImportError:
-		print """
-I could not import the module thread. The implementation of Rubber requires a
-working thread implentation, so it seems you won't be able to use Rubber on
-this system."""
-		return 1
 	return 0
 
 
