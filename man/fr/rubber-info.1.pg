@@ -4,10 +4,11 @@
 \man_descr(extraction d'information de documents LaTeX)
 \man_section(1)
 \part(menu)
-
-\link(la page de Rubber, rubber.html) \br
-\link(m'envoyer un mail, mailto:emmanuel@beffara.org)
-
+\begin(toc)
+  \link(la page de Rubber, rubber.html) \br
+  \link(m'envoyer un mail, mailto:emmanuel@beffara.org)
+\end(toc)
+sections:
 \part(front)
 
 \begin(subtitle)

@@ -4,10 +4,11 @@
 \man_descr(a building system for LaTeX documents)
 \man_section(1)
 \part(menu)
-
-\link(Rubber homepage, rubber.html) \br
-\link(send me a mail, mailto:emmanuel@beffara.org)
-
+\begin(toc)
+  \link(Rubber homepage, rubber.html) \br
+  \link(send me a mail, mailto:emmanuel@beffara.org)
+\end(toc)
+contents:
 \part(front)
 
 \begin(subtitle)
