@@ -31,5 +31,5 @@ make install prefix=$RPM_BUILD_ROOT/usr
 
 %files
 %defattr(-, root, root)
-%doc ChangeLog COPYING README
+%doc ChangeLog COPYING NEWS README
 /usr
