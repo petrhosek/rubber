@@ -1,3 +1,8 @@
+2002-11-07  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/util.py (Depend.make): Fixed date calculation to interact
+	well with getmtime().
+
 2002-11-06  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/bibtex.py: Added a check so to handle the case where

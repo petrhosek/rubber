@@ -5,10 +5,6 @@ Bugs to fix:
 - find a good way for graphics.mpost to handle the fact that several figures
   can be produced by the same source (without using a global variable)
 
-- when compiling is too fast (under one second), Rubber launches several
-  consecutive compilation, because of the lack of precision in date
-  comparison, fix this
-
 Improvements:
 
 - let modules that need external programs look for them and fail to load if

@@ -191,7 +191,15 @@ class Depend:
 		if must_make or self.should_make():
 			if self.run():
 				return 0
-			self.date = time.time()
+
+			# Here we must take the integer part of the value returned by
+			# time.time() because the modification times for files, returned
+			# by os.path.getmtime(), is an integer. Keeping the fractional
+			# part could lead to errors in time comparison with the main log
+			# file when the compilation of the document is shorter than one
+			# second...
+
+			self.date = int(time.time())
 			return 2
 		return 1
 
