@@ -17,13 +17,13 @@ Improvements:
 - study the status of the Message class and the way to change the output
   method (the current vt100 trick is not completely satisfactory)
 
-- develop LogCheck to make it identify errors more specifically, possibly
-  storing them in an adequate data structure
-
 - extend rubber-info for other kinds of information (and find a better name
   for it, maybe)
 
 - check how the program behaves with various TeX implementations
+
+- Introduce a graphics-like system for generating LaTeX sources (this is
+  needed to support eps/eps_t figures from XFig)
 
 Long-term ideas:
 
