@@ -25,10 +25,15 @@ def _ (txt): return txt
 
 # default suffixes for each device driver (taken from the .def files)
 
+# For dvips and dvipdf we put the suffixes .bb instead of .gz because these
+# are the files LaTeX actually looks for. The module `eps_gz' declares the
+# gzipped files as dependencies for them and extracts the bounding box
+# information.
+
 drv_suffixes = {
-	"dvipdf" : ["", ".eps", ".ps", ".eps.gz", ".ps.gz", ".eps.Z"],
+	"dvipdf" : ["", ".eps", ".ps", ".eps.bb", ".ps.bb", ".eps.Z"],
 	"dvipdfm" : ["", ".jpg", ".jpeg", ".pdf", ".png"],
-	"dvips" : ["", ".eps", ".ps", ".eps.gz", ".ps.gz", ".eps.Z"],
+	"dvips" : ["", ".eps", ".ps", ".eps.bb", ".ps.bb", ".eps.Z"],
 	"dvipsone" : ["", ".eps", ".ps", ".pcx", ".bmp"],
 	"dviwin" : ["", ".eps", ".ps", ".wmf", ".tif"],
 	"emtex" : ["", ".eps", ".ps", ".pcx", ".bmp"],

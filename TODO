@@ -5,12 +5,20 @@ Bugs to fix:
 - find a good way for graphics.mpost to handle the fact that several figures
   can be produced by the same source (without using a global variable)
 
+- detect cases when LaTeX asks to recompile but it's unnecessary, probably by
+  watching for changes in aux files (this causes looping with some packages)
+
+- when compiling is too fast (under one second), Rubber launches several
+  consecutive compilation, because of the lack of precision in date
+  comparison, fix this
+
 Improvements:
 
 - let modules that need external programs look for them and fail to load if
   these program are not found
 
-- handle graphics modules using the Plugins class
+- rewrite the method execute in class Environment in a cleaner way without
+  using os.popen3, to allow both redirecting I/O and getting a return code
 
 - specify clearly what kind of messages each verbosity level is for
 
@@ -22,6 +30,8 @@ Improvements:
 
 - extend rubber-info for other kinds of information (and find a better name
   for it, maybe)
+
+- check how the program behaves with various TeX implementations
 
 Long-term ideas:
 

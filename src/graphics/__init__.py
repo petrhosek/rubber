@@ -23,10 +23,12 @@ conv = {
 	"\\1.eps" : "epstopdf" },
 "(.*)\\.[0-9]+$" : {
 	"\\1.mp" : "mpost" },
-"(.*)\\.eps" : {
+"(.*)\\.eps$" : {
 	"\\1.fig" : "fig2dev" },
-"(.*)\\.png" : {
-	"\\1.fig" : "fig2dev" }
+"(.*)\\.png$" : {
+	"\\1.fig" : "fig2dev" },
+"(.*\\.e?ps)\\.bb$" : {
+	"\\1.gz" : "eps_gz" }
 }
 
 import re
