@@ -754,7 +754,7 @@ class Environment:
 		if env != {}:
 			self.msg(2, _("with environment: %r") % env)
 
-		penv = posix.environ
+		penv = posix.environ.copy()
 		for (key,val) in env.items():
 			penv[key] = val
 
