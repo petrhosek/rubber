@@ -1,5 +1,9 @@
 2002-11-06  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/bibtex.py: Added a check so to handle the case where
+	someone else has run BibTeX, and removed the unportable "-terse"
+	command-line option. And yes, after the release >:-(
+
 	* Version 0.99.4 released.
 
 	* src/__init__.py, src/modules/minitoc.py: Fixed file name computation

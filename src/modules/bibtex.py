@@ -35,7 +35,6 @@ class Module:
 		self.db = []
 		self.run_needed = 0
 
-		bbl = env.src_base + ".bbl"
 		env.ext_building.append(self.first_bib)
 		env.compile_process.append(self.check_bib)
 		env.cleaning_process.append(self.clean)
@@ -61,13 +60,21 @@ class Module:
 
 	def first_bib (self):
 		"""
-		Run BibTeX if needed before the first compilation.
+		Run BibTeX if needed before the first compilation. This function also
+		checks if BibTeX has been run by someone else, and in this case it
+		tells the system that it should recompile the document.
 		"""
 		self.run_needed = self.first_run_needed()
 		if self.env.must_compile:
 			return 0
 		if self.run_needed:
 			return self.run()
+
+		bbl = self.env.src_base + ".bbl"
+		if exists(bbl):
+			if getmtime(bbl) > getmtime(self.env.src_base + ".log"):
+				self.env.must_compile = 1
+		return 0
 
 	def first_run_needed (self):
 		"""
@@ -150,7 +157,7 @@ class Module:
 				"%s:%s" % (self.env.src_path, os.getenv("BIBINPUTS", "")) }
 		else:
 			env = {}
-		if self.env.execute(["bibtex", "-terse", self.env.src_base], env):
+		if self.env.execute(["bibtex", self.env.src_base], env):
 			self.env.msg(0,	_(
 				"There were errors running BibTeX (see %s for details)."
 				) % (self.env.src_base + ".blg"))
