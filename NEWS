@@ -3,6 +3,7 @@ Version CVS
   Features:
     - Support for Literate Haskell code (with lhs2TeX).
     - Directives "watch" and "clean" for tables of contents and such.
+    - Support for graphics conversion using ImageMagick (lots of new formats).
 
   Bugfixes:
     - Modules are handled correctly when compiling several documents at once.

@@ -12,6 +12,10 @@ TODO: this file must know about installed modules, it lacks the flexibility of
 the main module system.
 """
 
+import re
+from os.path import *
+from rubber.util import *
+
 # The object `conv' is a dictionary, it associates patterns to
 # sub-dictionnaries. Each sub-dictionary associates patterns to modules names.
 # The patterns describe the suffixes for which the specified modules are to be
@@ -33,9 +37,11 @@ conv = {
 	"\\1.gz" : ["eps_gz"] }
 }
 
-import re
-from os.path import *
-from rubber.util import *
+# The module 'convert' (for the conversion program shipped with ImageMagick)
+# provides a lot of formats, we let it include the rules in the table.
+
+from rubber.graphics.convert import update_rules
+update_rules(conv)
 
 plugins = Plugins("rubber.graphics")
 convert = Converter(conv, plugins)
