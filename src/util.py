@@ -7,6 +7,7 @@ modules for various tasks.
 
 import md5
 import os.path
+import imp
 
 def md5_file (fname):
 	"""
@@ -54,7 +55,7 @@ class Plugins:
 				pname = ""
 				for p in package.split("."):
 					pname = os.path.join(pname, p)
-				file, path, descr = imp.find_module(join(pname, name));
+				file, path, descr = imp.find_module(os.path.join(pname, name));
 			except ImportError:
 				return 0
 		module = imp.load_module(name, file, path, descr)
