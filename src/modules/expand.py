@@ -41,7 +41,6 @@ class Module (rubber.Module):
 			"include" : env.h_include,
 			"usepackage" : self.x_usepackage,
 			"RequirePackage" : self.x_usepackage,
-			"documentclass" : self.x_documentclass,
 			"bibliography" : self.x_remove,
 			"bibliographystyle" : self.x_bibliographystyle,
 			"end{document}" : env.h_end_document
@@ -49,11 +48,11 @@ class Module (rubber.Module):
 
 		if dict.has_key("opt") and dict["opt"]:
 			for opt in string.split(dict["opt"], ","):
-				if opt == "nopkg":
+				if opt == "class":
+					self.hooks["documentclass"] = self.x_documentclass
+				elif opt == "nopkg":
 					del self.hooks["usepackage"]
 					del self.hooks["RequirePackage"]
-				elif opt == "nocls":
-					del self.hooks["documentclass"]
 				elif opt == "nobib":
 					del self.hooks["bibliography"]
 					del self.hooks["bibliographystyle"]
