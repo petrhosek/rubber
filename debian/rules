@@ -69,7 +69,7 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 	dh_installman
-	dh_installinfo
+	dh_installinfo doc/rubber.info
 #	dh_undocumented
 	dh_installchangelogs 
 	dh_link
