@@ -62,30 +62,39 @@ done
 
 if test -z "$python"; then
 	for cmd in python2.2 python2 python; do
-		if which python > /dev/null; then
+		if which $cmd > /dev/null 2>&1; then
 			python=$cmd
 			break
 		fi
 	done
-fi
 
-if test -z "$python"; then
-	cat <<EOF
-
+	if test -z "$python"; then
+		cat <<EOF
 I could not run the Python interpreter. Since Rubber is written in Python, you
 need a working Pyhton installation. Please make it so...
+EOF
+		exit 1
+	fi
+
+	if test $python = python; then
+		echo "I found Python, this is a good start."
+	else
+		echo "I found Python 2 (as $python), good."
+	fi
+
+
+elif which $python > /dev/null 2>&1; then
+	echo "I will use $python as the interpreter."
+
+else
+	cat <<EOF
+You told me to use $python as the interpreter but I cannot run it.
+No offense, but you're not helping, here.
 EOF
 	exit 1
 fi
 
-if test $python = python; then
-	echo "I found Python, this is a good start."
-else
-	echo "I found Python 2 (as $python), good."
-fi
-
 python=`which $python`
-
 
 $python setup.py check || exit 1
 
