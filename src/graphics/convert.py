@@ -21,7 +21,7 @@ inputs = [
 
 # A set of rules we actually don't want:
 
-avoid = { "pdf": ["png"], "png": ["pdf"] }
+avoid = { "pdf": ["png"], "png": ["pdf", "eps"] }
 
 # A function to update the translation table with these:
 
