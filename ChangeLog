@@ -1,3 +1,14 @@
+2002-11-26  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/cmd_info.py: Added action --check in rubber-info, turned
+	--help and --version into actions.
+
+	* src/__init__.py: Fixed the regular expression for file name
+	tracking in logs.
+
+	* src/__init__.py, src/info.py: Introduced the method info() in
+	Message for displaying non-error information.
+
 2002-11-21  Emmanuel Beffara  <manu@beffara.org>
 
 	* NEWS: Introduced the NEWS file.

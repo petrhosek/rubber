@@ -1,9 +1,10 @@
 Version 0.99.5 ()
 
   Features:
-    - New format in error display.
+    - New format in error and information display.
     - The command line now provides a meaningful return code.
     - New "--short" command-line switch for compact error reports.
+    - New (default) action "--check" in rubber-info.
 
   Bugfixes:
     - Made the calls to LaTeX and others more portable.

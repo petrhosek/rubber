@@ -28,19 +28,20 @@ For more information, try `rubber-info --help'."""))
 This is Rubber's information extractor version %s.
 usage: rubber-info [options] source
 available options:
-  -h / --help    = display this help
   -m / --module <mod>[:<options>] =
                    use a specific module (with the given options)
   -o / --readopts <file> =
                    read additional options from a file
   -s / --short   = display data in a compact form
   -v / --verbose = increase verbosity
-       --version = print version information and exit
 actions:
   --boxes    = report overfull and underfull boxes
+  --check    = report errors or warnings (default action)
   --deps     = show the target file's dependencies
   --errors   = show all errors that occured during compilation
+  --help     = display this help
   --refs     = show the list of undefined references
+  --version  = print the program's version and exit
   --warnings = show all LaTeX warnings\
 """) % version)
 
@@ -48,9 +49,9 @@ actions:
 		try:
 			opts, args = getopt(
 				cmdline, "hm:o:sv",
-				["help", "module=", "readopts=",
-				 "short", "verbose", "version",
-				 "boxes", "deps", "errors", "refs", "warnings"])
+				["module=", "readopts=", "short", "verbose",
+				 "boxes", "check", "deps", "errors", "help",
+				 "refs", "version", "warnings"])
 		except GetoptError, e:
 			self.msg(0, e)
 			sys.exit(1)
@@ -83,7 +84,7 @@ actions:
 	def main (self, cmdline):
 		self.env = Environment(self.msg)
 		self.modules = []
-		self.act = None
+		self.act = "check"
 		args = self.parse_opts(cmdline)
 		self.msg(1, _(
 			"This is Rubber's information extractor version %s.") % version)
@@ -99,11 +100,7 @@ actions:
 			self.msg(0, _("I cannot find %s.") % args[0])
 			sys.exit(1)
 
-		if not self.act:
-			self.msg(0, _("You must specify an action."))
-			return 1
-
-		elif self.act == "deps":
+		if self.act == "deps":
 			self.prepare(src)
 			print "%s%s: %s" % (
 				self.env.src_base,
@@ -150,6 +147,13 @@ actions:
 		if act == "boxes":
 			if not log.show_boxes():
 				self.msg(0, _("There is no bad box."))
+		elif act == "check":
+			if log.show_errors(): return 0
+			self.msg(0, _("There was no error."))
+			if log.show_references(): return 0
+			self.msg(0, _("There is no undefined reference."))
+			if not log.show_warnings():	self.msg(0, _("There is no warning."))
+			if not log.show_boxes(): self.msg(0, _("There is no bad box."))
 		elif act == "errors":
 			if not log.show_errors():
 				self.msg(0, _("There was no error."))
