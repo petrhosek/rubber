@@ -206,16 +206,21 @@ class Depend (object):
 		"""
 		self.msg = msg
 		self.prods = prods
-		try:
-			# We set the node's date to that of the most recently modified
-			# product file, assuming all other files were up to date then
-			# (though not necessarily modified).
-			self.date = max(map(getmtime, prods))
-		except OSError:
-			# If some product file does not exist, set the last modification
-			# date to None.
+		if prods == []:
+			# This is a special case used in rubber.Environment
 			self.date = None
+		else:
+			try:
+				# We set the node's date to that of the most recently modified
+				# product file, assuming all other files were up to date then
+				# (though not necessarily modified).
+				self.date = max(map(getmtime, prods))
+			except OSError:
+				# If some product file does not exist, set the last
+				# modification date to None.
+				self.date = None
 		self.sources = sources
+		self.making = 0
 
 	def should_make (self):
 		"""
@@ -229,7 +234,7 @@ class Depend (object):
 				return 1
 		return 0
 
-	def make (self):
+	def make (self, must_make=0):
 		"""
 		Make the destination file. This recursively makes all dependencies,
 		then compiles the target if dependencies were modified. The semantics
@@ -240,15 +245,21 @@ class Depend (object):
 		- 2 means that something was recompiled (therefore nodes that depend
 		  on this one have to be remade)
 		"""
-		must_make = 0
+		if self.making:
+			print "FIXME: cyclic make"
+			return 1
+		self.making = 1
+
 		for src in self.sources.values():
 			ret = src.make()
 			if ret == 0:
+				self.making = 0
 				return 0
 			if ret == 2:
 				must_make = 1
 		if must_make or self.should_make():
 			if self.run():
+				self.making = 0
 				return 0
 
 			# Here we must take the integer part of the value returned by
@@ -259,7 +270,9 @@ class Depend (object):
 			# second...
 
 			self.date = int(time.time())
+			self.making = 0
 			return 2
+		self.making = 0
 		return 1
 
 	def clean (self):

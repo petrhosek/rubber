@@ -82,7 +82,7 @@ class Module (rubber.Module):
 			bib = join(dir, name + ".bib")
 			if exists(bib):
 				self.db.append(bib)
-				self.env.depends[bib] = DependLeaf([bib], self.msg)
+				self.env.sources[bib] = DependLeaf([bib], self.msg)
 				return
 
 	def set_style (self, style):
@@ -93,15 +93,15 @@ class Module (rubber.Module):
 		"""
 		if self.style:
 			old_bst = self.style + ".bst"
-			if exists(old_bst) and self.env.depends.has_key(old_bst):
-				del self.env.depends[old_bst]
+			if exists(old_bst) and self.env.sources.has_key(old_bst):
+				del self.env.sources[old_bst]
 
 		self.style = style
 		for dir in self.bst_path:
 			new_bst = join(dir, style + ".bst")
 			if exists(new_bst):
 				self.bst_file = new_bst
-				self.env.depends[new_bst] = DependLeaf([new_bst], self.msg)
+				self.env.sources[new_bst] = DependLeaf([new_bst], self.msg)
 				return
 		self.bst_file = None
 

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2003
+# (c) Emmanuel Beffara, 2002--2004
 """
 Support for the `graphics' package in Rubber.
 
@@ -98,7 +98,7 @@ class Module (rubber.Module):
 		self.files = []
 
 		# I take dvips as the default, but it is not portable.
-		if env.conf.tex == "pdfTeX" and env.out_ext == ".pdf":
+		if env.conf.tex == "pdfTeX" and env.prods[0][-4:] == ".pdf":
 			self.suffixes = drv_suffixes["pdftex"]
 		elif env.conf.tex == "VTeX":
 			self.suffixes = drv_suffixes["vtex"]
@@ -139,7 +139,7 @@ class Module (rubber.Module):
 		if d:
 			self.msg(2, _("graphics `%s' found") % name)
 			for file in d.prods:
-				self.env.depends[file] = d;
+				self.env.sources[file] = d;
 			self.files.append(d)
 		else:
 			self.msg.info(dict["pos"],

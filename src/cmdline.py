@@ -164,52 +164,49 @@ available options:
 		happens while making one of the documents, the whole process stops.
 		The method returns the program's exit code.
 		"""
-		self.env = Environment(self.msg)
-		env = self.env
 		self.commands = []
 		self.clean = 0
 		self.force = 0
 		args = self.parse_opts(cmdline)
 		self.msg(2, _("This is Rubber version %s.") % version)
-		first = 1
-		for src in args:
-			if not first:
-				env.restart()
-			self.prepare(src)
-			first = 0
-			if self.clean:
-				env.clean()
-			else:
-				error = env.make(self.force)
-				if not error and not env.something_done:
-					self.msg(0, _("nothing to be done for %s") % env.source())
-				elif error == 1:
-					if not self.msg.short:
-						self.msg(-1, _("There were errors compiling %s.")
-							% env.source())
-					env.log.show_errors()
-				if error:
-					return error
-		return 0
 
-	def prepare (self, src):
-		"""
-		Check for the source file and prepare it for processing. This executes
-		the directives from the command line before parsing the sources.
-		"""
-		env = self.env
-		if env.set_source(src):
-			sys.exit(1)
-		for cmd in self.commands:
-			cmd = string.split(cmd, maxsplit = 1)
-			if len(cmd) == 1:
-				cmd.append("")
-			env.command(cmd[0], cmd[1], {'file': 'command line'})
-		if self.clean and not os.path.exists(env.source()):
-			self.msg(1, _("there is no LaTeX source"))
-		else:
+		for src in args:
+			env = Environment(self.msg)
+
+			# Check the source and prepare it for processing
+	
+			if env.set_source(src):
+				sys.exit(1)
+			for cmd in self.commands:
+				cmd = string.split(cmd, maxsplit = 1)
+				if len(cmd) == 1:
+					cmd.append("")
+				env.command(cmd[0], cmd[1], {'file': 'command line'})
+
+			if self.clean:
+				if not os.path.exists(env.source()):
+					self.msg(1, _("there is no LaTeX source"))
+				else:
+					env.parse()
+					env.clean()
+				continue
+
 			env.make_source()
 			env.parse()
+
+			# Compile the document
+
+			ret = env.final.make(self.force)
+			if ret == 1:
+				self.msg(0, _("nothing to be done for %s") % env.source())
+			elif ret == 0:
+				if not self.msg.short:
+					self.msg(-1, _("There were errors compiling %s.")
+						% env.source())
+				env.log.show_errors()
+				return 1
+
+		return 0
 
 	def __call__ (self, cmdline):
 		"""

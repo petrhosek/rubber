@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003
+# (c) Emmanuel Beffara, 2003--2004
 """
 This is the command line pipe interface for Rubber.
 """
@@ -57,7 +57,7 @@ class Main (rubber.cmdline.Main):
 		"""
 		Display the description of all the options and exit.
 		"""
-		self.msg (0, _("""\
+		self.msg (-1, _("""\
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
@@ -130,13 +130,12 @@ available options:
 		happens while building the document, the process stops.  The method
 		returns the program's exit code.
 		"""
-		self.env = Environment(self.msg)
-		env = self.env
 		self.commands = []
 		self.clean = 1
 		self.parse_opts(cmdline)
 		self.msg(2, _("This is Rubber version %s.") % version)
-		first = 1
+
+		# Put the standard input in a file
 
 		src = make_name() + ".tex"
 		try:
@@ -149,17 +148,35 @@ available options:
 		dump_file(sys.stdin, srcfile)
 		srcfile.close()
 
-		self.prepare(src)
-		error = env.make()
-		if error:
+		# Make the document
+
+		env = Environment(self.msg)
+
+		if env.set_source(src):
+			sys.exit(1)
+
+		for cmd in self.commands:
+			cmd = string.split(cmd, maxsplit = 1)
+			if len(cmd) == 1:
+				cmd.append("")
+			env.command(cmd[0], cmd[1], {'file': 'command line'})
+
+		env.make_source()
+		env.parse()
+		ret = env.final.make()
+
+		if ret == 0:
 			if not self.msg.short:
 				self.msg(-1, _("There were errors."))
-			if error == 1:
-				env.log.show_errors()
-			return error
+			env.log.show_errors()
+			return 1
 
-		output = open(env.final_file)
+		# Dump the results on standard output
+
+		output = open(env.final.prods[0])
 		dump_file(output, sys.stdout)
+
+		# Clean the intermediate files
 
 		if self.clean:
 			env.clean()

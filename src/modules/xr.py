@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2003
+# (c) Emmanuel Beffara, 2002--2004
 """
 Dependency analysis for the xr package.
 
@@ -20,7 +20,7 @@ class Module (rubber.Module):
 	def externaldocument (self, dict):
 		aux = self.env.conf.find_input(dict["arg"] + ".aux")
 		if aux:
-			self.env.depends[aux] = DependLeaf([aux], self.env.msg)
+			self.env.sources[aux] = DependLeaf([aux], self.env.msg)
 			self.env.msg(2, _(
 				"dependency %s added for external references") % aux)
 		else:

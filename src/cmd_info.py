@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2004
 """
 This is the command line interface for the information extractor.
 """
@@ -105,7 +105,7 @@ actions:
 		if self.act == "deps":
 			self.prepare(src)
 			deps = {}
-			for dep in self.env.depends.values():
+			for dep in self.env.sources.values():
 				for file in dep.leaves():
 					deps[file] = None
 			print string.join(deps.keys())

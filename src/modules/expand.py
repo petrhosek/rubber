@@ -22,18 +22,19 @@ import rubber
 from rubber import _
 from rubber.util import *
 
-class Module (rubber.Module):
+class Module (rubber.Module, Depend):
 	def __init__ (self, env, dict):
-		self.env = env
-		self.msg = env.msg
 
 		# register as the post-processor
 
-		if env.output_processing:
-			self.msg(0, _("there is already a post-processor registered"))
+		if env.final != env:
+			env.msg(0, _("there is already a post-processor registered"))
 			sys.exit(2)
-		env.output_processing = self.expand
-		env.final_file = env.src_base + "-final.tex"
+
+		self.env = env
+		self.out = env.src_base + "-final.tex"
+		Depend.__init__(self, [self.out], { env.prods[0]: env }, env.msg)
+		env.final = self
 
 		# initialise the expansion table
 		
@@ -74,14 +75,11 @@ class Module (rubber.Module):
 		self.opt_lists = []   # stack of package option lists
 		self.opt_texts = []   # stack of used options
 
-	def clean (self):
-		self.env.remove_suffixes(["-final.tex"])
-
-	def expand (self):
+	def run (self):
 		if not self.expand_needed():
 			return 0
-		self.msg(0, _("writing %s...") % (self.env.src_base + "-final.tex"))
-		self.out_stream = open(self.env.src_base + "-final.tex", "w")
+		self.msg(0, _("writing %s...") % (self.out))
+		self.out_stream = open(self.out, "w")
 		try:
 			self.expand_path(self.env.source())
 		except rubber.EndDocument:

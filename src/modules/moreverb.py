@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003
+# (c) Emmanuel Beffara, 2003--2004
 """
 Dependency analysis for package 'moreverb' in Rubber.
 """
@@ -18,4 +18,4 @@ class Module (rubber.Module):
 		if not dict["arg"]:
 			return 0
 		file = dict["arg"]
-		self.env.depends[file] = DependLeaf([file], self.env.msg)
+		self.env.sources[file] = DependLeaf([file], self.env.msg)

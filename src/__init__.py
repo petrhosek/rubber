@@ -259,7 +259,7 @@ class EndInput:
 	""" This is the exception raised when \\endinput is found. """
 	pass
 
-class Environment (object):
+class Environment (Depend):
 	"""
 	This class represents the building process for the document. It handles
 	the execution of all required programs. The steps are the following:
@@ -284,7 +284,7 @@ class Environment (object):
 		given file (all steps are initialized empty) and sets the regular
 		expressions and the hook dictionary.
 		"""
-		self.msg = message
+		Depend.__init__(self, [], {}, message)
 		self.msg(2, _("initializing Rubber..."))
 
 		self.log = LogCheck(self)
@@ -343,7 +343,7 @@ class Environment (object):
 		# description of the building process:
 
 		self.source_building = None
-		self.output_processing = None
+		self.final = self
 		self.watched_files = {}
 		self.removed_files = []
 
@@ -368,7 +368,7 @@ class Environment (object):
 			self.process(self.source())
 		except EndDocument:
 			pass
-		self.msg(2, _("dependencies: %r") % self.depends.keys())
+		self.msg(2, _("dependencies: %r") % self.sources.keys())
 
 	def do_process (self, file, path, dump=None):
 		"""
@@ -459,7 +459,7 @@ class Environment (object):
 		elif cmd == "depend":
 			file = self.conf.find_input(arg)
 			if file:
-				self.depends[file] = DependLeaf([file], self.msg)
+				self.sources[file] = DependLeaf([file], self.msg)
 			else:
 				self.msg.info(pos, _("dependency '%s' not found") % arg)
 
@@ -519,8 +519,8 @@ class Environment (object):
 		self.processed_sources[path] = None
 		self.msg(2, _("parsing %s") % path)
 		file = open(path)
-		if not self.depends.has_key(path):
-			self.depends[path] = DependLeaf([path], self.msg)
+		if not self.sources.has_key(path):
+			self.sources[path] = DependLeaf([path], self.msg)
 		try:
 			try:
 				self.do_process(file, path)
@@ -543,16 +543,16 @@ class Environment (object):
 			pname = join(path, name)
 			dep = self.convert(pname, self)
 			if dep:
-				self.depends[pname] = dep
+				self.sources[pname] = dep
 				return pname, dep
 			dep = self.convert(pname + ".tex", self)
 			if dep:
-				self.depends[pname] = dep
+				self.sources[pname] = dep
 				return pname + ".tex", dep
 		file = self.conf.find_input(name)
 		if file:
 			self.process(file)
-			return file, self.depends[file]
+			return file, self.sources[file]
 		else:
 			return None, None
 
@@ -688,7 +688,7 @@ class Environment (object):
 		if not name:
 			self.msg(0, _("cannot find %s") % path)
 			return 1
-		self.depends = {}
+		self.sources = {}
 		(self.src_path, name) = split(name)
 		(self.src_base, self.src_ext) = splitext(name)
 		if self.src_path == "":
@@ -698,8 +698,7 @@ class Environment (object):
 			self.conf.path.append(self.src_path)
 			self.src_pbase = join(self.src_path, self.src_base)
 
-		self.out_ext = ".dvi"
-		self.final_file = self.src_base + ".dvi"
+		self.prods = [self.src_base + ".dvi"]
 
 		if self.source_exts.has_key(self.src_ext):
 			self.modules.register(self.source_exts[self.src_ext])
@@ -759,7 +758,7 @@ class Environment (object):
 
 		self.msg(2, _("building additional files..."))
 
-		for dep in self.depends.values():
+		for dep in self.sources.values():
 			if dep.make() == 0:
 				return 1
 
@@ -784,26 +783,25 @@ class Environment (object):
 		"""
 		Run all operations needed to post-process the result of compilation.
 		"""
-		if self.output_processing:
+		if self.final != self:
 			self.msg(2, _("post-processing..."))
-			return self.output_processing()
+			return self.final.make()
 		return 0
 
 	def clean (self):
 		"""
 		Remove all files that are produced by comiplation.
 		"""
-		self.remove_suffixes([
-			".log", ".aux", ".toc", ".lof", ".lot", self.out_ext])
+		self.remove_suffixes([".log", ".aux", ".toc", ".lof", ".lot"])
 
-		for file in self.removed_files:
+		for file in self.prods + self.removed_files:
 			if exists(file):
 				self.msg(1, _("removing %s") % file)
 				os.unlink(file)
 
 		self.msg(2, _("cleaning additional files..."))
 
-		for dep in self.depends.values():
+		for dep in self.sources.values():
 			dep.clean()
 		for mod in self.modules.objects.values():
 			mod.clean()
@@ -812,25 +810,27 @@ class Environment (object):
 
 	def make (self, force=0):
 		"""
-		Run the building process until the end, or stop on error. This method
-		supposes that the inputs were parsed to register packages and that the
-		LaTeX source is ready. If the second (optional) argument is true, then
-		at least one compilation is done. The method returns 0 on success, 1
-		if a LaTeX compilation failed, and 2 if some auxiliary processing
-		failed.
+		Run the building process until the last compilation, or stop on error.
+		This method supposes that the inputs were parsed to register packages
+		and that the LaTeX source is ready. If the second (optional) argument
+		is true, then at least one compilation is done. As specified by the
+		class Depend, the method returns 0 on failure, 1 if nothing was done
+		and 2 if something was done without failure.
 		"""
-		if self.pre_compile(): return 2
+		if self.pre_compile(): return 0
 		if force or self.compile_needed():
 			self.must_compile = 0
-			if self.compile(): return 1
-			if self.post_compile(): return 2
+			if self.compile(): return 0
+			if self.post_compile(): return 0
 			while self.recompile_needed():
 				self.must_compile = 0
-				if self.compile(): return 1
-				if self.post_compile(): return 2
-		if self.post_process():
-			return 1
-		return 0
+				if self.compile(): return 0
+				if self.post_compile(): return 0
+
+		if self.something_done:
+			self.date = int(time.time())
+			return 2
+		return 1
 
 	def compile_needed (self):
 		"""
@@ -840,7 +840,7 @@ class Environment (object):
 		if self.must_compile:
 			return 1
 		self.msg(3, _("checking if compiling is necessary..."))
-		if not exists(self.src_base + self.out_ext):
+		if not exists(self.prods[0]):
 			self.msg(3, _("the output file doesn't exist"))
 			return 1
 		if not exists(self.src_base + ".log"):
@@ -888,7 +888,7 @@ class Environment (object):
 		Returns true if any of the dependencies is younger than the specified
 		date.
 		"""
-		for dep in self.depends.values():
+		for dep in self.sources.values():
 			if dep.date > date:
 				return 1
 		return 0
