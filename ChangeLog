@@ -1,3 +1,8 @@
+2002-11-06  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Added code to watch for changes in the aux
+	file, to prevent from abusive recompilation.
+
 2002-11-05  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py (Environment.execute): Rewrote the procedure for

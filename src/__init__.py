@@ -565,6 +565,8 @@ class Environment:
 			self.msg(-1, _("There were errors."))
 			self.log.show_errors()
 			return 1
+		self.aux_md5_old = self.aux_md5
+		self.aux_md5 = md5_file(self.src_base + ".aux")
 		return 0
 
 	def pre_compile (self):
@@ -574,6 +576,12 @@ class Environment:
 		`must_compile' to 1 if we already know that a compilation is needed,
 		because it may avoid some unnecessary preprocessing (e.g. BibTeXing).
 		"""
+		if os.path.exists(self.src_base + ".aux"):
+			self.aux_md5 = md5_file(self.src_base + ".aux")
+		else:
+			self.aux_md5 = None
+		self.aux_md5_old = None
+
 		self.must_compile = 0
 		self.must_compile = self.compile_needed()
 		if self.ext_building != []:
@@ -689,6 +697,9 @@ class Environment:
 			return 1
 		if self.log.run_needed():
 			self.msg(3, _("LaTeX asks to run again"))
+			if self.aux_md5 and self.aux_md5 == self.aux_md5_old:
+				self.msg(3, _("but the aux file is unchanged"))
+				return 0
 			return 1
 		self.msg(3, _("no new compilation is needed"))
 		return 0
