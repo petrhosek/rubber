@@ -235,7 +235,20 @@ est utilisé automatiquement si le nom du fichier d'entrée se termine par
 
 .SS Traitement après compilation
 Les modules suivants sont fournis pour effectuer diverses transformations
-après la compilation:
+après la compilation. L'ordre dans lequel ces modules sont utilisés est
+important, par exemple pour effectuer une série de transformations comme
+.RS
+toto.tex -> toto.dvi -> toto.ps -> toto.pdf -> toto.pdf.gz
+.RE
+il faut charger les modules
+.BR dvips ,
+.B ps2pdf
+et
+.B gz
+dans cet ordre, par exemple avec la ligne de commande
+.RS
+rubber -p -o ps2pdf -z toto.tex
+.RE
 .TP
 .B dvipdfm
 Lance
@@ -263,6 +276,13 @@ Voir la documentation en info pour plus de détails.
 .B gz
 Produit une version du document final compressée avec
 .BR gzip (1).
+.TP
+.B ps2pdf
+Lorsque la compilation produit un document PostScript (par exemple en
+utilisant le module
+.BR dvips ),
+convertit ce document en PDF avec
+.BR ps2pdf (1).
 .PP
 
 .SS Choix du compilateur
@@ -321,6 +341,11 @@ de modification sera vérifiée.
 Charge le module spécifié, éventuellement avec des options. Cette directive
 est équivalente à l'option de ligne de commande
 .IR --module .
+.TP
+.BI onchange \ <fichier>\ <commande>
+Exécute la commande shell spécifiée après la compilation lorsque le contenu du
+fichier spécifié a changé. Le nom de fichier se termine au premier espace sur
+la ligne.
 .TP
 .BI paper \ <options> 
 Spécifie des options relatives à la taille du

@@ -103,7 +103,7 @@ the package options in LaTeX. The module is loaded
 .I before
 parsing the document's sources.
 .TP
-.B -o,\ --post \ <module> [: <args> ]
+.BI -o,\ --post \ <module> [: <args> ]
 Used the specified module as a post-processor. This is similar to the
 .I -m
 options except that the module is loaded
@@ -231,7 +231,20 @@ is automatically triggered if the input file's name ends with
 
 .SS Post-processing
 The following modules are provided to support different kinds of
-post-processings:
+post-processings. Note that the order matters when using these modules: if you
+want to use a processing chain like
+.RS
+foo.tex -> foo.dvi -> foo.ps -> foo.pdf -> foo.pdf.gz
+.RE
+you have to load the modules
+.BR dvips ,
+.B ps2pdf
+and
+.B gz
+in that order, for instance using the command line
+.RS
+rubber -p -o ps2pdf -z foo.tex
+.RE
 .TP
 .B dvipdfm
 Runs
@@ -258,6 +271,13 @@ See the info documentation for details.
 .B gz
 Produce a version of the final file compressed with
 .BR gzip (1).
+.TP
+.B ps2pdf
+Assuming that the compilation produces a PostScript document (for instance
+using module
+.BR dvips ),
+convert this document to PDF using
+.BR ps2pdf (1).
 .PP
 
 .SS Compiler choice
@@ -313,6 +333,10 @@ will be checked.
 Loads the specified module, possibly with options. This is equivalent to the
 command-line option
 .IR --module .
+.TP
+.BI onchange \ <file>\ <command>
+Execute the specified shell command after compiling if the contents of the
+specified file have changed. The file name ends at the first space.
 .TP
 .BI paper \ <options>
 Specify options related to paper size. Currently they are used to give

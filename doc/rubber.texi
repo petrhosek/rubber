@@ -359,6 +359,10 @@ will be checked.
 Loads the specified module, possibly with options. This is equivalent to
 the command-line option @command{--module}.
 
+@item onchange <file> <command>
+Execute the specified shell command after compiling if the contents of the
+specified file have changed. The file name ends at the first space.
+
 @item paper <options>
 Specify options related to paper size. Currently they are used to give
 @option{-t} options to @command{dvips} and @option{-p} options to
@@ -523,7 +527,20 @@ input file's name ends with @file{.lhs}.
 @section Post-processors
 
 The following modules are provided to support different kinds of
-post-processings:
+post-processings. Note that the order matters when using these modules: if you
+want to use a processing chain like
+
+@example
+foo.tex -> foo.dvi -> foo.ps -> foo.pdf -> foo.pdf.gz
+@end example
+
+@noindent
+you have to load the modules @command{dvips}, @command{ps2pdf} and
+@command{gz} in that order, for instance using the command line
+
+@example
+rubber -p -o ps2pdf -z foo.tex
+@end example
 
 @vtable @command
 @item dvipdfm
@@ -540,6 +557,11 @@ and local classes and packages by their source. For details, see @ref{Expand}.
 
 @item gz
 Produce a verion of the final document compressed with @command{gzip}.
+
+@item ps2pdf
+Assuming that the compilation produces a PostScript document (for instance
+using module @command{dvips}), convert this document to PDF using
+@command{ps2pdf}.
 @end vtable
 
 @menu
