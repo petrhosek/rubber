@@ -5,6 +5,7 @@ Version CVS
     - Directives "watch" and "clean" for tables of contents and such.
     - Support for graphics conversion using ImageMagick (lots of new formats).
     - Support for packages "moreverb", "verbatim", "beamer".
+    - Support for post-processing through dvipdfm.
     - New frontend "rubber-pipe" with the behaviour of a filter.
     - Support for Literate Haskell code (with lhs2TeX).
 

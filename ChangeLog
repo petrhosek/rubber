@@ -1,5 +1,7 @@
 2003-12-01  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/dvipdfm.py, man/...: Added support for dvipdfm.
+
 	* src/modules/vtex.py, src/modules/graphics.py: Added support for the
 	VTeX compiler.
 
