@@ -4,6 +4,7 @@ Version 0.99.8 (CVS)
     - Support for e-TeX and Omega.
 	- Support for package "index".
     - New directive "onchange".
+	- Support for \includeonly.
 
   Bugfixes:
     - Portability improvement (for Cygwin and hopefully others).

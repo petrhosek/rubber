@@ -355,6 +355,7 @@ class Environment (Depend):
 		self.hooks = {
 			"input" : self.h_input,
 			"include" : self.h_include,
+			"includeonly": self.h_includeonly,
 			"usepackage" : self.h_usepackage,
 			"RequirePackage" : self.h_usepackage,
 			"documentclass" : self.h_documentclass,
@@ -367,6 +368,8 @@ class Environment (Depend):
 			"end{document}" : self.h_end_document
 		}
 		self.update_seq()
+
+		self.include_only = {}
 
 		self.convert = Converter({}, self.modules)
 
@@ -642,12 +645,27 @@ class Environment (Depend):
 		source in a way very similar to \\input, except that LaTeX also
 		creates .aux files for them, so we have to notice this.
 		"""
-		if dict["arg"]:
-			file, _ = self.input_file(dict["arg"])
-			if file:
-				if file[-4:] == ".tex":
-					file = file[:-4]
-				self.removed_files.append(basename(file) + ".aux")
+		if not dict["arg"]:
+			return
+		if self.include_only and not self.include_only.has_key(dict["arg"]):
+			return
+		file, _ = self.input_file(dict["arg"])
+		if file:
+			if file[-4:] == ".tex":
+				file = file[:-4]
+			self.removed_files.append(basename(file) + ".aux")
+
+	def h_includeonly (self, dict):
+		"""
+		Called when the macro \\includeonly is found, indicates the
+		comma-separated list of files that should be included, so that the
+		othe \\include are ignored.
+		"""
+		if not dict["arg"]:
+			return
+		self.include_only = {}
+		for name in dict["arg"].split(","):
+			self.include_only[name] = None
 
 	def h_documentclass (self, dict):
 		"""
