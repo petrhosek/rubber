@@ -216,7 +216,6 @@ class LogCheck:
 	def __init__ (self, env):
 		self.env = env
 		self.msg = env.message
-		self.re_error = re.compile(" [Ee]rror")
 		self.re_rerun = re.compile("LaTeX Warning:.*Rerun")
 
 	def read (self, name):
@@ -245,8 +244,6 @@ class LogCheck:
 		for line in self.lines:
 			if line[0] == "!":
 				return 1
-			if self.re_error.search(line):
-				return 1
 		return 0
 
 	def run_needed (self):
@@ -271,14 +268,12 @@ class LogCheck:
 				continue
 			if showing:
 				self.msg(0, line)
-				if line.find("l.") == 0 or line.find("***") == 0:
+				if line[0:2] == "l." or line[0:3] == "***":
 					showing = 0
 			else:
 				if line[0] == "!":
 					self.msg(0, line)
 					showing = 1
-				elif self.re_error.search(line):
-					self.msg(0, line)
 
 #---------------------------------------
 
@@ -539,7 +534,9 @@ class Process:
 class Modules:
 	"""
 	This class gathers all operations related to the management of external
-	modules. Package supports are loaded through its `register' method.
+	modules. Package supports are loaded through the `register' method, and
+	mosules are searched for first in the current directory, then in the
+	package `rubber.modules' (using Python's path).
 	"""
 	def __init__ (self, env):
 		self.env = env
@@ -556,11 +553,14 @@ class Modules:
 			self.env.message(2, _("module %s already registered") % name)
 			return 1
 		try:
-			file, path, descr = imp.find_module(
-				join("rubber", "modules", name));
+			file, path, descr = imp.find_module(name, [""])
 		except ImportError:
-			self.env.message(2, _("no support found for %s") % name)
-			return 1
+			try:
+				file, path, descr = imp.find_module(
+					join("rubber", "modules", name));
+			except ImportError:
+				self.env.message(2, _("no support found for %s") % name)
+				return 1
 		module = imp.load_module(name, file, path, descr)
 		file.close()
 		mod = module.Module(self.env, dict)
