@@ -16,9 +16,19 @@ from rubber.util import *
 
 re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 
+# The regular expression that identifies errors in BibTeX log files is heavily
+# heuristic. The remark is that all error messages end with a text of the form
+# "---line xxx of file yyy" or "---while reading file zzz". The actual error
+# is either the text before the dashes or the text on the previous line.
+
+re_error = re.compile(
+	"---(line (?P<line>[0-9]+) of|while reading) file (?P<file>.*)")
+
 class Module:
 	"""
-	This class is the module that handles BibTeX in Rubber.
+	This class is the module that handles BibTeX in Rubber. It provides the
+	funcionality required when compiling documents as well as material to
+	parse blg files for diagnostics.
 	"""
 	def __init__ (self, env, dict):
 		"""
@@ -37,6 +47,11 @@ class Module:
 		env.ext_building.append(self.first_bib)
 		env.compile_process.append(self.check_bib)
 		env.cleaning_process.append(self.clean)
+
+	#
+	# The following method are used to specify the various datafiles that
+	# BibTeX uses.
+	#
 
 	def add_db (self, name):
 		"""
@@ -65,6 +80,11 @@ class Module:
 			self.env.depends[new_bst] = DependLeaf([new_bst])
 		else:
 			self.bst_file = None
+
+	#
+	# The following methods are responsible of detecting when running BibTeX
+	# is needed and actually running it.
+	#
 
 	def first_bib (self):
 		"""
@@ -107,27 +127,6 @@ class Module:
 			return 1
 		return 0
 
-	def style_changed (self):
-		"""
-		Read the log file if it exists and check if the style used is the one
-		specified in the source. This supposes that the style is mentioned on
-		a line with the form 'The style file: foo.bst'.
-		"""
-		blg = self.env.src_base + ".blg"
-		if not exists(blg):
-			return 0
-		log = open(blg)
-		line = log.readline()
-		while line != "":
-			if line[:16] == "The style file: ":
-				if line.rstrip()[16:-4] != self.style:
-					self.msg(2, _("the bibliography style was changed"))
-					log.close()
-					return 1
-			line = log.readline()
-		log.close()
-		return 0
-
 	def list_undefs (self):
 		"""
 		Return the list of all undefined citations.
@@ -143,7 +142,6 @@ class Module:
 				elif list[pos] != cite:
 					list.insert(pos, cite)
 		return list
-
 
 	def check_bib (self):
 		"""
@@ -166,9 +164,8 @@ class Module:
 		else:
 			env = {}
 		if self.env.execute(["bibtex", self.env.src_base], env):
-			self.env.msg(0,	_(
-				"There were errors running BibTeX (see %s for details)."
-				) % (self.env.src_base + ".blg"))
+			self.msg(-1, _("There were errors making the bibliography."))
+			self.show_errors()
 			return 1
 		self.run_needed = 0
 		self.env.must_compile = 1
@@ -215,3 +212,54 @@ class Module:
 
 	def clean (self):
 		self.env.remove_suffixes([".bbl", ".blg"])
+
+	#
+	# The following method extract information from BibTeX log files.
+	#
+
+	def style_changed (self):
+		"""
+		Read the log file if it exists and check if the style used is the one
+		specified in the source. This supposes that the style is mentioned on
+		a line with the form 'The style file: foo.bst'.
+		"""
+		blg = self.env.src_base + ".blg"
+		if not exists(blg):
+			return 0
+		log = open(blg)
+		line = log.readline()
+		while line != "":
+			if line[:16] == "The style file: ":
+				if line.rstrip()[16:-4] != self.style:
+					self.msg(2, _("the bibliography style was changed"))
+					log.close()
+					return 1
+			line = log.readline()
+		log.close()
+		return 0
+
+	def show_errors (self):
+		"""
+		Read the log file, identify error messages and report them.
+		"""
+		blg = self.env.src_base + ".blg"
+		if not exists(blg):
+			return 1
+		log = open(blg)
+		last_line = ""
+		line = log.readline()
+		while line != "":
+			m = re_error.search(line)
+			if m:
+				# TODO: it would be possible to report the offending code.
+				if m.start() == 0:
+					text = string.strip(last_line)
+				else:
+					text = string.strip(line[:m.start()])
+				line = m.group("line")
+				if line: line = int(line)
+				self.env.msg.error(m.group("file"), line, text, None)
+			last_line = line
+			line = log.readline()
+		log.close()
+		return 0

@@ -102,12 +102,19 @@ class Message:
 		This method is called when the parsing of the log file found an error.
 		The arguments are, respectively, the name of the file and the line
 		number where the error occurred, the description of the error, and the
-		offending code (up to the error).
+		offending code (up to the error). The line number and the code may be
+		None, the file name and the text are required.
 		"""
 		if self.short:
-			self.write(0, "%s %d: %s" % (file, line, text))
+			if line:
+				self.write(0, "%s %d: %s" % (file, line, text))
+			else:
+				self.write(0, "%s: %s" % (file, text))
 		else:
-			self.write(0, _("\nline %d in %s:\n  %s") % (line, file, text))
+			if line:
+				self.write(0, _("\nline %d in %s:\n  %s") % (line, file, text))
+			else:
+				self.write(0, _("\nin %s:\n  %s") % (file, text))
 			if code:
 				self.write(0, "  --> " + code)
 

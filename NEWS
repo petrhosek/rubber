@@ -5,6 +5,7 @@ Version 0.99.5 ()
     - The command line now provides a meaningful return code.
     - New "--short" command-line switch for compact error reports.
     - New (default) action "--check" in rubber-info.
+    - Parsing of BibTeX log files for errors.
 
   Bugfixes:
     - Made the calls to LaTeX and others more portable.

@@ -1,3 +1,11 @@
+2002-11-29  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py (Message.error): Allowed the error lines to be
+	unspecified.
+
+	* src/modules/bibtex.py: Added show_error() to parse BibTeX logs
+	for error messages.
+
 2002-11-27  Emmanuel Beffara  <manu@beffara.org>
 
 	* man/: Updated the man pages with --check and the actual meaning
