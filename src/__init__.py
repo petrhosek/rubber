@@ -291,7 +291,17 @@ class LogCheck (object):
 		"""
 		Returns true if there was an error during the compilation.
 		"""
+		skipping = 0
 		for line in self.lines:
+			if line.strip() == "":
+				skipping = 0
+				continue
+			if skipping:
+				continue
+			m = re_badbox.match(line)
+			if m:
+				skipping = 1
+				continue
 			if line[0] == "!":
 				# We check for the substring "pdfTeX warning" because pdfTeX
 				# sometimes issues warnings (like undefined references) in the
