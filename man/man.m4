@@ -55,6 +55,9 @@ $2])
 ], [
 .fi])
 
+The "toc" environment is used only in the web-page parts:
+\define_env(toc)
+
 ** Formatting
 
 \define(bf, [\fB$1\fR])
