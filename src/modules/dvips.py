@@ -31,19 +31,19 @@ class Module:
 		self.msg(0, _("running dvips on %s...") %
 		         (self.env.process.src_base + ".dvi"))
 		self.env.process.execute(
-			["dvips", self.env.process.src_pbase + ".dvi",
-			 "-o", self.env.process.src_pbase + ".ps"])
+			["dvips", self.env.process.src_base + ".dvi",
+			 "-o", self.env.process.src_base + ".ps"])
 		return 0
 
 	def run_needed (self):
 		"""
 		Check if running dvips is needed.
 		"""
-		ps = self.env.process.src_pbase + ".ps"
+		ps = self.env.process.src_base + ".ps"
 		if not exists(ps):
 			self.msg(3, _("the PostScript file doesn't exist"))
 			return 1
-		if getmtime(ps) < getmtime(self.env.process.src_pbase + ".dvi"):
+		if getmtime(ps) < getmtime(self.env.process.src_base + ".dvi"):
 			self.msg(3, _("the PostScript file is older than the DVI"))
 			return 1
 		self.msg(3, _("running dvips is not needed"))

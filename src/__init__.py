@@ -52,7 +52,12 @@ class Config:
 		Return the list of arguments for the command that should be used to
 		compile the specified file.
 		"""
-		return [self.latex] + self.latex_opts + [file]
+		cmd = [self.latex] + self.latex_opts + [file]
+		inputs = string.join(self.path, ":")
+		if inputs != "":
+			inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
+			cmd = ["env", "TEXINPUTS=" + inputs] + cmd
+		return cmd
 
 #---------------------------------------
 
@@ -64,14 +69,23 @@ class Message:
 	"""
 	def __init__ (self, env):
 		self.conf = env.config
+		self.write = self.do_write
 
-	def __call__ (self, level, text):
+	def do_write (self, level, text):
 		"""
 		Output a text with the specified verbosity level. If this level is
 		larger than the current output level, no message is produced.
 		"""
 		if level <= self.conf.verb_level:
 			print text
+
+	def __call__ (self, level, text):
+		"""
+		This method calls the actual writing function. This extra indirection
+		allows redefinig the output method while the program is running, while
+		allowing objects to store references to the Message object.
+		"""
+		self.write(level, text)
 
 #---------------------------------------
 
@@ -111,7 +125,7 @@ class Parser:
 		Update the regular expression used to match macro calls using the keys
 		in the `hook' dictionary.
 		"""
-		self.seq = re.compile("\\\\(?P<name>%s\*\?)( *(\\[(?P<opt>[^\\]]*)\\])?{(?P<arg>[^\\\\{}]*)}|[^A-Za-z])" % string.join(self.hooks.keys(), "|"))
+		self.seq = re.compile("\\\\(?P<name>%s)\*?( *(\\[(?P<opt>[^\\]]*)\\])?{(?P<arg>[^\\\\{}]*)}|[^A-Za-z])" % string.join(self.hooks.keys(), "|"))
 
 	def do_process (self, file):
 		"""
@@ -397,6 +411,8 @@ class Process:
 			return 1
 		self.depends = {}
 		(self.src_path, name) = split(name)
+		if self.src_path != "":
+			env.config.path.append(self.src_path)
 		(self.src_base, self.src_ext) = splitext(name)
 		self.src_pbase = join(self.src_path, self.src_base)
 
@@ -432,9 +448,9 @@ class Process:
 		"""
 		self.msg(0, _("compiling %s...") % self.source())
 		self.execute(self.env.config.compile_cmd(self.source()))
-		self.log.read(self.src_pbase + ".log")
+		self.log.read(self.src_base + ".log")
 		if self.log.errors():
-			self.msg(0, _("There were errors."))
+			self.msg(-1, _("There were errors."))
 			self.log.show_errors()
 			return 1
 		return 0
@@ -518,16 +534,16 @@ class Process:
 		if self.must_compile:
 			return 1
 		self.msg(3, _("checking if compiling is necessary..."))
-		if not exists(self.src_pbase + self.out_ext):
+		if not exists(self.src_base + self.out_ext):
 			self.msg(3, _("the output file doesn't exist"))
 			return 1
-		if not exists(self.src_pbase + ".log"):
+		if not exists(self.src_base + ".log"):
 			self.msg(3, _("the log file does not exist"))
 			return 1
-		if getmtime(self.src_pbase + ".log") < getmtime(self.source()):
+		if getmtime(self.src_base + ".log") < getmtime(self.source()):
 			self.msg(3, _("the source is younger than the log file"))
 			return 1
-		if self.log.read(self.src_pbase + ".log"):
+		if self.log.read(self.src_base + ".log"):
 			self.msg(3, _("the log file is not produced by %s") % self.env.config.tex)
 			return 1
 		return self.recompile_needed()
@@ -544,7 +560,7 @@ class Process:
 			self.msg(3, _("last compilation failed"))
 			self.update_watches()
 			return 1
-		if self.deps_modified(getmtime(self.src_pbase + ".log")):
+		if self.deps_modified(getmtime(self.src_base + ".log")):
 			self.msg(3, _("dependencies were modified"))
 			self.update_watches()
 			return 1
@@ -576,8 +592,8 @@ class Process:
 		watched. When the file changes during a compilation, it means that
 		another compilation has to be done.
 		"""
-		if exists(self.src_pbase + suffix):
-			self.watched_files[suffix] = md5_file(self.src_pbase + suffix)
+		if exists(self.src_base + suffix):
+			self.watched_files[suffix] = md5_file(self.src_base + suffix)
 		else:
 			self.watched_files[suffix] = None
 
@@ -588,8 +604,8 @@ class Process:
 		"""
 		changed = None
 		for suffix in self.watched_files.keys():
-			if exists(self.src_pbase + suffix):
-				new = md5_file(self.src_pbase + suffix)
+			if exists(self.src_base + suffix):
+				new = md5_file(self.src_base + suffix)
 				if self.watched_files[suffix] != new:
 					changed = suffix
 				self.watched_files[suffix] = new
@@ -625,7 +641,7 @@ class Process:
 		specified suffixes.
 		"""
 		for suffix in list:
-			file = self.src_pbase + suffix
+			file = self.src_base + suffix
 			if exists(file):
 				self.msg(3, _("removing %s") % file)
 				os.unlink(file)

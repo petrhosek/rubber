@@ -34,7 +34,7 @@ class Module:
 		self.db = []
 		self.run_needed = 0
 
-		bbl = env.process.src_pbase + ".bbl"
+		bbl = env.process.src_base + ".bbl"
 		#env.process.depends[bbl] = DependLeaf([bbl])
 		env.process.ext_building.append(self.first_bib)
 		env.process.compile_process.append(self.check_bib)
@@ -79,11 +79,11 @@ class Module:
 		BibTeXing is also needed in the very particular case when the style
 		has changed since last compilation.
 		"""
-		if not exists(self.env.process.src_pbase + ".aux"):
+		if not exists(self.env.process.src_base + ".aux"):
 			return 0
-		if not exists(self.env.process.src_pbase + ".blg"):
+		if not exists(self.env.process.src_base + ".blg"):
 			return 1
-		dtime = getmtime(self.env.process.src_pbase + ".blg")
+		dtime = getmtime(self.env.process.src_base + ".blg")
 		for db in self.db:
 			if getmtime(db) > dtime:
 				self.msg(2, _("bibliography database %s was modified") % db)
@@ -101,7 +101,7 @@ class Module:
 		specified in the source. This supposes that the style is mentioned on
 		a line with the form 'The style file: foo.bst'.
 		"""
-		blg = self.env.process.src_pbase + ".blg"
+		blg = self.env.process.src_base + ".blg"
 		if not exists(blg):
 			return 0
 		log = open(blg)
@@ -148,8 +148,14 @@ class Module:
 		This method actually runs BibTeX.
 		"""
 		self.msg(0, _("running BibTeX..."))
-		self.env.process.execute(
-			["bibtex", "-terse", self.env.process.src_pbase])
+		if self.env.process.src_path != "":
+			prefix = [
+				"env", "BIBINPUTS=:%s:%s" %
+				(self.env.process.src_path, os.getenv("BIBINPUTS", ""))]
+		else:
+			prefix = []
+		self.env.process.execute(prefix + [
+			"bibtex", "-terse", self.env.process.src_base])
 		self.run_needed = 0
 		self.env.process.must_compile = 1
 		return 0
@@ -177,16 +183,16 @@ class Module:
 		
 		self.undef_cites = self.list_cites()
 
-		if self.undef_cites == []:
-			self.msg(2, _("no undefined citations"))
-			return 0
-
-		blg = self.env.process.src_pbase + ".blg"
+		blg = self.env.process.src_base + ".blg"
 		if not exists(blg):
 			self.msg(2, _("no BibTeX log file"))
 			return 1
 
-		log = self.env.process.src_pbase + ".log"
+		if self.undef_cites == []:
+			self.msg(2, _("no undefined citations"))
+			return 0
+
+		log = self.env.process.src_base + ".log"
 		if getmtime(blg) < getmtime(log):
 			self.msg(2, _("BibTeX's log is older than the main log"))
 			return 1

@@ -23,7 +23,7 @@ class Module:
 		self.msg = env.message
 		env.process.compile_process.append(self.make)
 		env.process.cleaning_process.append(self.clean)
-		self.pbase = env.process.src_pbase
+		self.pbase = env.process.src_base
 		if os.path.exists(self.pbase + ".idx"):
 			self.md5 = md5_file(self.pbase + ".idx")
 		else:
