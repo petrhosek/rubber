@@ -113,16 +113,18 @@ available options:
       --version            print version information and exit\
 """) % version)
 
-	def parse_opts (self, cmdline):
+	def parse_opts (self, cmdline, short="", long=[]):
 		try:
 			opts, args = getopt(
-				cmdline, "I:c:de:fhklm:o:pqr:svz",
+				cmdline, "I:c:de:fhklm:o:pqr:svz" + short,
 				["clean", "command=", "epilogue=", "force", "gzip", "help",
 				 "keep", "landcape", "module=", "post=", "pdf", "ps", "quiet",
-				 "read=", "short", "texpath=", "verbose", "version"])
+				 "read=", "short", "texpath=", "verbose", "version"] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
+
+		extra = []
 
 		for (opt,arg) in opts:
 			if opt == "--clean":
@@ -167,7 +169,12 @@ available options:
 				print "module path: " + moddir
 				sys.exit(0)
 
-		return args
+			elif arg == "":
+				extra.append(opt)
+			else:
+				extra.extend([arg, opt])
+
+		return extra + args
 
 	def main (self, cmdline):
 		"""

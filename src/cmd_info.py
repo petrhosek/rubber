@@ -15,7 +15,7 @@ from rubber.info import *
 from rubber.version import *
 import rubber.cmdline
 
-class Main (object):
+class Main (rubber.cmdline.Main):
 	def __init__ (self):
 		self.msg = rubber.cmdline.Message()
 
@@ -29,10 +29,7 @@ For more information, try `rubber-info --help'."""))
 This is Rubber's information extractor version %s.
 usage: rubber-info [options] source
 available options:
-  -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
-  -o, --readopts=FILE      read additional options from a file
-  -s, --short              display data in a compact form
-  -v, --verbose            increase verbosity
+  all options accepted by rubber(1)
 actions:
   --boxes     report overfull and underfull boxes
   --check     report errors or warnings (default action)
@@ -40,17 +37,18 @@ actions:
   --errors    show all errors that occured during compilation
   --help      display this help
   --refs      show the list of undefined references
+  --rules     print the dependency rules including intermediate results
   --version   print the program's version and exit
   --warnings  show all LaTeX warnings\
 """) % version)
 
 	def parse_opts (self, cmdline):
 		try:
-			opts, args = getopt(
-				cmdline, "hm:o:sv",
-				["module=", "readopts=", "short", "verbose",
-				 "boxes", "check", "deps", "errors", "help",
-				 "refs", "version", "warnings"])
+			long =  [ "module=", "readopts=", "short", "verbose", "boxes",
+				"check", "deps", "errors", "help", "refs", "rules", "version",
+				"warnings" ]
+			args = rubber.cmdline.Main.parse_opts(self, cmdline, long=long)
+			opts, args = getopt(args, "", long)
 		except GetoptError, e:
 			self.msg(0, e)
 			sys.exit(1)
@@ -82,7 +80,8 @@ actions:
 
 	def main (self, cmdline):
 		self.env = Environment(self.msg)
-		self.modules = []
+		self.prologue = []
+		self.epilogue = []
 
 		self.act = None
 		args = self.parse_opts(cmdline)
@@ -109,6 +108,22 @@ actions:
 				for file in dep.leaves():
 					deps[file] = None
 			print string.join(deps.keys())
+
+		elif self.act == "rules":
+			self.prepare(src)
+			seen = {}
+			next = [self.env.final]
+			while len(next) > 0:
+				node = next[0]
+				next = next[1:]
+				if seen.has_key(node):
+					continue
+				seen[node] = None
+				if len(node.sources.keys()) == 0:
+					continue
+				print "\n%s:" % string.join(node.prods),
+				print string.join(node.sources.keys())
+				next.extend(node.sources.values())
 		else:
 			return self.info_log(src, self.act)
 
@@ -118,23 +133,26 @@ actions:
 		"""
 		Check for the source file and prepare it for processing.
 		"""
-		if self.env.set_source(src):
+		env = self.env
+
+		if env.set_source(src):
 			sys.exit(1)
-		if self.env.make_source():
+		if env.make_source():
 			sys.exit(1)
-		for mod in self.modules:
-			colon = mod.find(":")
-			if colon == -1:
-				if self.env.modules.register(mod, { "arg": mod, "opt": None }):
-					self.msg(
-						0, _("module %s could not be registered") % mod)
-			else:
-				arg = { "arg": mod[:colon], "opt": mod[colon+1:] }
-				mod = mod[0:colon]
-				if self.env.modules.register(mod, arg):
-					self.msg(
-						0, _("module %s could not be registered") % mod)
+
+		for cmd in self.prologue:
+			cmd = string.split(cmd, maxsplit = 1)
+			if len(cmd) == 1:
+				cmd.append("")
+			env.command(cmd[0], cmd[1], {'file': 'command line'})
+
 		self.env.parse()
+
+		for cmd in self.epilogue:
+			cmd = string.split(cmd, maxsplit = 1)
+			if len(cmd) == 1:
+				cmd.append("")
+			env.command(cmd[0], cmd[1], {'file': 'command line'})
 
 	def info_log (self, src, act):
 		"""
