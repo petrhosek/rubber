@@ -1,3 +1,10 @@
+2002-11-21  Emmanuel Beffara  <manu@beffara.org>
+
+	* NEWS: Introduced the NEWS file.
+
+	* src/__init__.py (Message), ...: Added the short error reporting
+	style, introduced --short for it in rubber and rubber-info.
+
 2002-11-17  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Added the processed_sources variable to avoid

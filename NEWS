@@ -1,0 +1,77 @@
+Version 0.99.5 ()
+
+  Features:
+    - New format in error display.
+    - The command line now provides a meaningful return code.
+    - New "--short" command-line switch for compact error reports.
+
+  Bugfixes:
+    - Made the calls to LaTeX and others more portable.
+    - Better date computations (this caused useless compilations).
+    - Avoid crash whith documents with cyclic file inclusion.
+
+Version 0.99.4 (2002-11-06)
+
+  Features:
+    - Handle correctly multiple .aux files produced by \include.
+    - Support for package "minitoc".
+    - Extraction of bounding boxes from gzipped figures (eps.bb from eps.gz).
+    - Watch for changes in .aux files to avoid useless recompilations.
+
+  Bugfixes:
+    - Behaves better when the execution of external programs fails.
+    - Made the call to epstopdf(1) more portable.
+
+  Miscellaneous:
+    - Introduction of the RPM package.
+    - External program execution now requires Unix-specific features.
+
+Version 0.99.3 (2002-10-12)
+
+  Features:
+    - New actions "--refs" and "--warnings" in rubber-info.
+    - Support for XFig figures (with conversion to EPS, PDF and PNG).
+
+  Bugfixes:
+    - Display problem fixed in Metapost support.
+    - Better parsing of \includegraphics (now handles keyval options).
+
+Version 0.99.2 (2002-09-06)
+
+  Features:
+    - Dependency analysis for Metapost.
+    - New command-line switch "--force" to force recompiling.
+
+  Bugfixes:
+    - Parsing of starred macros.
+    - Support for compilation of a document from a different directory.
+    - Improved source file name tracking in log files.
+
+  Packaging:
+    - Included the man page for rubber-info.
+    - Better dependencies for Debian.
+    - Introduction of TODO and ChangeLog.
+
+Version 0.99.1 (2002-06-21)
+
+  Features:
+    - Initial support for "graphics" and "graphicx" (dependency analysis).
+    - Allowed the processing of several documents with one command line.
+    - Handling of the keyboard interrupt (control-C).
+    - Source file name tracking for error reports.
+    - Page number tracking in rubber-info.
+    - Introduction of the modular support for graphics.
+
+  Bugfixes:
+    - Better error extraction from log files.
+    - Allowed empty suffix for all graphics file names.
+    - Better source searching algorithm.
+
+  Packaging:
+    - Introduced the Debian package.
+    - Added module of the modules in the man pages.
+
+Version 0.99 (2002-05-31)
+
+This was actually the first version of Rubber. It was a rewrite in Pyhton of
+the now-deceased Eel (that was written in shell script).
