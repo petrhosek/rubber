@@ -16,7 +16,7 @@ incomplete, because \\includegraphics can have a complex format.
 
 import os
 from os.path import *
-import string
+import string, re
 
 from rubber import _
 import rubber.util
@@ -48,6 +48,10 @@ drv_suffixes = {
 	          ".eps", ".ps", ".mps", ".emf", ".wmf"]
 }
 
+# This regular expression is used to parse path lists in \graphicspath.
+
+re_gpath = re.compile("{(?P<prefix>[^{}]*)}")
+
 class Module:
 	def __init__ (self, env, dict):
 		"""
@@ -57,10 +61,11 @@ class Module:
 		self.env = env
 		self.msg = env.msg
 		env.add_hook("includegraphics", self.includegraphics)
+		env.add_hook("graphicspath", self.graphicspath)
 		env.ext_building.append(self.build)
 		env.cleaning_process.append(self.clean)
 
-		self.path = env.conf.path
+		self.prefixes = map(lambda x: join(x, ""), env.conf.path)
 		self.files = []
 		self.not_found = []
 
@@ -81,7 +86,7 @@ class Module:
 
 	def includegraphics (self, dict):
 		"""
-		This method is triggered by th \\includegraphics macro, it looks for
+		This method is triggered by the \\includegraphics macro, it looks for
 		the graphics file specified as argument and adds it either to the
 		dependencies or to the list of graphics not found.
 		"""
@@ -98,7 +103,7 @@ class Module:
 				if opts["ext"]:
 					name = name + opts["ext"]
 
-		d = rubber.graphics.dep_file(name, suffixes, self.path, self.env)
+		d = rubber.graphics.dep_file(name, suffixes, self.prefixes, self.env)
 		if d:
 			self.msg(1, _("graphics %s found") % name)
 			for file in d.prods:
@@ -107,14 +112,46 @@ class Module:
 		else:
 			self.not_found.append(name)
 
+	def graphicspath (self, dict):
+		"""
+		This method is triggered by the \\graphicspath macro. The macro's
+		argument is a list of prefixes that can be added to the file names
+		(not only directory names).
+		"""
+
+		# This argument has the form {{foo/}{bar/}}, therefore it cannot be
+		# parsed by the standard regular expression for control sequences
+		# (because of the braces). Thus we parse the remains of the line
+		# ourselves.
+
+		if dict["arg"]:
+			# The argument should be None...
+			return
+
+		line = dict["line"]
+		if line[0] != "{":
+			return
+		line = line[1:]
+		while line != "" and line[0] != "}":
+			m = re_gpath.match(line)
+			if m:
+				self.prefixes.insert(0, m.group("prefix"))
+				line = line[m.end():]
+			else:
+				# strange prefix, but we keep it anyway
+				self.prefixes.insert(0, line[0])
+				line = line[1:]
+
+		dict["line"] = line
+
 	def find_input (self, name):
 		"""
 		Look for a source file with the given name and one of the registered
 		suffixes, and return either the	complete path to the actual file or
 		None if the file is not found.
 		"""
-		for path in self.path:
-			test = join(path, name)
+		for prefix in self.prefixes:
+			test = prefix + name
 			if exists(test):
 				return test
 			for suffix in self.suffixes:

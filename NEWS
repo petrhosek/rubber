@@ -1,6 +1,7 @@
 Version 0.99.6
 
   Features:
+    - Handling of \graphicspath.
     - Parsing of MetaPost log files for errors.
     - Automatic JPEG to EPS conversion (with jpeg2ps).
 

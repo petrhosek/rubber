@@ -1,3 +1,14 @@
+2003-03-11  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/graphics/mpost.py: Fixed the execution rule for compiling in
+	different directories.
+
+	* src/modules/graphics.py, src/graphics/__init__: Added support for the
+	\graphicspath macro.
+
+	* src/__init__.py: Added support for running programs from different
+	directories, allowed macros to parse the rest of their line.
+
 2003-02-24  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Changed \batchmode into \nonstopmode so that

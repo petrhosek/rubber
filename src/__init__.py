@@ -464,8 +464,9 @@ class Environment:
 						match = match2
 						dict = match.groupdict()
 
+				dict["line"] = line[match.end():]
 				self.hooks[name](dict)
-				line = line[match.end():]
+				line = dict["line"]
 				match = self.seq.search(line)
 
 	def process (self, path):
@@ -490,7 +491,11 @@ class Environment:
 		in the `hook' dictionary. We don't match all control sequences for
 		obvious efficiency reasons.
 		"""
-		self.seq = re.compile("\\\\(?P<name>%s)\*?( *(\\[(?P<opt>[^\\]]*)\\])?{(?P<arg>[^\\\\{}]*)}|[^A-Za-z])" % string.join(self.hooks.keys(), "|"))
+		self.seq = re.compile("\
+\\\\(?P<name>%s)\*?\
+ *(\\[(?P<opt>[^\\]]*)\\])?\
+({(?P<arg>[^\\\\{}]*)}|[^A-Za-z{])?"
+			% string.join(self.hooks.keys(), "|"))
 
 	# Module interface:
 
@@ -827,7 +832,7 @@ class Environment:
 				self.watched_files[suffix] = new
 		return changed
 
-	def execute (self, prog, env={}, out=None):
+	def execute (self, prog, env={}, pwd=None, out=None):
 		"""
 		Silently execute an external program. The `prog' argument is the list
 		of arguments for the program, `prog[0]' is the program name. The `env'
@@ -838,8 +843,10 @@ class Environment:
 		indicate e.g. font compilation).
 		"""
 		self.msg(1, _("executing: %s") % string.join(prog))
+		if pwd:
+			self.msg(2, _("  in directory %s") % pwd)
 		if env != {}:
-			self.msg(2, _("with environment: %r") % env)
+			self.msg(2, _("  with environment: %r") % env)
 
 		penv = posix.environ.copy()
 		for (key,val) in env.items():
@@ -858,13 +865,15 @@ class Environment:
 		pid = os.fork()
 
 		# The forked process simply closes the appropriate pipes and execvp's
-		# the specified program.
+		# the specified program in the appropriate directory.
 
 		if pid == 0:
 			os.close(f_out_r)
 			os.close(f_err_r)
 			os.dup2(f_out_w, sys.__stdout__.fileno())
 			os.dup2(f_err_w, sys.__stderr__.fileno())
+			if pwd:
+				os.chdir(pwd)
 			os.execvpe(prog[0], prog, penv)
 
 		# The main process reads whatever is sent to the error stream and

@@ -43,18 +43,19 @@ for k in conv.keys():
 
 plugins = Plugins()
 
-def dep_file (base, suffixes, path, env):
+def dep_file (base, suffixes, prefixes, env):
 	"""
-	Search the given path list for a file with the given basename and one of
-	the given suffixes. If some transformation can be applied from an existing
-	file, then a dependency tree is returned for this tranformation. If no
-	transformation is found but an appropriate file is found, a dependency
-	node for this file (as a leaf) is returned. If all fails, return None.
+	Search the given path list (prefix list, more precisely) for a file with
+	the given basename and one of the given suffixes. If some transformation
+	can be applied from an existing file, then a dependency tree is returned
+	for this tranformation. If no transformation is found but an appropriate
+	file is found, a dependency node for this file (as a leaf) is returned. If
+	all fails, return None.
 	"""
 	targets = []
-	for p in path:
+	for p in prefixes:
 		for s in suffixes:
-			targets.append(join(p, base + s))
+			targets.append(p + base + s)
 
 	for target in targets:
 		for dest in cconv.keys():

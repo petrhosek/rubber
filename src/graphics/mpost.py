@@ -7,6 +7,7 @@ The module parses input files for dependencies and does some checkings on
 Metapost's log files after the process. Is it enough?
 """
 
+import os, os.path
 import re
 
 from rubber import _, LogCheck
@@ -53,7 +54,9 @@ class Dep (Depend):
 		Depend.__init__(self, [target], {source: self.leaf})
 		self.env = env
 		self.base = source[:-3]
-		self.cmd = ["mpost", "\\batchmode;input %s" % self.base]
+		self.cmd = ["mpost", "\\batchmode;input %s" %
+			os.path.basename(self.base)]
+		self.cmd_pwd = os.path.dirname(self.base)
 		if env.src_path == "":
 			self.penv = {}
 		else:
@@ -81,8 +84,12 @@ class Dep (Depend):
 		fd.close()
 
 	def run (self):
+		"""
+		Run Metapost from the source file's directory, so that figures are put
+		next to their source file.
+		"""
 		self.env.msg(0, _("running Metapost on %s.mp...") % self.base)
-		if self.env.execute(self.cmd, self.penv) == 0:
+		if self.env.execute(self.cmd, self.penv, pwd=self.cmd_pwd) == 0:
 			return 0
 
 		# This creates a log file that has the same aspect as TeX logs.
@@ -106,7 +113,13 @@ class Dep (Depend):
 		"""
 		base = self.base + "."
 		ln = len(base)
-		for file in os.listdir("."):
+		dir = os.path.dirname(base)
+		if dir == "":
+			list = os.listdir(".")
+		else:
+			list = os.listdir(dir)
+		for f in list:
+			file = os.path.join(dir, f)
 			if file[:ln] == base:
 				ext = file[ln:]
 				m = re_mpext.match(ext)
