@@ -275,8 +275,8 @@ class Converter:
 		dictionary that associates regular expressions (to match the target
 		names against) with dictionaries. Each of these dictionaries
 		associates templates (that depend on the regular expression) for the
-		source name with plugin names. See graphics.__init__ for an example.
-		The third argument is the plugin set to use.
+		source name with lists of plugin names. See graphics.__init__ for an
+		example. The third argument is the plugin set to use.
 		"""
 		self.rules = {}
 		for key, val in rules.items():
@@ -287,12 +287,17 @@ class Converter:
 		"""
 		Define a new conversion rule. The arguments are, respectively, the
 		expression to match the target against, the source name deduced from
-		it, and the module to use when a source is found.
+		it, and the module to use when a source is found. If another rule
+		exists for the same translation, the new one has priority over it.
 		"""
 		e = re.compile(target)
 		if not self.rules.has_key(e):
 			self.rules[e] = {}
-		self.rules[e][source] = module
+		dict = self.rules[e]
+		if dict.has_key(source):
+			dict[source].insert(0, module)
+		else:
+			dict[source] = [module]
 
 	def __call__ (self, target, env):
 		"""
@@ -302,13 +307,16 @@ class Converter:
 		"""
 		for dest, rules in self.rules.items():
 			m = dest.match(target)
-			if m:
-				for src, mod in rules.items():
-					source = m.expand(src)
-					if exists(source):
-						if not self.plugins.register(mod):
-							continue
-						dep = self.plugins[mod].convert(source, target, env)
-						if dep:
-							return dep
+			if not m:
+				continue
+			for src, mods in rules.items():
+				source = m.expand(src)
+				if not exists(source):
+					continue
+				for mod in mods:
+					if not self.plugins.register(mod):
+						continue
+					dep = self.plugins[mod].convert(source, target, env)
+					if dep:
+						return dep
 		return None

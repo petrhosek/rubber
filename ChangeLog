@@ -1,3 +1,8 @@
+2003-10-20  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/util.py, src/graphics/__init__.py: Changed the Converter class
+	to allow several modules for a given rewriting rule.
+
 2003-10-07  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Fixed the modification about error-like warnings.

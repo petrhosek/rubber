@@ -19,18 +19,18 @@ the main module system.
 
 conv = {
 "(.*)\\.pdf$" : {
-	"\\1.fig" : "fig2dev",
-	"\\1.eps" : "epstopdf" },
+	"\\1.fig" : ["fig2dev"],
+	"\\1.eps" : ["epstopdf"] },
 "(.*)\\.[0-9]+$" : {
-	"\\1.mp" : "mpost" },
+	"\\1.mp" : ["mpost"] },
 "(.*)\\.eps$" : {
-	"\\1.fig" : "fig2dev",
-	"\\1.jpeg" : "jpeg2ps",
-	"\\1.jpg" : "jpeg2ps" },
+	"\\1.fig" : ["fig2dev"],
+	"\\1.jpeg" : ["jpeg2ps"],
+	"\\1.jpg" : ["jpeg2ps"] },
 "(.*)\\.png$" : {
-	"\\1.fig" : "fig2dev" },
+	"\\1.fig" : ["fig2dev"] },
 "(.*\\.e?ps)\\.bb$" : {
-	"\\1.gz" : "eps_gz" }
+	"\\1.gz" : ["eps_gz"] }
 }
 
 import re
