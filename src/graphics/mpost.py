@@ -62,6 +62,7 @@ class Dep (Depend):
 		else:
 			self.penv = { "MPINPUTS":
 				"%s:%s" % (self.env.src_path, os.getenv("MPINPUTS", "")) }
+		self.log = None
 
 	def include (self, source, list):
 		"""
@@ -94,16 +95,19 @@ class Dep (Depend):
 
 		# This creates a log file that has the same aspect as TeX logs.
 
-		log = MPLogCheck(self.env)
-		if log.read(self.base + ".log"):
+		self.log = MPLogCheck(self.env)
+		if self.log.read(self.base + ".log"):
 			self.env.msg(0,_(
-				"I can't read MeatPost's log file, this is wrong."))
+				"I can't read MetaPost's log file, this is wrong."))
 			return 1
-		if log.errors():
-			self.env.msg(0, _("There were errors in Metapost code:"))
-			log.show_errors()
-			return 1
-		return 0
+		return self.log.errors()
+
+	def show_errors (self):
+		"""
+		Report the errors from the last compilation.
+		"""
+		self.env.msg(1, _("There were errors in Metapost code:"))
+		self.log.show_errors()
 
 	def clean (self):
 		"""

@@ -15,8 +15,9 @@ from rubber.version import *
 
 class Message (Message):
 	"""
-	This class defines a message writer that outputs the messages according to
-	GNU conventions. It manages verbosity level and possible redirection.
+	This class defines a message writer that outputs the messages on standard
+	error according to GNU conventions. It manages verbosity level and
+	possible redirection.
 	"""
 	def __init__ (self, level=0, short=0):
 		"""
@@ -30,7 +31,7 @@ class Message (Message):
 
 	def do_write (self, level, text):
 		if level <= self.level:
-			print text
+			sys.stderr.write(text + "\n")
 
 	def __call__ (self, level, text):
 		self.write(level, text)
@@ -235,9 +236,9 @@ available options:
 					self.msg(0, _("nothing to be done for %s") % env.source())
 				elif ret == 0:
 					if not self.msg.short:
-						self.msg(-1, _("There were errors compiling %s.")
+						self.msg(1, _("There were errors compiling %s.")
 							% env.source())
-					env.log.show_errors()
+					env.final.failed().show_errors()
 					return 1
 
 		return 0

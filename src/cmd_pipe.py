@@ -37,21 +37,12 @@ def dump_file (f_in, f_out):
 	for line in f_in.readlines():
 		f_out.write(line)
 
-class MessageErr (rubber.cmdline.Message):
-	"""
-	This class modifies the standard Message class to make it write messages
-	on standard error instead of standard output.
-	"""
-	def do_write (self, level, text):
-		if level <= self.level:
-			sys.stderr.write(text + "\n")
-
 class Main (rubber.cmdline.Main):
 	def __init__ (self):
 		"""
 		Create the object used for message output.
 		"""
-		self.msg = MessageErr(level=-1)
+		self.msg = rubber.cmdline.Message(level=-1)
 
 	def help (self):
 		"""
@@ -138,8 +129,8 @@ available options:
 
 		if ret == 0:
 			if not self.msg.short:
-				self.msg(-1, _("There were errors."))
-			env.log.show_errors()
+				self.msg(1, _("There were errors."))
+			env.final.failed().show_errors()
 			return 1
 
 		# Dump the results on standard output

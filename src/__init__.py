@@ -84,6 +84,12 @@ class Modules (Plugins):
 		"""
 		return self.objects[name]
 
+	def has_key (self, name):
+		"""
+		Check if a given module is loaded.
+		"""
+		return self.objects.has_key(name)
+
 	def register (self, name, dict={}):
 		"""
 		Attempt to register a package with the specified name. If a module is
@@ -505,7 +511,7 @@ class Environment (Depend):
 		else:
 			lst = string.split(cmd, ".", 1)
 			if len(lst) > 1:
-				if modules.has_key(lst[0]):
+				if self.modules.has_key(lst[0]):
 					self.modules[lst[0]].command(lst[1], arg)
 			else:
 				self.msg.info(pos, _("unknown directive '%s'") % cmd)
@@ -762,6 +768,7 @@ class Environment (Depend):
 
 		for dep in self.sources.values():
 			if dep.make() == 0:
+				self.failed_dep = dep.failed_dep
 				return 1
 
 		for mod in self.modules.objects.values():
@@ -822,6 +829,10 @@ class Environment (Depend):
 		and 2 if something was done without failure.
 		"""
 		if self.pre_compile(): return 0
+
+		# If an error occurs after this point, it will be while LaTeXing.
+		self.failed_dep = self
+
 		if force or self.compile_needed():
 			self.must_compile = 0
 			if self.compile(): return 0
@@ -830,6 +841,9 @@ class Environment (Depend):
 				self.must_compile = 0
 				if self.compile(): return 0
 				if self.post_compile(): return 0
+
+		# Finally there was no error.
+		self.failed_dep = None
 
 		if self.something_done:
 			self.date = int(time.time())
@@ -896,6 +910,9 @@ class Environment (Depend):
 			if dep.date > date:
 				return 1
 		return 0
+
+	def show_errors (self):
+		self.log.show_errors()
 
 	###  utility methods
 

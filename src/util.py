@@ -197,7 +197,8 @@ class Depend (object):
 		of sources. The argument `prods' is a list of file names, and the
 		argument `sources' is a dictionary that associates file names with
 		dependency nodes. The argument `msg' is an object that is used to
-		issue progress messages (see the Message class for details).
+		issue progress messages and error reports (see the Message class for
+		details).
 		"""
 		self.msg = msg
 		self.prods = prods
@@ -216,6 +217,7 @@ class Depend (object):
 				self.date = None
 		self.sources = sources
 		self.making = 0
+		self.failed_dep = None
 
 	def should_make (self):
 		"""
@@ -245,16 +247,24 @@ class Depend (object):
 			return 1
 		self.making = 1
 
+		# Make the sources
+
+		self.failed_dep = None
 		for src in self.sources.values():
 			ret = src.make()
 			if ret == 0:
 				self.making = 0
+				self.failed_dep = src.failed_dep
 				return 0
 			if ret == 2:
 				must_make = 1
+		
+		# Make this node if necessary
+
 		if must_make or self.should_make():
 			if self.run():
 				self.making = 0
+				self.failed_dep = self
 				return 0
 
 			# Here we must take the integer part of the value returned by
@@ -269,6 +279,19 @@ class Depend (object):
 			return 2
 		self.making = 0
 		return 1
+
+	def failed (self):
+		"""
+		Return a reference to the node that caused the failure of the last
+		call to "make". If there was no failure, return None.
+		"""
+		return self.failed_dep
+
+	def show_errors (self):
+		"""
+		Report the errors that caused the failure of the last call to run.
+		"""
+		pass
 
 	def clean (self):
 		"""
