@@ -15,7 +15,7 @@ from rubber.info import *
 from rubber.version import *
 import rubber.cmdline
 
-class Main:
+class Main (object):
 	def __init__ (self):
 		self.msg = rubber.cmdline.Message()
 

@@ -71,7 +71,7 @@ class Message (Message):
 			text = "%s (page %d)" % (text, where["page"])
 		self.write(0, text)
 
-class Main:
+class Main (object):
 	def __init__ (self):
 		"""
 		Create the object used for message output.

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2004
 """
 LaTeX document building system for Rubber.
 
@@ -19,7 +19,7 @@ from rubber.util import *
 
 #---------------------------------------
 
-class Config:
+class Config (object):
 	"""
 	This class contains all configuration parameters. This includes search
 	paths, the name of the compiler and options for it, and paper size
@@ -115,7 +115,7 @@ re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
 re_line = re.compile("l\\.(?P<line>[0-9]+)( (?P<text>.*))?$")
 
-class LogCheck:
+class LogCheck (object):
 	"""
 	This class performs all the extraction of information from the log file.
 	For efficiency, the instances contain the whole file as a list of strings
@@ -255,7 +255,7 @@ class EndDocument:
 	""" This is the exception raised when \\end{document} is found. """
 	pass
 
-class Environment:
+class Environment (object):
 	"""
 	This class represents the building process for the document. It handles
 	the execution of all required programs. The steps are the following:
@@ -498,9 +498,8 @@ class Environment:
 		else:
 			lst = string.split(cmd, ".", 1)
 			if len(lst) > 1:
-				self.modules.register(lst[0],
-					dict = { 'arg': lst[0], 'opt': None })
-				self.modules[lst[0]].command(lst[1], arg)
+				if modules.has_key(lst[0]):
+					self.modules[lst[0]].command(lst[1], arg)
 			else:
 				self.msg.info(pos, _("unknown directive '%s'") % cmd)
 
@@ -1025,7 +1024,7 @@ class Environment:
 
 #---------------------------------------
 
-class Message:
+class Message (object):
 	"""
 	All messages in the program are output using the `msg' object in the
 	main class. This class defines the interface for this object.
@@ -1067,7 +1066,7 @@ class Message:
 
 #---------------------------------------
 
-class Module:
+class Module (object):
 	"""
 	This is the base class for modules. Each module should define a class
 	named 'Module' that derives from this one. The default implementation
