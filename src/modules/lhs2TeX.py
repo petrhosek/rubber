@@ -68,9 +68,10 @@ class Module (rubber.Module):
 		out.close()
 		return 0
 
-	def command (self, cmd, arg):
+	def command (self, cmd, args):
 		if cmd == "style":
-			self.style = "-" + arg
+			if len(args) > 0:
+				self.style = "-" + args[0]
 
 	def run_needed (self):
 		"""

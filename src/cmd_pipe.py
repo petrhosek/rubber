@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003--2004
+# (c) Emmanuel Beffara, 2003--2005
 """
 This is the command line pipe interface for Rubber.
 """
@@ -114,7 +114,7 @@ available options:
 			cmd = string.split(cmd, maxsplit = 1)
 			if len(cmd) == 1:
 				cmd.append("")
-			env.command(cmd[0], cmd[1], {'file': 'command line'})
+			env.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 		env.make_source()
 		env.parse()
@@ -123,7 +123,7 @@ available options:
 			cmd = string.split(cmd, maxsplit = 1)
 			if len(cmd) == 1:
 				cmd.append("")
-			env.command(cmd[0], cmd[1], {'file': 'command line'})
+			env.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 		ret = env.final.make()
 

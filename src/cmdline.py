@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2004
+# (c) Emmanuel Beffara, 2002--2005
 """
 This is the command line interface for Rubber.
 """
@@ -12,6 +12,7 @@ from getopt import *
 from rubber import _
 from rubber import *
 from rubber.version import *
+from rubber.util import parse_line
 
 class MoreErrors:
 	"""
@@ -213,10 +214,8 @@ available options:
 				sys.exit(1)
 
 			for cmd in self.prologue:
-				cmd = string.split(cmd, maxsplit = 1)
-				if len(cmd) == 1:
-					cmd.append("")
-				env.command(cmd[0], cmd[1], {'file': 'command line'})
+				cmd = parse_line(cmd, {})
+				env.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 			if self.clean:
 				if not os.path.exists(env.source()):
@@ -227,10 +226,8 @@ available options:
 			env.parse()
 
 			for cmd in self.epilogue:
-				cmd = string.split(cmd, maxsplit = 1)
-				if len(cmd) == 1:
-					cmd.append("")
-				env.command(cmd[0], cmd[1], {'file': 'command line'})
+				cmd = parse_line(cmd, {})
+				env.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 			# Compile the document
 

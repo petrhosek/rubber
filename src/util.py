@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2004
+# (c) Emmanuel Beffara, 2002--2005
 """
 This module contains utility functions and classes used by the main system and
 by the modules for various tasks.
@@ -11,6 +11,7 @@ from os.path import *
 import imp
 import time
 import re, string
+from string import whitespace
 
 from rubber import _
 
@@ -385,6 +386,7 @@ class DependShell (Depend):
 			return 1
 		return 0
 
+
 #-- Automatic source conversion
 
 class Converter (object):
@@ -473,3 +475,118 @@ class Converter (object):
 				return (weight, dep)
 
 		return (None, None)
+
+
+#-- Parsing commands
+
+re_variable = re.compile("(?P<name>[a-zA-Z]*)")
+
+def parse_line (line, dict):
+	"""
+	Decompose a string into a list of elements. The elements are separated by
+	spaces, single and double quotes allow escaping of spaces (and quotes).
+	Elements can contain variable references with the syntax '$VAR' (with only
+	letters in the name) or '${VAR}'.
+
+	If the argument 'dict' is defined, it is considered as a hash containing
+	the values of the variables. If it is None, elements with variables are
+	replaced by sequences of litteral strings or names, as follows:
+		parse_line(" foo  bar${xy}quux toto  ")
+			--> ["foo", ["'bar", "$xy", "'quux"], "toto"]
+	"""
+	elems = []
+	i = 0
+	size = len(line)
+	while i < size:
+		while i < size and line[i] in whitespace: i = i+1
+		if i == size: break
+
+		open = 0	# which quote is open
+		arg = ""	# the current argument, so far
+		if not dict: composed = None	# the current composed argument
+
+		while i < size:
+			c = line[i]
+
+			# Open or close quotes.
+
+			if c in '\'\"':
+				if open == c: open = 0
+				elif open: arg = arg + c
+				else: open = c
+
+			# '$' introduces a variable name, except within single quotes.
+
+			elif c == '$' and open != "'":
+
+				# Make the argument composed, if relevant.
+
+				if not dict:
+					if not composed: composed = []
+					if arg != "": composed.append("'" + arg)
+					arg = ""
+
+				# Parse the variable name.
+
+				if i+1 < size and line[i+1] == '{':
+					end = line.find('}', i+2)
+					if end < 0:
+						name = line[i+2:]
+						i = size
+					else:
+						name = line[i+2:end]
+						i = end + 1
+				else:
+					m = re_variable.match(line, i+1)
+					if m:
+						name = m.group("name")
+						i = m.end()
+					else:
+						name = ""
+						i = i+1
+
+				# Append the variable or its name.
+
+				if dict:
+					if dict.has_key(name):
+						arg = arg + str(dict[name])
+					# Send a warning for undefined variables ?
+				else:
+					composed.append("$" + name)
+				continue
+
+			# Handle spaces.
+
+			elif c in whitespace:
+				if open: arg = arg + c
+				else: break
+			else:
+				arg = arg + c
+			i = i+1
+
+		# Append the new argument.
+
+		if dict or not composed:
+			elems.append(arg)
+		else:
+			if arg != "": composed.append("'" + arg)
+			elems.append(composed)
+
+	return elems
+
+def make_line (template, dict):
+	"""
+	Instanciate a command template as returned by parse_line using a specific
+	dictionary for variables.
+	"""
+	def one_string (arg):
+		if arg.__class__ != list: return arg
+		val = ""
+		for elem in arg:
+			if elem[0] == "'":
+				val = val + elem[1:]
+			else:
+				if dict.has_key(elem[1:]):
+					val = val + str(dict[elem[1:]])
+		return val
+	return map(one_string, template)

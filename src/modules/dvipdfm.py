@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003--2004
+# (c) Emmanuel Beffara, 2003--2005
 """
 PDF generation through dvipdfm with Rubber.
 """
@@ -35,6 +35,6 @@ class Module (Depend, rubber.Module):
 			return 1
 		return 0
 
-	def command (self, cmd, arg):
+	def command (self, cmd, args):
 		if cmd == "options":
-			self.options.extend(arg.split())
+			self.options.extend(args)

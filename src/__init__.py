@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2004
+# (c) Emmanuel Beffara, 2002--2005
 """
 LaTeX document building system for Rubber.
 
@@ -110,8 +110,8 @@ class Modules (Plugins):
 		self.env.msg(2, _("module %s registered") % name)
 
 		if self.commands.has_key(name):
-			for (cmd,arg) in self.commands[name]:
-				mod.command(cmd, arg)
+			for (cmd,args) in self.commands[name]:
+				mod.command(cmd, args)
 			del self.commands[name]
 
 		self.objects[name] = mod
@@ -125,17 +125,17 @@ class Modules (Plugins):
 		self.objects = {}
 		self.commands = {}
 
-	def command (self, mod, cmd, arg):
+	def command (self, mod, cmd, args):
 		"""
 		Send a command to a particular module. If this module is not loaded,
 		store the command so that it will be sent when the module is register.
 		"""
 		if self.objects.has_key(mod):
-			self.objects[mod].command(cmd, arg)
+			self.objects[mod].command(cmd, args)
 		else:
 			if not self.commands.has_key(mod):
 				self.commands[mod] = []
-			self.commands[mod].append((cmd,arg))
+			self.commands[mod].append((cmd,args))
 
 #---------------------------------------
 
@@ -435,8 +435,9 @@ class Environment (Depend):
 			if line[0] == "%":
 				m = re_command.match(string.rstrip(line))
 				if m.group("cmd"):
-					self.command(m.group("cmd"), m.group("arg"),
-						{ 'file' : path, 'line' : lineno } )
+					env = { 'file' : path, 'line' : lineno }
+					args = parse_line(m.group("arg"), env)
+					self.command(m.group("cmd"), args, env)
 				continue
 
 			# Otherwise we accumulate lines (with comments stripped) until
@@ -482,29 +483,30 @@ class Environment (Depend):
 
 			if dump: dump.write(line)
 
-	def command (self, cmd, arg, pos={}):
+	def command (self, cmd, args, pos={}):
 		"""
-		Execute the rubber command 'cmd' with argument 'arg'. This is called
+		Execute the rubber command 'cmd' with arguments 'args'. This is called
 		when a command is found in the source file or in a configuration file.
 		A command name of the form 'foo.bar' is considered to be a command
 		'bar' for module 'foo'. The argument 'pos' describes the position
 		(file and line) where the command occurs.
 		"""
 		if cmd == "clean":
-			self.removed_files.append(arg)
+			self.removed_files.extend(args)
 
 		elif cmd == "depend":
-			file = self.conf.find_input(arg)
-			if file:
-				self.sources[file] = DependLeaf([file], self.msg)
-			else:
-				self.msg.info(pos, _("dependency '%s' not found") % arg)
+			for arg in args:
+				file = self.conf.find_input(arg)
+				if file:
+					self.sources[file] = DependLeaf([file], self.msg)
+				else:
+					self.msg.info(pos, _("dependency '%s' not found") % arg)
 
 		elif cmd == "latex":
-			self.conf.latex = arg
+			if len(args) > 1:
+				self.conf.latex = args[0]
 
 		elif cmd == "module":
-			args = string.split(arg, maxsplit=1)
 			if len(args) == 0:
 				self.msg.info(pos, _("argument required for command 'module'"))
 			else:
@@ -514,7 +516,6 @@ class Environment (Depend):
 				self.modules.register(args[0], dict)
 
 		elif cmd == "onchange":
-			args = string.split(arg, maxsplit=1)
 			if len(args) < 2:
 				self.msg.info(pos, _("two arguments required for command 'onchange'"))
 			else:
@@ -526,33 +527,35 @@ class Environment (Depend):
 					self.onchange_md5[file] = None
 
 		elif cmd == "paper":
-			self.conf.paper.extend(string.split(arg))
+			if len(args) > 1:
+				self.conf.paper.extend(string.split(args[0]))
 
 		elif cmd == "path":
-			self.conf.path.append(expanduser(arg))
+			for arg in args:
+				self.conf.path.append(expanduser(arg))
 
 		elif cmd == "read":
-			try:
-				file = open(arg)
-				for line in file.readlines():
-					line = line.strip()
-					if line == "" or line[0] == "%":
-						continue
-					lst = string.split(line, maxsplit = 1)
-					if len(lst) == 1:
-						lst.append("")
-					self.command(lst[0], lst[1])
-				file.close()
-			except IOError:
-				self.msg.info(pos, _("cannot read option file %s") % arg)
+			for arg in args:
+				try:
+					file = open(arg)
+					for line in file.readlines():
+						line = line.strip()
+						if line == "" or line[0] == "%":
+							continue
+						lst = parse_line(line, pos)
+						self.command(lst[0], lst[1:])
+					file.close()
+				except IOError:
+					self.msg.info(pos, _("cannot read option file %s") % arg)
 
 		elif cmd == "watch":
-			self.watch_file(arg)
+			for arg in args:
+				self.watch_file(arg)
 
 		else:
 			lst = string.split(cmd, ".", 1)
 			if len(lst) > 1:
-				self.modules.command(lst[0], lst[1], arg)
+				self.modules.command(lst[0], lst[1], args)
 			else:
 				self.msg.info(pos, _("unknown directive '%s'") % cmd)
 
@@ -1217,7 +1220,7 @@ class Module (object):
 		to remove all the files that this modules generates.
 		"""
 
-	def command (self, cmd, arg):
+	def command (self, cmd, args):
 		"""
 		This is called when a directive for the module is found in the source.
 		"""

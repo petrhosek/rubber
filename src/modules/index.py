@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2004
+# (c) Emmanuel Beffara, 2004--2005
 """
 Indexing support with package 'index'.
 
@@ -66,18 +66,20 @@ class Index:
 		self.style = None
 		self.opts = []
 
-	def command (self, cmd, arg):
+	def command (self, cmd, args):
 		if cmd == "order":
-			for opt in arg.split():
+			for opt in args:
 				if opt == "standard": self.opts = []
 				elif opt == "german": self.opts.append("-g")
 				elif opt == "letter": self.opts.append("-l")
 				else: self.msg(1,
 					_("unknown option '%s' for 'makeidx.order'") % opt)
 		elif cmd == "path":
-			self.path.append(os.path.expanduser(arg))
+			for arg in args:
+				self.path.append(os.path.expanduser(arg))
 		elif cmd == "style":
-			self.style = arg
+			if len(args) > 1:
+				self.style = args[0]
 
 	def post_compile (self):
 		"""
@@ -166,16 +168,17 @@ class Module (rubber.Module):
 		self.indices[index] = Index(self.env, d["idx"], d["ind"])
 		self.env.msg(1, _("index %s registered") % index)
 
-	def command (self, cmd, arg):
+	def command (self, cmd, args):
 		indices = self.indices
-		m = re_optarg.match(arg)
-		if m:
-			for index in m.group("list").split(","):
-				if indices.has_key(index):
-					indices[index].command(cmd, arg[m.end():])
+		if len(args) > 0:
+			m = re_optarg.match(args[0])
+			if m:
+				for index in m.group("list").split(","):
+					if indices.has_key(index):
+						indices[index].command(cmd, args[1:])
 		else:
 			for index in indices.values():
-				index.command(cmd, arg)
+				index.command(cmd, args)
 
 	def post_compile (self):
 		for index in self.indices.values():

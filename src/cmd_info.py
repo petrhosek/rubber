@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2004
+# (c) Emmanuel Beffara, 2002--2005
 """
 This is the command line interface for the information extractor.
 """
@@ -144,7 +144,7 @@ actions:
 			cmd = string.split(cmd, maxsplit = 1)
 			if len(cmd) == 1:
 				cmd.append("")
-			env.command(cmd[0], cmd[1], {'file': 'command line'})
+			env.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 		self.env.parse()
 
@@ -152,7 +152,7 @@ actions:
 			cmd = string.split(cmd, maxsplit = 1)
 			if len(cmd) == 1:
 				cmd.append("")
-			env.command(cmd[0], cmd[1], {'file': 'command line'})
+			env.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 	def info_log (self, src, act):
 		"""

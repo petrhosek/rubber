@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2004
+# (c) Emmanuel Beffara, 2002--2005
 """
 BibTeX support for Rubber
 
@@ -68,11 +68,13 @@ class Module (rubber.Module):
 	# BibTeX uses.
 	#
 
-	def command (self, cmd, arg):
+	def command (self, cmd, args):
 		if cmd == "path":
-			self.bib_path.append(expanduser(arg))
+			for arg in args:
+				self.bib_path.append(arg)
 		elif cmd == "stylepath":
-			self.bst_path.append(expanduser(arg))
+			for arg in args:
+				self.bst_path.append(arg)
 
 	def add_db (self, name):
 		"""
