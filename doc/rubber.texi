@@ -452,6 +452,10 @@ contents.
 Adds the files included with @code{\verbatiminput} and similar macros to the
 list of dependencies.
 
+@item multibib
+Handles the extra bibliographies that this package creates, and removes the
+extra files on cleaning.
+
 @item natbib
 May cause an extra compilation to solve references.
 
