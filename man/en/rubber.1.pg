@@ -44,7 +44,7 @@ Some information cannot be extracted from the LaTeX sources. This is the case,
 for instance, with the search paths (which can be specified in environment
 variables like TEXINPUTS), or the style to be used with Makeindex. To address
 this problem, one can add information for Rubber in the comments of the LaTeX
-sources, see section Directives.
+sources, see section Directives.\br
 
 If one compilation fails, the whole process stops, including the compilation
 of the next documents on the command line, and \cmd(rubber) returns a non-zero

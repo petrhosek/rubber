@@ -79,7 +79,7 @@ The "toc" environment is used only in the web-page parts:
 \define(optarg, [\lbrack\em([$1])\rbrack])
 \define(dopt, [\arg([\dash[]$1])])
 \define(ddopt, [\arg([\ddash[]$1])])
-\define(cmd, [\bf([$1])])
+\define(cmd, [\bf([$1])\ifelse($2,,,($2))])
 \define(macro, [\\$1])
 
 \define(syntax, [.B [$1]

@@ -45,7 +45,7 @@ cas par exemple des chemins d'accès aux fichiers (qui peuvent être spécifiés
 par les variables d'environnement comme TEXINPUTS), ou encore le style d'index
 à utiliser avec Makeindex. Pour remédier à ce problème, il est possible
 d'ajouter de l'information pour Rubber dans les commentaires des sources
-LaTeX, voir pour celà la section Directives.
+LaTeX, voir pour celà la section Directives.\br
 
 Si une compilation échoue, l'ensemble du processus est interrompu, y compris
 la compilation des documents suivants sur la ligne de commande, et
@@ -94,7 +94,7 @@ compilation afin du produire une document PDF au lieu de DVI. Cette option est
 synonyme de \ddopt(module pdftex).])
 
 \item([\dash[]p, \ddash[]ps], [Traite le fichier DVI obtenu après compilation
-avec \cmd(dvips) afin de produire un document PostScript. Cette option est
+avec \cmd(dvips, 1) afin de produire un document PostScript. Cette option est
 synonyme de \ddopt(module dvips), elle est naturellement incompatible avec
 \ddopt(pdf).])
 
@@ -131,12 +131,12 @@ lorsque c'est nécessaire. Ce module est chargé automatiquement lorsque le
 document contient la macro \macro(bibliography) (voir aussi dans "Directives"
 pour les options).])
 
-\item(cweb, [Ce module sert à exécuter \cmd(cweave) si nécessaire avant le
+\item(cweb, [Ce module sert à exécuter \cmd(cweave, 1) si nécessaire avant le
 processus de compilation pour produire le source LaTeX. Ce module est chargé
 automatiquement si le fichier spécifié sur la ligne de commande a \tt(.w) pour
 suffixe.])
 
-\item(dvips, [Lance \cmd(dvips) à la fin de la compilation pour produire un
+\item(dvips, [Lance \cmd(dvips, 1) à la fin de la compilation pour produire un
 document PostScript. Ce module est aussi chargé par l'option de ligne de
 commande \ddopt(ps).])
 
@@ -144,13 +144,13 @@ commande \ddopt(ps).])
 inclus par le document et de les considèrent comme des dépendances à la
 compilation. Ils utilisent en plus certaines règles pour construire ces
 fichiers. Les règles actuelles incluent la conversion de figures EPS en PDF
-avec \cmd(epstopdf)(1), la conversion de figures produites par Xfig vers EPS,
-PDF ou PNG avc \cmd(fig2dev)(1), la compilation de sources Metapost (avec
-\cmd(mpost)(1)), et l'extraction d'information de taille des figures EPS
+avec \cmd(epstopdf, 1), la conversion de figures produites par Xfig vers EPS,
+PDF ou PNG avc \cmd(fig2dev, 1), la compilation de sources Metapost (avec
+\cmd(mpost, 1)), et l'extraction d'information de taille des figures EPS
 compressées.])
 
-\item(makeidx, [Traite l'index du document avec \cmd(makeindex) lorsque c'est
-nécessaire (voir dans "Directives" pour les options).])
+\item(makeidx, [Traite l'index du document avec \cmd(makeindex, 1) lorsque
+c'est nécessaire (voir dans "Directives" pour les options).])
 
 \item([minitoc, minitoc-hyper], [Lors du nettoyage, supprime les fichiers
 supplémentaires produits pour la construction de tables des matières
@@ -159,8 +159,8 @@ partielles.])
 \item(natbib, [Peut lancer une compilation supplémentaire pour résoudre des
 références.])
 
-\item(pdftex, [Indique à Rubber d'utiliser \cmd(pdflatex) au lieu de
-\cmd(latex) pour compiler le document afin de produire un PDF au lieu d'un
+\item(pdftex, [Indique à Rubber d'utiliser \cmd(pdflatex, 1) au lieu de
+\cmd(latex, 1) pour compiler le document afin de produire un PDF au lieu d'un
 DVI. Ce module est aussi chargé par l'option de ligne de commande
 \ddopt(pdf).])
 
