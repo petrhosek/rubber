@@ -11,6 +11,7 @@ import os, sys, posix
 from os.path import *
 import re
 import string
+import thread
 
 from rubber.util import *
 
@@ -764,14 +765,15 @@ class Environment:
 				self.watched_files[suffix] = new
 		return changed
 
-	def execute (self, prog, env={}):
+	def execute (self, prog, env={}, out=None):
 		"""
 		Silently execute an external program. The `prog' argument is the list
 		of arguments for the program, `prog[0]' is the program name. The `env'
 		argument is a dictionary with definitions that should be added to the
-		environment when running the program. The output is dicarded, but
-		messages from Kpathsea are processed (to indicate e.g. font
-		compilation).
+		environment when running the program. The standard output is passed
+		line by line to the `out' function (or discarded by default). The
+		error output is parsed and messages from Kpathsea are processed (to
+		indicate e.g. font compilation).
 		"""
 		self.msg(1, _("executing: %s") % string.join(prog))
 		if env != {}:
@@ -808,7 +810,31 @@ class Environment:
 
 		os.close(f_out_w)
 		os.close(f_err_w)
+		f_out = os.fdopen(f_out_r)
 		f_err = os.fdopen(f_err_r)
+
+		# If the external program writes a lot of data on both its standard
+		# output and standard error streams, we might fall into a deadlock,
+		# waiting for input one one while the programs fills the other's
+		# buffer. To solve this, we add a thread to read on the program's
+		# standard output. The thread simply discards this output unless the
+		# optional 
+
+		def reader (file, out):
+			if out:
+				while 1:
+					line = file.readline()
+					if line == "": break
+					out(line)
+			else:
+				while file.readline() != "": pass
+			file.close()
+			
+		thread.start_new_thread(reader, (f_out, out))
+
+		# At this point, all we have to do is read lines from the error stream
+		# and parse them for relevant messages.
+
 		while 1:
 			line = f_err.readline()
 			if line == "": break
@@ -827,7 +853,6 @@ class Environment:
 		# code.
 
 		(p, ret) = os.waitpid(pid, 0)
-		os.close(f_out_r)
 		f_err.close()
 		self.msg(3, _("process %d (%s) returned %d") % (pid, prog[0], ret))
 

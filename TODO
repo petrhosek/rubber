@@ -10,6 +10,8 @@ Improvements:
 - let modules that need external programs look for them and fail to load if
   these program are not found
 
+- parse BibTeX log files to make errors explicit
+
 - specify clearly what kind of messages each verbosity level is for
 
 - study the status of the Message class and the way to change the output

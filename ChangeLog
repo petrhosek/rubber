@@ -1,5 +1,9 @@
 2002-11-13  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py: Modified the execute method so that it reads
+	the standard output of the external program (thus avoiding possible
+	deadlocks and allowing for output redirection).
+
 	* rubber.in, man/:  Added a relevant return code to the command-line.
 
 	* src/cmdline.py, src/__init__.py: Moved the report of compilation
