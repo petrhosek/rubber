@@ -255,6 +255,21 @@ Beware, saying @option{-vvv} makes Rubber speak a lot.
 
 @item --version
 Print the version number and exit nicely.
+
+@item -W <type>
+@itemx --warn <type>
+Report warnings of the given type, if there was no compilation error. The
+available types are:
+@table @option
+@item boxes
+overfull and underfull boxes,
+@item refs
+undefined references,
+@item misc
+other warnings,
+@item all
+all of the above.
+@end table
 @end table
 
 @node rubber-info command line, Directives, rubber command line, Invoking

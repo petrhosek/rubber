@@ -66,17 +66,18 @@ available options:
   -s, --short              display errors in a compact form
   -I, --texpath=DIR        add DIR to the search path for LaTeX
   -v, --verbose            increase verbosity
-      --version            print version information and exit\
+      --version            print version information and exit
+  -W, --warn=TYPE          report warnings of the given TYPE (see man page)\
 """) % version)
 
 	def parse_opts (self, cmdline, short="", long=[]):
 		try:
 			opts, args = getopt(
-				cmdline, "I:c:de:fhklm:n:o:pqr:svz" + short,
+				cmdline, "I:c:de:fhklm:n:o:pqr:svW:z" + short,
 				["clean", "command=", "epilogue=", "force", "gzip", "help",
 				 "keep", "landcape", "maxerr=", "module=", "post=", "pdf",
 				 "ps", "quiet", "read=", "short", "texpath=", "verbose",
-				 "version"] + long)
+				 "version", "warn="] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -127,6 +128,18 @@ available options:
 				print "Rubber version: " + version
 				print "module path: " + moddir
 				sys.exit(0)
+			elif opt in ("-W", "--warn"):
+				self.warn = 1
+				if arg == "all":
+					self.warn_boxes = 1
+					self.warn_misc = 1
+					self.warn_refs = 1
+				if arg == "boxes":
+					self.warn_boxes = 1
+				elif arg == "misc":
+					self.warn_misc = 1
+				elif arg == "refs":
+					self.warn_refs = 1
 
 			elif arg == "":
 				extra.append(opt)
@@ -146,7 +159,14 @@ available options:
 		self.epilogue = []
 		self.clean = 0
 		self.force = 0
+
+		self.warn = 0
+		self.warn_boxes = 0
+		self.warn_misc = 0
+		self.warn_refs = 0
+
 		args = self.parse_opts(cmdline)
+
 		msg.log(_("This is Rubber version %s.") % version)
 
 		for src in args:
@@ -179,27 +199,42 @@ available options:
 
 			if self.clean:
 				env.final.clean()
-			else:
-				if self.force:
-					ret = env.main.make(1)
-					if ret != 0:
-						ret = env.final.make()
-					else:
-						# This is a hack for the call to show_errors() below
-						# to work when compiling failed when using -f.
-						env.final.failed_dep = env
-				else:
-					ret = env.final.make(self.force)
+				return 0
 
-				if ret == 1:
-					msg.info(_("nothing to be done for %s") % src)
-				elif ret == 0:
-					msg.info(_("There were errors compiling %s.") % src)
-					try:
-						env.final.failed().show_errors()
-					except MoreErrors:
-						msg.info(_("More errors."))
+			if self.force:
+				ret = env.main.make(1)
+				if ret != 0:
+					ret = env.final.make()
+				else:
+					# This is a hack for the call to show_errors() below
+					# to work when compiling failed when using -f.
+					env.final.failed_dep = env.main
+			else:
+				ret = env.final.make(self.force)
+
+			if ret == 0:
+				msg.info(_("There were errors compiling %s.") % src)
+				try:
+					env.final.failed().show_errors()
+				except MoreErrors:
+					msg.info(_("More errors."))
+				return 1
+
+			if ret == 1:
+				msg.info(_("nothing to be done for %s") % src)
+
+			if self.warn:
+				log = env.main.log
+				self.max_errors = -1
+				if log.read(env.main.src_base + ".log"):
+					msg.error(_("cannot read the log file"))
 					return 1
+				if self.warn_boxes:
+					log.show_boxes()
+				if self.warn_refs:
+					log.show_references()
+				if self.warn_misc:
+					log.show_warnings()
 
 		return 0
 

@@ -929,7 +929,7 @@ class LaTeXDep (Depend):
 	#--  Building routine  {{{2
 
 	def force_run (self):
-		self.run(1)
+		return self.run(1)
 
 	def run (self, force=0):
 		"""
