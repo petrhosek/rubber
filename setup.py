@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # This is the setup script for Rubber. It acts both as a part of the
-# configuration script à la autoconf and as a setup script à la Distutils.
+# configuration script a la autoconf and as a setup script a la Distutils.
 #
 # As the rest of Rubber, this script is covered by the GPL (see COPYING).
 # (c) Emmanuel Beffara, 2002
