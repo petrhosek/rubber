@@ -1,0 +1,4 @@
+include *.in
+include configure
+include README
+recursive-include man *.1

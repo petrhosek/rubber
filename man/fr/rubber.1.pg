@@ -1,0 +1,109 @@
+\dnl (Ce fichier est sujet à la GPL en tant qu'élément de Rubber)
+\init(manpage, fr)
+\title(rubber)
+\man_descr(un système de compilation de documents LaTeX)
+\man_section(1)
+\part(menu)
+
+\link(la page de Rubber, rubber.html) \br
+\link(m'envoyer un mail, mailto:emmanuel@beffara.org)
+
+\part(front)
+
+\begin(subtitle)
+\section(1, [Rubber])
+docmentation pour la version 0.99
+\end(subtitle)
+
+\begin(intro)
+  Ceci est la page de manuel de Rubber. Un jour, il faudra que je fasse une
+  documentation plus fournie, en particulier pour expliquer comment créer des
+  modules pour accompagner des packages.
+\end(intro)
+
+\part(main)
+
+\section(2, Synopsis)
+
+\syntax(rubber, [\optarg(options) \arg(commande) \optarg(argument)])
+
+\section(2, Description)
+
+Rubber est un emballage autour de LaTeX est des programmes associés. Son but
+est, étant donné un fichier source LaTeX, de le compiler tant que nécessaire
+et d'exécuter des programmes annexes comme BibTeX ou makeindex pour produire
+des fichiers de données si besoin est.\br
+
+L'action par défaut consiste à construire complètement le document spécifié.
+Le source passé en argument peut être soit un source LaTeX (auquel cas le
+suffixe \tt(.tex) peut être omis), soit un fichier dans un format que Rubber
+sait traduire vers LaTeX (pour le moment, cela signifie un source CWEB).
+
+\section(2, Options)
+
+Les options servent soit à choisir l'action à effectuer, soit à configurer le
+processus de compilation. Le options sont lues selon les conventions à la GNU
+Getopt.
+
+\begin(description)
+
+\item([\ddash[]clean], [Efface tous les fichiers produits par la compilation
+au lieu de construire le document. Ceci considère la compilation qui aurait eu
+lieu avec les autres arguments, c'est-à-dire que 
+\begin(example)
+rubber --clean toto
+\end(example)
+d'effacera pas \tt(toto.ps), alors que
+\begin(example)
+rubber --ps --clean toto
+\end(example)
+le fera.])
+
+\item([\dash[]h, \ddash[]help], [Affiche la liste de toutes les options
+disponibles et quitte.])
+
+\item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
+[Utilise le module spécifié en plus des packages du document. Des arguments
+peuvent être passés au module en les ajoutant après un signe deux-points, ils
+correspondent aux options du package dans LaTeX.])
+
+\item([\dash[]d, \ddash[]pdf], [Utilise pdfLaTeX au lieu de LaTeX pour la
+compilation afin du produire une document PDF au lieu de DVI. Cette option est
+synonyme de \ddopt(module pdftex).])
+
+\item([\dash[]p, \ddash[]ps], [Traite le fichier DVI obtenu après compilation
+par la commande \cmd(make) avec \cmd(dvips) afin de produire un document
+PostScript. Cette option est synonyme de \ddopt(module dvips), elle est
+naturellement incompatible avec \ddopt(pdf).])
+
+\item([\dash[]q, \ddash[]quiet], [Supprime les messages affichés en cours
+d'exécution.])
+
+\item([\dash[]v, \ddash[]verbose], [Incrémente le degré de détail dans les
+messages affichés. Le niveau par défaut est 0, les niveaux existent jusqu'à 3.
+Attention, dire \dopt(vvv) rend Rubber très bavard.])
+
+\item([\ddash[]version], [Affiche le numéro de version et termine.])
+
+\end(description)
+
+\part(man)
+
+\section(2, Bugs)
+
+Il y en a surement quelques uns...\br
+
+Rubber et cette documentation sont maintenus par
+\link(Emmanuel Beffara, emmanuel@beffara.org).
+La page web du programme se trouve à
+http://beffara.org/stuff/rubber.html.
+
+\section(2, Voir aussi)
+
+\manref(latex, 1),
+\manref(pdflatex, 1),
+\manref(bibtex, 1),
+\manref(dvips, 1),
+\manref(texexec, 1)
+
+\bye

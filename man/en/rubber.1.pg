@@ -1,0 +1,109 @@
+\dnl (This file is covered by the GPL as part of Rubber.)
+\init(manpage, en)
+\title(rubber)
+\man_descr(a building system for LaTeX documents)
+\man_section(1)
+\part(menu)
+
+\link(Rubber homepage, rubber.html) \br
+\link(send me a mail, mailto:emmanuel@beffara.org)
+
+\part(front)
+
+\begin(subtitle)
+\section(1, [Rubber])
+documentation for version 0.99
+\end(subtitle)
+
+\begin(intro)
+  This is the man page for Rubber. One day, I will have to make a real
+  documentation, for instance to explain how to make modules to support
+  packages.
+\end(intro)
+
+\part(main)
+
+\section(2, Synopsis)
+
+\syntax(rubber, [\optarg(options) \arg(source)])
+
+\section(2, Description)
+
+Rubber is a wrapper for LaTeX and companion programs. Its purpose is, given a
+LaTeX source to process, to compile it enough times to resolve all references,
+possibly running satellite programs such as BibTeX or makeindex to produce
+appropriate data files.\br
+
+The default action is to build the specified document completely. The source
+file may be either a LaTeX source (in which case the suffix \tt(.tex) may be
+omitted) or a document in a format Rubber knows how to translate to LaTeX (this
+currently means a CWEB document).
+
+\section(2, Options)
+
+The options are used either to choose the action to be performed or to
+configure the building process. Options are parsed using GNU Getopt
+conventions.
+
+\begin(description)
+
+\item([\ddash[]clean], [Remove all files produced by the compilation, instead
+of building the document. This applies to the compilation as it would be done
+with the other options of the command line, i.e. saying
+\begin(example)
+rubber --clean foo
+\end(example)
+will not delete \tt(foo.ps), while saying
+\begin(example)
+rubber --ps --clean foo
+\end(example)
+will.])
+
+\item([\dash[]h, \ddash[]help], [Display the list of all available options
+and exit nicely.])
+
+\item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
+[Use the specified module in addition to the document's packages. Arguments
+can be passed to the package by adding them after a colon, they correspond to
+the package options in LaTeX.])
+
+\item([\dash[]d, \ddash[]pdf], [Use pdfLaTeX instead of LaTeX in order to
+produce PDF output instead of DVI. This option is a synonym for
+\ddopt(module pdftex).])
+
+\item([\dash[]p, \ddash[]ps], [Process the DVI produced by the process
+through \cmd(dvips) to produce a PostScript document. This option is a synonym
+for \ddopt(module dvips), it is naturally incompatible with \ddopt(pdf).])
+
+\item([\dash[]q, \ddash[]quiet], [Suppress all messages during the process.])
+
+\item([\dash[]o, \ddash[]readopts \narg(file)], [Read additional options form
+the specified file.])
+
+\item([\dash[]v, \ddash[]verbose], [Increase the verbosity level. The default
+level is 0, levels up to 3 exist. Beware, saying \dopt(vvv) makes Rubber speak
+a lot.])
+
+\item([\ddash[]version], [Print the version number and exit nicely.])
+
+\end(description)
+
+\part(man)
+
+\section(2, Bugs)
+
+There are surely a some...\br
+
+Rubber and this man-page are maintained by
+\link(Emmanuel Beffara, emmanuel@beffara.org).
+The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
+
+\section(2, See also)
+
+\manref(latex, 1),
+\manref(pdflatex, 1),
+\manref(bibtex, 1),
+\manref(dvips, 1),
+\manref(texexec, 1)
+
+\bye

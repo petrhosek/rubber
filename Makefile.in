@@ -1,0 +1,40 @@
+# This is the makefile for Rubber.
+# As part of Rubber, it is covered by the GPL (see COPYING for details).
+# (c) Emmanuel Beffara, 2002
+
+prefix = @prefix@
+bindir = @bindir@
+moddir = @moddir@
+mandir = @mandir@
+
+###  standard targets
+
+# The conditionals about man/Makefile are useful because this file is present
+# in the CVS version only.
+
+all:
+ifneq ($(wildcard man/Makefile),)
+	@make -C man all
+endif
+	python setup.py build
+
+clean:
+	rm -rf build dist MANIFEST
+	find \( -name '*~' -or -name '*.py[co]' \) -exec rm {} \;
+
+distclean: clean
+ifneq ($(wildcard man/Makefile),)
+	@make -C man clean
+endif
+	rm -f Makefile rubber settings.py
+
+install:
+	python setup.py inst ${prefix}
+
+###  distribution-related targets
+
+dist:
+ifneq ($(wildcard man/Makefile),)
+	@make -C man all
+endif
+	python setup.py sdist
