@@ -13,6 +13,7 @@ from rubber.util import *
 
 re_input = re.compile("input +(?P<file>[^ ]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
+re_mpext = re.compile("[0-9]+|mpx|log")
 
 def _ (txt): return txt
 
@@ -84,6 +85,22 @@ class Dep (Depend):
 		log.close()
 		return error
 
+	def clean (self):
+		"""
+		This method removes all the files that the Metapost compilation may
+		have created. It is required because the compilation may produce more
+		files than just the figures used by the document.
+		"""
+		base = self.base + "."
+		ln = len(base)
+		for file in os.listdir("."):
+			if file[:ln] == base:
+				ext = file[ln:]
+				m = re_mpext.match(ext)
+				if m and ext[m.end():] == "":
+					self.env.msg(3, _("removing %s") % file)
+					os.unlink(file)
+
 # The `files' dictionary associates dependency nodes to MetaPost sources. It
 # is used to detect when several figures from the same source are included. It
 # uses a global variable, and this is authentically BAD. Therefore it deserves
@@ -95,7 +112,10 @@ files = {}
 
 def convert (source, target, env):
 	if files.has_key(source):
-		files[source].prods.append(target)
+		dep = files[source]
+		dep.prods.append(target)
 	else:
-		files[source] = Dep(target, source, env)
-	return files[source]
+		dep = Dep(target, source, env)
+		files[source] = dep
+		env.cleaning_process.append(dep.clean)
+	return dep
