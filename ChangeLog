@@ -1,3 +1,7 @@
+2004-08-27  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/cmdline.py: Added option --maxerr.
+
 2004-07-25  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/moreverb.py: Bugfix in \listinginput.

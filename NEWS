@@ -2,13 +2,14 @@ Version 0.99.8 (CVS)
 
   Features:
     - Support for e-TeX and Omega.
-	- Support for package "index".
+    - Support for package "index".
     - New directive "onchange".
-	- Support for \includeonly.
+    - Support for \includeonly.
+    - Option --maxerr to display only the first errors.
 
   Bugfixes:
     - Portability improvement (for Cygwin and hopefully others).
-	- Improved the semantics of directives.
+    - Improved the semantics of directives.
 
 Version 0.99.7 (2004-02-20)
 

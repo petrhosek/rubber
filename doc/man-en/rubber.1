@@ -96,6 +96,12 @@ use landscape orientation. This is relevant only when using
 or
 .BR dvipdfm .
 .TP
+.BI \-n,\ \-\-maxerr \ <num>
+Set the maximum number of displayed errors. By default, up to 10 errors are
+reported, saying
+.I \-n -1
+displays all errors.
+.TP
 .BI \-m,\ \-\-module \ <module> [: <args> ]
 Use the specified module in addition to the document's packages. Arguments
 can be passed to the package by adding them after a colon, they correspond to

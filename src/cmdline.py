@@ -13,6 +13,14 @@ from rubber import _
 from rubber import *
 from rubber.version import *
 
+class MoreErrors:
+	"""
+	This exception is raised when the maximum number of displayed errors is
+	reached.
+	"""
+	def __init__ (self, where):
+		self.where = where
+
 class Message (Message):
 	"""
 	This class defines a message writer that outputs the messages on standard
@@ -28,6 +36,7 @@ class Message (Message):
 		self.level = level
 		self.short = short
 		self.write = self.do_write
+		self.max_errors = 10
 
 	def do_write (self, level, text):
 		if level <= self.level:
@@ -39,7 +48,7 @@ class Message (Message):
 	def format_pos (self, where):
 		if where.has_key("file"):
 			text = simplify_path(where["file"])
-			if where.has_key("line"):
+			if where.has_key("line") and where["line"]:
 				text = "%s:%d" % (text, where["line"])
 				if where.has_key("last"):
 					if where["last"] != where["line"]:
@@ -50,6 +59,9 @@ class Message (Message):
 		return text
 
 	def error (self, where, text, code=None):
+		self.max_errors = self.max_errors - 1
+		if self.max_errors == -1:
+			raise MoreErrors(where)
 		prefix = self.format_pos(where) + ": "
 		if text[0:13] == "LaTeX Error: ":
 			text = text[13:]
@@ -99,6 +111,7 @@ available options:
   -z, --gzip               compress the final document
   -h, --help               display this help
   -l, --landscape          change paper orientation (if relevant)
+  -n, --maxerr=NUM         display at most NUM errors (default: 10)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
   -o, --post=MOD[:OPTS]    postprocess with module MOD (with options OPTS)
   -d, --pdf                compile with pdftex (synonym for -m pdftex)
@@ -114,10 +127,11 @@ available options:
 	def parse_opts (self, cmdline, short="", long=[]):
 		try:
 			opts, args = getopt(
-				cmdline, "I:c:de:fhklm:o:pqr:svz" + short,
+				cmdline, "I:c:de:fhklm:n:o:pqr:svz" + short,
 				["clean", "command=", "epilogue=", "force", "gzip", "help",
-				 "keep", "landcape", "module=", "post=", "pdf", "ps", "quiet",
-				 "read=", "short", "texpath=", "verbose", "version"] + long)
+				 "keep", "landcape", "maxerr=", "module=", "post=", "pdf",
+				 "ps", "quiet", "read=", "short", "texpath=", "verbose",
+				 "version"] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -142,6 +156,8 @@ available options:
 				self.clean = 0
 			elif opt in ("-l", "--landscape"):
 				self.prologue.append("paper landscape")
+			elif opt in ("-n", "--maxerr"):
+				self.msg.max_errors = int(arg)
 			elif opt in ("-m", "--module"):
 				self.prologue.append("module " +
 					string.replace(arg, ":", " ", 1))
@@ -238,7 +254,11 @@ available options:
 					if not self.msg.short:
 						self.msg(1, _("There were errors compiling %s.")
 							% env.source())
-					env.final.failed().show_errors()
+					try:
+						env.final.failed().show_errors()
+					except MoreErrors, e:
+						self.msg(0, _("More errors in %s.") %
+							simplify_path(e.where["file"]))
 					return 1
 
 		return 0

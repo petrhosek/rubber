@@ -202,6 +202,11 @@ on standard output. The temporary document is named @file{rubtmpX.tex}, where
 Specify that the final document should use landscape orientation. This is
 relevant only when using @command{dvips} or @command{dvipdfm}.
 
+@item -n <num>
+@itemx --maxerr <num>
+Set the maximum number of displayed errors. By default, up to 10 errors are
+reported, saying @option{-n -1} displays all errors.
+
 @item -m <module>[:<args>]
 @itemx --module <module>[:<args>]
 Use the specified module in addition to the document's packages. Arguments
