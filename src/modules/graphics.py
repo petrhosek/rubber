@@ -18,10 +18,9 @@ import os
 from os.path import *
 import string
 
+from rubber import _
 import rubber.util
 import rubber.graphics
-
-def _ (txt): return txt
 
 # default suffixes for each device driver (taken from the .def files)
 

@@ -7,7 +7,7 @@ PostScript generation through dvips with Rubber.
 import sys
 from os.path import *
 
-def _ (txt): return txt
+from rubber import _
 
 class Module:
 	def __init__ (self, env, dict):

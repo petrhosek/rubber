@@ -11,10 +11,8 @@ import re
 import string
 import sys
 
+from rubber import _
 from rubber.util import *
-
-def _ (txt):
-	return txt
 
 re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 

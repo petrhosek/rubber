@@ -9,7 +9,7 @@ needed.
 
 from os.path import *
 
-def _ (txt): return txt
+from rubber import _
 
 class Module:
 	def __init__ (self, env, dict):

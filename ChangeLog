@@ -1,6 +1,9 @@
 2002-11-14  Emmanuel Beffara  <manu@beffara.org>
 
-	* src/__init__.py: Fixed error line number matching.
+	* all: Centralized the definition of _ in the main module to
+	prepare for proper gettextization.
+
+	* src/__init__.py: Fixed an error in line number matching.
 
 2002-11-13  Emmanuel Beffara  <manu@beffara.org>
 

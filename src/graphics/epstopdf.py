@@ -4,9 +4,8 @@
 Conversion of EPS graphics into PDF.
 """
 
+from rubber import _
 from rubber.util import *
-
-def _ (txt): return txt
 
 class Dep (Depend):
 	def __init__ (self, target, source, env):

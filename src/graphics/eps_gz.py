@@ -4,12 +4,11 @@
 Extraction of bounding box information from gzipped PostScript figures.
 """
 
+from rubber import _
 from rubber.util import *
 
 from gzip import GzipFile
 import re
-
-def _ (txt): return txt
 
 re_bbox = re.compile("%[%\w]*BoundingBox:")
 

@@ -9,11 +9,10 @@ from getopt import *
 import string
 from os.path import *
 
+from rubber import _
 from rubber import *
 from rubber.info import *
 from rubber.version import *
-
-def _ (txt) : return txt
 
 class Main:
 	def __init__ (self):

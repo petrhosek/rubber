@@ -8,10 +8,9 @@ import sys
 import os.path
 from getopt import *
 
+from rubber import _
 from rubber import *
 from rubber.version import *
-
-def _ (txt) : return txt
 
 class Main:
 	def __init__ (self):
@@ -41,7 +40,7 @@ available options:
   -h / --help    = display this help
   -m / --module <mod>[:<options>] =
                    use a specific module (with the given options)
-  -d / --pdf     = produce PDF output instead of dvi (synonym for -m pdftex)
+  -d / --pdf     = produce PDF output instead of DVI (synonym for -m pdftex)
   -p / --ps      = produce a PostScript document (synonym for -m dvips)
   -q / --quiet   = suppress messages
   -o / --readopts <file> =

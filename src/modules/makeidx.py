@@ -10,9 +10,8 @@ between two runs, in order to detect modifications.
 
 import os
 
+from rubber import _
 from rubber.util import *
-
-def _ (txt): return txt
 
 class Module:
 	def __init__ (self, env, dict):

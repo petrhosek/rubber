@@ -15,6 +15,7 @@ import thread
 
 from rubber.util import *
 
+# The function `_' is defined here to prepare for internationalization.
 def _ (txt): return txt
 
 #---------------------------------------
@@ -417,12 +418,12 @@ class Environment:
 		This method is called when an included file is processed. The argument
 		must be a valid file name.
 		"""
-		self.msg(2, "parsing " + path)
+		self.msg(2, _("parsing %s") % path)
 		file = open(path)
 		self.depends[path] = DependLeaf([path])
 		self.do_process(file)
 		file.close()
-		self.msg(3, "end of " + path)
+		self.msg(3, _("end of %s") % path)
 
 	def update_seq (self):
 		"""

@@ -8,8 +8,6 @@ import re
 import string
 from rubber import *
 
-def _ (txt): return txt
-
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_hvbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
 re_reference = re.compile("LaTeX Warning: (?P<msg>Reference .*)")

@@ -8,9 +8,8 @@ The xr package allows one to put references in one document to other
 file, so this support package registers these files as dependencies.
 """
 
+from rubber import _
 from rubber.util import DependLeaf
-
-def _ (txt): return txt
 
 class Module:
 	def __init__ (self, env, dict):

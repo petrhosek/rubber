@@ -4,11 +4,10 @@
 Conversion of XFig graphics into various formats.
 """
 
+from rubber import _
 from rubber.util import *
 
 import string
-
-def _ (txt): return txt
 
 class Dep (Depend):
 	def __init__ (self, target, source, env):

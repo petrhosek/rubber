@@ -14,7 +14,7 @@ TODO: handle the shortext option
 import os, os.path
 import re
 
-def _ (txt): return txt
+from rubber import _
 
 re_tocext = re.compile("[mps](tc|l[ft])[0-9]+")
 

@@ -9,13 +9,12 @@ Metapost's log files after the process. Is it enough?
 
 import re
 
+from rubber import _
 from rubber.util import *
 
 re_input = re.compile("input +(?P<file>[^ ]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 re_mpext = re.compile("[0-9]+|mpx|log")
-
-def _ (txt): return txt
 
 class Dep (Depend):
 	"""
