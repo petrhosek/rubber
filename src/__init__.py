@@ -862,6 +862,7 @@ class Environment (Depend):
 
 		for mod in self.modules.objects.values():
 			if mod.post_compile():
+				self.failed_dep = mod
 				return 1
 		return 0
 
