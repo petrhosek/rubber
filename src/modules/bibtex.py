@@ -35,7 +35,7 @@ class Module:
 		self.run_needed = 0
 
 		bbl = env.process.src_pbase + ".bbl"
-		env.process.depends[bbl] = DependLeaf([bbl])
+		#env.process.depends[bbl] = DependLeaf([bbl])
 		env.process.ext_building.append(self.first_bib)
 		env.process.compile_process.append(self.check_bib)
 		env.process.cleaning_process.append(self.clean)
