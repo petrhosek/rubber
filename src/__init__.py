@@ -212,7 +212,7 @@ class LogCheck:
 		pos = ["(no file)"]
 		last_file = None
 		showing = 0    # 1 if we are showing an error's text
-		skipping = 0   # 1 if we are skipping text until a new line
+		skipping = 0   # 1 if we are skipping text until an empty line
 		something = 0  # 1 if some error was displayed
 		for line in self.lines:
 			line = line.rstrip()
@@ -225,8 +225,6 @@ class LogCheck:
 				if line[0:2] == "l." or line[0:3] == "***":
 					showing = 0
 					skipping = 1
-				else:
-					self.update_file(line, pos)
 			elif line[0] == "!":
 				if pos[-1] != last_file:
 					last_file = pos[-1]
