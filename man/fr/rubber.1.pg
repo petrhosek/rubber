@@ -141,6 +141,9 @@ nécessaire.])
 supplémentaires produits pour la construction de tables des matières
 partielles.])
 
+\item(natbib, [Peut lancer une compilation supplémentaire pour résoudre des
+références.])
+
 \item(pdftex, [Indique à Rubber d'utiliser \cmd(pdflatex) au lieu de
 \cmd(latex) pour compiler le document afin de produire un PDF au lieu d'un
 DVI. Ce module est aussi chargé par l'option de ligne de commande

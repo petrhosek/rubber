@@ -16,11 +16,12 @@ following methods of the environment:
 
   add_hook(name, fun)
     The function `fun' will be called when the macro of the given name is
-    found. This functions recieves as argument a dictionary that describes the
+    found. This function recieves as argument a dictionary that describes the
     macro call with the following keys:
       name = the name of the macro
       opt = the optional argument or None
-      arg = the first argument or None
+      arg = the first argument (if it doesn't contains any brace) or None
+      line = the rest of the line where the macro occurs
 
 The following member data of the environment can also be modified:
 

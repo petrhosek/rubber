@@ -1,5 +1,7 @@
 2003-03-11  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/natbib.py man/...: Added support for package natbib.
+
 	* src/graphics/mpost.py: Fixed the execution rule for compiling in
 	different directories.
 

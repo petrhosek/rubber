@@ -4,6 +4,7 @@ Version 0.99.6
     - Handling of \graphicspath.
     - Parsing of MetaPost log files for errors.
     - Automatic JPEG to EPS conversion (with jpeg2ps).
+    - Support for package "natbib".
 
   Bugfixes:
     - The action "--deps" in rubber-info now lists each dependency only once.

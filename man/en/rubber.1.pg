@@ -136,6 +136,8 @@ needed.])
 \item([minitoc, minitoc-hyper], [On cleaning, remove additional files that
 produced to make partial tables of contents.])
 
+\item(natbib, [May cause an extra compilation to solve references.])
+
 \item(pdftex, [Instructs Rubber to use \cmd(pdflatex) instead of \cmd(latex)
 to compile the document into a PDF instead of a DVI. This module is also
 loaded by the command line option \ddopt(pdf).])
