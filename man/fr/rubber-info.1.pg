@@ -1,0 +1,92 @@
+\dnl (Ce fichier est sujet à la GPL en tant qu'élément de Rubber)
+\init(manpage, fr)
+\title(rubber-info)
+\man_descr(extraction d'information de documents LaTeX)
+\man_section(1)
+\part(menu)
+
+\link(la page de Rubber, rubber.html) \br
+\link(m'envoyer un mail, mailto:emmanuel@beffara.org)
+
+\part(front)
+
+\begin(subtitle)
+\section(1, [Rubber-Info])
+docmentation pour la version 0.99
+\end(subtitle)
+
+\part(main)
+
+\section(2, Synopsis)
+
+\syntax(rubber-info, [\optarg(options) \arg(commande) \arg(source)])
+
+\section(2, Description)
+
+Rubber-info est un utilitaire destiné à extraire divers types d'information
+d'un document LaTeX. L'information peut être tirée des sources (par exemple
+pour l'analyse de dépendances) ou des logs de compilation (pour extraire
+erreurs et avertissements). Cet utilitaire est un complément au système de
+compilation
+\manref(rubber, 1).
+
+\section(2, Actions)
+
+Exactement une des options de ligne de commande suivantes doit être spécifiée,
+afin de choisir quel information extraire. Bien entendu, les actions qui
+extraient des informations des logs ne peuvent êtres effectuées que si une
+compilation a effectivement eu lieu.
+
+\begin(description)
+
+\item([\ddash[]boxes], [Extrait du fichier log les emplacements dans le source
+où la compilation a produit des boîtes mal construites (ce sont les fameux
+overfull et underfull \macro(hbox) et \macro(vbox)).])
+
+\item([\ddash[]deps], [Analyse les sources et produit des règles de dépendance
+à la Makefile (sans commande de construction).])
+
+\item([\ddash[]errors], [Extrait du fichier log la liste des erreurs qui sont
+survenues durant la dernière compilation.])
+
+\end(description)
+
+\section(2, Options)
+
+\begin(description)
+
+\item([\dash[]h, \ddash[]help], [Affiche la liste de toutes les options
+disponibles et quitte.])
+
+\item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
+[Utilise le module spécifié en plus des packages du document. Des arguments
+peuvent être passés au module en les ajoutant après un signe deux-points, ils
+correspondent aux options du package dans LaTeX. Voir la documentation de
+\manref(rubber, 1)
+pour la liste des modules standard.])
+
+\item([\dash[]v, \ddash[]verbose], [Incrémente le degré de détail dans les
+messages affichés. Le niveau par défaut est 0, les niveaux existent jusqu'à
+3.])
+
+\item([\ddash[]version], [Affiche le numéro de version et termine.])
+
+\end(description)
+
+\part(man)
+
+\section(2, Bugs)
+
+Il y en a surement quelques uns...\br
+
+Rubber et cette documentation sont maintenus par
+\link(Emmanuel Beffara, emmanuel@beffara.org).
+La page web du programme se trouve à
+http://beffara.org/stuff/rubber.html.
+
+\section(2, Voir aussi)
+
+\manref(rubber, 1),
+\manref(latex, 1)
+
+\bye

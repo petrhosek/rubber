@@ -1,0 +1,88 @@
+\dnl (This file is covered by the GPL as part of Rubber.)
+\init(manpage, en)
+\title(rubber-info)
+\man_descr(extract information from LaTeX documents)
+\man_section(1)
+\part(menu)
+
+\link(Rubber homepage, rubber.html) \br
+\link(send me a mail, mailto:emmanuel@beffara.org)
+
+\part(front)
+
+\begin(subtitle)
+\section(1, [Rubber-Info])
+documentation for version 0.99
+\end(subtitle)
+
+\part(main)
+
+\section(2, Synopsis)
+
+\syntax(rubber-info, [\optarg(options) \arg(command) \arg(source)])
+
+\section(2, Description)
+
+Rubber-info is a utility for extracting various kinds of information from a
+LaTeX document. Information can be extracted from the source (for instance
+when calculating dependencies) or from the compilation log files (to extract
+errors and warnings). This program is a complement for the compilation system
+\manref(rubber, 1).
+
+\section(2, Actions)
+
+Exactly one of the following command-line options must be specified, to decide
+which information to extract. Of course, for actions that read a log file, a
+compilation must have been done before.
+
+\begin(description)
+
+\item([\ddash[]boxes], [Extracts from the log file the places in the source
+where bad boxes appeared (these are the famous overfull and underfull
+\macro(hbox) and \macro(vbox))])
+
+\item([\ddash[]deps], [Analyse the source files and produce depedency rules in
+the style of a Makefile (with no building command)])
+
+\item([\ddash[]errors], [Extract from the log file the list of errors that
+occured during the last compilation.])
+
+\end(description)
+
+\section(2, Options)
+
+\begin(description)
+
+\item([\dash[]h, \ddash[]help], [Display the list of all available options
+and exit nicely.])
+
+\item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
+[Use the specified module in addition to the document's packages. Arguments
+can be passed to the package by adding them after a colon, they correspond to
+the package options in LaTeX. See the manpage of
+\manref(rubber, 1)
+for the list of standard modules.])
+
+\item([\dash[]v, \ddash[]verbose], [Increase the verbosity level. The default
+level is 0, levels up to 3 exist.])
+
+\item([\ddash[]version], [Print the version number and exit nicely.])
+
+\end(description)
+
+\part(man)
+
+\section(2, Bugs)
+
+There are surely a some...\br
+
+Rubber and this man-page are maintained by
+\link(Emmanuel Beffara, emmanuel@beffara.org).
+The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
+
+\section(2, See also)
+
+\manref(rubber, 1),
+\manref(latex, 1)
+
+\bye
