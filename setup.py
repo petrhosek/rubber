@@ -131,7 +131,8 @@ document.""",
 if len(sys.argv) > 1:
 	cmd = sys.argv[1]
 	if cmd == "check":
-		do_check()
+		ret = do_check()
+		sys.exit(ret)
 	elif cmd == "config":
 		sub = settings.sub
 		make_files(sub, ["Makefile", "rubber", "src/version.py"])
