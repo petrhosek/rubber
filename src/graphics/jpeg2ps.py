@@ -23,4 +23,6 @@ class Dep (Depend):
 		return 0
 
 def convert (source, target, env):
+	if not prog_available("jpeg2ps"):
+		return None
 	return Dep(target, source, env)
