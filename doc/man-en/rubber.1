@@ -46,42 +46,42 @@ and
 .BR rubber-pipe .
 Options are parsed using GNU Getopt conventions.
 .TP
-.B --clean
+.B \-\-clean
 Remove all files produced by the compilation, instead
 of building the document. This option is present in \fBrubber\fR only. It
 applies to the compilation as it would be done with the other options of the
 command line, i.e. saying
-"rubber --clean foo"
+"rubber \-\-clean foo"
 will not delete foo.ps, while saying
-"rubber --ps --clean foo"
+"rubber \-\-ps \-\-clean foo"
 will.
 .TP
-.BI -c,\ --command \ <command>
+.BI \-c,\ \-\-command \ <command>
 Execute the specified command (or directive)
 .I before
 parsing the input files. See section "Directives" for details.
 .TP
-.BI -e,\ --epilogue \ <command>
+.BI \-e,\ \-\-epilogue \ <command>
 Execute the specified command (or directive)
 .I after
 parsing the input files. See section "Directives" for details.
 .TP
-.B -f, --force
+.B \-f, \-\-force
 Force at least one compilation of the source. This may be useful, for
 instance, if some unusual dependency was modified (e.g. a package in a system
 directory). This option is irrelevant in
 .BR rubber-pipe .
 .TP
-.B -z, --gzip
+.B \-z, \-\-gzip
 Compress the final document (in
 .I gzip
 format). This option is a synonym for
-.IR -o\ gz .
+.IR \-o\ gz .
 .TP
-.B -h, --help
+.B \-h, \-\-help
 Display the list of all available options and exit nicely.
 .TP
-.B -k, --keep
+.B \-k, \-\-keep
 This option is used in
 .B rubber-pipe
 only. With this option, the temporary files will not be removed after
@@ -89,60 +89,60 @@ compiling the document and dumping the results on standard output. The
 temporary document is named rubtmpX.tex, where X is a number such that no file
 of that name exists initially.
 .TP
-.B -l, --landscape
+.B \-l, \-\-landscape
 Specify that the final document should
 use landscape orientation. This is relevant only when using
 .B dvips
 or
 .BR dvipdfm .
 .TP
-.BI -m,\ --module \ <module> [: <args> ]
+.BI \-m,\ \-\-module \ <module> [: <args> ]
 Use the specified module in addition to the document's packages. Arguments
 can be passed to the package by adding them after a colon, they correspond to
 the package options in LaTeX. The module is loaded
 .I before
 parsing the document's sources.
 .TP
-.BI -o,\ --post \ <module> [: <args> ]
+.B \-o,\ \-\-post \ <module> [: <args> ]
 Used the specified module as a post-processor. This is similar to the
-.I -m
+.I \-m
 options except that the module is loaded
 .I after
 parsing the document.
 .TP
-.B -d, --pdf
+.B \-d, \-\-pdf
 Use pdfLaTeX instead of LaTeX in order to produce PDF output instead of DVI.
 This option is a synonym for
-.IR -m\ pdftex .
+.IR \-m\ pdftex .
 .TP
-.B -p, --ps
+.B \-p, \-\-ps
 Process the DVI produced by the process through
-.BR dvips (1)
+.BR dvips(1)
 to produce a PostScript document. This option is a synonym for
-.IR -o\ dvips ,
+.IR \-o\ dvips ,
 it is naturally incompatible with
-.IR --pdf .
+.IR \-\-pdf .
 .TP
-.B -q, --quiet
+.B \-q, \-\-quiet
 Suppress all messages during the process.
 .TP
-.BI -r,\ --read \ <file>
+.BI \-r,\ \-\-read \ <file>
 Read additional directives form the specified file (see also the directive
 "read").
 .TP
-.B -s, --short
+.B \-s, \-\-short
 Display LaTeX's error messages in a compact form (one error per line).
 .TP
-.BI -I,\ --texpath \ <directory>
+.BI \-I,\ \-\-texpath \ <directory>
 Add the specified directory to TeX's search path.
 .TP
-.B -v, --verbose
+.B \-v, \-\-verbose
 Increase the verbosity level. The default level is 0, levels up to 3 exist.
 Beware, saying
-.I -vvv
+.I \-vvv
 makes Rubber speak a lot.
 .TP
-.B --version
+.B \-\-version
 Print the version number and exit nicely.
 .PP
 
@@ -215,7 +215,7 @@ source from a different file format:
 .TP
 .B cweb
 This module's purpose is to run
-.BR cweave (1)
+.BR cweave(1)
 if needed before the compiling process to produce the LaTeX source. This
 module is automatically loaded if the file specified on the command line has
 .B .w
@@ -234,7 +234,7 @@ The following modules are provided to support different kinds of
 post-processings. Note that the order matters when using these modules: if you
 want to use a processing chain like
 .RS
-foo.tex -> foo.dvi -> foo.ps -> foo.pdf -> foo.pdf.gz
+foo.tex \-> foo.dvi \-> foo.ps \-> foo.pdf \-> foo.pdf.gz
 .RE
 you have to load the modules
 .BR dvips ,
@@ -243,25 +243,25 @@ and
 .B gz
 in that order, for instance using the command line
 .RS
-rubber -p -o ps2pdf -z foo.tex
+rubber \-p \-o ps2pdf \-z foo.tex
 .RE
 .TP
 .B dvipdfm
 Runs
-.BR dvipdfm (1)
+.BR dvipdfm(1)
 at the end of compilation to produce a PDF document.
 .TP
 .B dvips
 Runs
-.BR dvips (1)
+.BR dvips(1)
 at the end of compilation to produce a PostScript document. This module is
 also loaded by the command line option
-.IR --ps .
+.IR \-\-ps .
 .TP
 .B expand
 Produce an expanded LaTeX source by replacing \\input macros by included
 files, bibliography macros by the bibliography produced by
-.BR bibtex (1),
+.BR bibtex(1),
 and local classes and packages by their source. If the main file is
 .I foo.tex
 then then expanded file will be named
@@ -270,14 +270,14 @@ See the info documentation for details.
 .TP
 .B gz
 Produce a version of the final file compressed with
-.BR gzip (1).
+.BR gzip(1).
 .TP
 .B ps2pdf
 Assuming that the compilation produces a PostScript document (for instance
 using module
 .BR dvips ),
 convert this document to PDF using
-.BR ps2pdf (1).
+.BR ps2pdf(1).
 .PP
 
 .SS Compiler choice
@@ -285,44 +285,44 @@ The following modules are used to change the LaTeX compiler:
 .TP
 .B etex
 Instructs Rubber to use
-.BR elatex (1)
+.BR elatex(1)
 instead of
 .BR latex .
 .TP
 .B omega
 Use the Omega compiler instead of TeX, i.e. compiles the document using
-.BR lambda (1)
+.BR lambda(1)
 instead of
 .BR latex .
 If the module
 .B dvips
 is used too, it will use
-.BR odvips (1)
+.BR odvips(1)
 to translate the DVI file. Note that this module is triggered automatically
 when the document uses the package
 .BR omega .
 .TP
 .B pdftex
 Instructs Rubber to use
-.BR pdflatex (1)
+.BR pdflatex(1)
 instead of
-.BR latex (1)
+.BR latex(1)
 to compile the document. By default, this produces a PDF file instead of a
 DVI, but when loading the module with the option
 .B dvi
 (for instance by saying
-.IR -m\ pdftex:dvi )
+.IR \-m\ pdftex:dvi )
 the document is compiled into DVI using
 .BR pdflatex .
 This module is also loaded by the command line option
-.IR --pdf .
+.IR \-\-pdf .
 .TP
 .B vtex
 Instructs Rubber to use the VTeX compiler. By default this uses
 .B vlatex
 as the compiler to produce PDF output. With the option
 .B ps
-(e.g. when saying "rubber -m vtex:ps foo.tex") the compiler used is
+(e.g. when saying "rubber \-m vtex:ps foo.tex") the compiler used is
 .B vlatexp
 and the result is a PostScript file.
 .PP
@@ -342,7 +342,7 @@ possibly followed by spaces and arguments.
 .TP
 .BI clean \ <file>
 Indicates that the specified file should be removed when cleaning using
-.IR --clean .
+.IR \-\-clean .
 .TP
 .BI depend \ <file>
 Consider the specified file as a dependency, so that its modification time
@@ -351,7 +351,7 @@ will be checked.
 .BI module \ <module> \ [ <options> ]
 Loads the specified module, possibly with options. This is equivalent to the
 command-line option
-.IR --module .
+.IR \-\-module .
 .TP
 .BI onchange \ <file>\ <command>
 Execute the specified shell command after compiling if the contents of the
@@ -359,11 +359,11 @@ specified file have changed. The file name ends at the first space.
 .TP
 .BI paper \ <options>
 Specify options related to paper size. Currently they are used to give
-.I -t
+.I \-t
 options to
 .B dvips
 and
-.I -p
+.I \-p
 options to
 .BR dvipdfm .
 .TP

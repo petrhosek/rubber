@@ -23,42 +23,42 @@ plus one of the actions described below.
 One of the following command-line options must be specified, to decide which
 information to extract. Of course, for actions that read a log file, a
 compilation must have been done before. If none of these actions is specified,
-.I --check
+.I \-\-check
 is assumed.
 .TP
-.B --boxes
+.B \-\-boxes
 Extracts from the log file the places in the source where bad boxes appeared
 (these are the famous overfull and underfull \\hbox and \\vbox)
 .TP
-.B --check
+.B \-\-check
 Report errors if there are any, otherwise report undefined references if there
 are any, otherwise list warnings and bad boxes. This is the default action.
 .TP
-.B --deps
+.B \-\-deps
 Analyse the source files and produce a space-separated list of all the files
 that the document depends on and that Rubber cannot rebuild.
 .TP
-.B --errors
+.B \-\-errors
 Extract from the log file the list of errors that occured during the last
 compilation.
 .TP
-.B -h, --help
+.B \-h, \-\-help
 Display the list of all available options and exit nicely.
 .TP
-.B --refs
+.B \-\-refs
 Show a list of undefined references (i.e. the \\ref's that are not defined by
 any \\label).
 .TP
-.B --rules
+.B \-\-rules
 Analyse the source files and produce a list of dependency rules. One rule is
 produced for each intermediate target that would be made when running
 .BR rubber .
 Rules are formatted in the style of Makefiles.
 .TP
-.B --version
+.B \-\-version
 Print the version number and exit nicely.
 .TP
-.B --warnings
+.B \-\-warnings
 Stupidly enumerate all LaTeX warnings, i.e. all the lines in the log file that
 contain the string "Warning".
 .PP

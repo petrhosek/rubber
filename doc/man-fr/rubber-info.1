@@ -26,45 +26,45 @@ afin de choisir quel information extraire. Bien entendu, les actions qui
 extraient des informations des logs ne peuvent êtres effectuées que si une
 compilation a effectivement eu lieu. Si aucune de ces actions n'est spécifiée,
 c'est
-.I --check
+.I \-\-check
 qui est utilisée.
 .TP
-.B --boxes
+.B \-\-boxes
 Extrait du fichier log les emplacements dans le source où la compilation a
 produit des boîtes mal construites (ce sont les fameux overfull et underfull
 \\hbox et \\vbox).
 .TP
-.B --check
+.B \-\-check
 Affiche les erreurs de compilation s'il y en a, sinon énumère les références
 non définies s'il y en a, sinon affiche les avertissements et les boîtes mal
 construites. C'est l'action par défaut.
 .TP
-.B --deps
+.B \-\-deps
 Analyse les sources et produit une liste (séparée par des espaces) des noms de
 tous les fichiers dont dépend le document et que Rubber ne peut pas
 reconstituer.
 .TP
-.B --errors
+.B \-\-errors
 Extrait du fichier log la liste des erreurs qui sont survenues durant la
 dernière compilation.
 .TP
-.B -h, --help
+.B \-h, \-\-help
 Affiche la liste de toutes les options disponibles et quitte.
 .TP
-.B --refs
+.B \-\-refs
 Affiche la liste des références non définies (i.e. les \\ref qui ne
 correspndent à aucun \\label).
 .TP
-.B --rules
+.B \-\-rules
 Analyse les sources et produit une liste de règles de dépendances. Une règle
 est produite pour chaque fichier intermédiaire qui serait construit par
 .BR rubber .
 Les règles sont formattées dans le style des Makefile.
 .TP
-.B --version
+.B \-\-version
 Affiche le numéro de version et termine.
 .TP
-.B --warnings
+.B \-\-warnings
 Affiche stupidement la liste de tous les avertissements de LaTeX, c'est-à-dire
 toutes les lignes du fichier log qui contiennent "Warning".
 .PP
