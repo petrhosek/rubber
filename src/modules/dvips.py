@@ -28,7 +28,8 @@ class Module:
 		"""
 		if not self.run_needed():
 			return 0
-		self.msg(0, _("running dvips..."))
+		self.msg(0, _("running dvips on %s...") %
+		         (self.env.process.src_base + ".dvi"))
 		self.env.process.execute(
 			["dvips", self.env.process.src_pbase + ".dvi",
 			 "-o", self.env.process.src_pbase + ".ps"])

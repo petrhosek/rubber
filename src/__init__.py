@@ -569,6 +569,14 @@ class Modules:
 		self.modules[name] = mod
 		return 0
 
+	def clear(self):
+		"""
+		Empty the module table, unregistering every module registered. No
+		modules are unloaded, however, but this has no other effect than
+		speeding the registration of the modules again.
+		"""
+		self.modules.clear()
+
 
 #---------------------------------------
 
@@ -591,11 +599,21 @@ class Environment:
 		self.source_exts = { ".w" : "cweb" }
 		self.message(3, _("ready"))
 
+	def restart (self):
+		"""
+		Restart the system by unregistering all modules.
+		"""
+		self.message(1, _("initializing..."))
+		self.modules.clear()
+		self.parser.__init__(self)
+		self.process.__init__(self)
+
 	def prepare (self, name):
 		"""
 		Initialize the process for the given document and make the LaTeX
 		source if needed.
 		"""
+		self.message(1, _("preparing compilation of %s...") % name)
 		if self.process.set_source(name): return 1
 		return self.process.make_source()
 

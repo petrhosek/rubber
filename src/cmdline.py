@@ -18,7 +18,7 @@ class Main:
 		Display a short description of the command line.
 		"""
 		print _("""\
-usage: rubber [options] source
+usage: rubber [options] sources...
 For more information, try `rubber --help'.""")
 
 	def help (self):
@@ -27,7 +27,7 @@ For more information, try `rubber --help'.""")
 		"""
 		print _("""\
 This is Rubber version %s.
-usage: rubber [options] source
+usage: rubber [options] sources...
 available options:
        --clean   = remove produced files instead of compiling
   -h / --help    = display this help
@@ -89,6 +89,7 @@ available options:
 		args = self.parse_opts(cmdline)
 		self.env.message(1, _("This is Rubber version %s.") % version)
 		for src in args:
+			self.env.restart()
 			self.prepare(src)
 			if self.clean:
 				self.env.clean()
