@@ -42,10 +42,10 @@ class Config:
 		"""
 		for path in self.path:
 			test = join(path, name)
-			if exists(test) and isfile(test):
-				return test
-			elif exists(test + ".tex") and isfile(test + ".tex"):
+			if exists(test + ".tex") and isfile(test + ".tex"):
 				return test + ".tex"
+			elif exists(test) and isfile(test):
+				return test
 		return None
 
 	def compile_cmd (self, file):
