@@ -102,7 +102,8 @@ class Parser:
 			"tableofcontents" : self.tableofcontents,
 			"listoffigures" : self.listoffigures,
 			"listoftables" : self.listoftables,
-			"bibliography" : self.bibliography
+			"bibliography" : self.bibliography,
+			"bibliographystyle" : self.bibliographystyle
 		}
 		self.update_seq()
 
@@ -214,9 +215,21 @@ class Parser:
 	def bibliography (self, dict):
 		"""
 		Called when the macro \\bibliography is found. This method actually
-		registers the package bibtex.
+		registers the module bibtex (if not already done) and registers the
+		databases.
 		"""
 		self.env.modules.register("bibtex", dict)
+		for db in dict["arg"].split(","):
+			self.env.modules["bibtex"].add_db(db)
+
+	def bibliographystyle (self, dict):
+		"""
+		Called when \\bibliographystyle is found. This registers the module
+		bibtex (if not already done) and calls the method set_style() of the
+		module.
+		"""
+		self.env.modules.register("bibtex", dict)
+		self.env.modules["bibtex"].set_style(dict["arg"])
 
 #---------------------------------------
 
@@ -394,8 +407,12 @@ class Process:
 	def pre_compile (self):
 		"""
 		Prepare the source for compilation using package-specific functions.
-		This function must return true on failure.
+		This function must return true on failure. This function sets
+		`must_compile' to 1 if we already know that a compilation is needed,
+		because it may avoid some unnecessary preprocessing (e.g. BibTeXing).
 		"""
+		self.must_compile = 0
+		self.must_compile = self.compile_needed()
 		if self.ext_building != []:
 			self.msg(1, _("building additional files..."))
 			for proc in self.ext_building:
@@ -588,6 +605,12 @@ class Modules:
 	def __init__ (self, env):
 		self.env = env
 		self.modules = {}
+
+	def __getitem__ (self, name):
+		"""
+		Return the module object of the given name.
+		"""
+		return self.modules[name]
 
 	def register (self, name, dict={}):
 		"""

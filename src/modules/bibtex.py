@@ -6,6 +6,7 @@ BibTeX support for Rubber
 
 from bisect import bisect_left
 import os
+from os.path import *
 import re
 import string
 import sys
@@ -27,12 +28,11 @@ class Module:
 		self.log = env.logcheck
 
 		self.undef_cites = None
-
+		self.set_style("plain")
 		self.db = []
-		if dict["arg"]:
-			for db in dict["arg"].split(","):
-				if os.path.exists(db + ".bib"):
-					self.db.append(db + ".bib")
+		self.run_needed = 0
+
+		env.process.depends.append(env.process.src_pbase + ".bbl")
 		env.process.ext_building.append(self.first_bib)
 		env.process.compile_process.append(self.check_bib)
 		env.process.cleaning_process.append(self.clean)
@@ -40,19 +40,77 @@ class Module:
 		self.re_cite = re.compile(
 			"LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 
+	def add_db (self, name):
+		"""
+		Register a bibliography database file.
+		"""
+		if exists(name + ".bib"):
+			self.db.append(name + ".bib")
+
+	def set_style (self, style):
+		"""
+		Define the bibliography style used. This method is called when
+		\\bibliographystyle is found. If the style file is found in the
+		current directory, it is considered a dependency.
+		"""
+		self.style = style
+		if exists(style + ".bst"):
+			self.bst_file = style + ".bst"
+		else:
+			self.bst_file = None
+
 	def first_bib (self):
 		"""
-		Run BibTeX if needed before the first compilation. The condition is
-		only on the database files' modification dates, but it would be more
-		clever to check if the results have changed.
+		Run BibTeX if needed before the first compilation.
 		"""
-		if not os.path.exists(self.env.process.src_pbase + ".dvi"):
+		self.run_needed = self.first_run_needed()
+		if self.env.process.must_compile:
 			return 0
-		dtime = os.path.getmtime(self.env.process.src_pbase + ".dvi")
+		if self.run_needed:
+			return self.run()
+
+	def first_run_needed (self):
+		"""
+		The condition is only on the database files' modification dates, but
+		it would be more clever to check if the results have changed.
+		BibTeXing is also needed in the very particular case when the style
+		has changed since last compilation.
+		"""
+		if not exists(self.env.process.src_pbase + ".aux"):
+			return 0
+		if not exists(self.env.process.src_pbase + ".blg"):
+			return 1
+		dtime = getmtime(self.env.process.src_pbase + ".blg")
 		for db in self.db:
-			if os.path.getmtime(db) > dtime:
+			if getmtime(db) > dtime:
 				self.msg(2, _("bibliography database %s was modified") % db)
-				return self.run()
+				return 1
+		if self.style_changed():
+			return 1
+		if self.bst_file and getmtime(self.bst_file) > dtime:
+			self.msg(2, _("the bibliography style file was modified"))
+			return 1
+		return 0
+
+	def style_changed (self):
+		"""
+		Read the log file if it exists and check if the style used is the one
+		specified in the source. This supposes that the style is mentioned on
+		a line with the form 'The style file: foo.bst'.
+		"""
+		blg = self.env.process.src_pbase + ".blg"
+		if not exists(blg):
+			return 0
+		log = open(blg)
+		line = log.readline()
+		while line != "":
+			if line[:16] == "The style file: ":
+				if line.rstrip()[16:-4] != self.style:
+					self.msg(2, _("the bibliography style was changed"))
+					log.close()
+					return 1
+			line = log.readline()
+		log.close()
 		return 0
 
 	def list_cites (self):
@@ -87,7 +145,9 @@ class Module:
 		This method actually runs BibTeX.
 		"""
 		self.msg(0, _("running BibTeX..."))
-		self.env.process.execute(["bibtex", self.env.process.src_pbase])
+		self.env.process.execute(
+			["bibtex", "-terse", self.env.process.src_pbase])
+		self.run_needed = 0
 		self.env.process.must_compile = 1
 		return 0
 
@@ -95,6 +155,8 @@ class Module:
 		"""
 		Return true if BibTeX must be run.
 		"""
+		if self.run_needed:
+			return 1
 		self.msg(2, _("checking if BibTeX must be run..."))
 
 		if self.undef_cites:
@@ -117,12 +179,12 @@ class Module:
 			return 0
 
 		blg = self.env.process.src_pbase + ".blg"
-		if not os.path.exists(blg):
+		if not exists(blg):
 			self.msg(2, _("no BibTeX log file"))
 			return 1
 
 		log = self.env.process.src_pbase + ".log"
-		if os.path.getmtime(blg) < os.path.getmtime(log):
+		if getmtime(blg) < getmtime(log):
 			self.msg(2, _("BibTeX's log is older than the main log"))
 			return 1
 
