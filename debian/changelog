@@ -1,3 +1,11 @@
+rubber (0.99.1-1) unstable; urgency=low
+
+  * Switched to version 0.99.1. This mainly introduces a better dependency
+    system and the modular graphics support, with a few other
+    improvements.
+
+ -- Emmanuel Beffara <emmanuel@beffara.org>  Fri, 21 Jun 2002 16:05:39 +0200
+
 rubber (0.99-1) unstable; urgency=low
 
   * Initial Release.
