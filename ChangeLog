@@ -1,3 +1,13 @@
+2002-09-12  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/cmd_info.py: Fixed some bugs that remained (in rubber-info's
+	--deps action) since the class fusion (see 2002-09-05).
+
+2002-09-11  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/cmd_info.py, src/info.py, man/: Introduced the actions
+	--refs and --warnings in rubber-info.
+
 2002-09-06  Emmanuel Beffara  <manu@beffara.org>
 
 	* Version 0.99.2 released.

@@ -103,9 +103,9 @@ actions:
 		elif self.act == "deps":
 			self.prepare(src)
 			print "%s%s: %s" % (
-				self.env.process.src_pbase,
-				self.env.process.out_ext,
-				string.join(self.env.process.depends.keys()))
+				self.env.src_base,
+				self.env.out_ext,
+				string.join(self.env.depends.keys()))
 		else:
 			return self.info_log(src, self.act)
 
@@ -115,7 +115,9 @@ actions:
 		"""
 		Check for the source file and prepare it for processing.
 		"""
-		if self.env.prepare(src):
+		if self.env.set_source(src):
+			sys.exit(1)
+		if self.env.make_source():
 			sys.exit(1)
 		for mod in self.modules:
 			colon = mod.find(":")
