@@ -88,6 +88,35 @@ a lot.])
 
 \end(description)
 
+\section(2, Modules)
+
+Modules can be added to the ones provided by default to include new features
+(this is the point of the module system). The standard modules are the
+following:
+
+\begin(description)
+
+\item(bibtex, [Takes care of processing the document's bibliography with
+BibTeX when needed. This module is automatically loaded if the document
+contains the macro \macro(bibliography).])
+
+\item(cweb, [This module's purpose is to run \cmd(cweave) if needed before the
+compiling process to produce the LaTeX source. This module is automatically
+loaded if the file specified on the command line has \tt(.w) as its suffix.])
+
+\item(dvips, [Runs \cmd(dvips) at the end of compilation to produce a
+PostScript document. This module is also loaded by the command line option
+\ddopt(ps).])
+
+\item(makeidx, [Process the document's index with \cmd(makeindex) when
+needed.])
+
+\item(pdftex, [Instructs Rubber to use \cmd(pdflatex) instead of \cmd(latex)
+to compile the document into a PDF instead of a DVI. This module is also
+loaded by the command line option \ddopt(pdf).])
+
+\end(description)
+
 \part(man)
 
 \section(2, Bugs)

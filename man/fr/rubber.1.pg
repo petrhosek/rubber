@@ -72,9 +72,9 @@ compilation afin du produire une document PDF au lieu de DVI. Cette option est
 synonyme de \ddopt(module pdftex).])
 
 \item([\dash[]p, \ddash[]ps], [Traite le fichier DVI obtenu après compilation
-par la commande \cmd(make) avec \cmd(dvips) afin de produire un document
-PostScript. Cette option est synonyme de \ddopt(module dvips), elle est
-naturellement incompatible avec \ddopt(pdf).])
+avec \cmd(dvips) afin de produire un document PostScript. Cette option est
+synonyme de \ddopt(module dvips), elle est naturellement incompatible avec
+\ddopt(pdf).])
 
 \item([\dash[]q, \ddash[]quiet], [Supprime les messages affichés en cours
 d'exécution.])
@@ -86,6 +86,38 @@ Attention, dire \dopt(vvv) rend Rubber très bavard.])
 \item([\ddash[]version], [Affiche le numéro de version et termine.])
 
 \end(description)
+
+\section(2, Modules)
+
+Des modules peuvent être ajoutés à ceux fournis par défaut pour ajouter de
+nouvelles fonctionnalités (c'est d'ailleurs l'intérêt du système modulaire).
+Les modules standard sont les suivants:
+
+\begin(description)
+
+\item(bibtex, [S'occupe de traiter la bibliographie du document avec BibTeX
+lorsque c'est nécessaire. Ce module est chargé automatiquement lorsque le
+document contient la macro \macro(bibliography).])
+
+\item(cweb, [Ce module sert à exécuter \cmd(cweave) si nécessaire avant le
+processus de compilation pour produire le source LaTeX. Ce module est chargé
+automatiquement si le fichier spécifié sur la ligne de commande a \tt(.w) pour
+suffixe.])
+
+\item(dvips, [Lance \cmd(dvips) à la fin de la compilation pour produire un
+document PostScript. Ce module est aussi chargé par l'option de ligne de
+commande \ddopt(ps).])
+
+\item(makeidx, [Traite l'index du document avec \cmd(makeindex) lorsque c'est
+nécessaire.])
+
+\item(pdftex, [Indique à Rubber d'utiliser \cmd(pdflatex) au lieu de
+\cmd(latex) pour compiler le document afin de produire un PDF au lieu d'un
+DVI. Ce module est aussi chargé par l'option de ligne de commande
+\ddopt(pdf).])
+
+\end(description)
+
 
 \part(man)
 

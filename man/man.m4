@@ -77,6 +77,7 @@ $2])
 \define(dopt, [\arg([\dash[]$1])])
 \define(ddopt, [\arg([\ddash[]$1])])
 \define(cmd, [\bf([$1])])
+\define(macro, [\\$1])
 
 \define(syntax, [.B [$1]
 $2])
