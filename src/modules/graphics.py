@@ -34,8 +34,8 @@ drv_suffixes = {
 	"pctexps" : [".eps", ".ps"],
 	"pctexwin" : [".eps", ".ps", ".wmf", ".bmp"],
 	"pdftex" : [".png", ".pdf", ".jpg", ".mps", ".tif"],
-	"tcidvi" : [""],
-	"textures" : ["", ".ps", ".eps", ".pict"],
+	"tcidvi" : [],
+	"textures" : [".ps", ".eps", ".pict"],
 	"truetex" : [".eps", ".ps"],
 	"vtex" : [".gif", ".png", ".jpg", ".tif", ".bmp", ".tga", ".pcx",
 	          ".eps", ".ps", ".mps", ".emf", ".wmf"]
@@ -86,6 +86,8 @@ class Module:
 		"""
 		for path in self.path:
 			test = join(path, name)
+			if exists(test):
+				return test
 			for suffix in self.suffixes:
 				if exists(test + suffix):
 					return test + suffix
