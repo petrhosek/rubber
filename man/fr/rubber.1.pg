@@ -59,6 +59,10 @@ rubber --ps --clean toto
 \end(example)
 le fera.])
 
+\item([\dash[]f, \ddash[]force], [Force au moins une compilation du source.
+Ceci peut être utile, par exemple, si une dépendance inhabituelle a été
+modifiée (par exemple un package dans un répertoire système).])
+
 \item([\dash[]h, \ddash[]help], [Affiche la liste de toutes les options
 disponibles et quitte.])
 
@@ -108,9 +112,12 @@ suffixe.])
 document PostScript. Ce module est aussi chargé par l'option de ligne de
 commande \ddopt(ps).])
 
-\item([graphics, graphicx], [Pour l'instant, ces modules se content
-d'identifier les fichier graphiques inclus par le document et de les
-considérer comme des dépendances à la compilation.])
+\item([graphics, graphicx], [Ces modules identifient les fichier graphiques
+inclus par le document et de les considèrent comme des dépendances à la
+compilation. Ils utilisent en plus certaines règles pour construire ces
+fichiers. Les règles actuelles incluent la conversion de fihiers avec
+\cmd(epstopdf)(1) et la compilation avec Metapost (\cmd(mpost)(1)). Notez que
+cette fonctionnalité est encore jeune et peu expérimentée.])
 
 \item(makeidx, [Traite l'index du document avec \cmd(makeindex) lorsque c'est
 nécessaire.])

@@ -1,5 +1,10 @@
 2002-09-05  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py, src/cmdline.py: Introduced the -f command-line
+	option.
+
+	* man/: Also updated the description of the graphic[sx] modules.
+
 	* all: Made one class out of Environment, Process and Parser. The
 	message writers are now created by the interfaces (as it should
 	always have been).

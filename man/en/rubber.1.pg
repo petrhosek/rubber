@@ -59,6 +59,10 @@ rubber --ps --clean foo
 \end(example)
 will.])
 
+\item([\dash[]f, \ddash[]force], [Force at least one compilation of the
+source. This may be useful, for instance, if some unusual dependency was
+modified (e.g. a package in a system directory).])
+
 \item([\dash[]h, \ddash[]help], [Display the list of all available options
 and exit nicely.])
 
@@ -108,9 +112,12 @@ loaded if the file specified on the command line has \tt(.w) as its suffix.])
 PostScript document. This module is also loaded by the command line option
 \ddopt(ps).])
 
-\item([graphics, graphicx], [Currently, these modules only identify the
-graphics included in the document and consider them as dependencies for
-compilation.])
+\item([graphics, graphicx], [These modules identify the graphics included in
+the document and consider them as dependencies for compilation. They also use
+standard rules to build these files with external programs. Current rules
+include conversion using \cmd(epstopdf)(1) and compilation using Metapost
+(\cmd(mpost)(1)). Note that these features are young and not very experienced
+yet.])
 
 \item(makeidx, [Process the document's index with \cmd(makeindex) when
 needed.])
