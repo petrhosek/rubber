@@ -116,7 +116,11 @@ re_cseq = re.compile(r".*(?P<seq>\\[^ ]*)$")
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_atline = re.compile(
 "( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
-re_reference = re.compile("LaTeX Warning: (?P<msg>Reference .*)")
+re_reference = re.compile("LaTeX Warning: Reference `(?P<ref>.*)' \
+on page (?P<page>[0-9]*) undefined on input line (?P<line>[0-9]*)\\.$")
+re_warning = re.compile(
+"(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<msg>.*)$")
+re_online = re.compile("(; reported)? on input line (?P<line>[0-9]*)")
 
 class LogCheck (object):
 	"""
@@ -240,7 +244,7 @@ class LogCheck (object):
 					parsing = 0
 					skipping = 1
 					msg.error(error, code=m.group("text"),
-						file=pos[-1], line=int(m.group("line")))
+						file=pos[-1], line=m.group("line"))
 				elif line[0:3] == "***":
 					parsing = 0
 					skipping = 1
@@ -285,7 +289,7 @@ class LogCheck (object):
 				if m:
 					md = m.groupdict()
 					for key in "line", "last":
-						if md[key]: mpos[key] = int(md[key])
+						if md[key]: mpos[key] = md[key]
 					line = line[:m.start()]
 				msg.warn(line, **mpos)
 				something = 1
@@ -299,31 +303,58 @@ class LogCheck (object):
 		"""
 		Display all undefined references.
 		"""
+		pos = ["(no file)"]
 		something = 0
 		for line in self.lines:
 			m = re_reference.match(line)
 			if m:
-				msg(0, m.group("msg"))
+				msg.warn(_("Reference `%s' undefined.") % m.group("ref"),
+					file=pos[-1], **m.groupdict())
 				something = 1
+			else:
+				self.update_file(line, pos)
 		return something
 
 	def show_warnings (self):
 		"""
-		Display all warnings. This function is pathetically dumb, as it simply
-		shows all lines in the log that contain the substring 'Warning'.
+		Display all warnings. This function parses LaTeX style warnings
+		(possibly on several lines) and extracts the location in the sources,
+		as well as the responsible package if there is one.
 		"""
 		pos = ["(no file)"]
 		page = 1
 		something = 0
 		skip = 0
+		prefix = None
 		for line in self.lines:
 			if skip:
 				if line == "": skip = 0
+			elif prefix is not None:
+				if line[:len(prefix)] == prefix:
+					text.append(string.strip(line[len(prefix):]))
+				else:
+					text = " ".join(text)
+					m = re_online.search(text)
+					if m:
+						dict["line"] = m.group("line")
+						text = text[:m.start()] + text[m.end():]
+					msg.warn(text, **dict)
+					prefix = None
+					something = 1
 			elif re_badbox.match(line):
 				skip = 1
 			elif line.find("Warning") != -1:
-				msg.warn( string.rstrip(line), file=pos[-1], page=page)
-				something = 1
+				m = re_warning.match(line)
+				if m:
+					dict = m.groupdict()
+					dict["file"] = pos[-1]
+					dict["page"] = page
+					if dict["pkg"] is not None:
+						prefix = ("(%s)" % dict["pkg"])
+					else:
+						prefix = ""
+					prefix = prefix.ljust(m.start("msg"))
+					text = [dict["msg"]]
 			else:
 				self.update_file(line, pos)
 				page = self.update_page(line, page)
@@ -875,7 +906,7 @@ class LaTeXDep (Depend):
 				continue
 			new = md5_file(file)
 			if md5 != new:
-				msg.progress(0, _("running %s") % self.onchange_cmd[file])
+				msg.progress(_("running %s") % self.onchange_cmd[file])
 				self.env.execute(["sh", "-c", self.onchange_cmd[file]])
 			self.onchange_md5[file] = new
 

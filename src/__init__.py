@@ -94,15 +94,15 @@ class Message (object):
 			if pos[:len(self.cwd)] == self.cwd:
 				pos = pos[len(self.cwd):]
 			if where.has_key("line") and where["line"]:
-				pos = "%s:%d" % (pos, where["line"])
+				pos = "%s:%d" % (pos, int(where["line"]))
 				if where.has_key("last"):
 					if where["last"] != where["line"]:
-						pos = "%s-%d" % (pos, where["last"])
+						pos = "%s-%d" % (pos, int(where["last"]))
 		else:
 			pos = "%r" % where
 			#_("(nowhere)")
 		if where.has_key("page"):
-			text = "%s (page %d)" % (text, where["page"])
+			text = "%s (page %d)" % (text, int(where["page"]))
 		return "%s: %s" % (pos, text)
 
 msg = Message()
