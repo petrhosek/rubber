@@ -46,7 +46,7 @@ I put these macros under the GPL license, if anyone cares.
 \pushdef(item, \defn(descr_item))],
 [\popdef(item)\popdef(descr_begin)\popdef(descr_end)\descr_end])
 \define(descr_begin, [])
-\define(descr_end, [])
+\define(descr_end, [.PP])
 \define(descr_item, [.TP
 .B $1
 $2])

@@ -178,6 +178,9 @@ disponibles sont les suivantes:
 
 \begin(description)
 
+\item([depend \narg(fichier)], [Considère le fichier spécifié comme une
+dépendance à la compilation, sa date de modification sera vérifiée.])
+
 \item([module \narg(module) \optarg(\narg(options))], [Charge le module
 spécifié, éventuellement avec des options. Cette directive est équivalente à
 l'option de ligne de commande \ddopt(module).])
@@ -185,6 +188,22 @@ l'option de ligne de commande \ddopt(module).])
 \item([path \narg(répertoire)], [Ajoute le répertoire spécifié au chemin de
 recherche de TeX (et de Rubber). Le nom du répertoire est tout le texte qui
 suit les espaces après "\tt(path)".])
+
+\end(description)
+
+Si une commande est de la forme "\tt(toto.tutu)", elle est considérée comme
+une commande "\tt(tutu)" pour le module "\tt(toto)". Si ce module n'est pas
+encore enregistré lorsque la directive est rencontrée, il est chargé sans
+option puis la commande est exécutée. Pour les modules standard, les
+directives sont les suivantes:
+
+\begin(description)
+
+\item([bibtex.path \narg(répertoire)], [Ajoute le répertoire spécifié au chemin de
+recherche de bases de données BibTeX (fichiers \tt(.bib)).])
+
+\item([bibtex.stylepath \narg(répertoire)], [Ajoute le répertoire spécifié au
+chemin de recherche de styles BibTeX (fichiers \tt(.bst)).])
 
 \end(description)
 

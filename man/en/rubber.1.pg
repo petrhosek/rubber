@@ -179,6 +179,21 @@ follows the spaces after "\tt(path)".])
 
 \end(description)
 
+If a command has the form "\tt(foo.bar)", it is considered a command
+"\tt(bar)" for the module "\tt(foo)". If this module is not registered when
+the directive is found, then it is loaded with no option and the command is
+executed. For the standard modules, the directives are the following:
+
+\begin(description)
+
+\item([bibtex.path \narg(directory)], [Adds the specified directory to the
+search path for BibTeX databases (\tt(.bib) files).])
+
+\item([bibtex.stylepath \narg(directory)], [Adds the specified directory to
+the search path for BibTeX styles (\tt(.bst) files).])
+
+\end(description)
+
 \part(man)
 
 \section(2, Bugs)

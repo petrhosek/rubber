@@ -1,5 +1,7 @@
 2003-03-22  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/bibtex.py, man/...: Added support for BibTeX path changing.
+
 	* src/__init__.py: Introduced support for module-specific directives.
 
 	* src/__init__.py, src/modules/...: Modified the module structure into a

@@ -2,6 +2,13 @@
 # (c) Emmanuel Beffara, 2002
 """
 BibTeX support for Rubber
+
+This module is a special one: it is triggered by the macros \\bibliography and
+\\bibliographystyle and not as a package, so the main system knows about it.
+The module provides the following commands:
+
+  path <dir> = adds <dir> to the search path for databases
+  stylepath <dir> = adds <dir> to the search path for styles
 """
 
 from bisect import bisect_left
@@ -38,6 +45,11 @@ class Module (rubber.Module):
 		self.env = env
 		self.msg = env.msg
 
+		self.bib_path = [""]
+		if env.src_path != "" and env.src_path != ".":
+			self.bib_path.append(env.src_path)
+		self.bst_path = [""]
+
 		self.undef_cites = None
 		self.def_cites = None
 		self.style = None
@@ -50,14 +62,22 @@ class Module (rubber.Module):
 	# BibTeX uses.
 	#
 
+	def command (self, cmd, arg):
+		if cmd == "path":
+			self.bib_path.append(arg)
+		elif cmd == "stylepath":
+			self.bst_path.append(arg)
+
 	def add_db (self, name):
 		"""
 		Register a bibliography database file.
 		"""
-		bib = name + ".bib"
-		if exists(bib):
-			self.db.append(bib)
-			self.env.depends[bib] = DependLeaf([bib])
+		for dir in self.bib_path:
+			bib = join(dir, name + ".bib")
+			if exists(bib):
+				self.db.append(bib)
+				self.env.depends[bib] = DependLeaf([bib])
+				return
 
 	def set_style (self, style):
 		"""
@@ -71,12 +91,13 @@ class Module (rubber.Module):
 				del self.env.depends[old_bst]
 
 		self.style = style
-		new_bst = style + ".bst"
-		if exists(new_bst):
-			self.bst_file = new_bst
-			self.env.depends[new_bst] = DependLeaf([new_bst])
-		else:
-			self.bst_file = None
+		for dir in self.bst_path:
+			new_bst = join(dir, style + ".bst")
+			if exists(new_bst):
+				self.bst_file = new_bst
+				self.env.depends[new_bst] = DependLeaf([new_bst])
+				return
+		self.bst_file = None
 
 	#
 	# The following methods are responsible of detecting when running BibTeX
@@ -173,14 +194,17 @@ class Module (rubber.Module):
 
 	def run (self):
 		"""
-		This method actually runs BibTeX.
+		This method actually runs BibTeX with the appropriate environment
+		variables set.
 		"""
 		self.msg(0, _("running BibTeX..."))
-		if self.env.src_path != "":
-			env = { "BIBINPUTS":
-				"%s:%s" % (self.env.src_path, os.getenv("BIBINPUTS", "")) }
-		else:
-			env = {}
+		env = {}
+		if len(self.bib_path) != 1:
+			env["BIBINPUTS"] = string.join(self.bib_path +
+				[os.getenv("BIBINPUTS", "")], ":")
+		if len(self.bst_path) != 1:
+			env["BSTINPUTS"] = string.join(self.bst_path +
+				[os.getenv("BSTINPUTS", "")], ":")
 		if self.env.execute(["bibtex", self.env.src_base], env):
 			self.msg(-1, _("There were errors making the bibliography."))
 			self.show_errors()
