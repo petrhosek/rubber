@@ -6,7 +6,7 @@
 \part(menu)
 \begin(toc)
   \link(Rubber homepage, rubber.html) \br
-  \link(send me a mail, mailto:emmanuel@beffara.org)
+  \link(send me a mail, mailto:manu at beffara dot org)
 \end(toc)
 contents:
 \part(front)
@@ -93,7 +93,7 @@ level is 0, levels up to 3 exist.])
 There are surely a some...\br
 
 This page documents Rubber version \version. The program and this man-page are
-maintained by \link(Emmanuel Beffara, emmanuel@beffara.org).
+maintained by \link(Emmanuel Beffara, manu at beffara dot org).
 The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
 
 \section(2, See also)
