@@ -1,3 +1,7 @@
+2004-05-04  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Added directive "onchange".
+
 2004-03-17  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, src/util.py: Added a method Depend.show_errors.

@@ -1,5 +1,8 @@
 Version 0.99.8 (CVS)
 
+  Features:
+    - New directive "onchange".
+
   Bugfixes:
     - Portability improvement (for Cygwin and hopefully others).
     - Support for e-Tex.

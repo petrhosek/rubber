@@ -132,6 +132,7 @@ class LogCheck (object):
 	def __init__ (self, env):
 		self.env = env
 		self.msg = env.msg
+		self.lines = None
 
 	def read (self, name):
 		"""
@@ -353,6 +354,8 @@ class Environment (Depend):
 		self.source_building = None
 		self.final = self
 		self.watched_files = {}
+		self.onchange_md5 = {}
+		self.onchange_cmd = {}
 		self.removed_files = []
 
 		# state of the builder:
@@ -483,6 +486,18 @@ class Environment (Depend):
 				if len(args) > 1:
 					dict['opt'] = args[1]
 				self.modules.register(args[0], dict)
+
+		elif cmd == "onchange":
+			args = string.split(arg, maxsplit=1)
+			if len(args) < 2:
+				self.msg.info(pos, _("two arguments required for command 'onchange'"))
+			else:
+				file = args[0]
+				self.onchange_cmd[file] = args[1]
+				if exists(file):
+					self.onchange_md5[file] = md5_file(file)
+				else:
+					self.onchange_md5[file] = None
 
 		elif cmd == "paper":
 			self.conf.paper.extend(string.split(arg))
@@ -761,6 +776,8 @@ class Environment (Depend):
 			self.aux_md5 = None
 		self.aux_md5_old = None
 
+		self.log.read(self.src_base + ".log")
+
 		self.must_compile = 0
 		self.must_compile = self.compile_needed()
 
@@ -783,6 +800,14 @@ class Environment (Depend):
 		each compilation of the main source. Returns true on failure.
 		"""
 		self.msg(2, _("running post-compilation scripts..."))
+
+		for file, md5 in self.onchange_md5.items():
+			new = md5_file(file)
+			if md5 != new:
+				self.msg(0, _("running %s...") % self.onchange_cmd[file])
+				self.execute(["sh", "-c", self.onchange_cmd[file]])
+			self.onchange_md5[file] = new
+
 		for mod in self.modules.objects.values():
 			if mod.post_compile():
 				return 1
