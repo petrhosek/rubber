@@ -31,10 +31,11 @@ class Dep (Depend):
 		self.env = env
 		self.base = source[:-3]
 		self.cmd = ["mpost", "--interaction=batchmode", self.base]
-		if env.src_path != "":
-			cmd = [
-				"env", "MPINPUTS=:%s:%s" %
-				(self.env.src_path, os.getenv("MPINPUTS", ""))] + cmd
+		if env.src_path == "":
+			self.penv = {}
+		else:
+			self.penv = { "MPINPUTS":
+				"%s:%s" % (self.env.src_path, os.getenv("MPINPUTS", "")) }
 
 	def include (self, source, list):
 		"""
@@ -58,7 +59,7 @@ class Dep (Depend):
 
 	def run (self):
 		self.env.msg(0, _("running Metapost on %s.mp...") % self.base)
-		self.env.execute(self.cmd)
+		self.env.execute(self.cmd, self.penv)
 
 		# This creates a log file that has the same aspect as TeX logs.
 

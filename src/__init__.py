@@ -7,11 +7,10 @@ This module contains all the code in Rubber that actually does the job of
 building a LaTeX document from start to finish.
 """
 
-import os
+import os, sys, posix
 from os.path import *
 import re
 import string
-import sys
 
 from rubber.util import *
 
@@ -48,15 +47,18 @@ class Config:
 
 	def compile_cmd (self, file):
 		"""
-		Return the list of arguments for the command that should be used to
-		compile the specified file.
+		Return the the command that should be used to compile the specified
+		file, in the form of a pair. The first member is the list of
+		command-line arguments, and the second one is a dictionary of
+		environment variables to define.
 		"""
 		cmd = [self.latex] + self.latex_opts + [file]
 		inputs = string.join(self.path, ":")
-		if inputs != "":
+		if inputs == "":
+			return (cmd, {})
+		else:
 			inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
-			cmd = ["env", "TEXINPUTS=" + inputs] + cmd
-		return cmd
+			return (cmd, {"TEXINPUTS": inputs})
 
 #---------------------------------------
 
@@ -557,7 +559,8 @@ class Environment:
 		them and return true, otherwise return false.
 		"""
 		self.msg(0, _("compiling %s...") % self.source())
-		self.execute(self.conf.compile_cmd(self.source()))
+		(cmd, env) = self.conf.compile_cmd(self.source())
+		self.execute(cmd, env)
 		self.log.read(self.src_base + ".log")
 		if self.log.errors():
 			self.msg(-1, _("There were errors."))
@@ -728,16 +731,51 @@ class Environment:
 				self.watched_files[suffix] = new
 		return changed
 
-	def execute (self, prog):
+	def execute (self, prog, env={}):
 		"""
 		Silently execute an external program. The `prog' argument is the list
-		of arguments for the program, `prog[0]' is the program name. The
-		output is dicarded, but messages from Kpathsea are processed (to
-		indicate e.g. font compilation).
+		of arguments for the program, `prog[0]' is the program name. The `env'
+		argument is a dictionary with definitions that should be added to the
+		environment when running the program. The output is dicarded, but
+		messages from Kpathsea are processed (to indicate e.g. font
+		compilation).
 		"""
-		cmd = string.join(prog, " ")
-		self.msg(1, _("executing: %s") % cmd)
-		f_in, f_out, f_err = os.popen3(cmd)
+		self.msg(1, _("executing: %s") % string.join(prog))
+		if env != {}:
+			self.msg(2, _("with environment: %r") % env)
+
+		penv = posix.environ
+		for (key,val) in env.items():
+			penv[key] = val
+
+		# Python provides the os.popen* functions for what we want to do, but
+		# it has two crucial limitations: it only allows the execution of
+		# shell commands, which is problematic because of shell expansion for
+		# instance, and it doesn't provide a way to get the program's return
+		# code, except using UNIX-only methods in the Popen[34] classes. So we
+		# decide to drop non-UNIX compatibility by doing the fork/exec stuff
+		# ourselves.
+
+		(f_out_r, f_out_w) = os.pipe()
+		(f_err_r, f_err_w) = os.pipe()
+		pid = os.fork()
+
+		# The forked process simply closes the appropriate pipes and execvp's
+		# the specified program.
+
+		if pid == 0:
+			os.close(f_out_r)
+			os.close(f_err_r)
+			os.dup2(f_out_w, sys.stdout.fileno())
+			os.dup2(f_err_w, sys.stderr.fileno())
+			os.execvpe(prog[0], prog, penv)
+
+		# The main process reads whatever is sent to the error stream and
+		# parses it for Kpathsea messages.
+
+		os.close(f_out_w)
+		os.close(f_err_w)
+		f_err = os.fdopen(f_err_r)
 		while 1:
 			line = f_err.readline()
 			if line == "": break
@@ -750,7 +788,18 @@ class Environment:
 					self.msg(0, m.expand(self.kpse_msg[cmd]))
 				else:
 					self.msg(0, _("kpathsea running %s...") % cmd)
+
+		# After the executed program is finished (which we now be seeing that
+		# its error stream was closed), we wait for it and return its exit
+		# code.
+
+		(p, ret) = os.waitpid(pid, 0)
+		os.close(f_out_r)
+		f_err.close()
+		self.msg(3, _("process %d (%s) returned %d") % (pid, prog[0], ret))
+
 		self.something_done = 1
+		return ret
 
 	def remove_suffixes (self, list):
 		"""

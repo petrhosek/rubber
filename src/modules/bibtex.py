@@ -146,13 +146,11 @@ class Module:
 		"""
 		self.msg(0, _("running BibTeX..."))
 		if self.env.src_path != "":
-			prefix = [
-				"env", "BIBINPUTS=:%s:%s" %
-				(self.env.src_path, os.getenv("BIBINPUTS", ""))]
+			env = { "BIBINPUTS":
+				"%s:%s" % (self.env.src_path, os.getenv("BIBINPUTS", "")) }
 		else:
-			prefix = []
-		self.env.execute(prefix + [
-			"bibtex", "-terse", self.env.src_base])
+			env = {}
+		self.env.execute(["bibtex", "-terse", self.env.src_base], env)
 		self.run_needed = 0
 		self.env.must_compile = 1
 		return 0

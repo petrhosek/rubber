@@ -1,5 +1,9 @@
 2002-11-05  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py (Environment.execute): Rewrote the procedure for
+	external program execution, to make things clean. This has the
+	drawback of using UNIX-specific features.
+
 	* src/graphics/eps_gz.py, ...: Added automating extraction of
 	bounding boxes from gzipped PostScript figures.
 
