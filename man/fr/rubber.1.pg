@@ -12,7 +12,7 @@
 
 \begin(subtitle)
 \section(1, [Rubber])
-docmentation pour la version 0.99
+documentation pour la version \version
 \end(subtitle)
 
 \begin(intro)
@@ -129,9 +129,9 @@ DVI. Ce module est aussi chargé par l'option de ligne de commande
 
 Il y en a surement quelques uns...\br
 
-Rubber et cette documentation sont maintenus par
-\link(Emmanuel Beffara, emmanuel@beffara.org).
-La page web du programme se trouve à
+Cette page se rapporte à la version \version de Rubber. Le programme et cette
+documentation sont maintenus par \link(Emmanuel Beffara, emmanuel@beffara.org).
+La page web du programme se trouve à l'adresse
 http://beffara.org/stuff/rubber.html.
 
 \section(2, Voir aussi)

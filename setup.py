@@ -9,6 +9,7 @@
 import re
 import string
 import sys
+import os.path
 
 # The module `settings' is produced by the configuration script.
 
@@ -76,6 +77,8 @@ def make_files (subst, files):
 		return expand_vars(subst, subst[match.group(1)])
 
 	for file in files:
+		if not os.path.exists(file + ".in"):
+			continue
 		print "writing %s..." % file
 		input = open(file + ".in")
 		output = open(file, "w")
@@ -136,7 +139,8 @@ if len(sys.argv) > 1:
 	elif cmd == "config":
 		sub = settings.sub
 		make_files(sub, [
-			"Makefile", "rubber", "rubber-info", "src/version.py"])
+			"Makefile", "man/Makefile",
+			"rubber", "rubber-info", "src/version.py"])
 		print ("""\
 Rubber is now configured. It will be installed in the following directories:
     the main script: %s

@@ -12,7 +12,7 @@
 
 \begin(subtitle)
 \section(1, [Rubber-Info])
-documentation for version 0.99
+documentation for version \version
 \end(subtitle)
 
 \part(main)
@@ -76,8 +76,8 @@ level is 0, levels up to 3 exist.])
 
 There are surely a some...\br
 
-Rubber and this man-page are maintained by
-\link(Emmanuel Beffara, emmanuel@beffara.org).
+This page documents Rubber version \version. The program and this man-page are
+maintained by \link(Emmanuel Beffara, emmanuel@beffara.org).
 The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
 
 \section(2, See also)

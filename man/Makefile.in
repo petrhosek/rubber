@@ -13,7 +13,7 @@ MAN = $(subst .pg,,$(PG))
 all: $(MAN)
 
 %: %.pg man.m4
-	m4 man.m4 $< > $@
+	m4 -Dversion=@version@ man.m4 $< > $@
 
-clean:
-	rm -f $(MAN)
+distclean:
+	rm -f Makefile $(MAN)

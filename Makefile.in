@@ -26,7 +26,7 @@ clean:
 
 distclean: clean
 ifneq ($(wildcard man/Makefile),)
-	@make -C man clean
+	@make -C man distclean
 endif
 	rm -f Makefile rubber settings.py src/version.py
 
