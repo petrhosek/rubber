@@ -155,6 +155,10 @@ class DependLeaf (Depend):
 	dependencies.
 	"""
 	def __init__ (self, dest):
+		"""
+		Initialize the node. The argument of this method is a *list* of file
+	names, since one single node may contain several files.
+		"""
 		Depend.__init__(self, dest, {})
 	def run (self):
 		# FIXME

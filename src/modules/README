@@ -39,7 +39,7 @@ The following member data of the environment can also be modified:
   src_ext = the extension of the main source (e.g. ".tex")
   out_ext = the extension of the compiler's output file (e.g. ".dvi")
 
-depends = a dictionary that associates the names of the files needed for
+  depends = a dictionary that associates the names of the files needed for
     compilation with dependency nodes (from class Depend in rubber.util)
 
 The functions added to compile_process may additionally turn the variable
