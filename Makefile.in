@@ -45,4 +45,5 @@ endif
 deb: sdist
 	cd dist ; tar zxf rubber-@version@.tar.gz 
 	cp -r debian dist/rubber-@version@/
+	rm -rf dist/rubber-@version@/debian/CVS
 	cd dist/rubber-@version@ ; dpkg-buildpackage -rfakeroot
