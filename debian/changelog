@@ -1,3 +1,9 @@
+rubber (0.99.3-2) unstable; urgency=low
+
+  * Fixed package dependencies, both about Python and teTeX.
+
+ -- Emmanuel Beffara <manu@beffara.org>  Thu, 31 Oct 2002 19:44:40 +0100
+
 rubber (0.99.3-1) unstable; urgency=low
 
   * Switched to version 0.99.3, introducing initial XFig support and some
