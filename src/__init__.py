@@ -7,8 +7,6 @@ This module contains all the code in Rubber that actually does the job of
 building a LaTeX document from start to finish.
 """
 
-version = "0.99"
-
 import imp
 import os
 from os.path import *

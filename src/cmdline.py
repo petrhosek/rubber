@@ -8,6 +8,7 @@ import sys
 from getopt import *
 
 from rubber import *
+from rubber.version import *
 
 def _ (txt) : return txt
 
