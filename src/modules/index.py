@@ -132,7 +132,7 @@ class Index:
 		"""
 		Remove all generated files related to the index.
 		"""
-		for file in self.source, self.target:
+		for file in self.source, self.target, self.pbase + ".ilg":
 			if exists(file):
 				self.env.msg(1, _("removing %s") % file)
 				os.unlink(file)
