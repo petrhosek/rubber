@@ -107,18 +107,20 @@ class Message:
 		offending code (up to the error). The line number and the code may be
 		None, the file name and the text are required.
 		"""
-		if self.short:
-			if line:
-				self.write(-1, "%s:%d: %s" % (file, line, text))
-			else:
-				self.write(-1, "%s: %s" % (file, text))
+		if dirname(file) == os.curdir:
+			file = basename(file)
+
+		if line:
+			prefix = "%s:%d: " % (file, line)
 		else:
-			if line:
-				self.write(-1, _("\nline %d in %s:\n  %s") % (line, file, text))
-			else:
-				self.write(-1, _("\nin %s:\n  %s") % (file, text))
-			if code:
-				self.write(-1, "  --> " + code)
+			prefix = file + ": "
+
+		if text[0:13] == "LaTeX Error: ":
+			text = text[13:]
+
+		self.write(-1, prefix + text)
+		if code and not self.short:
+			self.write(-1, prefix + _("leading text: ") + code)
 
 	def abort (self, what, why):
 		"""
@@ -748,12 +750,13 @@ class Environment:
 			return 1
 		self.depends = {}
 		(self.src_path, name) = split(name)
+		(self.src_base, self.src_ext) = splitext(name)
 		if self.src_path == "":
 			self.src_path = "."
+			self.src_pbase = self.src_base
 		else:
 			self.conf.path.append(self.src_path)
-		(self.src_base, self.src_ext) = splitext(name)
-		self.src_pbase = join(self.src_path, self.src_base)
+			self.src_pbase = join(self.src_path, self.src_base)
 
 		self.out_ext = ".dvi"
 		self.final_file = self.src_base + ".dvi"

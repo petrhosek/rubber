@@ -1,3 +1,7 @@
+2003-12-08  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Made messages more GNU-compliant.
+
 2003-12-01  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/dvipdfm.py, man/...: Added support for dvipdfm.

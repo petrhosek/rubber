@@ -8,6 +8,7 @@ Version CVS
     - Support for post-processing through dvipdfm.
     - New frontend "rubber-pipe" with the behaviour of a filter.
     - Support for Literate Haskell code (with lhs2TeX).
+    - Error messages are now issued in the style of GNU compilers.
 
   Bugfixes:
     - Error-like messages from pdfTeX are now correctly handled.
