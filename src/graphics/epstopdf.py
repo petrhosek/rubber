@@ -14,11 +14,19 @@ class Dep (Depend):
 		Depend.__init__(self, [target], {source: leaf})
 		self.env = env
 		self.source = source
-		self.cmd = ["epstopdf", "--outfile=" + target, source]
+
+		# The "env" is a hack because on some systems, the epstopdf executable
+		# appears to be broken, which seems to make direct execution fail,
+		# while "env" may be more clever.
+
+		self.cmd = ["env", "epstopdf", "--outfile=" + target, source]
 
 	def run (self):
 		self.env.msg(0, _("converting %s to PDF...") % self.source)
-		return self.env.execute(self.cmd)
+		if self.env.execute(self.cmd):
+			self.env.msg(0, _("the operation failed"))
+			return 1
+		return 0
 
 def convert (source, target, env):
 	return Dep(target, source, env)

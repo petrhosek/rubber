@@ -1,5 +1,11 @@
 2002-11-06  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/graphics/epstopdf.py: Hacked the epstopdf command to make it
+	work with bad executables.
+
+	* src/graphics/, src/modules/: Checked for return codes in
+	external program executions.
+
 	* src/__init__.py: Added code to watch for changes in the aux
 	file, to prevent from abusive recompilation.
 

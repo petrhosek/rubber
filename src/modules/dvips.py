@@ -30,9 +30,12 @@ class Module:
 			return 0
 		self.msg(0, _("running dvips on %s...") %
 		         (self.env.src_base + ".dvi"))
-		return self.env.execute(
+		if self.env.execute(
 			["dvips", self.env.src_base + ".dvi",
-			 "-o", self.env.src_base + ".ps"])
+			 "-o", self.env.src_base + ".ps"]):
+			self.env.msg(0, _("the operation failed"))
+			return 1
+		return 0
 
 	def run_needed (self):
 		"""

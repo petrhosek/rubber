@@ -39,8 +39,11 @@ class Module:
 		if not self.run_needed():
 			return 0
 		self.msg(0, "making index...")
+		if self.env.execute(["makeindex", self.pbase]):
+			self.env.msg(0, _("the operation failed"))
+			return 1
 		self.env.must_compile = 1
-		return self.env.execute(["makeindex", self.pbase]):
+		return 0
 
 	def run_needed (self):
 		"""

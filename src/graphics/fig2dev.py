@@ -30,7 +30,10 @@ class Dep (Depend):
 
 	def run (self):
 		self.env.msg(0, _("converting %s to %s...") % (self.source, self.lang))
-		return self.env.execute(self.cmd)
+		if self.env.execute(self.cmd):
+			self.env.msg(0, _("the operation failed"))
+			return 1
+		return 0
 
 def convert (source, target, env):
 	return Dep(target, source, env)
