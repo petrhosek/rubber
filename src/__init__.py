@@ -201,6 +201,13 @@ class Modules (Plugins):
 		self.objects[name] = mod
 		return 1
 
+	def clear (self):
+		"""
+		Unregister all modules.
+		"""
+		Plugins.clear(self)
+		self.objects = {}
+
 #---------------------------------------
 
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
@@ -365,7 +372,6 @@ class Environment:
 		self.msg = message
 		self.msg(2, _("initializing Rubber..."))
 
-		self.conf = Config()
 		self.log = LogCheck(self)
 		self.modules = Modules(self)
 
@@ -386,7 +392,7 @@ class Environment:
 		Reinitialize the environment, in order to process a new document. This
 		resets the process and the hook dictionary and unloads modules.
 		"""
-		self.msg(1, _("initializing..."))
+		self.msg(1, _("reinitializing..."))
 		self.modules.clear()
 		self.initialize()
 
@@ -395,6 +401,8 @@ class Environment:
 		This is the method that actually does the initialization. It is also
 		used when restarting the process.
 		"""
+		self.conf = Config()
+
 		# the initial hooks:
 
 		self.hooks = {
