@@ -6,6 +6,7 @@ This module contains material to extract information from compilation results.
 
 import re
 import string
+from rubber import _
 from rubber import *
 
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
