@@ -3,6 +3,9 @@
 # As a part of Rubber, it is covered by the GPL (see COPYING for details).
 # (c) Emmanuel Beffara, 2002
 
+# this is the only place where there is version number:
+version=0.99
+
 prefix=/usr/local
 bindir='${prefix}/bin'
 datadir='${prefix}/share'
@@ -71,6 +74,7 @@ fullmoddir=`eval echo $moddir`
 
 cat > settings.py <<EOF
 sub = {
+  "version": "$version",
   "prefix": "$prefix",
   "bindir": "$bindir",
   "datadir": "$datadir",
@@ -78,5 +82,7 @@ sub = {
   "mandir": "$mandir"
 }
 EOF
+
+echo "settings.py generated"
 
 env PYTHONPATH=.:$PYTHONPATH python setup.py config

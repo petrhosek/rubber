@@ -2,6 +2,8 @@
 # As part of Rubber, it is covered by the GPL (see COPYING for details).
 # (c) Emmanuel Beffara, 2002
 
+version = @version@
+
 prefix = @prefix@
 bindir = @bindir@
 moddir = @moddir@
@@ -26,7 +28,7 @@ distclean: clean
 ifneq ($(wildcard man/Makefile),)
 	@make -C man clean
 endif
-	rm -f Makefile rubber settings.py
+	rm -f Makefile rubber settings.py src/version.py
 
 install:
 	python setup.py inst ${prefix}
@@ -38,3 +40,8 @@ ifneq ($(wildcard man/Makefile),)
 	@make -C man all
 endif
 	python setup.py sdist
+
+deb: dist
+	cd dist ; tar zxf rubber-@version@.tar.gz 
+	cp -r debian dist/rubber-@version@/
+	cd dist/rubber-@version@ ; dpkg-buildpackage -rfakeroot

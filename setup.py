@@ -98,7 +98,7 @@ def do_setup ():
 		mandir = "man"
 	setup(
 		name = "rubber",
-		version = "0.99",
+		version = settings.sub["version"],
 		description = "The Rubber system for building LaTeX documents",
 		long_description = """\
 This is a building system for LaTeX documents. It is based on a routine that
@@ -134,7 +134,7 @@ if len(sys.argv) > 1:
 		do_check()
 	elif cmd == "config":
 		sub = settings.sub
-		make_files(sub, ["Makefile", "rubber"])
+		make_files(sub, ["Makefile", "rubber", "src/version.py"])
 		print ("""\
 Rubber is now configured. It will be installed in the following directories:
     the main script: %s
