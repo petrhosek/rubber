@@ -14,14 +14,14 @@ TODO: handle the shortext option
 import os, os.path
 import re
 
+import rubber
 from rubber import _
 
 re_tocext = re.compile("[mps](tc|l[ft])[0-9]+")
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
-		env.cleaning_process.append(self.clean)
 
 	def clean (self):
 		self.env.remove_suffixes([".bmt"])

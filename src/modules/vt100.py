@@ -11,6 +11,8 @@ including control sequences in the strings, that the message writer would
 translate in an appropriate way.
 """
 
+import rubber
+
 color = [
 	"\x1B[31;1m", # level -1: red, boldface
 	"",           # level  0: normal
@@ -18,7 +20,7 @@ color = [
 	"\x1B[34m",   # level  2: blue
 	"\x1B[35m" ]  # level  3: magenta
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.msg = env.msg
 		self.msg.write = self.write

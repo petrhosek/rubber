@@ -8,10 +8,11 @@ The xr package allows one to put references in one document to other
 file, so this support package registers these files as dependencies.
 """
 
+import rubber
 from rubber import _
 from rubber.util import DependLeaf
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
 		env.add_hook("externaldocument", self.externaldocument)

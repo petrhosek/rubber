@@ -18,6 +18,7 @@ import os
 from os.path import *
 import string, re
 
+import rubber
 from rubber import _
 import rubber.util
 import rubber.graphics
@@ -52,7 +53,7 @@ drv_suffixes = {
 
 re_gpath = re.compile("{(?P<prefix>[^{}]*)}")
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		"""
 		Initialize the module by defining the search path and the list of
@@ -62,8 +63,6 @@ class Module:
 		self.msg = env.msg
 		env.add_hook("includegraphics", self.includegraphics)
 		env.add_hook("graphicspath", self.graphicspath)
-		env.ext_building.append(self.build)
-		env.cleaning_process.append(self.clean)
 
 		self.prefixes = map(lambda x: join(x, ""), env.conf.path)
 		self.files = []
@@ -159,7 +158,7 @@ class Module:
 					return test + suffix
 		return None
 
-	def build (self):
+	def pre_compile (self):
 		"""
 		Prepare the graphics before compilation. Currently, this only means
 		printing warnings if some graphics are not found.

@@ -5,12 +5,11 @@ BibTeX support for Rubber
 """
 
 from bisect import bisect_left
-import os
+import os, sys
 from os.path import *
-import re
-import string
-import sys
+import re, string
 
+import rubber
 from rubber import _
 from rubber.util import *
 
@@ -25,7 +24,7 @@ re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 re_error = re.compile(
 	"---(line (?P<line>[0-9]+) of|while reading) file (?P<file>.*)")
 
-class Module:
+class Module (rubber.Module):
 	"""
 	This class is the module that handles BibTeX in Rubber. It provides the
 	funcionality required when compiling documents as well as material to
@@ -45,10 +44,6 @@ class Module:
 		self.set_style("plain")
 		self.db = []
 		self.run_needed = 0
-
-		env.ext_building.append(self.first_bib)
-		env.compile_process.append(self.check_bib)
-		env.cleaning_process.append(self.clean)
 
 	#
 	# The following method are used to specify the various datafiles that
@@ -88,7 +83,7 @@ class Module:
 	# is needed and actually running it.
 	#
 
-	def first_bib (self):
+	def pre_compile (self):
 		"""
 		Run BibTeX if needed before the first compilation. This function also
 		checks if BibTeX has been run by someone else, and in this case it
@@ -166,7 +161,7 @@ class Module:
 					list.insert(pos, cite)
 		return list
 
-	def check_bib (self):
+	def post_compile (self):
 		"""
 		This method runs BibTeX if needed to solve undefined citations. If it
 		was run, then force a new LaTeX compilation.

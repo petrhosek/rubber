@@ -7,9 +7,10 @@ PostScript generation through dvips with Rubber.
 import sys
 from os.path import *
 
+import rubber
 from rubber import _
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
 		self.msg = env.msg
@@ -20,7 +21,6 @@ class Module:
 			self.msg(0, _("there is already a post-processor registered"))
 			sys.exit(2)
 		env.output_processing = self.run
-		env.cleaning_process.append(self.clean)
 
 	def run (self):
 		"""

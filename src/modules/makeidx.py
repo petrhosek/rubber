@@ -10,25 +10,24 @@ between two runs, in order to detect modifications.
 
 import os
 
+import rubber
 from rubber import _
 from rubber.util import *
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		"""
 		Initialize the module, checking if there is already an index.
 		"""
 		self.env = env
 		self.msg = env.msg
-		env.compile_process.append(self.make)
-		env.cleaning_process.append(self.clean)
 		self.pbase = env.src_base
 		if os.path.exists(self.pbase + ".idx"):
 			self.md5 = md5_file(self.pbase + ".idx")
 		else:
 			self.md5 = None
 
-	def make (self):
+	def post_compile (self):
 		"""
 		Run makeindex if needed.
 		"""

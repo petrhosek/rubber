@@ -412,13 +412,8 @@ class Environment:
 		# description of the building process:
 
 		self.source_building = None
-		self.ext_building = []
-		self.compile_process = []
 		self.output_processing = None
-
 		self.watched_files = {}
-
-		self.cleaning_process = []
 		self.removed_files = []
 
 		# state of the builder:
@@ -700,13 +695,16 @@ class Environment:
 
 		self.must_compile = 0
 		self.must_compile = self.compile_needed()
-		if self.ext_building != []:
-			self.msg(1, _("building additional files..."))
-			for dep in self.depends.values():
-				if dep.make() == 0:
-					return 1
-			for proc in self.ext_building:
-				if proc(): return 1
+
+		self.msg(2, _("building additional files..."))
+
+		for dep in self.depends.values():
+			if dep.make() == 0:
+				return 1
+
+		for mod in self.modules.objects.values():
+			if mod.pre_compile():
+				return 1
 		return 0
 		
 
@@ -715,10 +713,10 @@ class Environment:
 		Run the package-specific operations that are to be performed after
 		each compilation of the main source. Returns true on failure.
 		"""
-		if self.compile_process != []:
-			self.msg(2, _("running post-compilation scripts..."))
-			for proc in self.compile_process:
-				if proc(): return 1
+		self.msg(2, _("running post-compilation scripts..."))
+		for mod in self.modules.objects.values():
+			if mod.post_compile():
+				return 1
 		return 0
 
 	def post_process (self):
@@ -742,10 +740,9 @@ class Environment:
 				self.msg(3, _("removing %s") % file)
 				os.unlink(file)
 
-		if self.cleaning_process != []:
-			self.msg(2, _("cleaning additional files..."))
-			for proc in self.cleaning_process:
-				proc()
+		self.msg(2, _("cleaning additional files..."))
+		for mod in self.modules.objects.values():
+			mod.clean()
 
 	###  complete process
 
@@ -973,3 +970,32 @@ class Environment:
 			if exists(file):
 				self.msg(3, _("removing %s") % file)
 				os.unlink(file)
+
+#---------------------------------------
+
+class Module:
+	"""
+	This is the base class for modules. Each module should define a class
+	named 'Module' that derives from this one. The default implementation
+	provides all required methods with no effects.
+	"""
+	def __init__ (self, env, dict):
+		"""
+		The constructor receives two arguments: 'env' is the compiling
+		environment, 'dict' is a dictionary that describes the command that
+		caused the module to load.
+		"""
+
+	def pre_compile (self):
+		"""
+		This method is called before the first LaTeX compilation. It is
+		supposed to build any file that LaTeX would require to compile the
+		document correctly.
+		"""
+
+	def post_compile (self):
+		"""
+		This method is called after each LaTeX compilation. It is supposed to
+		process the compilation results and possibly request a new
+		compilation.
+		"""

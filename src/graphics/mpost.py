@@ -143,5 +143,4 @@ def convert (source, target, env):
 	else:
 		dep = Dep(target, source, env)
 		files[source] = dep
-		env.cleaning_process.append(dep.clean)
 	return dep

@@ -9,14 +9,14 @@ needed.
 
 from os.path import *
 
+import rubber
 from rubber import _
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
 		env.source_building = self.make
 		env.src_ext = ".tex"
-		env.cleaning_process.append(self.clean)
 
 	def make (self):
 		"""

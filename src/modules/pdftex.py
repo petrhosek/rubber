@@ -4,7 +4,9 @@
 pfdLaTeX support for Rubber.
 """
 
-class Module:
+import rubber
+
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		env.conf.latex = "pdflatex"
 		env.conf.tex = "pdfTeX"

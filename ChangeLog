@@ -1,3 +1,9 @@
+2003-03-22  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, src/modules/...: Modified the module structure into a
+	more object-oriented one, introducing a base class Module in module
+	rubber.
+
 2003-03-21  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, man/...: Introduced directives (module and path).
@@ -160,7 +166,7 @@
 	(Config.compile_cmd): Changed calling convention for portability
 	among TeX distributions.
 
-	* src/graphics/eps_gz.py, ...: Added automating extraction of
+	* src/graphics/eps_gz.py, ...: Added automatic extraction of
 	bounding boxes from gzipped PostScript figures.
 
 2002-11-04  Emmanuel Beffara  <manu@beffara.org>

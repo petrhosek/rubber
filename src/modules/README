@@ -1,9 +1,14 @@
 Conventions for module interfacing:
+===================================
 
-Each module must contain a class simply named `Module' whose __init__ method
-takes the building environment as its first argument and a dictionary as its
-second argument. This dictionary describes the command that caused the module
-to be loaded, its keys are the following:
+* Initialization
+  --------------
+
+Each module must contain a class simply named `Module', deriving from the
+class `rubber.Module'. The __init__ method takes the building environment as
+its first argument and a dictionary as its second argument. This dictionary
+describes the command that caused the module to be loaded, its keys are the
+following:
 
   name = the macro's name (i.e. "usepackage" or "RequirePackage", or undefined
     if the module is loaded from the command line)
@@ -11,8 +16,8 @@ to be loaded, its keys are the following:
   opt = the module's options or None (either \usepackage's optional argument
     or the module options on the command line)
 
-The __init__ function is supposed to register the module's functions using the
-following methods of the environment:
+The __init__ function is supposed to register the macros supported by the
+module using the following method of the environment:
 
   add_hook(name, fun)
     The function `fun' will be called when the macro of the given name is
@@ -23,17 +28,35 @@ following methods of the environment:
       arg = the first argument (if it doesn't contains any brace) or None
       line = the rest of the line where the macro occurs
 
-The following member data of the environment can also be modified:
 
-  ext_building
-    The list of functions called before the first compilation.
-  compile_process
-    The list of functions called after each compilation.
+* Methods
+  -------
+
+The Module class may redefine the following methods:
+
+  pre_compile (self)
+    Called before the first compilation.
+
+  post_compile (self)
+    Called after each compilation. This function may additionally turn the
+    variable `must_compile' (in the environment) to true to force a
+    compilation in the next step.
+
+  clean (self)
+    Called when cleaning compilation results.
+
+These have no effect in the base class.
+
+
+* Available data
+  --------------
+
+The following member data of the environment may be of interest. They can be
+modified with some care.
+
   output_processing
-    The list of functions called after the last compilation.
+    A function called after the last compilation, or None.
 
-  cleaning_process
-    The list of functions called when cleaning compilation results.
   removed_files
     A list of additional files to be removed on cleaning.
 
@@ -46,8 +69,9 @@ The following member data of the environment can also be modified:
   depends = a dictionary that associates the names of the files needed for
     compilation with dependency nodes (from class Depend in rubber.util)
 
-The functions added to compile_process may additionally turn the variable
-must_compile to true to force a compilation in the next step.
+
+* Messages
+  --------
 
 During execution, all messages must be output using the method
 
@@ -55,3 +79,7 @@ During execution, all messages must be output using the method
 
 of the environment passed to the __init__ method (technically, this is not a
 method but a callable object).
+
+The modules in the standard distribution import the symbol `_' from `rubber'
+and output messages as `_("here I am")'. This is in preparation for the
+upcoming internationalized version of Rubber.

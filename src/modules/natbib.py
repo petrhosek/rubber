@@ -9,14 +9,15 @@ extra compilation may be needed when using this package.
 
 import re
 
+import rubber
+
 re_rerun = re.compile("\(natbib\).*Rerun ")
 
-class Module:
+class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
-		env.compile_process.append(self.check)
 
-	def check (self):
+	def post_compile (self):
 		for line in self.env.log.lines:
 			if re_rerun.match(line):
 				self.env.must_compile = 1
