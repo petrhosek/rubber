@@ -33,6 +33,8 @@ class Message (object):
 		self.level = level
 		self.write = write
 		self.short = 0
+		self.path = ""
+		self.cwd = join(curdir, "")
 
 	def __call__ (self, level, text):
 		"""
@@ -88,7 +90,9 @@ class Message (object):
 		if where is None or where == {}:
 			return text
 		if where.has_key("file"):
-			pos = simplify_path(where["file"])
+			pos = normpath(join(self.path, where["file"]))
+			if pos[:len(self.cwd)] == self.cwd:
+				pos = pos[len(self.cwd):]
 			if where.has_key("line") and where["line"]:
 				pos = "%s:%d" % (pos, where["line"])
 				if where.has_key("last"):

@@ -178,7 +178,9 @@ available options:
 
 		if self.place != ".":
 			initial_dir = os.getcwd()
+			msg.cwd = join(initial_dir, "")
 			if self.place is not None:
+				msg.path = self.place
 				self.place = os.path.abspath(self.place)
 			self.path = map(os.path.abspath, self.path)
 
@@ -192,6 +194,7 @@ available options:
 			if self.place != ".":
 				src = os.path.abspath(os.path.join(initial_dir, src))
 				if self.place is None:
+					msg.path = os.path.dirname(src)
 					os.chdir(os.path.dirname(src))
 					src = os.path.basename(src)
 				else:

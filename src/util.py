@@ -28,17 +28,6 @@ def md5_file (fname):
 	file.close()
 	return m.digest()
 
-def simplify_path (file):
-	"""
-	Simplify a file name, removing a leading "./" or the directory name if
-	it is the current working directory.
-	"""
-	dir = dirname(file)
-	if dir == os.curdir or dir == os.getcwd():
-		return basename(file)
-	else:
-		return file
-
 
 #-- Keyval parsing --{{{1
 
