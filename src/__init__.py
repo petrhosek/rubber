@@ -53,7 +53,7 @@ class Config:
 		command-line arguments, and the second one is a dictionary of
 		environment variables to define.
 		"""
-		cmd = [self.latex, "\\batchmode\\input{%s}" % file]
+		cmd = [self.latex, "\\nonstopmode\\input{%s}" % file]
 		inputs = string.join(self.path, ":")
 		if inputs == "":
 			return (cmd, {})

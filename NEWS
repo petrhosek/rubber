@@ -6,6 +6,7 @@ Version 0.99.6
 
   Bugfixes:
     - The action "--deps" in rubber-info now lists each dependency only once.
+    - Kpathsea messages are now reported also during compilation.
 
 Version 0.99.5 (2002-12-04)
 

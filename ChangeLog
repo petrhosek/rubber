@@ -1,3 +1,8 @@
+2003-02-24  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Changed \batchmode into \nonstopmode so that
+	possible Kpathsea messages actually show during TeX runs.
+
 2003-02-05  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/graphics/__init__.py, src/graphics/jpeg2ps.py: Introduced
