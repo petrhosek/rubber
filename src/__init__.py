@@ -473,23 +473,40 @@ class Environment:
 		"""
 		Execute the rubber command 'cmd' with argument 'arg'. This is called
 		when a command is found in the source file or in a configuration file.
+		A command name of the form 'foo.bar' is considered to be a command
+		'bar' for module 'foo'.
 		"""
-		if cmd == "path":
-			if arg:
-				self.conf.path.append(arg)
+		if cmd == "depend":
+			file = self.conf.find_input(arg)
+			if file:
+				self.depends[file] = DependLeaf([file])
 			else:
-				self.msg(1, _("missing argument for command 'path'"))
+				self.msg(1, _("dependency '%s' not found") % arg)
+
 		elif cmd == "module":
-			if arg:
-				args = string.split(arg, maxsplit=1)
+			args = string.split(arg, maxsplit=1)
+			if len(args) == 0:
+				self.msg(1, _("argument required for command 'module'"))
+			else:
 				dict = { 'arg': args[0], 'opt': None }
 				if len(args) > 1:
 					dict['opt'] = args[1]
 				self.modules.register(args[0], dict)
-			else:
-				self.msg(1, _("missing argument for command 'module'"))
+
+		elif cmd == "path":
+			self.conf.path.append(arg)
+
 		else:
-			self.msg(1, _("unknown command '%s'") % cmd)
+			lst = string.split(cmd, ".", 1)
+			if len(lst) > 1:
+				try:
+					self.modules[lst[0]].command(lst[1], arg)
+				except KeyError:
+					self.msg(1,
+						_("module '%s' is not loaded, command '%s' ignored")
+						% (lst[0], cmd))
+			else:
+				self.msg(1, _("unknown command '%s'") % cmd)
 
 	def process (self, path):
 		"""
@@ -998,4 +1015,9 @@ class Module:
 		This method is called after each LaTeX compilation. It is supposed to
 		process the compilation results and possibly request a new
 		compilation.
+		"""
+
+	def command (self, cmd, arg):
+		"""
+		This is called when a directive for the module is found in the source.
 		"""
