@@ -1,3 +1,7 @@
+2004-02-19  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/beamer.py: Update for the new version of beamer.
+
 2004-02-18  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/ps2pdf.py: Added post-processor ps2pdf.
