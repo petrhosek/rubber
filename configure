@@ -54,7 +54,8 @@ done
 
 ###  Check that we can install the program.
 
-if ! which python > /dev/null; then
+if which python > /dev/null; then
+else
 	cat <<EOF
 I could not run the Python interpreter. Since Rubber is written in Python, you
 need a working Pyhton installation. Please make it so...
