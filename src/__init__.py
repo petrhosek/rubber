@@ -411,6 +411,8 @@ class Environment:
 		}
 		self.update_seq()
 
+		self.convert = Converter({}, self.modules)
+
 		# description of the building process:
 
 		self.source_building = None
@@ -541,6 +543,34 @@ class Environment:
 		file.close()
 		self.msg(3, _("end of %s") % path)
 
+	def input_file (self, name):
+		"""
+		Treat the given name as a source file to be read. If this source can
+		be the result of some conversion, then the conversion is performed,
+		then the source is parsed. The returned value is a couple (name,dep)
+		where `name' is the actual LaTeX source parsed and `dep' is its
+		dependency node. The return value is (None,None) is the source could
+		neither be read nor built.
+		"""
+		for path in self.conf.path:
+			pname = join(path, name)
+			dep = self.convert(pname, self)
+			if dep:
+				dep.make()
+				self.process(pname)
+				return pname, dep
+			dep = self.convert(pname + ".tex", self)
+			if dep:
+				dep.make()
+				self.process(pname)
+				return pname + ".tex", dep
+		file = self.conf.find_input(name)
+		if file:
+			self.process(file)
+			return file, self.depends[file]
+		else:
+			return None, None
+
 	def update_seq (self):
 		"""
 		Update the regular expression used to match macro calls using the keys
@@ -571,9 +601,7 @@ class Environment:
 		if the included file is found.
 		"""
 		if dict["arg"]:
-			file = self.conf.find_input(dict["arg"])
-			if file:
-				self.process(file)
+			self.input_file(dict["arg"])
 
 	def h_include (self, dict):
 		"""
@@ -582,9 +610,8 @@ class Environment:
 		creates .aux files for them, so we have to notice this.
 		"""
 		if dict["arg"]:
-			file = self.conf.find_input(dict["arg"])
+			file, _ = self.input_file(dict["arg"])
 			if file:
-				self.process(file)
 				if file[-4:] == ".tex":
 					file = file[:-4]
 				self.removed_files.append(basename(file) + ".aux")

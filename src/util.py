@@ -289,7 +289,10 @@ class Converter:
 		expression to match the target against, the source name deduced from
 		it, and the module to use when a source is found.
 		"""
-		self.rules[re.compile(target)][source] = module
+		e = re.compile(target)
+		if not self.rules.has_key(e):
+			self.rules[e] = {}
+		self.rules[e][source] = module
 
 	def __call__ (self, target, env):
 		"""
