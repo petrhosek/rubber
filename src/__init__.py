@@ -595,57 +595,41 @@ class Process:
 
 #---------------------------------------
 
-class Modules:
+class Modules (Plugins):
 	"""
-	This class gathers all operations related to the management of external
-	modules. Package supports are loaded through the `register' method, and
-	mosules are searched for first in the current directory, then in the
-	package `rubber.modules' (using Python's path).
+	This class gathers all operations related to the management of modules.
+	The modules are	searched for first in the current directory, then in the
+	package `rubber.modules'.
 	"""
 	def __init__ (self, env):
+		Plugins.__init__(self)
 		self.env = env
-		self.modules = {}
+		self.objects = {}
 
 	def __getitem__ (self, name):
 		"""
 		Return the module object of the given name.
 		"""
-		return self.modules[name]
+		return self.objects[name]
 
 	def register (self, name, dict={}):
 		"""
 		Attempt to register a package with the specified name. If a module is
-		found to support the package, create an object from the module's class
-		called `Module', passing it the environment and `dict' as arguments.
-		This dictionary describes the command that caused the registration.
+		found, create an object from the module's class called `Module',
+		passing it the environment and `dict' as arguments. This dictionary
+		describes the command that caused the registration.
 		"""
-		if self.modules.has_key(name):
-			self.env.message(2, _("module %s already registered") % name)
+		r = self.load_module(name, "rubber.modules")
+		if r == 0:
+			self.env.message(3, _("no support found for %s") % name)
 			return 1
-		try:
-			file, path, descr = imp.find_module(name, [""])
-		except ImportError:
-			try:
-				file, path, descr = imp.find_module(
-					join("rubber", "modules", name));
-			except ImportError:
-				self.env.message(2, _("no support found for %s") % name)
-				return 1
-		module = imp.load_module(name, file, path, descr)
-		file.close()
-		mod = module.Module(self.env, dict)
+		elif r == 2:
+			self.env.message(3, _("module %s already registered") % name)
+			return 1
+		mod = self.modules[name].Module(self.env, dict)
 		self.env.message(2, _("module %s registered") % name)
-		self.modules[name] = mod
+		self.objects[name] = mod
 		return 0
-
-	def clear(self):
-		"""
-		Empty the module table, unregistering every module registered. No
-		modules are unloaded, however, but this has no other effect than
-		speeding the registration of the modules again.
-		"""
-		self.modules.clear()
-
 
 #---------------------------------------
 
