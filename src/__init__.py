@@ -494,7 +494,7 @@ class Environment:
 		self.seq = re.compile("\
 \\\\(?P<name>%s)\*?\
  *(\\[(?P<opt>[^\\]]*)\\])?\
-({(?P<arg>[^\\\\{}]*)}|[^A-Za-z{])?"
+({(?P<arg>[^\\\\{}]*)}|(?=[^A-Za-z]))"
 			% string.join(self.hooks.keys(), "|"))
 
 	# Module interface:
@@ -886,10 +886,10 @@ class Environment:
 
 		# If the external program writes a lot of data on both its standard
 		# output and standard error streams, we might fall into a deadlock,
-		# waiting for input one one while the programs fills the other's
+		# waiting for input on one while the program fills the other's
 		# buffer. To solve this, we add a thread to read on the program's
 		# standard output. The thread simply discards this output unless the
-		# optional 
+		# optional argument is used.
 
 		def reader (file, out):
 			if out:
