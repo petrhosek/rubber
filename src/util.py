@@ -248,3 +248,59 @@ class DependLeaf (Depend):
 
 	def clean (self):
 		pass
+
+
+#-- Automatic source conversion
+
+class Converter:
+	"""
+	This class represents a set of translation rules that may be used to
+	produce input files. Objects contain a table of rewriting rules to deduce
+	potential source names from the target's name, each rule associated to a
+	given plugin name. Plugins are expected to contain a method 'convert' that
+	take as argument the source (an existing file), the target, and the
+	environment, and that returns a dependency node or None if the rule is not
+	applicable.
+	"""
+	def __init__ (self, rules, plugins, package):
+		"""
+		Initialize the ocnverter with a given set of rules. This set is a
+		dictionary that associates regular expressions (to match the target
+		names against) with dictionaries. Each of these dictionaries
+		associates templates (that depend on the regular expression) for the
+		source name with plugin names. See graphics.__init__ for an example.
+		The third argument is the plugin set to use and the fourth one is
+		Python package in which plugins are searched for.
+		"""
+		self.rules = {}
+		for key, val in rules.items():
+			self.rules[re.compile(key)] = val
+		self.plugins = plugins
+		self.package = package
+
+	def add_rule (self, target, source, module):
+		"""
+		Define a new conversion rule. The arguments are, respectively, the
+		expression to match the target against, the source name deduced from
+		it, and the module to use when a source is found.
+		"""
+		self.rules[re.compile(target)][source] = module
+
+	def __call__ (self, target, env):
+		"""
+		Search for an applicable rule for the given target. If such a rule is
+		found, return the dependency node for the target according to this
+		rule, otherwise return None.
+		"""
+		for dest, rules in self.rules.items():
+			m = dest.match(target)
+			if m:
+				for src, mod in rules.items():
+					source = m.expand(src)
+					if exists(source):
+						if not self.plugins.load_module(mod, self.package):
+							continue
+						dep = self.plugins[mod].convert(source, target, env)
+						if dep:
+							return dep
+		return None

@@ -1,3 +1,8 @@
+2003-03-27  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/util.py, src/graphics/__init__.py: Changed the converter
+	mechanism into a utility class.
+
 2003-03-26  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, src/cmdline.py, src/modules/dvips.py: Added paper

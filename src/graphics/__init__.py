@@ -37,11 +37,8 @@ import re
 from os.path import *
 from rubber.util import *
 
-cconv = {}
-for k in conv.keys():
-	cconv[re.compile(k)] = conv[k]
-
 plugins = Plugins()
+convert = Converter(conv, plugins, "rubber.graphics")
 
 def dep_file (base, suffixes, prefixes, env):
 	"""
@@ -58,19 +55,9 @@ def dep_file (base, suffixes, prefixes, env):
 			targets.append(p + base + s)
 
 	for target in targets:
-		for dest in cconv.keys():
-			m = dest.match(target)
-			if m:
-				rules = cconv[dest]
-				for src in rules.keys():
-					source = m.expand(src)
-					if exists(source):
-						mod = rules[src]
-						if not plugins.load_module(mod, "rubber.graphics"):
-							continue
-						dep = plugins[mod].convert(source, target, env)
-						if dep:
-							return dep
+		dep = convert(target, env)
+		if dep:
+			return dep
 
 	for file in targets:
 		if exists(file):
