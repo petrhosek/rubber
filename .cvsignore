@@ -1,4 +1,5 @@
 Makefile
 build
+dist
 rubber
 settings.py*
