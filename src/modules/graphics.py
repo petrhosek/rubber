@@ -208,6 +208,6 @@ class Module (rubber.Module):
 		if target[-6:] == ".eps_t":
 			return PSTDep(source, target, target[:-2], target[:-6], env)
 		elif target[-2:] == "_t":
-			return PSTDep(soucre, target, target[:-2], target[:-2], env)
+			return PSTDep(source, target, target[:-2], target[:-2], env)
 		else:
 			return None
