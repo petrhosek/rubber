@@ -33,6 +33,10 @@ class Module (rubber.Module, Depend):
 
 		self.env = env
 		self.out = env.src_base + "-final.tex"
+
+		# FIXME: we make foo-final.tex depend on foo.dvi so that all auxiliary
+		#   files are built when expanding, this could be optimised...
+
 		Depend.__init__(self, [self.out], { env.prods[0]: env }, env.msg)
 		env.final = self
 
@@ -66,45 +70,12 @@ class Module (rubber.Module, Depend):
 					del self.hooks["bibliography"]
 					del self.hooks["bibliographystyle"]
 
-#		self.seq = re.compile("\
-#\\\\(?P<name>%s)\*?\
-# *(\\[(?P<opt>[^\\]]*)\\])?\
-# *({(?P<arg>[^{}]*)}|(?=[^A-Za-z]))"
-#			% string.join(self.hooks.keys(), "|"))
-
 		self.opt_lists = []   # stack of package option lists
 		self.opt_texts = []   # stack of used options
 
 	def run (self):
-		if not self.expand_needed():
-			return 0
 		self.msg(0, _("writing %s...") % (self.out))
 		self.out_stream = open(self.out, "w")
-		try:
-			self.expand_path(self.env.source())
-		except rubber.EndDocument:
-			self.out_stream.write("\\end{document}\n")
-		self.out_stream.close()
-		self.env.something_done = 1
-
-	def expand_needed (self):
-		"""
-		Check if running epxanding the source is needed.
-		"""
-		final = self.env.src_base + "-final.tex"
-		if not exists(final):
-			self.msg(3, _("the expanded file doesn't exist"))
-			return 1
-		# FIXME: the comparison below makes no sense, write a better one
-		if getmtime(final) < getmtime(self.env.src_base + ".dvi"):
-			self.msg(3, _("the expanded file is older than the DVI"))
-			return 1
-		self.msg(3, _("expansion is not needed"))
-		return 0
-
-	def expand_path (self, path):
-		# self.out_stream.write("%%--- beginning of file %s\n" % path)
-		file = open(path)
 
 		# This is sort of a hack: we replace the 'seq' and 'hook' fields in
 		# the environment with our own, in order to reuse the parsing routine.
@@ -114,10 +85,23 @@ class Module (rubber.Module, Depend):
 		saved_hooks = env.hooks ; env.hooks = self.hooks
 		env.update_seq()
 		try:
-			self.env.do_process(file, path, dump=self.out_stream)
+			try:
+				self.expand_path(self.env.source())
+			except rubber.EndDocument:
+				self.out_stream.write("\\end{document}\n")
 		finally:
 			env.hooks = saved_hooks
 			env.seq = saved_seq
+
+		self.out_stream.close()
+		self.env.something_done = 1
+
+	def expand_path (self, path):
+		# self.out_stream.write("%%--- beginning of file %s\n" % path)
+		file = open(path)
+		try:
+			self.env.do_process(file, path, dump=self.out_stream)
+		finally:
 			file.close()
 		# self.out_stream.write("%%--- end of file %s\n" % path)
 
@@ -184,10 +168,9 @@ class Module (rubber.Module, Depend):
 				self.opt_texts.pop()
 				if self.opt_lists == []:
 					self.out_stream.write("\\makeatother\n")
-
-				for key in self.pkg_hooks.keys():
-					del self.env.hooks[key]
-				self.env.update_seq()
+					for key in self.pkg_hooks.keys():
+						del self.env.hooks[key]
+					self.env.update_seq()
 
 			else:
 				remaining.append(name)
