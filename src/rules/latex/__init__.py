@@ -452,6 +452,7 @@ class LaTeXDep (Depend):
 
 		self.must_compile = 0
 		self.something_done = 0
+		self.failed_module = None
 
 	def set_source (self, path):
 		"""
@@ -707,8 +708,6 @@ class LaTeXDep (Depend):
 
 	#--  Macro handling  {{{2
 
-		return None, None
-
 	def update_seq (self):
 		"""
 		Update the regular expression used to match macro calls using the keys
@@ -879,7 +878,7 @@ class LaTeXDep (Depend):
 
 		for mod in self.modules.objects.values():
 			if mod.pre_compile():
-				self.failed_dep = mod
+				self.failed_module = mod
 				return 1
 		return 0
 		
@@ -902,7 +901,7 @@ class LaTeXDep (Depend):
 
 		for mod in self.modules.objects.values():
 			if mod.post_compile():
-				self.failed_dep = mod
+				self.failed_module = mod
 				return 1
 		return 0
 
@@ -944,6 +943,7 @@ class LaTeXDep (Depend):
 
 		# If an error occurs after this point, it will be while LaTeXing.
 		self.failed_dep = self
+		self.failed_module = None
 
 		if force or self.compile_needed():
 			self.must_compile = 0
@@ -1026,7 +1026,10 @@ class LaTeXDep (Depend):
 	#--  Utility methods  {{{2
 
 	def show_errors (self):
-		self.log.show_errors()
+		if self.failed_module is None:
+			self.log.show_errors()
+		else:
+			self.failed_module.show_errors()
 
 	def watch_file (self, file):
 		"""
