@@ -40,6 +40,13 @@ Les sources passés en argument peuvent être des sources LaTeX (auquel cas le
 suffixe \tt(.tex) peut être omis), ou des fichiers dans un format que Rubber
 sait traduire vers LaTeX (pour le moment, cela signifie un source CWEB).\br
 
+Certaines informations ne peuvent pas être extraites du source LaTeX. C'est le
+cas par exemple des chemins d'accès aux fichiers (qui peuvent être spécifiés
+par les variables d'environnement comme TEXINPUTS), ou encore le style d'index
+à utiliser avec Makeindex. Pour remédier à ce problème, il est possible
+d'ajouter de l'information pour Rubber dans les commentaires des sources
+LaTeX, voir pour celà la section Directives.
+
 Si une compilation échoue, l'ensemble du processus est interrompu, y compris
 la compilation des documents suivants sur la ligne de commande, et
 \cmd(rubber) renvoie un code de retour non nul.
@@ -155,6 +162,31 @@ externes sont modifiés.])
 
 \end(description)
 
+\section(2, Directives)
+
+Le fonctionnement automatique de Rubber se base sur la recherche de macros
+dans les sources LaTeX. Dans les cas où ce mécanisme n'est pas suffisant, il
+est possible d'ajouter des directives dans les commentaires des sources. Une
+directive est une ligne de la forme
+\begin(example)
+% rubber: cmd args
+\end(example)
+La ligne doit commencer par un signe "\tt(%)" puis une suite quelconque de
+"\tt(%)" et d'espaces, puis le texte "\tt(rubber:)" suivi d'espaces et d'un
+nom de commande, éventuellement suivi d'espaces et d'arguments. Les commandes
+disponibles sont les suivantes:
+
+\begin(description)
+
+\item([module \narg(module) \optarg(\narg(options))], [Charge le module
+spécifié, éventuellement avec des options. Cette directive est équivalente à
+l'option de ligne de commande \ddopt(module).])
+
+\item([path \narg(répertoire)], [Ajoute le répertoire spécifié au chemin de
+recherche de TeX (et de Rubber). Le nom du répertoire est tout le texte qui
+suit les espaces après "\tt(path)".])
+
+\end(description)
 
 \part(man)
 
@@ -163,7 +195,7 @@ externes sont modifiés.])
 Il y en a surement quelques uns...\br
 
 Cette page se rapporte à la version \version de Rubber. Le programme et cette
-documentation sont maintenus par \link(Emmanuel Beffara, manu at beffara point org).
+documentation sont maintenus par \link(Emmanuel Beffara, manu@beffara.org).
 La page web du programme se trouve à l'adresse
 http://beffara.org/stuff/rubber.html.
 

@@ -331,7 +331,7 @@ class LogCheck:
 #---------------------------------------
 
 re_comment = re.compile("(?P<line>[^%]*)(%.*)?")
-re_command = re.compile("%* *(rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*))?.*")
+re_command = re.compile("[% ]*(rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*))?.*")
 re_input = re.compile("\\\\input +(?P<arg>[^{} \n\\\\]+)")
 re_kpse = re.compile("kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
 
@@ -450,7 +450,7 @@ class Environment:
 		lines = file.readlines()
 		for line in lines:
 			if line[0] == "%":
-				m = re_command.match(line)
+				m = re_command.match(string.rstrip(line))
 				if m.group("cmd"):
 					self.command(m.group("cmd"), m.group("arg"))
 				continue
@@ -479,7 +479,22 @@ class Environment:
 		Execute the rubber command 'cmd' with argument 'arg'. This is called
 		when a command is found in the source file or in a configuration file.
 		"""
-		pass
+		if cmd == "path":
+			if arg:
+				self.conf.path.append(arg)
+			else:
+				self.msg(1, _("missing argument for command 'path'"))
+		elif cmd == "module":
+			if arg:
+				args = string.split(arg, maxsplit=1)
+				dict = { 'arg': args[0], 'opt': None }
+				if len(args) > 1:
+					dict['opt'] = args[1]
+				self.modules.register(args[0], dict)
+			else:
+				self.msg(1, _("missing argument for command 'module'"))
+		else:
+			self.msg(1, _("unknown command '%s'") % cmd)
 
 	def process (self, path):
 		"""

@@ -40,6 +40,12 @@ files may be either LaTeX sources (in which case the suffix \tt(.tex) may be
 omitted) or documents in a format Rubber knows how to translate to LaTeX (this
 currently means a CWEB document).\br
 
+Some information cannot be extracted from the LaTeX sources. This is the case,
+for instance, with the search paths (which can be specified in environment
+variables like TEXINPUTS), or the style to be used with Makeindex. To address
+this problem, one can add information for Rubber in the comments of the LaTeX
+sources, see section Directives.
+
 If one compilation fails, the whole process stops, including the compilation
 of the next documents on the command line, and \cmd(rubber) returns a non-zero
 exit code.
@@ -148,6 +154,31 @@ changed.])
 
 \end(description)
 
+\section(2, Directives)
+
+The automatic behavior of Rubber is based on searching for macros in the LaTeX
+sources. When this is not enough, directives can be added in the comments of
+the sources. A directive is a line like
+\begin(example)
+% rubber: cmd args
+\end(example)
+The line must begin with a "\tt(%)", then any sequence of "\tt(%)" signs and
+spaces, then the text "\tt(rubber:)" followed by spaces and a command name,
+possibly followed by spaces and arguments. The commands available are the
+following:
+
+\begin(description)
+
+\item([module \narg(module) \optarg(\narg(options))], [Loads the specified
+module, possibly with options. This is equivalent to the command-line option
+\ddopt(module).])
+
+\item([path \narg(directory)], [Adds the specified directory to the search
+path for TeX (and Rubber). The name of the directory is everything that
+follows the spaces after "\tt(path)".])
+
+\end(description)
+
 \part(man)
 
 \section(2, Bugs)
@@ -155,7 +186,7 @@ changed.])
 There are surely a some...\br
 
 This page documents Rubber version \version. The program and this man-page are
-maintained by \link(Emmanuel Beffara, manu at beffara dot org).
+maintained by \link(Emmanuel Beffara, manu@beffara.org).
 The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
 
 \section(2, See also)

@@ -1,9 +1,13 @@
+2003-03-21  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, man/...: Introduced directives (module and path).
+
 2003-03-11  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py (Environment.execute): Changed the thread into a
 	forked process.
 
-	* src/modules/natbib.py man/...: Added support for package natbib.
+	* src/modules/natbib.py, man/...: Added support for package natbib.
 
 	* src/graphics/mpost.py: Fixed the execution rule for compiling in
 	different directories.
