@@ -143,9 +143,9 @@ graphics module, see this one for details.])
 the document and consider them as dependencies for compilation. They also use
 standard rules to build these files with external programs. Current rules
 include conversion from EPS to PDF using \cmd(epstopdf)(1), conversion of XFig
-figures to EPS, PDF or PNG using \cmd(fig2dev)(1), compilation of Metapost
-sources (using \cmd(mpost)(1)), and bounding box extraction from gzipped EPS
-figures.])
+figures to EPS, combined EPS+LaTeX, PDF or PNG using \cmd(fig2dev)(1),
+compilation of Metapost sources (using \cmd(mpost)(1)), and bounding box
+extraction from gzipped EPS figures.])
 
 \item(makeidx, [Process the document's index with \cmd(makeindex) when
 needed (see section "Directives" for options).])
