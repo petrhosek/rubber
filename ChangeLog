@@ -1,5 +1,8 @@
 2004-01-24  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/bibtex.py, src/modules/multibib.sty: Added support for
+	package "multibib", patching the bibtex module in the process.
+
 	* src/cmdline.py: Added the installation directory in "--version".
 
 	* src/util.py: Added function simplify_path.

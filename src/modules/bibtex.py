@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2003
+# (c) Emmanuel Beffara, 2002--2004
 """
 BibTeX support for Rubber
 
@@ -37,13 +37,19 @@ class Module (rubber.Module):
 	funcionality required when compiling documents as well as material to
 	parse blg files for diagnostics.
 	"""
-	def __init__ (self, env, dict):
+	def __init__ (self, env, dict, base=None):
 		"""
 		Initialize the state of the module and register appropriate functions
-		in the main process.
+		in the main process. The extra arugment 'base' can be used to specify
+		the base name of the aux file, it defaults to the document name.
 		"""
 		self.env = env
 		self.msg = env.msg
+
+		if base is None:
+			self.base = env.src_base
+		else:
+			self.base = base
 
 		self.bib_path = [""]
 		if env.src_path != "" and env.src_path != ".":
@@ -118,7 +124,7 @@ class Module (rubber.Module):
 		if self.run_needed:
 			return self.run()
 
-		bbl = self.env.src_base + ".bbl"
+		bbl = self.base + ".bbl"
 		if exists(bbl):
 			if getmtime(bbl) > getmtime(self.env.src_base + ".log"):
 				self.env.must_compile = 1
@@ -131,11 +137,11 @@ class Module (rubber.Module):
 		BibTeXing is also needed in the very particular case when the style
 		has changed since last compilation.
 		"""
-		if not exists(self.env.src_base + ".aux"):
+		if not exists(self.base + ".aux"):
 			return 0
-		if not exists(self.env.src_base + ".blg"):
+		if not exists(self.base + ".blg"):
 			return 1
-		dtime = getmtime(self.env.src_base + ".blg")
+		dtime = getmtime(self.base + ".blg")
 		for db in self.db:
 			if getmtime(db) > dtime:
 				self.msg(2, _("bibliography database %s was modified") % db)
@@ -153,7 +159,7 @@ class Module (rubber.Module):
 		supposed to exist).
 		"""
 		list = []
-		aux = open(self.env.src_base + ".aux")
+		aux = open(self.base + ".aux")
 		for line in aux.readlines():
 			match = re_citation.match(line)
 			if match:
@@ -197,7 +203,7 @@ class Module (rubber.Module):
 		This method actually runs BibTeX with the appropriate environment
 		variables set.
 		"""
-		self.msg(0, _("running BibTeX..."))
+		self.msg(0, _("running BibTeX on %s...") % self.base)
 		env = {}
 		if len(self.bib_path) != 1:
 			env["BIBINPUTS"] = string.join(self.bib_path +
@@ -205,7 +211,7 @@ class Module (rubber.Module):
 		if len(self.bst_path) != 1:
 			env["BSTINPUTS"] = string.join(self.bst_path +
 				[os.getenv("BSTINPUTS", "")], ":")
-		if self.env.execute(["bibtex", self.env.src_base], env):
+		if self.env.execute(["bibtex", self.base], env):
 			self.msg(-1, _("There were errors making the bibliography."))
 			self.show_errors()
 			return 1
@@ -243,7 +249,7 @@ class Module (rubber.Module):
 		# BibTeX has not been run before (i.e. there is no log file) we know
 		# that it has to be run now.
 
-		blg = self.env.src_base + ".blg"
+		blg = self.base + ".blg"
 		if not exists(blg):
 			self.msg(2, _("no BibTeX log file"))
 			return 1
@@ -275,7 +281,7 @@ class Module (rubber.Module):
 		specified in the source. This supposes that the style is mentioned on
 		a line with the form 'The style file: foo.bst'.
 		"""
-		blg = self.env.src_base + ".blg"
+		blg = self.base + ".blg"
 		if not exists(blg):
 			return 0
 		log = open(blg)
@@ -294,7 +300,7 @@ class Module (rubber.Module):
 		"""
 		Read the log file, identify error messages and report them.
 		"""
-		blg = self.env.src_base + ".blg"
+		blg = self.base + ".blg"
 		if not exists(blg):
 			return 1
 		log = open(blg)
