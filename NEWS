@@ -5,6 +5,7 @@ Version CVS
     - Directives "watch" and "clean" for tables of contents and such.
     - Support for graphics conversion using ImageMagick (lots of new formats).
     - Support for packages "moreverb", "verbatim", "beamer".
+    - New frontend "rubber-pipe" with the behaviour of a filter.
 
   Bugfixes:
     - Error-like messages from pdfTeX are now correctly handled.
