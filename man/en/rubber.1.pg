@@ -123,9 +123,16 @@ very experienced yet.])
 \item(makeidx, [Process the document's index with \cmd(makeindex) when
 needed.])
 
+\item([minitoc, minitoc-hyper], [On cleaning, remove additional files that
+produced to make partial tables of contents.])
+
 \item(pdftex, [Instructs Rubber to use \cmd(pdflatex) instead of \cmd(latex)
 to compile the document into a PDF instead of a DVI. This module is also
 loaded by the command line option \ddopt(pdf).])
+
+\item(xr, [Add additional .aux files used for external references to the list
+of dependencies, so recompiling is automatic when referenced document are
+changed.])
 
 \end(description)
 

@@ -1,5 +1,8 @@
 2002-11-04  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/minitoc.py, src/modules/minitoc-hyper.py, man/:
+	Introduced minitoc support.
+
 	* src/modules/README: Updated module interface documentation.
 
 	* src/__init__.py (LogCheck.show_errors): Removed an invalid call
