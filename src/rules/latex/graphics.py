@@ -69,7 +69,7 @@ class Module (rubber.rules.latex.Module):
 		doc.add_hook("graphicspath", self.graphicspath)
 		doc.add_hook("DeclareGraphicsExtensions", self.declareExtensions)
 		doc.add_hook("DeclareGraphicsRule", self.declareRule)
-		doc.env.convert.add_rule("(.*)\\.(eps|pstex|pdf|pdftex)_t",
+		doc.env.pkg_rules.add_rule("(.*)\\.(eps|pstex|pdf|pdftex)_t$",
 				"\\1.fig", 0, "fig2dev")
 
 		self.prefixes = map(lambda x: join(x, ""), doc.env.path)
@@ -116,15 +116,26 @@ class Module (rubber.rules.latex.Module):
 		if name.find("\\") >= 0 or name.find("#") >= 0:
 			return
 
-		d = rubber.rules.dep_file(name, suffixes, self.prefixes, self.env,
-				dict["pos"])
+		# We only accept conversions from file types we don't know.
+
+		def check (source, target, suffixes=suffixes):
+			if suffixes == [""]:
+				return 1
+			for suffix in suffixes:
+				if source[-len(suffix):] == suffix:
+					return 0
+			return 1
+
+		d = self.env.convert(name, suffixes=suffixes, prefixes=self.prefixes,
+				check=check, pos=dict["pos"])
+
 		if d:
 			msg.log(_("graphics `%s' found") % name)
 			for file in d.prods:
 				self.doc.sources[file] = d;
 			self.files.append(d)
 		else:
-			msg.warn(_("graphics `%s' not found") % name, dict["pos"])
+			msg.warn(_("graphics `%s' not found") % name, **dict["pos"])
 
 	def graphicspath (self, dict):
 		"""

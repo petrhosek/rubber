@@ -44,29 +44,5 @@ from rubber.rules.convert import update_rules
 update_rules(conv)
 
 plugins = Plugins(__path__)
-convert = Converter(conv, plugins)
-
-def dep_file (base, suffixes, prefixes, env, loc={}):
-	"""
-	Search the given path list (prefix list, more precisely) for a file with
-	the given basename and one of the given suffixes. If some transformation
-	can be applied from an existing file that may not be generated,
-	then a dependency tree is returned for this tranformation. If no
-	transformation is found but an appropriate file is found, a dependency
-	node for this file (as a leaf) is returned. If all fails, return None.
-	"""
-	targets = []
-	rules = []
-	for p in prefixes:
-		for s in suffixes:
-			target = p + base + s
-			(weight, dep) = convert(target, env)
-			if dep:
-				rules.append((weight, dep))
-			if exists(target):
-				rules.append((1,DependLeaf(env, target, loc=loc)))
-	if rules == []:
-		return None
-	(_, dep) = min(rules)
-	dep.loc = loc
-	return dep
+global std_rules
+std_rules = Converter(conv, plugins)

@@ -607,23 +607,26 @@ class LaTeXDep (Depend):
 
 		for path in self.env.path:
 			pname = join(path, name)
-			(_, dep) = self.env.convert(pname, self.env, doc=self)
+			dep = self.env.convert(pname, suffixes=[".tex",""], doc=self)
 			if dep:
 				dep.loc = loc
-				self.sources[pname] = dep
-				return pname, dep
-			(_, dep) = self.env.convert(pname + ".tex", self.env, doc=self)
-			if dep:
-				dep.loc = loc
-				self.sources[pname] = dep
-				return pname + ".tex", dep
+				file = dep.prods[0]
+				self.sources[file] = dep
+			else:
+				file = self.env.find_file(name, ".tex")
+				if not file:
+					continue
+				dep = None
 
-		file = self.env.find_file(name, ".tex")
-		if file:
-			self.process(file, loc)
-			return file, self.sources[file]
-		else:
-			return None, None
+			if dep is None or exists(file):
+				self.process(file, loc)
+
+			if dep is None:
+				return file, self.sources[file]
+			else:
+				return file, dep
+
+		return None, None
 
 	def update_seq (self):
 		"""

@@ -88,4 +88,4 @@ def convert (source, target, env, loc={}, **args):
 	if i > 0 and target[i+1:] in ["eps_t", "pstex_t", "pdf_t", "pdftex_t"]:
 		return PSTDep(env, target, source, loc=loc, **args)
 	else:
-		return Dep(env, target, source, loc=loc)
+		return Dep(env, target, source)

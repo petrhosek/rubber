@@ -12,35 +12,12 @@ from os.path import *
 import rubber
 from rubber import _
 from rubber import *
-
-class LHSDep (Depend):
-	def __init__ (self, env, target, source):
-		leaf = DependLeaf(env, source)
-		tg_base = target[:-4]
-		Depend.__init__(self, env, prods=[target], sources={ source: leaf })
-		self.env = env
-		self.source = source
-		self.target = target
-		self.cmd = ["lhs2TeX", "--poly", source]
-
-	def run (self):
-		msg.progress(_("pretty-printing %s") % self.source)
-		out = open(self.target, 'w')
-		def w (line, file=out):
-			file.write(line)
-			file.flush()
-		if self.env.execute(self.cmd, out=w):
-			out.close()
-			msg.error(_("pretty-printing of %s failed") % self.source)
-			return 1
-		out.close()
-		return 0
-
+from rubber.rules.lhs2TeX import LHSDep
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		self.doc = doc
-		#doc.env.convert.add_rule("(.*)\\.tex$", "\\1.lhs", 0, "lhs2TeX")
+		doc.env.pkg_rules.add_rule("(.*)\\.tex$", "\\1.lhs", 0, "lhs2TeX")
 		self.style = "--poly"
 
 	def command (self, cmd, args):

@@ -27,7 +27,7 @@ class Dep (Depend):
 			return 1
 		return 0
 
-def convert (source, target, env):
+def convert (source, target, env, **args):
 	if not prog_available("epstopdf"):
 		return None
 	return Dep(env, target, source)
