@@ -33,6 +33,7 @@ available options:
                    use a specific module (with the given options)
   -o / --readopts <file> =
                    read additional options from a file
+  -s / --short   = display data in a compact form
   -v / --verbose = increase verbosity
        --version = print version information and exit
 actions:
@@ -46,8 +47,9 @@ actions:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "hm:o:v",
-				["help", "module=", "readopts=", "verbose", "version",
+				cmdline, "hm:o:sv",
+				["help", "module=", "readopts=",
+				 "short", "verbose", "version",
 				 "boxes", "deps", "errors", "refs", "warnings"])
 		except GetoptError, e:
 			self.msg(0, e)
@@ -64,6 +66,8 @@ actions:
 				opts2 = file.read().split()
 				file.close()
 				args = self.parse_opts(opts2) + args
+			elif opt in ("-s", "--short"):
+				self.msg.short = 1
 			elif opt in ("-v", "--verbose"):
 				self.msg.level = self.msg.level + 1
 			elif opt == "--version":

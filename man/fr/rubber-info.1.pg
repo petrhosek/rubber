@@ -72,6 +72,9 @@ correspondent aux options du package dans LaTeX. Voir la documentation de
 \manref(rubber, 1)
 pour la liste des modules standard.])
 
+\item([\dash[]s, \ddash[]short], [Formate les messages d'erreur de LaTeX de
+façon compacte (une erreur par ligne).])
+
 \item([\dash[]v, \ddash[]verbose], [Incrémente le degré de détail dans les
 messages affichés. Le niveau par défaut est 0, les niveaux existent jusqu'à
 3.])

@@ -71,11 +71,14 @@ class Message:
 	can imagine using a derived class to redirect messages to a GUI widget, or
 	any other funky stuff.
 	"""
-	def __init__ (self, level=0):
+	def __init__ (self, level=0, short=0):
 		"""
-		Initialize the object with the specified verbosity threshold.
+		Initialize the object with the specified verbosity threshold. The
+		other argument is a boolean that indicates whether error messages
+		should be short or normal.
 		"""
 		self.level = level
+		self.short = short
 		self.write = self.do_write
 
 	def do_write (self, level, text):
@@ -101,9 +104,12 @@ class Message:
 		number where the error occurred, the description of the error, and the
 		offending code (up to the error).
 		"""
-		self.write(0, _("\nline %d in %s:\n  %s") % (line, file, text))
-		if code:
-			self.write(0, "  --> " + code)
+		if self.short:
+			self.write(0, "%s %d: %s" % (file, line, text))
+		else:
+			self.write(0, _("\nline %d in %s:\n  %s") % (line, file, text))
+			if code:
+				self.write(0, "  --> " + code)
 
 	def abort (self, what, why):
 		"""
@@ -111,8 +117,10 @@ class Message:
 		due to lack of input. The arguments are the nature of the error and
 		the cause of the interruption.
 		"""
-		self.write(0, _("\ncompilation aborted:\n  %s\n  %s") %
-			(what, why))
+		if self.short:
+			self.write(0, _("-- compilation aborted --"))
+		else:
+			self.write(0, _("\ncompilation aborted:\n  %s\n  %s")%(what,why))
 
 #---------------------------------------
 

@@ -88,6 +88,9 @@ for \ddopt(module dvips), it is naturally incompatible with \ddopt(pdf).])
 \item([\dash[]o, \ddash[]readopts \narg(file)], [Read additional options form
 the specified file.])
 
+\item([\dash[]s, \ddash[]short], [Display LaTeX's error messages in a compact
+form (one error per line).])
+
 \item([\dash[]v, \ddash[]verbose], [Increase the verbosity level. The default
 level is 0, levels up to 3 exist. Beware, saying \dopt(vvv) makes Rubber speak
 a lot.])

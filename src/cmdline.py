@@ -43,6 +43,7 @@ available options:
   -d / --pdf     = produce PDF output instead of DVI (synonym for -m pdftex)
   -p / --ps      = produce a PostScript document (synonym for -m dvips)
   -q / --quiet   = suppress messages
+  -s / --short   = display errors in a compact form
   -o / --readopts <file> =
                    read additional options from a file
   -v / --verbose = increase verbosity
@@ -52,9 +53,9 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "dfhm:o:pqv",
+				cmdline, "dfhm:o:pqsv",
 				["clean", "force", "help", "module=", "pdf", "ps",
-				 "quiet", "readopts=", "verbose", "version"])
+				 "quiet", "readopts=", "short", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -75,6 +76,8 @@ available options:
 				self.modules.append("dvips")
 			elif opt in ("-q", "--quiet"):
 				self.msg.level = -1
+			elif opt in ("-s", "--short"):
+				self.msg.short = 1
 			elif opt in ("-o" ,"--readopts"):
 				file = open(arg)
 				opts2 = file.read().split()

@@ -69,6 +69,9 @@ the package options in LaTeX. See the manpage of
 \manref(rubber, 1)
 for the list of standard modules.])
 
+\item([\dash[]s, \ddash[]short], [Display LaTeX's error messages in a compact
+form (one error per line).])
+
 \item([\dash[]v, \ddash[]verbose], [Increase the verbosity level. The default
 level is 0, levels up to 3 exist.])
 

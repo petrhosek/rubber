@@ -87,6 +87,12 @@ synonyme de \ddopt(module dvips), elle est naturellement incompatible avec
 \item([\dash[]q, \ddash[]quiet], [Supprime les messages affichés en cours
 d'exécution.])
 
+\item([\dash[]o, \ddash[]readopts \narg(fichier)], [Lire des options
+supplémentaires dans le fichier spécifié.])
+
+\item([\dash[]s, \ddash[]short], [Formate les messages d'erreur de LaTeX de
+façon compacte (une erreur par ligne).])
+
 \item([\dash[]v, \ddash[]verbose], [Incrémente le degré de détail dans les
 messages affichés. Le niveau par défaut est 0, les niveaux existent jusqu'à 3.
 Attention, dire \dopt(vvv) rend Rubber très bavard.])
