@@ -102,8 +102,9 @@ available options:
   -h, --help               display this help
   -l, --landscape          change paper orientation (if relevant)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
-  -d, --pdf                compile with pdftex
-  -p, --ps                 process through dvips
+  -o, --post=MOD[:OPTS]    postprocess with module MOD (with options OPTS)
+  -d, --pdf                compile with pdftex (synonym for -m pdftex)
+  -p, --ps                 process through dvips (synonym for -o dvips)
   -q, --quiet              suppress messages
   -r, --read=FILE          read additional directives from FILE
   -s, --short              display errors in a compact form
@@ -115,10 +116,10 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "I:c:de:fhlm:pqr:svz",
+				cmdline, "I:c:de:fhklm:o:pqr:svz",
 				["clean", "command=", "epilogue=", "force", "gzip", "help",
-				 "landcape", "module=", "pdf", "ps", "quiet", "read=",
-				 "short", "texpath=", "verbose", "version"])
+				 "keep", "landcape", "module=", "post=", "pdf", "ps", "quiet",
+				 "read=", "short", "texpath=", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -137,10 +138,15 @@ available options:
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
+			elif opt in ("-k", "--keep"):
+				self.clean = 0
 			elif opt in ("-l", "--landscape"):
 				self.prologue.append("paper landscape")
 			elif opt in ("-m", "--module"):
 				self.prologue.append("module " +
+					string.replace(arg, ":", " ", 1))
+			elif opt in ("-o", "--post"):
+				self.epilogue.append("module " +
 					string.replace(arg, ":", " ", 1))
 			elif opt in ("-d", "--pdf"):
 				self.prologue.append("module pdftex")

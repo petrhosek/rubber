@@ -68,6 +68,7 @@ available options:
   -k, --keep               keep the temporary files after compiling
   -l, --landscape          change paper orientation (if relevant)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
+  -o, --post=MOD[:OPTS]    postprocess with module MOD (with options OPTS)
   -d, --pdf                compile with pdftex (synonym for -m pdftex)
   -p, --ps                 process through dvips (synonym for -m dvips)
   -q, --quiet              suppress messages
@@ -79,51 +80,7 @@ available options:
 """) % version)
 
 	def parse_opts (self, cmdline):
-		try:
-			opts, args = getopt(
-				cmdline, "I:c:de:fhklm:pqr:svz",
-				["command=", "epilogue=", "gzip", "help", "keep", "landcape",
-				 "module=", "pdf", "ps", "quiet", "read=", "short",
-				 "texpath=", "verbose", "version"])
-		except GetoptError, e:
-			print e
-			sys.exit(1)
-
-		for (opt,arg) in opts:
-			if opt in ("-c", "--command"):
-				self.prologue.append(arg)
-			elif opt in ("-e", "--epilogue"):
-				self.epilogue.append(arg)
-			elif opt in ("-z", "--gzip"):
-				self.epilogue.append("module gz")
-			elif opt in ("-h", "--help"):
-				self.help()
-				sys.exit(0)
-			elif opt in ("-k", "--keep"):
-				self.clean = 0
-			elif opt in ("-l", "--landscape"):
-				self.prologue.append("paper landscape")
-			elif opt in ("-m", "--module"):
-				self.prologue.append("module " +
-					string.replace(arg, ":", " ", 1))
-			elif opt in ("-d", "--pdf"):
-				self.prologue.append("module pdftex")
-			elif opt in ("-p", "--ps"):
-				self.epilogue.append("module dvips")
-			elif opt in ("-q", "--quiet"):
-				self.msg.level = -1
-			elif opt in ("-r" ,"--read"):
-				self.prologue.append("read " + arg)
-			elif opt in ("-s", "--short"):
-				self.msg.short = 1
-			elif opt in ("-I", "--texpath"):
-				self.prologue.append("path " + arg)
-			elif opt in ("-v", "--verbose"):
-				self.msg.level = self.msg.level + 1
-			elif opt == "--version":
-				print version
-				sys.exit(0)
-
+		args = rubber.cmdline.Main.parse_opts(self, cmdline)
 		if len(args) > 0:
 			self.msg(0, _("warning: the following options were ignored: %s")
 				% string.join(args, " "))

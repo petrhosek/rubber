@@ -322,6 +322,21 @@ class DependLeaf (Depend):
 	def clean (self):
 		pass
 
+class DependShell (Depend):
+	"""
+	This class specializes Depend for generating files using shell commands.
+	"""
+	def __init__ (self, dest, src, cmd, env):
+		Depend.__init__(self, dest, src, env.msg)
+		self.env = env
+		self.cmd = cmd
+
+	def run (self):
+		self.msg(0, _("running %s...") % self.cmd[0])
+		if self.env.execute(self.cmd):
+			self.msg(0, _("the operation failed"))
+			return 1
+		return 0
 
 #-- Automatic source conversion
 

@@ -1,3 +1,12 @@
+2004-02-18  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/ps2pdf.py: Added post-processor ps2pdf.
+
+	* src/cmdline.py, src/cmd_pipe.py: Added command-line option "-o",
+	unified command-line parsing.
+
+	* src/util.py: Added class DependShell.
+
 2004-02-16  Emmanuel Beffara  <manu@beffara.org>
 
 	* doc/...: Documentation updates.
@@ -10,6 +19,8 @@
 
 2004-02-14  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/...: Made the Environment class into a proper dependency node.
+ 
 	* src/modules/multibib.py: Added hooks for local \bibliography and
 	\bibliographystyle.
 
