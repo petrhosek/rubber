@@ -76,10 +76,17 @@ actions:
 		args = self.parse_opts(cmdline)
 		self.env.message(1, _(
 			"This is Rubber's information extractor version %s.") % version)
+
 		if len(args) != 1:
 			print _("You must specify one source file.")
 			sys.exit(1)
-		src = args[0]
+		if exists(args[0] + ".tex"):
+			src = args[0]
+		elif exists(args[0]):
+			src, ext = splitext(args[0])
+		else:
+			print _("I cannot find %s.") % args[0]
+			sys.exit(1)
 
 		if not self.act:
 			print _("You must specify an action.")
@@ -145,6 +152,6 @@ I don't know the action `%s'. This should not happen." % act)
 			return 1
 		try:
 			self.main(cmdline)
-		except KeyboardInterrput:
+		except KeyboardInterrupt:
 			print _("*** interrupted")
 			return 2
