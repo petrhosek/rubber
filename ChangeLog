@@ -1,3 +1,9 @@
+2002-11-12  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Restructured message displaying, by introducing
+	msg.error() and msg.abort() and moving "nothing to be done" out of the
+	main system.
+
 2002-11-08  Emmanuel Beffara  <manu@beffara.org>
 
 	* configure: Fixed the way we search for Python.

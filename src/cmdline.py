@@ -94,6 +94,7 @@ available options:
 		Run Rubber for the specified command line.
 		"""
 		self.env = Environment(self.msg)
+		env = self.env
 		self.modules = []
 		self.clean = 0
 		self.force = 0
@@ -102,13 +103,15 @@ available options:
 		first = 1
 		for src in args:
 			if not first:
-				self.env.restart()
+				env.restart()
 			self.prepare(src)
 			first = 0
 			if self.clean:
-				self.env.clean()
+				env.clean()
 			else:
-				self.env.make(self.force)
+				env.make(self.force)
+				if not env.something_done:
+					self.msg(0, _("nothing to be done for %s") % env.source())
 		return 0
 
 	def prepare (self, src):

@@ -92,6 +92,26 @@ class Message:
 		"""
 		self.write(level, text)
 
+	def error (self, file, line, text, code):
+		"""
+		This method is called when the parsing of the log file found an error.
+		The arguments are, respectively, the name of the file and the line
+		number where the error occurred, the description of the error, and the
+		offending code (up to the error).
+		"""
+		self.write(-1, _("\nline %d in %s:\n  %s") % (line, file, text))
+		if string.strip(code) != "":
+			self.write(0, "  --> " + code)
+
+	def abort (self, what, why):
+		"""
+		This method is called when the compilation was aborted, for instance
+		due to lack of input. The arguments are the nature of the error and
+		the cause of the interruption.
+		"""
+		self.write(0, _("\ncompilation aborted:\n  %s\n  %s") %
+			(what, why))
+
 #---------------------------------------
 
 class Modules (Plugins):
@@ -135,6 +155,7 @@ class Modules (Plugins):
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ (){}]*)|\\))")
 re_badbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
+re_line = re.compile("l\\.(?P<line>[0-9]+) ")
 
 class LogCheck:
 	"""
@@ -212,29 +233,31 @@ class LogCheck:
 		"""
 		pos = ["(no file)"]
 		last_file = None
-		showing = 0    # 1 if we are showing an error's text
+		parsing = 0    # 1 if we are parsing an error's text
 		skipping = 0   # 1 if we are skipping text until an empty line
-		something = 0  # 1 if some error was displayed
+		something = 0  # 1 if some error was found
 		for line in self.lines:
 			line = line.rstrip()
 			if line == "":
 				skipping = 0
 			elif skipping:
 				pass
-			elif showing:
-				self.msg(0, line)
-				if line[0:2] == "l." or line[0:3] == "***":
-					showing = 0
+			elif parsing:
+				m = re_line.match(line)
+				if m:
+					parsing = 0
 					skipping = 1
+					self.msg.error(pos[-1], int(m.group("line")),
+						error, line[m.end():])
+				elif line[0:3] == "***":
+					parsing = 0
+					skipping = 1
+					self.msg.abort(error, line[4:])
 			elif line[0] == "!":
-				if pos[-1] != last_file:
-					last_file = pos[-1]
-					self.msg(0, _("in file %s:") % last_file)
-				self.msg(0, line)
-				showing = 1
+				error = line[2:]
+				parsing = 1
 				something = 1
 			else:
-
 				# Here there is no error to show, so we use the text of the
 				# line to track the source file name. However, there might be
 				# confusing text in the log file, in particular when there is
@@ -259,8 +282,8 @@ re_kpse = re.compile("kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
 
 class Environment:
 	"""
-	This class represents de building process for the document. It handles the
-	execution of all required programs. The steps are the following:
+	This class represents the building process for the document. It handles
+	the execution of all required programs. The steps are the following:
 	  1. building of the LaTeX source (e.g. when using CWEB)
 	  2. preparation of external dependencies (e.g. compilation of figures)
 	  3. cyclic LaTeX compilation until a stable output, including:
@@ -273,7 +296,7 @@ class Environment:
 	called to load and configure all required modules. Text lines are read
 	from the files and parsed to extract LaTeX macro calls. When such a macro
 	is found, a handler is searched for in the `hooks' dictionary. Handlers
-	are called with one arguments: the dictionary for the regular expression
+	are called with one argument: the dictionary for the regular expression
 	that matches the macro call.
 	"""
 	def __init__ (self, message):
@@ -638,7 +661,8 @@ class Environment:
 		Run the building process until the end, or stop on error. This method
 		supposes that the inputs were parsed to register packages and that the
 		LaTeX source is ready. If the second (optional) argument is true, then
-		at least one compilation is done.
+		at least one compilation is done. The method returns zero on success
+		and non-zero (aka 1) on failure.
 		"""
 		if self.pre_compile(): return 1
 		if force or self.compile_needed():
@@ -649,9 +673,7 @@ class Environment:
 				self.must_compile = 0
 				if self.compile(): return 1
 				if self.post_compile(): return 1		
-		if self.post_process(): return 1
-		if not self.something_done:
-			self.msg(0, _("nothing to be done for %s") % self.source())
+		return self.post_process()
 
 	def compile_needed (self):
 		"""
@@ -776,8 +798,8 @@ class Environment:
 		if pid == 0:
 			os.close(f_out_r)
 			os.close(f_err_r)
-			os.dup2(f_out_w, sys.stdout.fileno())
-			os.dup2(f_err_w, sys.stderr.fileno())
+			os.dup2(f_out_w, sys.__stdout__.fileno())
+			os.dup2(f_err_w, sys.__stderr__.fileno())
 			os.execvpe(prog[0], prog, penv)
 
 		# The main process reads whatever is sent to the error stream and
