@@ -14,6 +14,8 @@ from rubber.util import *
 re_input = re.compile("input +(?P<file>[^ ]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 
+def _ (txt): return txt
+
 class Dep (Depend):
 	"""
 	This class represents dependency nodes for MetaPost figures. The __init__
@@ -23,7 +25,7 @@ class Dep (Depend):
 	def __init__ (self, target, source, env):
 		sources = []
 		self.include(source, sources)
-		env.msg(2, "%s is made from %r" % (target, sources))
+		env.msg(2, _("%s is made from %r") % (target, sources))
 		self.leaf = DependLeaf(sources)
 		Depend.__init__(self, [target], {source: self.leaf})
 		self.env = env
@@ -55,7 +57,7 @@ class Dep (Depend):
 		fd.close()
 
 	def run (self):
-		self.env.msg(0, "running Metapost on %s.mp..." % self.base)
+		self.env.msg(0, _("running Metapost on %s.mp...") % self.base)
 		self.env.execute(self.cmd)
 
 		# This creates a log file that has the same aspect as TeX logs.
@@ -69,13 +71,13 @@ class Dep (Depend):
 		line = log.readline()
 		while line != "":
 			if error == 2:
-				self.msg(0, line.rstrip())
+				self.env.msg(0, line.rstrip())
 				if line[0:2] == "l." or line[0:3] == "***":
 					error = 1
 			elif line[0] == "!":
 				if not error:
-					self.msg(0, _("There were errors in Metapost code:"))
-				self.msg(0, line.rstrip())
+					self.env.msg(0, _("There were errors in Metapost code:"))
+				self.env.msg(0, line.rstrip())
 				error = 2
 			line = log.readline()
 		log.close()
