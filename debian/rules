@@ -24,7 +24,7 @@ endif
 
 settings.py: configure
 	dh_testdir
-	./configure --prefix=/usr --mandir=\$${prefix}/share/man
+	./configure --python=python --prefix=/usr --mandir=\$${prefix}/share/man
 
 
 build: build-stamp
