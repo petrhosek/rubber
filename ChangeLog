@@ -1,5 +1,9 @@
 2002-09-06  Emmanuel Beffara  <manu@beffara.org>
 
+	* Version 0.99.2 released.
+
+	* setup.py, debian/control: Updated the package descriptions.
+
 	* src/__init__.py (LogCheck.update_file): Fixed a bug that might
 	happen in file-name tracking due to unbalanced parentheses in the
 	log.

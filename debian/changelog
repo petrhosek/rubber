@@ -1,14 +1,22 @@
+rubber (0.99.2-1) unstable; urgency=low
+
+  * Switched to version 0.99.2, introducing the --force option, various
+    bugfixes and small improvements (notably Metapost dependency
+    analysis), and the man pages for rubber-info.
+
+ -- Emmanuel Beffara <manu@beffara.org>  Fri,  6 Sep 2002 11:02:11 +0200
+
 rubber (0.99.1-1) unstable; urgency=low
 
   * Switched to version 0.99.1. This mainly introduces a better dependency
     system and the modular graphics support, with a few other
     improvements.
 
- -- Emmanuel Beffara <emmanuel@beffara.org>  Fri, 21 Jun 2002 16:05:39 +0200
+ -- Emmanuel Beffara <manu@beffara.org>  Fri, 21 Jun 2002 16:05:39 +0200
 
 rubber (0.99-1) unstable; urgency=low
 
   * Initial Release.
 
- -- Emmanuel Beffara <emmanuel@beffara.org>  Fri, 31 May 2002 11:54:47 +0200
+ -- Emmanuel Beffara <manu@beffara.org>  Fri, 31 May 2002 11:54:47 +0200
 

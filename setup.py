@@ -102,13 +102,16 @@ def do_setup ():
 	setup(
 		name = "rubber",
 		version = settings.sub["version"],
-		description = "The Rubber system for building LaTeX documents",
+		description = "an automated system for building LaTeX documents",
 		long_description = """\
 This is a building system for LaTeX documents. It is based on a routine that
 runs (hopefully) just as many compilations as necessary. The module system
 provides a great flexibility that virtually allows support for any package
 with no user intervention, as well as pre- and post-processing of the
-document.""",
+document. The standard modules currently provide support for bibtex, dvips,
+pdftex, makeindex, cweb and graphics/graphicx (currently with automatic
+epstopdf conversion and Metpost compilation).\
+""",
 		author = "Emmanuel Beffara",
 		author_email = "emmanuel@beffara.org",
 		url = "http://beffara.org/stuff/rubber.html",
