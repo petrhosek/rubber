@@ -1034,6 +1034,12 @@ class Module:
 		compilation.
 		"""
 
+	def clean (self):
+		"""
+		This method is called when cleaning the compiled files. It is supposed
+		to remove all the files that this modules generates.
+		"""
+
 	def command (self, cmd, arg):
 		"""
 		This is called when a directive for the module is found in the source.
