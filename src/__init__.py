@@ -132,7 +132,8 @@ class Modules (Plugins):
 #---------------------------------------
 
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
-re_file = re.compile("(\((?P<file>[^ ()]*)|\))")
+re_file = re.compile("(\\((?P<file>[^ ()]*)|\\))")
+re_badbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
 
 class LogCheck:
 	"""
@@ -187,7 +188,9 @@ class LogCheck:
 		"""
 		Parse the given line of log file for file openings and closings and
 		update the list `stack'. Newly opened files are at the end, therefore
-		stack[0] is the main source while stack[-1] is the current one.
+		stack[1] is the main source while stack[-1] is the current one. The
+		first element, stack[0], contains the string \"(no file)\" for errors
+		that may happen outside the source.
 		"""
 		m = re_file.search(line)
 		if not m:
@@ -208,28 +211,44 @@ class LogCheck:
 		"""
 		pos = ["(no file)"]
 		last_file = None
-		showing = 0
-		something = 0
+		showing = 0    # 1 if we are showing an error's text
+		skipping = 0   # 1 if we are skipping text until a new line
+		something = 0  # 1 if some error was displayed
 		for line in self.lines:
 			line = line.rstrip()
 			if line == "":
-				continue
-			if showing:
+				skipping = 0
+			elif skipping:
+				pass
+			elif showing:
 				self.msg(0, line)
 				if line[0:2] == "l." or line[0:3] == "***":
 					showing = 0
 				else:
 					self.update_file(line, pos)
+			elif line[0] == "!":
+				if pos[-1] != last_file:
+					last_file = pos[-1]
+					self.msg(0, _("in file %s:") % last_file)
+				self.msg(0, line)
+				showing = 1
+				something = 1
 			else:
-				if line[0] == "!":
-					if pos[-1] != last_file:
-						last_file = pos[-1]
-						self.msg(0, _("in file %s:") % last_file)
-					self.msg(0, line)
-					showing = 1
-					something = 1
+
+				# Here there is no error to show, so we use the text of the
+				# line to track the source file name. However, there might be
+				# confusing text in the log file, in particular when there is
+				# an overfull/underfull box message (the text following this
+				# is extracted from the source, and the extract may contain
+				# unbalanced parentheses). Therefore we take care of this
+				# specifically.
+
+				m = re_badbox.match(line)
+				if m:
+					skipping = 1
 				else:
 					self.update_file(line, pos)
+
 		return something
 
 #---------------------------------------
