@@ -13,7 +13,7 @@ import re
 from rubber import _, LogCheck
 from rubber.util import *
 
-re_input = re.compile("input +(?P<file>[^ ]+)")
+re_input = re.compile("input\s+(?P<file>[^ ;]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 re_mpext = re.compile("[0-9]+|mpx|log")
 

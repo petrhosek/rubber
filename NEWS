@@ -4,10 +4,11 @@ Version CVS
     - Support for Literate Haskell code (with lhs2TeX).
     - Directives "watch" and "clean" for tables of contents and such.
     - Support for graphics conversion using ImageMagick (lots of new formats).
-	- Support for packages "moreverb" and "verbatim".
+    - Support for packages "moreverb" and "verbatim".
 
   Bugfixes:
     - Modules are handled correctly when compiling several documents at once.
+    - Better dependency analysis for MetaPost.
 
 Version 0.99.6 (2003-04-09)
 

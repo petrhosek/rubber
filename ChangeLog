@@ -1,5 +1,10 @@
 2003-10-27  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/graphics/mpost.py: Fixed the regular expression for dependency
+	analysis in MetaPost sources.
+
+2003-10-27  Emmanuel Beffara  <manu@beffara.org>
+
 	* src/modules/{verbatim|moreverb}.py, man/...: Added modules for
 	packages 'verbatim' and 'moreverb' (providing dependency analysis).
 
