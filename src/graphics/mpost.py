@@ -31,7 +31,7 @@ class Dep (Depend):
 		Depend.__init__(self, [target], {source: self.leaf})
 		self.env = env
 		self.base = source[:-3]
-		self.cmd = ["mpost", "--interaction=batchmode", self.base]
+		self.cmd = ["mpost", "\\batchmode;input %s" % self.base]
 		if env.src_path == "":
 			self.penv = {}
 		else:
