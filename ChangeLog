@@ -1,3 +1,13 @@
+2002-11-04  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/README: Updated module interface documentation.
+
+	* src/__init__.py (LogCheck.show_errors): Removed an invalid call
+	to update_file that caused a crash in some cases.
+	(Environment): Split the triggers for \input and \include to take
+	care of multiple .aux files. Checked for arguments in the BibTeX
+	triggers.
+
 2002-10-15  Emmanuel Beffara  <manu@beffara.org>
 
 	* rubber.spec.in, configure, setup.py, Makefile.in: Introduced RPM

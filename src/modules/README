@@ -38,6 +38,7 @@ The following member data of the environment can also be modified:
 
   src_path = the pathname to the main source
   src_base = the base name of the main source
+  src_pbase = the path and base name of the main source
   src_ext = the extension of the main source (e.g. ".tex")
   out_ext = the extension of the compiler's output file (e.g. ".dvi")
 
