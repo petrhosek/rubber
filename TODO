@@ -25,6 +25,8 @@ Improvements:
 - Introduce a graphics-like system for generating LaTeX sources (this is
   needed to support eps/eps_t figures from XFig)
 
+- provide a way to specify an index style file for makeidx
+
 Long-term ideas:
 
 - use the clean class structuration (possibly cleaning it a bit more) to

@@ -1,3 +1,14 @@
+2002-11-27  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/bibtex.py: Added bibliography databases and style
+	files to the list of dependencies.
+
+	* src/cmd_info.py: Redefined the --deps action to actually return
+	all leaf dependencies.
+
+	* src/util.py: Added method leaves() in Depend to report leaf
+	dependecies.
+
 2002-11-26  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/cmd_info.py: Added action --check in rubber-info, turned

@@ -41,8 +41,10 @@ class Module:
 		"""
 		Register a bibliography database file.
 		"""
-		if exists(name + ".bib"):
-			self.db.append(name + ".bib")
+		bib = name + ".bib"
+		if exists(bib):
+			self.db.append(bib)
+			self.env.depends[bib] = DependLeaf([bib])
 
 	def set_style (self, style):
 		"""
@@ -50,9 +52,15 @@ class Module:
 		\\bibliographystyle is found. If the style file is found in the
 		current directory, it is considered a dependency.
 		"""
+		old_bst = self.style + ".bst"
+		if exists(old_bst) and self.env.depends.has_key(old_bst):
+			del self.env.depends[old_bst]
+
 		self.style = style
-		if exists(style + ".bst"):
-			self.bst_file = style + ".bst"
+		new_bst = style + ".bst"
+		if exists(new_bst):
+			self.bst_file = new_bst
+			self.env.depends[new_bst] = DependLeaf([new_bst])
 		else:
 			self.bst_file = None
 
