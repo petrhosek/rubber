@@ -43,7 +43,8 @@ class Module (rubber.Module):
 			"RequirePackage" : self.x_usepackage,
 			"documentclass" : self.x_documentclass,
 			"bibliography" : self.x_remove,
-			"bibliographystyle" : self.x_bibliographystyle
+			"bibliographystyle" : self.x_bibliographystyle,
+			"end{document}" : env.h_end_document
 		}
 
 		if dict.has_key("opt") and dict["opt"]:
@@ -71,7 +72,10 @@ class Module (rubber.Module):
 			return 0
 		self.msg(0, _("writing %s...") % (self.env.src_base + "-final.tex"))
 		self.out_stream = open(self.env.src_base + "-final.tex", "w")
-		self.expand_path(self.env.source())
+		try:
+			self.expand_path(self.env.source())
+		except rubber.EndDocument:
+			self.out_stream.write("\\end{document}\n")
 		self.out_stream.close()
 		self.env.something_done = 1
 
@@ -100,11 +104,12 @@ class Module (rubber.Module):
 		env = self.env
 		saved_seq = env.seq ; env.seq = self.seq
 		saved_hooks = env.hooks ; env.hooks = self.hooks
-		self.env.do_process(file, path, seq=self.seq, dump=self.out_stream)
-		env.hooks = saved_hooks
-		env.seq = saved_seq
-
-		file.close()
+		try:
+			self.env.do_process(file, path, dump=self.out_stream)
+		finally:
+			env.hooks = saved_hooks
+			env.seq = saved_seq
+			file.close()
 		# self.out_stream.write("%%--- end of file %s\n" % path)
 
 	# The expansion hooks

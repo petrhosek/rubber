@@ -1,5 +1,7 @@
 2004-01-20  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py: Added a hook for \end{document}.
+
 	* man/..., doc/..., setup.py, MANIFEST.in: Moved man pages into new
 	directory doc. Introduced Texinfo documentation.
 

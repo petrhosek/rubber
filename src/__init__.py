@@ -251,6 +251,10 @@ re_command = re.compile("[% ]*(rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*))?.*")
 re_input = re.compile("\\\\input +(?P<arg>[^{} \n\\\\]+)")
 re_kpse = re.compile("kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
 
+class EndDocument:
+	""" This is the exception raised when \\end{document} is found. """
+	pass
+
 class Environment:
 	"""
 	This class represents the building process for the document. It handles
@@ -324,7 +328,8 @@ class Environment:
 			"listoffigures" : self.h_listoffigures,
 			"listoftables" : self.h_listoftables,
 			"bibliography" : self.h_bibliography,
-			"bibliographystyle" : self.h_bibliographystyle
+			"bibliographystyle" : self.h_bibliographystyle,
+			"end{document}" : self.h_end_document
 		}
 		self.update_seq()
 
@@ -354,7 +359,10 @@ class Environment:
 		"""
 		Parse the source for packages and supported macros.
 		"""
-		self.process(self.source())
+		try:
+			self.process(self.source())
+		except EndDocument:
+			pass
 		self.msg(2, _("dependencies: %r") % self.depends.keys())
 
 	def do_process (self, file, path, seq=None, hooks=None, dump=None):
@@ -512,9 +520,11 @@ class Environment:
 		file = open(path)
 		if not self.depends.has_key(path):
 			self.depends[path] = DependLeaf([path], self.msg)
-		self.do_process(file, path)
-		file.close()
-		self.msg(3, _("end of %s") % path)
+		try:
+			self.do_process(file, path)
+		finally:
+			file.close()
+			self.msg(3, _("end of %s") % path)
 
 	def input_file (self, name):
 		"""
@@ -643,6 +653,13 @@ class Environment:
 		if dict["arg"]:
 			self.modules.register("bibtex", dict)
 			self.modules["bibtex"].set_style(dict["arg"])
+
+	def h_end_document (self, dict):
+		"""
+		Called when \\end{document} is found. This stops the processing of any
+		input file, thus ignoring any code that appears afterwards.
+		"""
+		raise EndDocument
 
 	#
 	# The following macros are related to the building process.
