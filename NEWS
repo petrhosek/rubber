@@ -2,6 +2,7 @@ Version 0.99.6
 
   Features:
     - Handling of \graphicspath.
+    - Conversion of XFig figures to combined EPS/LaTeX.
     - Parsing of MetaPost log files for errors.
     - Automatic JPEG to EPS conversion (with jpeg2ps).
     - Support for packages "epsfig" and "natbib".

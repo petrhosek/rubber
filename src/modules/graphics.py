@@ -20,7 +20,7 @@ import string, re
 
 import rubber
 from rubber import _
-import rubber.util
+from rubber.util import *
 import rubber.graphics
 
 # default suffixes for each device driver (taken from the .def files)
@@ -49,6 +49,30 @@ drv_suffixes = {
 	          ".eps", ".ps", ".mps", ".emf", ".wmf"]
 }
 
+class PSTDep (Depend):
+	"""
+	This class represents dependency nodes for combined EPS/LaTeX figures from
+	XFig. They produce both a LaTeX source that contains an \\includegraphics
+	and an EPS file.
+	"""
+	def __init__ (self, fig, tex, eps, epsname, env):
+		"""
+		The arguments of the constructor are, respectively, the figure's
+		source, the LaTeX source produced, the EPS figure produced, the name
+		to use for it (probably the same one), and the environment.
+		"""
+		leaf = DependLeaf([fig])
+		Depend.__init__(self, [tex, eps], { fig: leaf })
+		self.env = env
+		self.fig = fig
+		self.cmd_t = ["fig2dev", "-L", "pstex_t", "-p", epsname, fig, tex ]
+		self.cmd_p = ["fig2dev", "-L", "pstex", fig, eps ]
+
+	def run (self):
+		self.env.msg(0, _("converting %s to EPS/LaTeX...") % self.fig)
+		if self.env.execute(self.cmd_t): return 1
+		self.env.execute(self.cmd_p)
+
 # This regular expression is used to parse path lists in \graphicspath.
 
 re_gpath = re.compile("{(?P<prefix>[^{}]*)}")
@@ -63,6 +87,7 @@ class Module (rubber.Module):
 		self.msg = env.msg
 		env.add_hook("includegraphics", self.includegraphics)
 		env.add_hook("graphicspath", self.graphicspath)
+		env.convert.add_rule("(.*)\\.(eps|pstex)_t", "\\1.fig", "graphics")
 
 		self.prefixes = map(lambda x: join(x, ""), env.conf.path)
 		self.files = []
@@ -74,8 +99,8 @@ class Module (rubber.Module):
 		else:
 			self.suffixes = drv_suffixes["dvips"]
 
-		if dict["opt"]:
-			self.opts = rubber.util.parse_keyval(dict["opt"])
+		if dict.has_key("opt") and dict["opt"]:
+			self.opts = parse_keyval(dict["opt"])
 		else:
 			self.opts = {}
 
@@ -95,7 +120,7 @@ class Module (rubber.Module):
 		suffixes = self.suffixes
 
 		if dict["opt"]:
-			opts = rubber.util.parse_keyval(dict["opt"])
+			opts = parse_keyval(dict["opt"])
 			if opts.has_key("ext"):
 				# no suffixes are tried when the extension is explicit
 				suffixes = [""]
@@ -178,3 +203,11 @@ class Module (rubber.Module):
 		"""
 		for dep in self.files:
 			dep.clean()
+
+	def convert (self, source, target, env):
+		if target[-6:] == ".eps_t":
+			return PSTDep(source, target, target[:-2], target[:-6], env)
+		elif target[-2:] == "_t":
+			return PSTDep(soucre, target, target[:-2], target[:-2], env)
+		else:
+			return None

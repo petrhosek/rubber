@@ -192,14 +192,14 @@ class Modules (Plugins):
 		r = Plugins.register(self, name)
 		if r == 0:
 			self.env.msg(3, _("no support found for %s") % name)
-			return 1
+			return 0
 		elif r == 2:
 			self.env.msg(3, _("module %s already registered") % name)
-			return 1
+			return 2
 		mod = self.modules[name].Module(self.env, dict)
 		self.env.msg(2, _("module %s registered") % name)
 		self.objects[name] = mod
-		return 0
+		return 1
 
 #---------------------------------------
 
@@ -538,7 +538,8 @@ class Environment:
 		self.processed_sources[path] = None
 		self.msg(2, _("parsing %s") % path)
 		file = open(path)
-		self.depends[path] = DependLeaf([path])
+		if not self.depends.has_key(path):
+			self.depends[path] = DependLeaf([path])
 		self.do_process(file)
 		file.close()
 		self.msg(3, _("end of %s") % path)
@@ -547,22 +548,20 @@ class Environment:
 		"""
 		Treat the given name as a source file to be read. If this source can
 		be the result of some conversion, then the conversion is performed,
-		then the source is parsed. The returned value is a couple (name,dep)
-		where `name' is the actual LaTeX source parsed and `dep' is its
-		dependency node. The return value is (None,None) is the source could
-		neither be read nor built.
+		otherwise the source is parsed. The returned value is a couple
+		(name,dep) where `name' is the actual LaTeX source and `dep' is
+		its dependency node. The return value is (None,None) is the source
+		could neither be read nor built.
 		"""
 		for path in self.conf.path:
 			pname = join(path, name)
 			dep = self.convert(pname, self)
 			if dep:
-				dep.make()
-				self.process(pname)
+				self.depends[pname] = dep
 				return pname, dep
 			dep = self.convert(pname + ".tex", self)
 			if dep:
-				dep.make()
-				self.process(pname)
+				self.depends[pname] = dep
 				return pname + ".tex", dep
 		file = self.conf.find_input(name)
 		if file:
@@ -802,6 +801,9 @@ class Environment:
 				os.unlink(file)
 
 		self.msg(2, _("cleaning additional files..."))
+
+		for dep in self.depends.values():
+			dep.clean()
 		for mod in self.modules.objects.values():
 			mod.clean()
 

@@ -9,15 +9,19 @@ needed.
 
 from os.path import *
 
-import rubber, rubber.util
+import rubber
 from rubber import _
+from rubber.util import *
 
-class Dep (rubber.util.Depend):
+class Dep (Depend):
 	def __init__ (self, source, target, env):
-		leaf = rubber.util.DependLeaf([source])
-		rubber.util.Depend.__init__(self, [target], { source: leaf })
+		leaf = DependLeaf([source])
+		tg_base = target[:-4]
+		Depend.__init__(self,
+			[target, tg_base + ".idx", tg_base + ".scn"], { source: leaf })
 		self.env = env
 		self.source = source
+		self.target = target
 		self.cmd = ["cweave", source, target]
 
 	def run (self):
@@ -25,15 +29,19 @@ class Dep (rubber.util.Depend):
 		if self.env.execute(self.cmd):
 			self.env.msg(0, _("weaving failed"))
 			return 1
+		self.env.process(self.target)
 		return 0
-		
+
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
 		if env.src_ext == ".w":
+			self.clean_tex = 1
 			env.source_building = self.make
 			env.src_ext = ".tex"
+		else:
+			self.clean_tex = 0
 		env.convert.add_rule("(.*)\\.tex$", "\\1.w", "cweb")
 
 	def make (self):
@@ -66,7 +74,8 @@ class Module (rubber.Module):
 		"""
 		Remove the LaTeX source and the other files produced by cweave.
 		"""
-		self.env.remove_suffixes([".tex", ".scn", ".idx"])
+		if self.clean_tex:
+			self.env.remove_suffixes([".tex", ".scn", ".idx"])
 
 	def convert (self, source, target, env):
 		"""

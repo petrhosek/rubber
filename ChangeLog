@@ -1,7 +1,9 @@
 2003-04-01  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/graphics.py: Added support for EPS/LaTeX figures.
+
 	* src/modules/cweb.py: Added a conversion rule for imported CWEB
-	source files.
+	source files, fixed the module.
 
 	* src/cmdline.py: Added the missing call to env.make_source().
 
