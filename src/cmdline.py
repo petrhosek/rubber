@@ -222,7 +222,6 @@ available options:
 			# Compile the document
 
 			if self.clean:
-				env.parse()
 				env.clean(1)
 			else:
 				if self.force:

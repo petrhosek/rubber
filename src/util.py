@@ -202,7 +202,18 @@ class Depend (object):
 		"""
 		self.msg = msg
 		self.prods = prods
-		if prods == []:
+		self.set_date()
+		self.sources = sources
+		self.making = 0
+		self.failed_dep = None
+
+	def set_date (self):
+		"""
+		Define the date of the last build of this node as that of the most
+		recent file among the products. If some product does not exist or
+		there are ne products, the date is set to None.
+		"""
+		if self.prods == []:
 			# This is a special case used in rubber.Environment
 			self.date = None
 		else:
@@ -210,14 +221,11 @@ class Depend (object):
 				# We set the node's date to that of the most recently modified
 				# product file, assuming all other files were up to date then
 				# (though not necessarily modified).
-				self.date = max(map(getmtime, prods))
+				self.date = max(map(getmtime, self.prods))
 			except OSError:
 				# If some product file does not exist, set the last
 				# modification date to None.
 				self.date = None
-		self.sources = sources
-		self.making = 0
-		self.failed_dep = None
 
 	def should_make (self):
 		"""

@@ -916,8 +916,8 @@ class Environment (Depend):
 		if not exists(self.src_base + ".log"):
 			self.msg(3, _("the log file does not exist"))
 			return 1
-		if getmtime(self.src_base + ".log") < getmtime(self.source()):
-			self.msg(3, _("the source is younger than the log file"))
+		if getmtime(self.prods[0]) < getmtime(self.source()):
+			self.msg(3, _("the source is younger than the output file"))
 			return 1
 		if self.log.read(self.src_base + ".log"):
 			self.msg(3, _("the log file is not produced by %s") % self.conf.tex)

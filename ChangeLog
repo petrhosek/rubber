@@ -3,6 +3,9 @@
 	* src/__init__.py: Added delayed directives, to improve the semantic
 	of directives in sources.
 
+	* src/__init__.py, src/util.py: Fixed the rules to check if compiling
+	is required.
+
 2004-06-09  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/makeidx.py, src/modules/index.py: Added support for
