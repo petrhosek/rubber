@@ -111,7 +111,7 @@ class Parser:
 		Update the regular expression used to match macro calls using the keys
 		in the `hook' dictionary.
 		"""
-		self.seq = re.compile("\\\\(?P<name>%s)( *(\\[(?P<opt>[^\\]]*)\\])?{(?P<arg>[^\\\\{}]*)}|[^A-Za-z])" % string.join(self.hooks.keys(), "|"))
+		self.seq = re.compile("\\\\(?P<name>%s\*\?)( *(\\[(?P<opt>[^\\]]*)\\])?{(?P<arg>[^\\\\{}]*)}|[^A-Za-z])" % string.join(self.hooks.keys(), "|"))
 
 	def do_process (self, file):
 		"""
