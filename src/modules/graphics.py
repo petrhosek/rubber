@@ -36,7 +36,7 @@ drv_suffixes = {
 	"pctexhp" : ["", ".pcl"],
 	"pctexps" : ["", ".eps", ".ps"],
 	"pctexwin" : ["", ".eps", ".ps", ".wmf", ".bmp"],
-	"pdftex" : ["", ".png", ".pdf", ".jpg", ".mps", ".tif"],
+	"pdftex" : ["", ".pdf", ".png", ".jpg", ".mps", ".tif"],
 	"tcidvi" : [""],
 	"textures" : ["", ".ps", ".eps", ".pict"],
 	"truetex" : ["", ".eps", ".ps"],
@@ -65,10 +65,15 @@ class Module:
 			self.suffixes = drv_suffixes["pdftex"]
 		else:
 			self.suffixes = drv_suffixes["dvips"]
+
 		if dict["opt"]:
-			for opt in dict["opt"].split(","):
-				if drv_suffixes.has_key(opt):
-					self.suffixes = drv_suffixes[opt]
+			self.opts = rubber.util.parse_keyval(dict["opt"])
+		else:
+			self.opts = {}
+
+		for opt in self.opts.keys():
+			if drv_suffixes.has_key(opt):
+				self.suffixes = drv_suffixes[opt]
 
 	def includegraphics (self, dict):
 		"""
@@ -77,13 +82,16 @@ class Module:
 		dependencies or to the list of graphics not found.
 		"""
 		name = dict["arg"]
-		if dict["opt"]:
-			opts = rubber.util.parse_keyval(dict["opt"])
-			if opts.has_key("ext"):
-				if opts["ext"]:
-					name = name + opts["ext"]
+		suffixes = self.suffixes
 
-		d = rubber.graphics.dep_file(name, self.suffixes, self.path, self.env)
+		if dict["opt"]:
+			if self.opts.has_key("ext"):
+				# no suffixes are tried when the extension is explicit
+				suffixes = [""]
+				if self.opts["ext"]:
+					name = name + self.opts["ext"]
+
+		d = rubber.graphics.dep_file(name, suffixes, self.path, self.env)
 		if d:
 			self.msg(1, _("graphics %s found") % name)
 			for file in d.prods:
