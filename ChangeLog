@@ -1,3 +1,9 @@
+2002-12-04  Emmanuel Beffara  <manu@beffara.org>
+
+	* Version 0.99.5 released.
+
+	* debian/control: Fixed dependency rules (again).
+
 2002-11-29  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py (Message.error): Allowed the error lines to be

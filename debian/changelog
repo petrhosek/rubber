@@ -1,3 +1,10 @@
+rubber (0.99.5-1) unstable; urgency=low
+
+  * New release.
+  * User-visible changes are now listed in the NEWS file.
+
+ -- Emmanuel Beffara <manu@beffara.org>  Wed,  4 Dec 2002 07:55:35 +0100
+
 rubber (0.99.4-2) unstable; urgency=low
 
   * Removed "-terse" from BibTeX calling convention.
