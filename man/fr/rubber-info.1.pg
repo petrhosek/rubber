@@ -32,10 +32,11 @@ compilation
 
 \section(2, Actions)
 
-Exactement une des options de ligne de commande suivantes doit être spécifiée,
+L'une des options de ligne de commande suivantes doit être spécifiée,
 afin de choisir quel information extraire. Bien entendu, les actions qui
 extraient des informations des logs ne peuvent êtres effectuées que si une
-compilation a effectivement eu lieu.
+compilation a effectivement eu lieu. Si aucune de ces actions n'est spécifiée,
+c'est \ddopt(check) qui est utilisée.
 
 \begin(description)
 
@@ -43,14 +44,24 @@ compilation a effectivement eu lieu.
 où la compilation a produit des boîtes mal construites (ce sont les fameux
 overfull et underfull \macro(hbox) et \macro(vbox)).])
 
-\item([\ddash[]deps], [Analyse les sources et produit des règles de dépendance
-à la Makefile (sans commande de construction).])
+\item([\ddash[]check], [Affiche les erreurs de compilation s'il y en a, sinon
+énumère les références non définies s'il y en a, sinon affiche les
+avertissements et les boîtes mal construites. C'est l'action par défaut.])
+
+\item([\ddash[]deps], [Analyse les sources et produit une liste (séparée par
+des espaces) des noms de tous les fichiers dont dépend le document et que
+Rubber ne peut pas reconstituer.])
 
 \item([\ddash[]errors], [Extrait du fichier log la liste des erreurs qui sont
 survenues durant la dernière compilation.])
 
+\item([\dash[]h, \ddash[]help], [Affiche la liste de toutes les options
+disponibles et quitte.])
+
 \item([\ddash[]refs], [Affiche la liste des références non définies (i.e. les
 \macro(ref) qui ne correspndent à aucun \macro(label)).])
+
+\item([\ddash[]version], [Affiche le numéro de version et termine.])
 
 \item([\ddash[]warnings], [Affiche stupidement la liste de tous les
 avertissements de LaTeX, c'est-à-dire toutes les lignes du fichier log qui
@@ -61,9 +72,6 @@ contiennent "Warning".])
 \section(2, Options)
 
 \begin(description)
-
-\item([\dash[]h, \ddash[]help], [Affiche la liste de toutes les options
-disponibles et quitte.])
 
 \item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
 [Utilise le module spécifié en plus des packages du document. Des arguments
@@ -78,8 +86,6 @@ façon compacte (une erreur par ligne).])
 \item([\dash[]v, \ddash[]verbose], [Incrémente le degré de détail dans les
 messages affichés. Le niveau par défaut est 0, les niveaux existent jusqu'à
 3.])
-
-\item([\ddash[]version], [Affiche le numéro de version et termine.])
 
 \end(description)
 

@@ -31,9 +31,10 @@ errors and warnings). This program is a complement for the compilation system
 
 \section(2, Actions)
 
-Exactly one of the following command-line options must be specified, to decide
-which information to extract. Of course, for actions that read a log file, a
-compilation must have been done before.
+One of the following command-line options must be specified, to decide which
+information to extract. Of course, for actions that read a log file, a
+compilation must have been done before. If none of these actions is specified,
+\ddopt(check) is assumed.
 
 \begin(description)
 
@@ -41,14 +42,24 @@ compilation must have been done before.
 where bad boxes appeared (these are the famous overfull and underfull
 \macro(hbox) and \macro(vbox))])
 
-\item([\ddash[]deps], [Analyse the source files and produce depedency rules in
-the style of a Makefile (with no building command)])
+\item([\ddash[]check], [Report errors if there are any, otherwise report
+undefined references if there are any, otherwise list warnings and bad boxes.
+This is the default action.])
+
+\item([\ddash[]deps], [Analyse the source files and produce a space-separated
+list of all the files that the document depends on and that Rubber cannot
+rebuild.])
 
 \item([\ddash[]errors], [Extract from the log file the list of errors that
 occured during the last compilation.])
 
+\item([\dash[]h, \ddash[]help], [Display the list of all available options
+and exit nicely.])
+
 \item([\ddash[]refs], [Show a list of undefined references (i.e. the
 \macro(ref)'s that are not defined by any \macro(label)).])
+
+\item([\ddash[]version], [Print the version number and exit nicely.])
 
 \item([\ddash[]warnings], [Stupidly enumerate all LaTeX warnings, i.e. all
 the lines that contain the string "Warning".])
@@ -58,9 +69,6 @@ the lines that contain the string "Warning".])
 \section(2, Options)
 
 \begin(description)
-
-\item([\dash[]h, \ddash[]help], [Display the list of all available options
-and exit nicely.])
 
 \item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
 [Use the specified module in addition to the document's packages. Arguments
@@ -74,8 +82,6 @@ form (one error per line).])
 
 \item([\dash[]v, \ddash[]verbose], [Increase the verbosity level. The default
 level is 0, levels up to 3 exist.])
-
-\item([\ddash[]version], [Print the version number and exit nicely.])
 
 \end(description)
 

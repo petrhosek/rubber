@@ -1,5 +1,8 @@
 2002-11-27  Emmanuel Beffara  <manu@beffara.org>
 
+	* man/: Updated the man pages with --check and the actual meaning
+	of --deps.
+
 	* src/modules/bibtex.py: Added bibliography databases and style
 	files to the list of dependencies.
 
