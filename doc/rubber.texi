@@ -440,8 +440,9 @@ files with external programs. For more details, see @ref{Graphics}.
 @item hyperref
 Handle the extra files that this package produces in some cases.
 
-@item makeidx
-Process the document's index with @command{makeindex} when needed. For
+@item index
+@itemx makeidx
+Process the document's indexes with @command{makeindex} when needed. For
 details, see @ref{Makeindex}.
 
 @item minitoc
@@ -494,23 +495,31 @@ Add the specified directory  to  the  search  path  for  BibTeX style files
 @node Makeindex, Pre-processing, BibTeX, Packages
 @subsection Makeindex support
 
-The use of @command{makeidx} package triggers the use of @command{makeindex}
-when necessary to process the document's index. The following directives may
-be used to control how @command{makeindex} is called:
+The use of the packages @command{index} and @command{makeidx} triggers the use
+of @command{makeindex} when necessary to process the document's indexes. The
+following directives may be used to control how @command{makeindex} is called:
 
 @ftable @command
-@item makeidx.order <options>
-Modifies the sorting options for the index. Tha argument must be a
+@item index.order <options>
+Modifies the sorting options for the index. The argument must be a
 space-separated list of words among @samp{standard}, @samp{german} and
 @samp{letter}.
 
-@item makeidx.path <directory>
+@item index.path <directory>
 Adds the specified directory to the search path for index style files
 (@file{.ist} files).
 
-@item makeidx.style <style>
+@item index.style <style>
 Specifies the index style to be used.
 @end ftable
+
+Each of these directives may be used with an optional first arument of the
+form @samp{(foo,bar,quux)} in order to specify that the directive only applies
+to the indexes named @samp{foo}, @samp{bar} and @samp{quux}.
+
+When using the package @command{makeidx} instead of  @command{index}, the
+directives must of course be prefixed by @samp{makeidx.} instead of
+@samp{index.}, and the optional first argument is not accepted.
 
 @node Pre-processing, Post-processing, Makeindex, Modules
 @section Pre-processors

@@ -117,7 +117,7 @@ document PDF au lieu de DVI. Cette option est synonyme de
 .B \-p, \-\-ps
 Traite le fichier DVI obtenu après compilation
 avec
-.BR dvips(1)
+.BR dvips (1)
 afin de produire un document PostScript. Cette option est synonyme de
 .IR \-o\ dvips ,
 elle est naturellement incompatible avec
@@ -186,9 +186,9 @@ pour plus de détails.
 S'occupe des fichiers supplémentaires que produit ce package dans certains
 cas.
 .TP
-.B makeidx
-Traite l'index du document avec
-.BR makeindex(1)
+.B index, makeidx
+Traite l'index (ou les index) du document avec
+.BR makeindex (1)
 lorsque c'est nécessaire (voir dans "Directives" pour les options).
 .TP
 .B minitoc, minitoc-hyper
@@ -218,7 +218,7 @@ produisent un source LaTeX à partir de formats différents:
 .TP
 .B cweb
 Ce module sert à exécuter
-.BR cweave(1)
+.BR cweave (1)
 si nécessaire avant le processus de compilation pour produire le source LaTeX.
 Ce module est chargé automatiquement si le fichier spécifié sur la ligne de
 commande a
@@ -252,12 +252,12 @@ rubber \-p \-o ps2pdf \-z toto.tex
 .TP
 .B dvipdfm
 Lance
-.BR dvipdfm(1)
+.BR dvipdfm (1)
 à la fin de la compilation pour produire un document PDF.
 .TP
 .B dvips
 Lance
-.BR dvips(1)
+.BR dvips (1)
 à la fin de la compilation pour produire un document PostScript. Ce module est
 aussi chargé par l'option de ligne de commande
 .IR \-\-ps .
@@ -266,7 +266,7 @@ aussi chargé par l'option de ligne de commande
 Produit un source LaTeX à partir du document principal, en remplaçant les
 macros \\input par les fichiers inclus, les macros de bibliographies par la
 bibliographie produite par
-.BR bibtex(1),
+.BR bibtex (1),
 et les classes et packages locaux par leur source. Si le fichier principal est
 .IR foo.tex ,
 le fichier développé sera nommé
@@ -275,14 +275,14 @@ Voir la documentation en info pour plus de détails.
 .TP
 .B gz
 Produit une version du document final compressée avec
-.BR gzip(1).
+.BR gzip (1).
 .TP
 .B ps2pdf
 Lorsque la compilation produit un document PostScript (par exemple en
 utilisant le module
 .BR dvips ),
 convertit ce document en PDF avec
-.BR ps2pdf(1).
+.BR ps2pdf (1).
 .PP
 
 .SS Choix du compilateur
@@ -290,27 +290,27 @@ Les modules suivants servent à changer de compilateur LaTeX:
 .TP
 .B etex
 Indique à Rubber d'utiliser
-.BR elatex(1)
+.BR elatex (1)
 au lieu de
 .B latex
 pour compiler le document.
 .TP
 .B omega
 Utilise Omega au lieu de TeX, c'est-à-dire compile le document avec
-.BR lambda(1)
+.BR lambda (1)
 au lieu de
 .BR latex .
 Si le module
 .B dvips
 est utilisé, il transformera le DVI avec la commande
-.BR odvips(1).
+.BR odvips (1).
 Notez que si le package
 .B omega
 est utilisé par le document, ce module sera chargé automatiquement.
 .TP
 .B pdftex
 Indique à Rubber d'utiliser
-.BR pdflatex(1)
+.BR pdflatex (1)
 au lieu de
 .BR latex
 pour compiler le document. Par défaut, celà a pour effet
@@ -419,16 +419,27 @@ Passe les options de ligne de commande spécifiées à
 Passe les options de ligne de commande spécifiées à
 .BR dvips .
 .TP
-.BI makeidx.order \ <options> 
-Modifie les options de tri de l'index. L'argument est une liste de mots
-(séparés par des espaces) parmi "standard", "german", "letter".
+.BI index.order \ (index)\ <options> 
+Modifie les options de tri de l'index. L'argument
+.I index
+est optionnel, il peut être utilisé pour spécifier la liste des index
+auxquels s'applique la commande (s'il est présent, il doit être placé entre
+parenthèses; la liste est séparée par des virgules). Le reste de l'argument
+est une liste de mots (séparés par des espaces) parmi "standard", "german",
+"letter".
 .TP
-.BI makeidx.path \ <répertoire> 
+.BI index.path \ (index)\ <répertoire> 
 Ajoute le répertoire spécifié au chemin de recherche de styles d'index
-(fichiers .ist).
+(fichiers .ist). L'argument optionnel a la même signification qu'au-dessus.
 .TP
-.BI makeidx.style \ <style> 
-Spécifie le style d'index à utiliser.
+.BI index.style \ (index)\ <style> 
+Spécifie le style d'index à utiliser. L'argument optionnel a la même
+signification qu'au-dessus.
+.TP
+.B makeidx.order, makeidx.path, makeidx.style
+Ces directives sont les mêmes que pour le module
+.BR index ,
+sauf qu'elles n'acceptent pas l'argument optionnel.
 .PP
 
 .SH BUGS

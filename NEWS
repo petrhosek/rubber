@@ -2,6 +2,7 @@ Version 0.99.8 (CVS)
 
   Features:
     - Support for e-TeX and Omega.
+	- Support for package "index".
     - New directive "onchange".
 
   Bugfixes:

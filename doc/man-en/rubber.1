@@ -117,7 +117,7 @@ This option is a synonym for
 .TP
 .B \-p, \-\-ps
 Process the DVI produced by the process through
-.BR dvips(1)
+.BR dvips (1)
 to produce a PostScript document. This option is a synonym for
 .IR \-o\ dvips ,
 it is naturally incompatible with
@@ -183,9 +183,9 @@ files with external programs. See the info documentation for details.
 .B hyperref
 Handle the extra files that this package produces in some cases.
 .TP
-.B makeidx
-Process the document's index with
-.B makeindex
+.B index, makeidx
+Process the document's index (or indexes) with
+.BR makeindex (1)
 when needed (see section "Directives" for options).
 .TP
 .B minitoc, minitoc-hyper
@@ -215,7 +215,7 @@ source from a different file format:
 .TP
 .B cweb
 This module's purpose is to run
-.BR cweave(1)
+.BR cweave (1)
 if needed before the compiling process to produce the LaTeX source. This
 module is automatically loaded if the file specified on the command line has
 .B .w
@@ -248,12 +248,12 @@ rubber \-p \-o ps2pdf \-z foo.tex
 .TP
 .B dvipdfm
 Runs
-.BR dvipdfm(1)
+.BR dvipdfm (1)
 at the end of compilation to produce a PDF document.
 .TP
 .B dvips
 Runs
-.BR dvips(1)
+.BR dvips (1)
 at the end of compilation to produce a PostScript document. This module is
 also loaded by the command line option
 .IR \-\-ps .
@@ -261,7 +261,7 @@ also loaded by the command line option
 .B expand
 Produce an expanded LaTeX source by replacing \\input macros by included
 files, bibliography macros by the bibliography produced by
-.BR bibtex(1),
+.BR bibtex (1),
 and local classes and packages by their source. If the main file is
 .I foo.tex
 then then expanded file will be named
@@ -270,14 +270,14 @@ See the info documentation for details.
 .TP
 .B gz
 Produce a version of the final file compressed with
-.BR gzip(1).
+.BR gzip (1).
 .TP
 .B ps2pdf
 Assuming that the compilation produces a PostScript document (for instance
 using module
 .BR dvips ),
 convert this document to PDF using
-.BR ps2pdf(1).
+.BR ps2pdf (1).
 .PP
 
 .SS Compiler choice
@@ -285,28 +285,28 @@ The following modules are used to change the LaTeX compiler:
 .TP
 .B etex
 Instructs Rubber to use
-.BR elatex(1)
+.BR elatex (1)
 instead of
 .BR latex .
 .TP
 .B omega
 Use the Omega compiler instead of TeX, i.e. compiles the document using
-.BR lambda(1)
+.BR lambda (1)
 instead of
 .BR latex .
 If the module
 .B dvips
 is used too, it will use
-.BR odvips(1)
+.BR odvips (1)
 to translate the DVI file. Note that this module is triggered automatically
 when the document uses the package
 .BR omega .
 .TP
 .B pdftex
 Instructs Rubber to use
-.BR pdflatex(1)
+.BR pdflatex (1)
 instead of
-.BR latex(1)
+.BR latex (1)
 to compile the document. By default, this produces a PDF file instead of a
 DVI, but when loading the module with the option
 .B dvi
@@ -409,15 +409,27 @@ Pass the specified command-line switches to
 Pass the specified command-line switches to
 .BR dvips .
 .TP
-.BI makeidx.order \ <options>
-Modifies the sorting options for the index. Tha argument must be a
-space-separated list of words among "standard", "german" and "letter".
+.BI index.order \ (index)\ <options>
+Modifies the sorting options for the indexes. The argument
+.I index
+is optional, it may be used to specify the list of indexes the command applies
+to (when present, it must be enclosed in parentheses; the list is
+comma-separated).
+The rest of the argument must be a space-separated list of words among
+"standard", "german" and "letter".
 .TP
-.BI makeidx.path \ <directory>
+.BI index.path \ (index)\ <directory>
 Adds the specified directory to the search path for index styles (.ist files).
+The optional argument has the same semantics as above.
 .TP
-.BI makeidx.style \ <style>
+.BI index.style \ (index)\ <style>
 Specifies the index style to be used.
+The optional argument has the same semantics as above.
+.TP
+.B makeidx.order, makeidx.path, makeidx.style
+These directives are the same as for the
+.B index
+module, except that they don't accept the optional argument.
 .PP
 
 .SH BUGS

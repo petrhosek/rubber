@@ -1,3 +1,8 @@
+2004-06-09  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/makeidx.py, src/modules/index.py: Added support for
+	module "index", modified "makeidx" to factor the code.
+
 2004-05-14  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, src/modules/...: Added support for e-TeX and Omega.
