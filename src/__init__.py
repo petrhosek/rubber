@@ -247,7 +247,8 @@ class LogCheck (object):
 				if m:
 					parsing = 0
 					skipping = 1
-					self.msg.error(pos[-1], int(m.group("line")),
+					self.msg.error(
+						{ "file": pos[-1], "line": int(m.group("line")) },
 						error, m.group("text"))
 				elif line[0:3] == "***":
 					parsing = 0
@@ -833,6 +834,7 @@ class Environment (Depend):
 
 		for mod in self.modules.objects.values():
 			if mod.pre_compile():
+				self.failed_dep = mod
 				return 1
 		return 0
 		
@@ -1151,13 +1153,13 @@ class Message (object):
 		"""
 		pass
 
-	def error (self, file, line, text, code):
+	def error (self, where, text, code):
 		"""
 		This method is called when the parsing of the log file found an error.
-		The arguments are, respectively, the name of the file and the line
-		number where the error occurred, the description of the error, and the
-		offending code (up to the error). The line number and the code may be
-		None, the file name and the text are required.
+		The arguments are, respectively, the positionr where the error
+		occurred (a dictionary that may contain entries 'file', 'line', etc),
+		the description of the error, and the offending code (up to the
+		error).
 		"""
 		pass
 
@@ -1216,4 +1218,10 @@ class Module (object):
 	def command (self, cmd, arg):
 		"""
 		This is called when a directive for the module is found in the source.
+		"""
+
+	def show_errors (self):
+		"""
+		This is called if something has failed during an operation performed
+		by this module.
 		"""

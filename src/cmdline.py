@@ -36,17 +36,22 @@ class Message (Message):
 	def __call__ (self, level, text):
 		self.write(level, text)
 
-	def error (self, file, line, text, code):
-		file = simplify_path(file)
-
-		if line:
-			prefix = "%s:%d: " % (file, line)
+	def format_pos (self, where):
+		if where.has_key("file"):
+			text = simplify_path(where["file"])
+			if where.has_key("line"):
+				text = "%s:%d" % (text, where["line"])
+				if where.has_key("last"):
+					if where["last"] != where["line"]:
+						text = "%s-%d" % (text, where["last"])
 		else:
-			prefix = file + ": "
+			text = _("(nowhere)")
+		return text
 
+	def error (self, where, text, code):
+		prefix = self.format_pos(where) + ": "
 		if text[0:13] == "LaTeX Error: ":
 			text = text[13:]
-
 		self.write(-1, prefix + text)
 		if code and not self.short:
 			self.write(-1, prefix + _("leading text: ") + code)
@@ -58,16 +63,7 @@ class Message (Message):
 			self.write(0, _("compilation aborted: %s %s") % (what, why))
 
 	def info (self, where, what):
-		if where.has_key("file"):
-			text = simplify_path(where["file"])
-			if where.has_key("line"):
-				text = "%s:%d" % (text, where["line"])
-				if where.has_key("last"):
-					if where["last"] != where["line"]:
-						text = "%s-%d" % (text, where["last"])
-		else:
-			text = _("(nowhere)")
-		text = "%s: %s" % (text, what)
+		text = self.format_pos(where) + ": " + what
 		if where.has_key("page"):
 			text = "%s (page %d)" % (text, where["page"])
 		self.write(0, text)

@@ -216,8 +216,7 @@ class Module (rubber.Module):
 			env["BSTINPUTS"] = string.join(self.bst_path +
 				[os.getenv("BSTINPUTS", "")], ":")
 		if self.env.execute(["bibtex", self.base], env):
-			self.msg(-1, _("There were errors making the bibliography."))
-			self.show_errors()
+			self.msg(0, _("There were errors making the bibliography."))
 			return 1
 		self.run_needed = 0
 		self.env.must_compile = 1
@@ -332,7 +331,8 @@ class Module (rubber.Module):
 					text = string.strip(line[:m.start()])
 				line = m.group("line")
 				if line: line = int(line)
-				self.env.msg.error(m.group("file"), line, text, None)
+				self.env.msg.error(
+					{ "file": m.group("file"), "line": line }, text, None)
 			last_line = line
 			line = log.readline()
 		log.close()
