@@ -1,4 +1,10 @@
-2002-09-04  Emmanuel Beffara  <emmanuel@beffara.org>
+2002-09-05  Emmanuel Beffara  <manu@beffara.org>
+
+	* all: Made one class out of Environment, Process and Parser. The
+	message writers are now created by the interfaces (as it should
+	always have been).
+
+2002-09-04  Emmanuel Beffara  <manu@beffara.org>
 
 	* ChangeLog: introduced the change log (thanks to cvs2cl :-)
 
