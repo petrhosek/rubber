@@ -1,4 +1,9 @@
-2003-01-25  Emmanuel Beffara  <manu@beffara.org>
+2003-01-29  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Fixed the behaviour in the case where LaTeX cannot
+	be run.
+
+2003-01-28  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/graphics/mpost.py: Introduced class MPLogCheck to report
 	Metapost errors correctly.

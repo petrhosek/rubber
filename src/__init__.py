@@ -226,9 +226,11 @@ class LogCheck:
 		line = file.readline()
 		if not line:
 			file.close()
+			self.lines = None
 			return 1
 		if line.find("This is " + self.env.conf.tex) == -1:
 			file.close()
+			self.lines = None
 			return 1
 		self.lines = file.readlines()
 		file.close()
@@ -279,8 +281,11 @@ class LogCheck:
 	def show_errors (self):
 		"""
 		Display all errors that occured during compilation. Return 0 if there
-		was no error.
+		was no error. If not log file was produced (that can happen if LaTeX
+		could not be run), report nothing and return 1.
 		"""
+		if not self.lines:
+			return 1
 		pos = ["(no file)"]
 		last_file = None
 		parsing = 0    # 1 if we are parsing an error's text
@@ -639,7 +644,9 @@ class Environment:
 		self.msg(0, _("compiling %s...") % self.source())
 		(cmd, env) = self.conf.compile_cmd(self.source())
 		self.execute(cmd, env)
-		self.log.read(self.src_base + ".log")
+		if self.log.read(self.src_base + ".log"):
+			self.msg(0, _("Could not run %s.") % cmd[0])
+			return 1
 		if self.log.errors():
 			return 1
 		self.aux_md5_old = self.aux_md5
