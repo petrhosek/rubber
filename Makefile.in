@@ -9,37 +9,23 @@ mandir = @mandir@
 
 ###  standard targets
 
-# The conditionals about man/Makefile are useful because this file is present
-# in the CVS version only.
-
-all: manual
+all:
 	@python@ setup.py build
-
-manual:
-ifneq ($(wildcard man/Makefile),)
-	@make -C man all
-endif
 
 clean:
 	rm -rf build dist MANIFEST
 	find \( -name '*~' -or -name '*.py[co]' \) -exec rm {} \;
 
 distclean: clean
-ifneq ($(wildcard man/Makefile),)
-	@make -C man distclean
-endif
 	rm -f rubber.spec Makefile rubber settings.py src/version.py
 
-install: manual
+install:
 	@python@ setup.py inst ${prefix}
 
 ###  distribution-related targets
 
 sdist:
 	rm -f MANIFEST
-ifneq ($(wildcard man/Makefile),)
-	@make -C man all
-endif
 	@python@ setup.py sdist
 
 deb: sdist
