@@ -35,13 +35,13 @@ install:
 
 ###  distribution-related targets
 
-dist:
+sdist:
 ifneq ($(wildcard man/Makefile),)
 	@make -C man all
 endif
 	python setup.py sdist
 
-deb: dist
+deb: sdist
 	cd dist ; tar zxf rubber-@version@.tar.gz 
 	cp -r debian dist/rubber-@version@/
 	cd dist/rubber-@version@ ; dpkg-buildpackage -rfakeroot
