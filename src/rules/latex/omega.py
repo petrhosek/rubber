@@ -10,5 +10,5 @@ from rubber import _, msg
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
-		doc.conf.latex = "lambda"
-		doc.conf.tex = "Omega"
+		doc.vars["program"] = "lambda"
+		doc.vars["engine"] = "Omega"

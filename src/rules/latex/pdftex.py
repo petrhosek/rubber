@@ -13,14 +13,14 @@ from rubber import _, msg
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
-		doc.conf.latex = "pdflatex"
-		doc.conf.tex = "pdfTeX"
+		doc.vars["program"] = "pdflatex"
+		doc.vars["engine"] = "pdfTeX"
 		env = doc.env
 		if dict.has_key("opt") and dict["opt"] == "dvi":
 			if env.final != doc and doc.prods[0][-4:] != ".dvi":
 				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
-			doc.conf.cmdline.insert(0, "\\pdfoutput=0")
+			doc.cmdline.insert(0, "\\pdfoutput=0")
 		else:
 			if env.final != doc and doc.prods[0][-4:] != ".pdf":
 				msg.error(_("there is already a post-processor registered"))

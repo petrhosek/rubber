@@ -10,5 +10,5 @@ from rubber import _, msg
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
-		doc.conf.latex = "elatex"
-		doc.conf.tex = "e-TeX"
+		doc.vars["program"] = "elatex"
+		doc.vars["engine"] = "e-TeX"

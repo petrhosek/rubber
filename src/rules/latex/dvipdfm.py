@@ -23,7 +23,7 @@ class Dep (Depend):
 	def run (self):
 		msg.progress(_("running dvipdfm on %s") % self.source)
 		cmd = ["dvipdfm"]
-		for opt in self.doc.conf.paper:
+		for opt in self.doc.vars["paper"].split():
 			cmd.extend(["-p", opt])
 		cmd.extend(self.options + ["-o", self.target, self.source])
 		if self.env.execute(cmd):

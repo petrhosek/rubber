@@ -25,12 +25,12 @@ class Dep (Depend):
 		self.options = []
 
 	def run (self):
-		if self.doc.conf.tex == "Omega":
+		if self.doc.vars["engine"] == "Omega":
 			cmd = ["odvips"]
 		else:
 			cmd = ["dvips"]
 		msg.progress(_("running %s on %s") % (cmd[0], self.source))
-		for opt in self.doc.conf.paper:
+		for opt in self.doc.vars["paper"].split():
 			cmd.extend(["-t", opt])
 		cmd.extend(self.options + ["-o", self.target, self.source])
 		if self.env.execute(cmd):

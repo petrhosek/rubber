@@ -19,7 +19,7 @@ class Module (DependShell, rubber.rules.latex.Module):
 		ps = env.final.prods[0]
 		pdf = ps[:-2] + "pdf"
 		cmd = ["ps2pdf"]
-		for opt in doc.conf.paper:
+		for opt in doc.vars["paper"].split():
 			cmd.append("-sPAPERSIZE=" + opt)
 		cmd.extend([ps, pdf])
 		DependShell.__init__(self, doc.env, cmd,

@@ -74,9 +74,9 @@ class Module (rubber.rules.latex.Module):
 		self.files = []
 
 		# I take dvips as the default, but it is not portable.
-		if doc.conf.tex == "pdfTeX" and doc.prods[0][-4:] == ".pdf":
+		if doc.vars["engine"] == "pdfTeX" and doc.prods[0][-4:] == ".pdf":
 			self.suffixes = drv_suffixes["pdftex"]
-		elif doc.conf.tex == "VTeX":
+		elif doc.vars["engine"] == "VTeX":
 			self.suffixes = drv_suffixes["vtex"]
 		else:
 			self.suffixes = drv_suffixes["dvips"]

@@ -16,40 +16,6 @@ from rubber import _
 from rubber import *
 from rubber.version import moddir
 
-#----  Configuration  ----{{{1
-
-class Config (object):
-	"""
-	This class contains all configuration parameters. This includes search
-	paths, the name of the compiler and options for it, and paper size
-	options.
-	"""
-	def __init__ (self, env):
-		"""
-		Initialize the configuration with default settings.
-		"""
-		self.env = env
-		self.latex = "latex"
-		self.cmdline = ["\\nonstopmode\\input{%s}"]
-		self.tex = "TeX"
-		self.loghead = re.compile("This is [0-9a-zA-Z-]*(TeX|Omega)")
-		self.paper = []
-
-	def compile_cmd (self, file):
-		"""
-		Return the the command that should be used to compile the specified
-		file, in the form of a pair. The first member is the list of
-		command-line arguments, and the second one is a dictionary of
-		environment variables to define.
-		"""
-		cmd = [self.latex] + map(lambda x: x.replace("%s",file), self.cmdline)
-		inputs = string.join(self.env.path, ":")
-		if inputs == "":
-			return (cmd, {})
-		else:
-			inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
-			return (cmd, {"TEXINPUTS": inputs})
-
 #----  Module handler  ----{{{1
 
 class Modules (Plugins):
@@ -141,6 +107,7 @@ class Modules (Plugins):
 
 #----  Log parser  ----{{{1
 
+re_loghead = re.compile("This is [0-9a-zA-Z-]*(TeX|Omega)")
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
@@ -179,7 +146,7 @@ class LogCheck (object):
 		if not line:
 			file.close()
 			return 1
-		if not self.doc.conf.loghead.match(line):
+		if not re_loghead.match(line):
 			file.close()
 			return 1
 		self.lines = file.readlines()
@@ -415,8 +382,11 @@ class LaTeXDep (Depend):
 		self.log = LogCheck(self)
 		self.modules = Modules(self)
 
-		self.conf = Config(env)
-		self.vars = {}
+		self.vars = {
+			"program": "latex",
+			"engine": "TeX",
+			"paper": "" }
+		self.cmdline = ["\\nonstopmode\\input{%s}"]
 
 		# the initial hooks:
 
@@ -669,7 +639,7 @@ class LaTeXDep (Depend):
 				msg.warn(_("dependency '%s' not found") % arg, **pos)
 
 	def do_latex (self, arg):
-		self.conf.latex = arg
+		self.vars["program"] = arg
 
 	def do_module (self, mod, opt=None):
 		dict = { 'arg': mod, 'opt': opt }
@@ -682,8 +652,8 @@ class LaTeXDep (Depend):
 		else:
 			self.onchange_md5[file] = None
 
-	def do_paper (self, *args):
-		self.conf.paper.extend(args)
+	def do_paper (self, arg):
+		self.vars["paper"] = arg
 
 	def do_path (self, name):
 		self.env.path.append(expanduser(name))
@@ -845,7 +815,17 @@ class LaTeXDep (Depend):
 		occured, and false if compilaiton succeeded.
 		"""
 		msg.progress(_("compiling %s") % self.source())
-		(cmd, env) = self.conf.compile_cmd(self.source())
+		
+		file = self.source()
+		cmd = [self.vars["program"]]
+		cmd += map(lambda x: x.replace("%s",file), self.cmdline)
+		inputs = string.join(self.env.path, ":")
+		if inputs == "":
+			env = {}
+		else:
+			inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
+			env = {"TEXINPUTS": inputs}
+		
 		self.env.execute(cmd, env)
 		if self.log.read(self.src_base + ".log"):
 			msg.error(_("Could not run %s.") % cmd[0])
@@ -980,7 +960,7 @@ class LaTeXDep (Depend):
 			msg.debug(_("the source is younger than the output file"))
 			return 1
 		if self.log.read(self.src_base + ".log"):
-			msg.debug(_("the log file is not produced by %s") % self.conf.tex)
+			msg.debug(_("the log file is not produced by TeX"))
 			return 1
 		return self.recompile_needed()
 

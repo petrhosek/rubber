@@ -13,17 +13,17 @@ import rubber
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
-		doc.conf.tex = "VTeX"
+		doc.vars["engine"] = "VTeX"
 		if dict['opt'] == "ps":
 			if doc.env.final != doc and doc.prods[0][-4:] != ".ps":
 				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
-			doc.conf.latex = "vlatexp"
+			doc.vars["program"] = "vlatexp"
 			doc.prods = [doc.src_base + ".ps"]
 		else:
 			if doc.env.final != doc and doc.prods[0][-4:] != ".pdf":
 				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
-			doc.conf.latex = "vlatex"
+			doc.vars["program"] = "vlatex"
 			doc.prods = [doc.src_base + ".pdf"]
-		doc.conf.cmdline = ["-n1", "@latex", "%s"]
+		doc.cmdline = ["-n1", "@latex", "%s"]
