@@ -1,0 +1,19 @@
+# Boring file regexps:
+(^|/)CVS($|/)
+~$
+#(^|/)\.[^/]
+(^|/)_darcs($|/)
+\.bak$
+\.BAK$
+\.orig$
+(^|/)vssver\.scc$
+\.swp$
+\.py[co]$
+\#
+^build($|/)
+\.info$
+^Makefile$
+^rubber(|-[a-z]*)$
+^settings\.py$
+^src/version\.py$
+^rubber\.spec$
