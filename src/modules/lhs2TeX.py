@@ -21,7 +21,7 @@ class Dep (Depend):
 		self.env = env
 		self.source = source
 		self.target = target
-		self.cmd = ["lhs2TeX", "--math", source]
+		self.cmd = ["lhs2TeX", "--poly", source]
 
 	def run (self):
 		msg.progress(_("pretty-printing %s") % self.source)
@@ -48,7 +48,7 @@ class Module (rubber.Module):
 		else:
 			self.clean_tex = 0
 		env.convert.add_rule("(.*)\\.tex$", "\\1.lhs", 0, "lhs2TeX")
-		self.style = "--math"
+		self.style = "--poly"
 
 	def make (self):
 		"""
