@@ -127,6 +127,10 @@ BibTeX when needed. This module is automatically loaded if the document
 contains the macro \macro(bibliography) (see also in "Directives" for
 options).])
 
+\item(combine, [The \tt(combine) package is used to gather several LaTeX
+documents into a single one, and this module handles the dependencies in this
+case.])
+
 \item(cweb, [This module's purpose is to run \cmd(cweave) if needed before the
 compiling process to produce the LaTeX source. This module is automatically
 loaded if the file specified on the command line has \tt(.w) as its suffix.])

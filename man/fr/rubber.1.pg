@@ -131,6 +131,10 @@ lorsque c'est nécessaire. Ce module est chargé automatiquement lorsque le
 document contient la macro \macro(bibliography) (voir aussi dans "Directives"
 pour les options).])
 
+\item(combine, [Le package \tt(combine) sert à rassembler plusieurs documents
+LaTeX en un seul, et ce module s'occupe de gérer les dépendances dans ce
+cas.])
+
 \item(cweb, [Ce module sert à exécuter \cmd(cweave, 1) si nécessaire avant le
 processus de compilation pour produire le source LaTeX. Ce module est chargé
 automatiquement si le fichier spécifié sur la ligne de commande a \tt(.w) pour

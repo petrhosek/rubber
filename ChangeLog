@@ -2,6 +2,8 @@
 
 	* rubber.spec.in: Fixed the RPM spec file (patch by Oron Peled).
 
+	* src/modules/combine.py, man/...: Added module 'combine'.
+
 2003-04-28  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/graphics.py: Fixed a stupid typo.
