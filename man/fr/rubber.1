@@ -61,7 +61,7 @@ Exécute la commande (ou directive) spécifiée. Voir la section "Directives"
 pour plus de détails.
 .TP
 .B -f, --force
-Force au moins une compilation du source.  Ceci peut être utile, par exemple,
+Force au moins une compilation du source. Ceci peut être utile, par exemple,
 si une dépendance inhabituelle a été modifiée (par exemple un package dans un
 répertoire système).
 .TP
@@ -114,9 +114,12 @@ directive "read").
 Formate les messages d'erreur de LaTeX de façon compacte (une erreur par
 ligne).
 .TP
+.BI -I,\ --texpath \ <répertoire>
+Ajoute le répertoire spécifié au chemin de recherche de fichiers de TeX.
+.TP
 .B -v, --verbose
 Incrémente le degré de détail dans les messages affichés. Le niveau par défaut
-est 0, les niveaux existent jusqu'à 3.  Attention, dire
+est 0, les niveaux existent jusqu'à 3. Attention, dire
 .I -vvv
 rend Rubber très bavard.
 .TP

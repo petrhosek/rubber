@@ -69,8 +69,9 @@ available options:
   -d, --pdf                compile with pdftex (synonym for -m pdftex)
   -p, --ps                 process through dvips (synonym for -m dvips)
   -q, --quiet              suppress messages
-  -s, --short              display errors in a compact form
   -r, --read=FILE          read additional directives from FILE
+  -s, --short              display errors in a compact form
+  -I, --texpath=DIR        add DIR to the search path for LaTeX
   -v, --verbose            increase verbosity
       --version            print version information and exit\
 """) % version)
@@ -78,9 +79,10 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "c:dfhklm:pqr:sv",
+				cmdline, "I:c:dfhklm:pqr:sv",
 				["command=", "help", "keep", "landcape", "module=",
-				 "pdf", "ps", "quiet", "read=", "short", "verbose", "version"])
+				 "pdf", "ps", "quiet", "read=", "short", "texpath=",
+				 "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -104,10 +106,12 @@ available options:
 				self.commands.append("module dvips")
 			elif opt in ("-q", "--quiet"):
 				self.msg.level = -1
-			elif opt in ("-s", "--short"):
-				self.msg.short = 1
 			elif opt in ("-r" ,"--read"):
 				self.commands.append("read " + arg)
+			elif opt in ("-s", "--short"):
+				self.msg.short = 1
+			elif opt in ("-I", "--texpath"):
+				self.commands.append("path " + arg)
 			elif opt in ("-v", "--verbose"):
 				self.msg.level = self.msg.level + 1
 			elif opt == "--version":

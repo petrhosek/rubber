@@ -1,3 +1,11 @@
+2004-01-17  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/cmdline.py, src/cmd_pipe.py, man/...: Added the command-line
+	option "--texpath".
+
+	* src/__init__.py, src/modules/expand.py: Fixed how 'expand' modifies
+	the hooks dictionary.
+
 2003-12-23  Emmanuel Beffara  <manu@beffara.org>
 
 	* Makefile.in, man/...: Switched to proper hand-written man pages.
