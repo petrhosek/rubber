@@ -117,8 +117,8 @@ document.""",
 		package_dir = {"rubber": "src"},
 		scripts = ["rubber", "rubber-info"],
 		data_files =
-		[(mandir + "/man1", ["man/en/rubber.1"]),
-		 (mandir + "/fr/man1", ["man/fr/rubber.1"])]
+		[(mandir + "/man1", ["man/en/rubber.1", "man/en/rubber-info.1"]),
+		 (mandir + "/fr/man1", ["man/fr/rubber.1", "man/fr/rubber-info.1"])]
 		)
 
 
