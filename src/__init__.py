@@ -14,6 +14,8 @@ import re
 import string
 import sys
 
+from rubber.util import *
+
 def _ (txt): return txt
 
 #---------------------------------------
@@ -97,6 +99,9 @@ class Parser:
 			"input" : self.input, "include" : self.input,
 			"usepackage" : self.usepackage, "RequirePackage" : self.usepackage,
 			"documentclass" : self.documentclass,
+			"tableofcontents" : self.tableofcontents,
+			"listoffigures" : self.listoffigures,
+			"listoftables" : self.listoftables,
 			"bibliography" : self.bibliography
 		}
 		self.update_seq()
@@ -198,6 +203,13 @@ class Parser:
 				self.process(file)
 			else:
 				self.env.modules.register(name, dict)
+
+	def tableofcontents (self, dict):
+		self.env.process.watch_file(".toc")
+	def listoffigures (self, dict):
+		self.env.process.watch_file(".lof")
+	def listoftables (self, dict):
+		self.env.process.watch_file(".lot")
 
 	def bibliography (self, dict):
 		"""
@@ -305,6 +317,8 @@ class Process:
 		self.ext_building = []
 		self.compile_process = []
 		self.output_processing = None
+
+		self.watched_files = {}
 
 		self.cleaning_process = []
 
@@ -469,12 +483,19 @@ class Process:
 		when a compilation has already been done.
 		"""
 		if self.must_compile:
+			self.update_watches()
 			return 1
 		if self.log.errors():
 			self.msg(3, _("last compilation failed"))
+			self.update_watches()
 			return 1
 		if self.deps_modified(getmtime(self.src_pbase + ".log")):
 			self.msg(3, _("dependencies were modified"))
+			self.update_watches()
+			return 1
+		suffix = self.update_watches()
+		if suffix:
+			self.msg(3, _("the %s file has changed") % suffix)
 			return 1
 		if self.log.run_needed():
 			self.msg(3, _("LaTeX asks to run again"))
@@ -496,6 +517,31 @@ class Process:
 		return 0
 
 	###  utility methods
+
+	def watch_file (self, suffix):
+		"""
+		Register the file with the given suffix (typically .toc or such) to be
+		watched. When the file changes during a compilation, it means that
+		another compilation has to be done.
+		"""
+		if exists(self.src_pbase + suffix):
+			self.watched_files[suffix] = md5_file(self.src_pbase + suffix)
+		else:
+			self.watched_files[suffix] = None
+
+	def update_watches (self):
+		"""
+		Update the MD5 sums of all files watched, and return the suffix of one
+		of the files that changed, or None of they didn't change.
+		"""
+		changed = None
+		for suffix in self.watched_files.keys():
+			if exists(self.src_pbase + suffix):
+				new = md5_file(self.src_pbase + suffix)
+				if self.watched_files[suffix] != new:
+					changed = suffix
+				self.watched_files[suffix] = new
+		return changed
 
 	def execute (self, prog):
 		"""
