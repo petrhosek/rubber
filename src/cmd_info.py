@@ -11,7 +11,6 @@ from os.path import *
 
 from rubber import _
 from rubber import *
-from rubber.info import *
 from rubber.version import *
 import rubber.cmdline
 
@@ -123,12 +122,12 @@ actions:
 				print string.join(node.sources.keys())
 				next.extend(node.sources.values())
 		else:
-			self.prepare(src)
+			self.prepare(src, parse=0)
 			return self.info_log(src, self.act)
 
 		return 0
 
-	def prepare (self, src):
+	def prepare (self, src, parse=1):
 		"""
 		Check for the source file and prepare it for processing.
 		"""
@@ -138,6 +137,9 @@ actions:
 			sys.exit(1)
 		if env.make_source():
 			sys.exit(1)
+
+		if not parse:
+			return
 
 		for cmd in self.prologue:
 			cmd = parse_line(cmd, {})
@@ -154,12 +156,15 @@ actions:
 		Check for a log file and extract information from it if it exists,
 		accroding to the argument's value.
 		"""
-		logfile = src + ".log"
-		if not exists(logfile):
-			msg.error(_("I cannot find the log file."))
+		log = self.env.main.log
+		ret = log.read(src + ".log")
+		if ret == 1:
+			msg.error(_("The log file is invalid."))
 			return 1
-		log = LogInfo(self.env.main)
-		log.read(logfile)
+		elif ret == 2:
+			msg.error(_("There is no log file"))
+			return 1
+
 		if act == "boxes":
 			if not log.show_boxes():
 				msg.info(_("There is no bad box."))
