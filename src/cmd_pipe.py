@@ -63,6 +63,7 @@ usage: rubber-pipe [options]
 available options:
   -c, --command=CMD        run the directive CMD before parsing (see man page)
   -e, --epilogue=CMD       run the directive CMD after parsing
+  -z, --gzip               compress the final document
   -h, --help               display this help
   -k, --keep               keep the temporary files after compiling
   -l, --landscape          change paper orientation (if relevant)
@@ -93,6 +94,8 @@ available options:
 				self.prologue.append(arg)
 			elif opt in ("-e", "--epilogue"):
 				self.epilogue.append(arg)
+			elif opt in ("-z", "--gzip"):
+				self.epilogue.append("module gz")
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
@@ -106,7 +109,7 @@ available options:
 			elif opt in ("-d", "--pdf"):
 				self.prologue.append("module pdftex")
 			elif opt in ("-p", "--ps"):
-				self.prologue.append("module dvips")
+				self.epilogue.append("module dvips")
 			elif opt in ("-q", "--quiet"):
 				self.msg.level = -1
 			elif opt in ("-r" ,"--read"):

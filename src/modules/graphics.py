@@ -41,7 +41,7 @@ drv_suffixes = {
 	"pctexhp" : ["", ".pcl"],
 	"pctexps" : ["", ".eps", ".ps"],
 	"pctexwin" : ["", ".eps", ".ps", ".wmf", ".bmp"],
-	"pdftex" : ["", ".pdf", ".png", ".jpg", ".mps", ".tif"],
+	"pdftex" : ["", ".png", ".pdf", ".jpg", ".mps", ".tif"],
 	"tcidvi" : [""],
 	"textures" : ["", ".ps", ".eps", ".pict"],
 	"truetex" : ["", ".eps", ".ps"],

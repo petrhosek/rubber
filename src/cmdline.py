@@ -129,7 +129,7 @@ available options:
 			elif opt in ("-c", "--command"):
 				self.prologue.append(arg)
 			elif opt in ("-e", "--epilogue"):
-				self.prologue.append(arg)
+				self.epilogue.append(arg)
 			elif opt in ("-f", "--force"):
 				self.force = 1
 			elif opt in ("-z", "--gzip"):
@@ -143,7 +143,7 @@ available options:
 				self.prologue.append("module " +
 					string.replace(arg, ":", " ", 1))
 			elif opt in ("-d", "--pdf"):
-				self.epilogue.append("module pdftex")
+				self.prologue.append("module pdftex")
 			elif opt in ("-p", "--ps"):
 				self.epilogue.append("module dvips")
 			elif opt in ("-q", "--quiet"):
