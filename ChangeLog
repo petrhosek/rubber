@@ -1,6 +1,7 @@
 2003-10-27  Emmanuel Beffara  <manu@beffara.org>
 
-	* src/__init__.py: Added support for multi-line macro arguments.
+	* src/__init__.py, src/util.py: Added support for multi-line macro
+	arguments.
 
 	* src/modules/graphics.py: Added a hook for \DeclareGraphicsExtension
 	and preliminary support for \DeclareGraphicsRule.

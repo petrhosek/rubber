@@ -201,8 +201,8 @@ class Module (rubber.Module):
 		if read in self.suffixes:
 			return
 		self.suffixes.insert(0, read)
-		print "*** FIXME ***  rule %s -> %s [%s]" % (
-			string.strip(dict["arg"]), m.group("read"), m.group("type"))
+		self.msg(1, "*** FIXME ***  rule %s -> %s [%s]" % (
+			string.strip(dict["arg"]), m.group("read"), m.group("type")))
 
 	#  auxiliary method
 
