@@ -486,9 +486,10 @@ class Environment:
 		registers the module bibtex (if not already done) and registers the
 		databases.
 		"""
-		self.modules.register("bibtex", dict)
-		for db in dict["arg"].split(","):
-			self.modules["bibtex"].add_db(db)
+		if dict["arg"]:
+			self.modules.register("bibtex", dict)
+			for db in dict["arg"].split(","):
+				self.modules["bibtex"].add_db(db)
 
 	def h_bibliographystyle (self, dict):
 		"""
@@ -496,8 +497,9 @@ class Environment:
 		bibtex (if not already done) and calls the method set_style() of the
 		module.
 		"""
-		self.modules.register("bibtex", dict)
-		self.modules["bibtex"].set_style(dict["arg"])
+		if dict["arg"]:
+			self.modules.register("bibtex", dict)
+			self.modules["bibtex"].set_style(dict["arg"])
 
 	#
 	# The following macros are related to the building process.
@@ -517,7 +519,9 @@ class Environment:
 			return 1
 		self.depends = {}
 		(self.src_path, name) = split(name)
-		if self.src_path != "":
+		if self.src_path == "":
+			self.src_path = "."
+		else:
 			self.conf.path.append(self.src_path)
 		(self.src_base, self.src_ext) = splitext(name)
 		self.src_pbase = join(self.src_path, self.src_base)
