@@ -3,6 +3,8 @@
 	* src/__init__.py (Environment.execute): Rewrote the procedure for
 	external program execution, to make things clean. This has the
 	drawback of using UNIX-specific features.
+	(Config.compile_cmd): Changed calling convention for portability
+	among TeX distributions.
 
 	* src/graphics/eps_gz.py, ...: Added automating extraction of
 	bounding boxes from gzipped PostScript figures.

@@ -29,7 +29,6 @@ class Config:
 		"""
 		self.path = [""]
 		self.latex = "latex"
-		self.latex_opts = ["--interaction=batchmode"]
 		self.tex = "TeX"
 
 	def find_input (self, name):
@@ -52,7 +51,7 @@ class Config:
 		command-line arguments, and the second one is a dictionary of
 		environment variables to define.
 		"""
-		cmd = [self.latex] + self.latex_opts + [file]
+		cmd = [self.latex, "\\batchmode\\input{%s}" % file]
 		inputs = string.join(self.path, ":")
 		if inputs == "":
 			return (cmd, {})
