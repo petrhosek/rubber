@@ -160,6 +160,7 @@ re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
 re_line = re.compile(r"l\.(?P<line>[0-9]+)( (?P<text>.*))?$")
+re_cseq = re.compile(r".*(?P<seq>\\[^ ]*)$")
 
 class LogCheck (object):
 	"""
@@ -260,6 +261,12 @@ class LogCheck (object):
 			elif skipping:
 				pass
 			elif parsing:
+				if error == "Undefined control sequence.":
+					# This is a special case in order to report which control
+					# sequence is undefined.
+					m = re_cseq.match(line)
+					if m:
+						error = "Undefined control sequence %s." % m.group("seq")
 				m = re_line.match(line)
 				if m:
 					parsing = 0
