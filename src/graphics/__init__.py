@@ -43,7 +43,7 @@ conv = {
 from rubber.graphics.convert import update_rules
 update_rules(conv)
 
-plugins = Plugins("rubber.graphics")
+plugins = Plugins(__path__)
 convert = Converter(conv, plugins)
 
 def dep_file (base, suffixes, prefixes, env):

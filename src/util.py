@@ -135,18 +135,13 @@ class Plugins (object):
 	they are searched for first in the current directory, then in the
 	(possibly) specified Python package (using Python's path).
 	"""
-	def __init__ (self, package = None):
+	def __init__ (self, path = None):
 		"""
-		Initialize the module set, possibly setting a package name in which
+		Initialize the module set, possibly setting a path name in which
 		modules will be searched for.
 		"""
 		self.modules = {}
-		if package:
-			self.pname = ""
-			for p in package.split("."):
-				self.pname = join(self.pname, p)
-		else:
-			self.pname = None
+		self.path = path
 
 	def __getitem__ (self, name):
 		"""
@@ -166,10 +161,10 @@ class Plugins (object):
 		try:
 			file, path, descr = imp.find_module(name, [""])
 		except ImportError:
-			if not self.pname:
+			if not self.path:
 				return 0
 			try:
-				file, path, descr = imp.find_module(join(self.pname, name));
+				file, path, descr = imp.find_module(name, self.path)
 			except ImportError:
 				return 0
 		module = imp.load_module(name, file, path, descr)

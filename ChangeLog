@@ -1,3 +1,9 @@
+2004-03-06  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Portability improvement.
+
+	* src/__init__.py, src/util.py: Fixed the plug-in loading.
+
 2004-02-20  Emmanuel Beffara  <manu@beffara.org>
 
 	* Version 0.99.7 released.

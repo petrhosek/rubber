@@ -16,6 +16,7 @@ import string
 def _ (txt): return txt
 
 from rubber.util import *
+import rubber.modules
 
 #---------------------------------------
 
@@ -33,6 +34,7 @@ class Config (object):
 		self.latex = "latex"
 		self.cmdline = ["\\nonstopmode\\input{%s}"]
 		self.tex = "TeX"
+		self.loghead = re.compile("This is [0-9a-zA-Z-]*TeX")
 		self.paper = []
 
 	def find_input (self, name):
@@ -72,7 +74,7 @@ class Modules (Plugins):
 	package `rubber.modules'.
 	"""
 	def __init__ (self, env):
-		Plugins.__init__(self, "rubber.modules")
+		Plugins.__init__(self, rubber.modules.__path__)
 		self.env = env
 		self.objects = {}
 
@@ -140,7 +142,7 @@ class LogCheck (object):
 		if not line:
 			file.close()
 			return 1
-		if line.find("This is " + self.env.conf.tex) == -1:
+		if not self.env.conf.loghead.match(line):
 			file.close()
 			return 1
 		self.lines = file.readlines()
