@@ -82,7 +82,6 @@ class Module (rubber.Module):
 			bib = join(dir, name + ".bib")
 			if exists(bib):
 				self.db.append(bib)
-				self.env.sources[bib] = DependLeaf([bib], self.msg)
 				return
 
 	def set_style (self, style):
@@ -116,6 +115,9 @@ class Module (rubber.Module):
 		checks if BibTeX has been run by someone else, and in this case it
 		tells the system that it should recompile the document.
 		"""
+		if self.env.log.lines:
+			self.undef_cites = self.list_undefs()
+
 		self.run_needed = self.first_run_needed()
 		if self.env.must_compile:
 			# If a LaTeX compilation is going to happen, it is not necessary
