@@ -49,27 +49,45 @@ drv_suffixes = {
 	          ".eps", ".ps", ".mps", ".emf", ".wmf"]
 }
 
+re_pstname = re.compile("(?P<base>.*)\\.(?P<type>eps|pstex|pdf|pdftex)_t")
+pst_lang = {
+	"eps": ("pstex", "EPS"), "pstex": ("pstex", "EPS"),
+	"pdf": ("pdftex", "PDF"), "pdftex": ("pdftex", "PDF")
+}
+
 class PSTDep (Depend):
 	"""
 	This class represents dependency nodes for combined EPS/LaTeX figures from
 	XFig. They produce both a LaTeX source that contains an \\includegraphics
 	and an EPS file.
 	"""
-	def __init__ (self, fig, tex, eps, epsname, env):
+	def __init__ (self, fig, tex, env, module):
 		"""
 		The arguments of the constructor are, respectively, the figure's
 		source, the LaTeX source produced, the EPS figure produced, the name
 		to use for it (probably the same one), and the environment.
 		"""
 		leaf = DependLeaf([fig], env.msg)
-		Depend.__init__(self, [tex, eps], { fig: leaf }, env.msg)
 		self.env = env
+
+		m = re_pstname.match(tex)
+		base = m.group("base")
+		type = m.group("type")
+		eps = base + "." + type
+		if "." + type in module.suffixes:
+			epsname = base
+		else:
+			epsname = eps
+		lang, self.langname = pst_lang[type]
+
+		Depend.__init__(self, [tex, eps], { fig: leaf }, env.msg)
 		self.fig = fig
-		self.cmd_t = ["fig2dev", "-L", "pstex_t", "-p", epsname, fig, tex ]
-		self.cmd_p = ["fig2dev", "-L", "pstex", fig, eps ]
+		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p", epsname, fig, tex ]
+		self.cmd_p = ["fig2dev", "-L", lang, fig, eps ]
 
 	def run (self):
-		self.env.msg(0, _("converting %s to EPS/LaTeX...") % self.fig)
+		self.env.msg(0, _("converting %s into %s/LaTeX...") %
+				(self.fig, self.langname))
 		if self.env.execute(self.cmd_t): return 1
 		self.env.execute(self.cmd_p)
 
@@ -92,7 +110,8 @@ class Module (rubber.Module):
 		env.add_hook("graphicspath", self.graphicspath)
 		env.add_hook("DeclareGraphicsExtensions", self.declareExtensions)
 		env.add_hook("DeclareGraphicsRule", self.declareRule)
-		env.convert.add_rule("(.*)\\.(eps|pstex)_t", "\\1.fig", "graphics")
+		env.convert.add_rule("(.*)\\.(eps|pstex|pdf|pdftex)_t",
+				"\\1.fig", "graphics")
 
 		self.prefixes = map(lambda x: join(x, ""), env.conf.path)
 		self.files = []
@@ -247,9 +266,4 @@ class Module (rubber.Module):
 		Return a dependency node (or None) for the conversion of the given
 		source figure into the given target LaTeX source.
 		"""
-		if target[-6:] == ".eps_t":
-			return PSTDep(source, target, target[:-2], target[:-6], env)
-		elif target[-2:] == "_t":
-			return PSTDep(source, target, target[:-2], target[:-2], env)
-		else:
-			return None
+		return PSTDep(source, target, env, self)
