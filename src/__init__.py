@@ -122,6 +122,39 @@ class Message:
 		else:
 			self.write(0, _("\ncompilation aborted:\n  %s\n  %s")%(what,why))
 
+	def info (self, where, what):
+		"""
+		This method is called when reporting information and warnings. The
+		first argument is a dictionary that describes the position the
+		information concerns (it may contain entries 'file', 'page' and
+		'line'). The second argument is the information message.
+		"""
+		if self.short:
+			if where.has_key("file"):
+				text = where["file"]
+				if where.has_key("line"):
+					text = "%s %d" % (text, where["line"])
+				if where.has_key("page"):
+					text = "%s [%d]" % (text, where["page"])
+			elif where.has_key("page"):
+				text = "[%d]" % (text, where["page"])
+			else:
+				text = _("nowhere")
+			self.write(0, "%s: %s" % (text, what))
+		else:
+			if where.has_key("file"):
+				text = _("in file %s") % where["file"]
+				if where.has_key("line"):
+					text = _("%s, line %d") % (text, where["line"])
+				if where.has_key("page"):
+					text = _("%s, on page %d") % (text, where["page"])
+			elif where.has_key("page"):
+				text = _("on page %d") % (text, where["page"])
+			else:
+				text = _("nowhere")
+			self.write(0, text + ":")
+			self.write(0, "  " + what)
+
 #---------------------------------------
 
 class Modules (Plugins):
@@ -163,7 +196,7 @@ class Modules (Plugins):
 #---------------------------------------
 
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
-re_file = re.compile("(\\((?P<file>[^ (){}]*)|\\))")
+re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
 re_line = re.compile("l\\.(?P<line>[0-9]+)( (?P<text>.*))?$")
 

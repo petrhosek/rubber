@@ -24,16 +24,12 @@ class LogInfo (LogCheck):
 		if there is nothing to display.
 		"""
 		pos = []
-		last_file = None
 		page = 1
 		something = 0
 		for line in self.lines:
 			line = line.rstrip()
 			if re_hvbox.match(line):
-				if pos[-1] != last_file:
-					last_file = pos[-1]
-					self.msg(0, _("in file %s:") % last_file)
-				self.msg(0, _("%s (page %d)") % (line, page))
+				self.msg.info({"file":pos[-1], "page":page}, line)
 				something = 1
 			else:
 				self.update_file(line, pos)
@@ -57,11 +53,18 @@ class LogInfo (LogCheck):
 		Display all warnings. This function is pathetically dumb, as it simply
 		shows all lines in the log that contain the substring 'Warning'.
 		"""
+		pos = []
+		page = 1
 		something = 0
 		for line in self.lines:
 			if line.find("Warning") != -1:
-				self.msg(0, string.rstrip(line))
+				self.msg.info(
+					{"file":pos[-1], "page":page},
+					string.rstrip(line))
 				something = 1
+			else:
+				self.update_file(line, pos)
+				page = self.update_page(line, page)
 		return something
 
 	def update_page (self, line, before):
