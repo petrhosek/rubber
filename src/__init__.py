@@ -7,7 +7,6 @@ This module contains all the code in Rubber that actually does the job of
 building a LaTeX document from start to finish.
 """
 
-import imp
 import os
 from os.path import *
 import re
@@ -243,6 +242,7 @@ class LogCheck:
 		self.env = env
 		self.msg = env.message
 		self.re_rerun = re.compile("LaTeX Warning:.*Rerun")
+		self.re_file = re.compile("(\((?P<file>[^ ()]*)|\))")
 
 	def read (self, name):
 		"""
@@ -283,11 +283,34 @@ class LogCheck:
 
 	# information extraction:
 
+	def update_file (self, line, stack):
+		"""
+		Parse the given line of log file for file openings and closings and
+		update the list `stack'. Newly opened files are at the end, therefore
+		stack[0] is the main source while stack[-1] is the current one.
+		"""
+		m = self.re_file.search(line)
+		if not m:
+			return
+		while m:
+			file = m.group("file")
+			if file:
+				stack.append(file)
+			else:
+				del stack[-1]
+			line = line[m.end():]
+			m = self.re_file.search(line)
+		return
+
 	def show_errors (self):
 		"""
-		Display all errors that occured during compilation.
+		Display all errors that occured during compilation. Return 0 if there
+		was no error.
 		"""
+		pos = []
+		last_file = None
 		showing = 0
+		something = 0
 		for line in self.lines:
 			line = line.rstrip()
 			if line == "":
@@ -296,10 +319,19 @@ class LogCheck:
 				self.msg(0, line)
 				if line[0:2] == "l." or line[0:3] == "***":
 					showing = 0
+				else:
+					self.update_file(line, pos)
 			else:
 				if line[0] == "!":
+					if pos[-1] != last_file:
+						last_file = pos[-1]
+						self.msg(0, _("in file %s:") % last_file)
 					self.msg(0, line)
 					showing = 1
+					something = 1
+				else:
+					self.update_file(line, pos)
+		return something
 
 #---------------------------------------
 
