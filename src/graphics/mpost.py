@@ -48,10 +48,10 @@ class Dep (Depend):
 			return
 		list.append(file)
 		fd = open(file)
-		for line in file.readlines():
+		for line in fd.readlines():
 			m = re_input.search(line)
 			if m:
-				self.include(m["file"])
+				self.include(m.group("file"), list)
 		fd.close()
 
 	def run (self):
