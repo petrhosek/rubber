@@ -1,3 +1,13 @@
+2002-09-20  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/util.py: Introduced a parsing funtion for keyval-like
+	parameter lists.
+
+	* src/modules/graphics.py: Improved handling of \includegraphics,
+	so that the "ext=.foo" option is now understood.
+
+	* src/graphics/mpost.py: Bugfix in message display.
+
 2002-09-12  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/cmd_info.py: Fixed some bugs that remained (in rubber-info's

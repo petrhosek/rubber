@@ -18,6 +18,7 @@ import os
 from os.path import *
 import string
 
+import rubber.util
 import rubber.graphics
 
 def _ (txt): return txt
@@ -76,6 +77,12 @@ class Module:
 		dependencies or to the list of graphics not found.
 		"""
 		name = dict["arg"]
+		if dict["opt"]:
+			opts = rubber.util.parse_keyval(dict["opt"])
+			if opts.has_key("ext"):
+				if opts["ext"]:
+					name = name + opts["ext"]
+
 		d = rubber.graphics.dep_file(name, self.suffixes, self.path, self.env)
 		if d:
 			self.msg(1, _("graphics %s found") % name)

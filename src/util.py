@@ -10,6 +10,9 @@ import os
 from os.path import *
 import imp
 import time
+import re, string
+
+#-- MD5 computation
 
 def md5_file (fname):
 	"""
@@ -22,6 +25,58 @@ def md5_file (fname):
 	file.close()
 	return m.digest()
 
+
+#-- Keyval parsing
+
+re_keyval = re.compile("\
+[ ,]*\
+(?P<key>[^ \t\n{}=,]+)\
+([ \n\t]*=[ \n\t]*\
+(?P<val>({|[^{},]*)))?")
+
+def parse_keyval (str):
+	"""
+	Parse a list of 'key=value' pairs, with the syntax used in LaTeX's
+	standard 'keyval' package. The value returned is simply a dictionary that
+	contains all definitions found in the string. For keys without a value,
+	the dictionary associates the value None.
+	"""
+	dict = {}
+	while 1:
+		m = re_keyval.match(str)
+		if not m:
+			return dict
+		d = m.groupdict()
+		str = str[m.end():]
+		if not d["val"]:
+			dict[d["key"]] = None
+		elif d["val"] == '{':
+			val, str = match_brace(str)
+			dict[d["key"]] = val
+		else:
+			dict[d["key"]] = string.strip(d["val"])
+
+def match_brace (str):
+	"""
+	Split the string at the first closing brace such that the extracted prefix
+	is balanced with respect to braces. The return value is a pair. If the
+	adequate closing brace is found, the pair contains the prefix before the
+	brace and the suffix after the brace (not containing the brace). If no
+	adequate brace is found, return the whole string as prefix and an empty
+	string as suffix.
+	"""
+	level = 0
+	for pos in range(0, len(str)):
+		if str[pos] == '{':
+			level = level + 1
+		elif str[pos] == '}':
+			level = level - 1
+			if level == -1:
+				return (str[:pos], str[pos+1:])
+	return (str, "")
+
+
+#-- Plugin management
 
 class Plugins:
 	"""
@@ -73,6 +128,8 @@ class Plugins:
 		"""
 		self.modules.clear()
 
+
+#-- Dependency nodes
 
 class Depend:
 	"""
