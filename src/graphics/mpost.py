@@ -14,7 +14,7 @@ class Dep (Depend):
 		leaf = DependLeaf([source])
 		Depend.__init__(self, [target], {source: leaf})
 		self.env = env
-		self.base = target[:-3]
+		self.base = source[:-3]
 		self.cmd = ["mpost", "--interaction=batchmode", self.base]
 
 	def run (self):
