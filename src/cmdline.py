@@ -37,6 +37,7 @@ This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
        --clean   = remove produced files instead of compiling
+  -f / --force   = force at least one compilation
   -h / --help    = display this help
   -m / --module <mod>[:<options>] =
                    use a specific module (with the given options)
@@ -52,9 +53,9 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "dhm:o:pqv",
-				["clean", "pdf", "help", "module=", "readopts=", "ps",
-				 "quiet", "verbose", "version"])
+				cmdline, "dfhm:o:pqv",
+				["clean", "force", "help", "module=", "pdf", "ps",
+				 "quiet", "readopts=", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -62,22 +63,24 @@ available options:
 		for (opt,arg) in opts:
 			if opt == "--clean":
 				self.clean = 1
-			elif opt in ("-d", "--pdf"):
-				self.modules.append("pdftex")
+			elif opt in ("-f", "--force"):
+				self.force = 1
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
 			elif opt in ("-m", "--module"):
 				self.modules.append(arg)
+			elif opt in ("-d", "--pdf"):
+				self.modules.append("pdftex")
+			elif opt in ("-p", "--ps"):
+				self.modules.append("dvips")
+			elif opt in ("-q", "--quiet"):
+				self.msg.level = -1
 			elif opt in ("-o" ,"--readopts"):
 				file = open(arg)
 				opts2 = file.read().split()
 				file.close()
 				args = self.parse_opts(opts2) + args
-			elif opt in ("-p", "--ps"):
-				self.modules.append("dvips")
-			elif opt in ("-q", "--quiet"):
-				self.msg.level = -1
 			elif opt in ("-v", "--verbose"):
 				self.msg.level = self.msg.level + 1
 			elif opt == "--version":
@@ -93,6 +96,7 @@ available options:
 		self.env = Environment(self.msg)
 		self.modules = []
 		self.clean = 0
+		self.force = 0
 		args = self.parse_opts(cmdline)
 		self.msg(1, _("This is Rubber version %s.") % version)
 		first = 1
@@ -104,7 +108,7 @@ available options:
 			if self.clean:
 				self.env.clean()
 			else:
-				self.env.make()
+				self.env.make(self.force)
 		return 0
 
 	def prepare (self, src):

@@ -580,14 +580,15 @@ class Environment:
 
 	###  complete process
 
-	def make (self):
+	def make (self, force=0):
 		"""
 		Run the building process until the end, or stop on error. This method
 		supposes that the inputs were parsed to register packages and that the
-		LaTeX source is ready.
+		LaTeX source is ready. If the second (optional) argument is true, then
+		at least one compilation is done.
 		"""
 		if self.pre_compile(): return 1
-		if self.compile_needed():
+		if force or self.compile_needed():
 			self.must_compile = 0
 			if self.compile(): return 1
 			if self.post_compile(): return 1
