@@ -13,6 +13,69 @@ from rubber import _
 from rubber import *
 from rubber.version import *
 
+class Message (Message):
+	"""
+	This class defines a message writer that outputs the messages according to
+	GNU conventions. It manages verbosity level and possible redirection.
+	"""
+	def __init__ (self, level=0, short=0):
+		"""
+		Initialize the object with the specified verbosity threshold. The
+		other argument is a boolean that indicates whether error messages
+		should be short or normal.
+		"""
+		self.level = level
+		self.short = short
+		self.write = self.do_write
+
+	def do_write (self, level, text):
+		if level <= self.level:
+			print text
+
+	def __call__ (self, level, text):
+		self.write(level, text)
+
+	def error (self, file, line, text, code):
+		if dirname(file) == os.curdir:
+			file = basename(file)
+
+		if line:
+			prefix = "%s:%d: " % (file, line)
+		else:
+			prefix = file + ": "
+
+		if text[0:13] == "LaTeX Error: ":
+			text = text[13:]
+
+		self.write(-1, prefix + text)
+		if code and not self.short:
+			self.write(-1, prefix + _("leading text: ") + code)
+
+	def abort (self, what, why):
+		if self.short:
+			self.write(0, _("compilation aborted ") + why)
+		else:
+			self.write(0, _("compilation aborted: %s %s") % (what, why))
+
+	def info (self, where, what):
+		if where.has_key("file"):
+			file = where["file"]
+			if dirname(file) == os.curdir:
+				text = basename(file)
+			else:
+				text = file
+			if where.has_key("line"):
+				text = "%s:%d" % (text, where["line"])
+				if where.has_key("last"):
+					if where["last"] != where["line"]:
+						text = "%s-%d" % (text, where["last"])
+		else:
+			text = _("nowhere")
+		text = "%s: %s" % (text, what)
+		if where.has_key("page"):
+			text = "%s (page %d)" % (text, where["page"])
+		self.write(0, text)
+
 class Main:
 	def __init__ (self):
 		"""

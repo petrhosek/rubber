@@ -1,3 +1,14 @@
+2003-12-11  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, src/cmdline.py: Moved the standard Message class
+	into the command-line part, improved GNU compliance.
+
+	* src/info.py, src/cmd_info.py: Improved message display, enhanced
+	the parsing of bad box messages.
+
+	* src/graphics.py: Made the "graphics not found" messages into proper
+	warnings.
+
 2003-12-08  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Made messages more GNU-compliant.

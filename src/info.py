@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002-2003
 """
 This module contains material to extract information from compilation results.
 """
@@ -11,6 +11,8 @@ from rubber import *
 
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_hvbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
+re_atline = re.compile(
+"( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
 re_reference = re.compile("LaTeX Warning: (?P<msg>Reference .*)")
 
 class LogInfo (LogCheck):
@@ -32,7 +34,14 @@ class LogInfo (LogCheck):
 			if skip:
 				if line == "": skip = 0
 			elif re_hvbox.match(line):
-				self.msg.info({"file":pos[-1], "page":page}, line)
+				mpos = { "file": pos[-1], "page": page }
+				m = re_atline.search(line)
+				if m:
+					md = m.groupdict()
+					for key in "line", "last":
+						if md[key]: mpos[key] = int(md[key])
+					line = line[:m.start()]
+				self.msg.info(mpos, line)
 				something = 1
 				skip = 1
 			else:

@@ -96,7 +96,6 @@ class Module (rubber.Module):
 
 		self.prefixes = map(lambda x: join(x, ""), env.conf.path)
 		self.files = []
-		self.not_found = []
 
 		# I take dvips as the default, but it is not portable.
 		if env.conf.tex == "pdfTeX":
@@ -138,12 +137,13 @@ class Module (rubber.Module):
 
 		d = rubber.graphics.dep_file(name, suffixes, self.prefixes, self.env)
 		if d:
-			self.msg(2, _("graphics %s found") % name)
+			self.msg(2, _("graphics `%s' found") % name)
 			for file in d.prods:
 				self.env.depends[file] = d;
 			self.files.append(d)
 		else:
-			self.not_found.append(name)
+			self.msg.info(dict["pos"],
+				_("warning: graphics `%s' not found") % name)
 
 	def graphicspath (self, dict):
 		"""
@@ -232,10 +232,6 @@ class Module (rubber.Module):
 		"""
 		for dep in self.files:
 			dep.make()
-		if self.not_found == []:
-			return 0
-		self.msg(0, _("Warning: these graphics files were not found:"))
-		self.msg(0, string.join(self.not_found, ", "))
 		return 0
 
 	def clean (self):

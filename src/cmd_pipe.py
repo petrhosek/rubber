@@ -37,7 +37,7 @@ def dump_file (f_in, f_out):
 	for line in f_in.readlines():
 		f_out.write(line)
 
-class MessageErr (Message):
+class MessageErr (rubber.cmdline.Message):
 	"""
 	This class modifies the standard Message class to make it write messages
 	on standard error instead of standard output.

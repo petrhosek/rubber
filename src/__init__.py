@@ -65,109 +65,6 @@ class Config:
 
 #---------------------------------------
 
-class Message:
-	"""
-	All messages in the program are output using the `message' object in the
-	main class. This class provides a simple version that writes text on the
-	standard output. It manages verbosity level and possible redirection. One
-	can imagine using a derived class to redirect messages to a GUI widget, or
-	any other funky stuff.
-	"""
-	def __init__ (self, level=0, short=0):
-		"""
-		Initialize the object with the specified verbosity threshold. The
-		other argument is a boolean that indicates whether error messages
-		should be short or normal.
-		"""
-		self.level = level
-		self.short = short
-		self.write = self.do_write
-
-	def do_write (self, level, text):
-		"""
-		Output a text with the specified verbosity level. If this level is
-		larger than the current output level, no message is produced.
-		"""
-		if level <= self.level:
-			print text
-
-	def __call__ (self, level, text):
-		"""
-		This method calls the actual writing function. This extra indirection
-		allows redefining the output method while the program is running,
-		while allowing objects to store references to the Message object.
-		"""
-		self.write(level, text)
-
-	def error (self, file, line, text, code):
-		"""
-		This method is called when the parsing of the log file found an error.
-		The arguments are, respectively, the name of the file and the line
-		number where the error occurred, the description of the error, and the
-		offending code (up to the error). The line number and the code may be
-		None, the file name and the text are required.
-		"""
-		if dirname(file) == os.curdir:
-			file = basename(file)
-
-		if line:
-			prefix = "%s:%d: " % (file, line)
-		else:
-			prefix = file + ": "
-
-		if text[0:13] == "LaTeX Error: ":
-			text = text[13:]
-
-		self.write(-1, prefix + text)
-		if code and not self.short:
-			self.write(-1, prefix + _("leading text: ") + code)
-
-	def abort (self, what, why):
-		"""
-		This method is called when the compilation was aborted, for instance
-		due to lack of input. The arguments are the nature of the error and
-		the cause of the interruption.
-		"""
-		if self.short:
-			self.write(0, _("-- compilation aborted --"))
-		else:
-			self.write(0, _("\ncompilation aborted:\n  %s\n  %s")%(what,why))
-
-	def info (self, where, what):
-		"""
-		This method is called when reporting information and warnings. The
-		first argument is a dictionary that describes the position the
-		information concerns (it may contain entries 'file', 'page' and
-		'line'). The second argument is the information message.
-		"""
-		if self.short:
-			if where.has_key("file"):
-				text = where["file"]
-				if where.has_key("line"):
-					text = "%s %d" % (text, where["line"])
-				if where.has_key("page"):
-					text = "%s [%d]" % (text, where["page"])
-			elif where.has_key("page"):
-				text = "[%d]" % (text, where["page"])
-			else:
-				text = _("nowhere")
-			self.write(0, "%s: %s" % (text, what))
-		else:
-			if where.has_key("file"):
-				text = _("in file %s") % where["file"]
-				if where.has_key("line"):
-					text = _("%s, line %d") % (text, where["line"])
-				if where.has_key("page"):
-					text = _("%s, on page %d") % (text, where["page"])
-			elif where.has_key("page"):
-				text = _("on page %d") % (text, where["page"])
-			else:
-				text = _("nowhere")
-			self.write(0, text + ":")
-			self.write(0, "  " + what)
-
-#---------------------------------------
-
 class Modules (Plugins):
 	"""
 	This class gathers all operations related to the management of modules.
@@ -295,7 +192,6 @@ class LogCheck:
 				del stack[-1]
 			line = line[m.end():]
 			m = re_file.search(line)
-		return
 
 	def show_errors (self):
 		"""
@@ -461,13 +357,14 @@ class Environment:
 		self.process(self.source())
 		self.msg(2, _("dependencies: %r") % self.depends.keys())
 
-	def do_process (self, file):
+	def do_process (self, file, path):
 		"""
 		Process a LaTeX source. The file must be open, it is read to the end
 		calling the handlers for the macro calls. This recursively processes
 		the included sources.
 		"""
 		lines = file.readlines()
+		lineno = 0
 
 		# If a line ends with braces open, we read on until we get a correctly
 		# braced text. We also stop accumulating on paragraph breaks, the way
@@ -477,6 +374,8 @@ class Environment:
 		accu = ""
 
 		for line in lines:
+			lineno = lineno + 1
+
 			# Lines that start with a comment are the ones where directives
 			# may be found.
 
@@ -519,6 +418,7 @@ class Environment:
 						dict = match.groupdict()
 
 				dict["line"] = line[match.end():]
+				dict["pos"] = { 'file': path, 'line': lineno }
 				self.hooks[name](dict)
 				line = dict["line"]
 				match = self.seq.search(line)
@@ -599,7 +499,7 @@ class Environment:
 		file = open(path)
 		if not self.depends.has_key(path):
 			self.depends[path] = DependLeaf([path], self.msg)
-		self.do_process(file)
+		self.do_process(file, path)
 		file.close()
 		self.msg(3, _("end of %s") % path)
 
@@ -1096,6 +996,48 @@ class Environment:
 
 		self.something_done = 1
 		return ret
+
+#---------------------------------------
+
+class Message:
+	"""
+	All messages in the program are output using the `msg' object in the
+	main class. This class defines the interface for this object.
+	"""
+	def __call__ (self, level, text):
+		"""
+		This method calls the actual writing function. This extra indirection
+		allows redefining the output method while the program is running,
+		while allowing objects to store references to the Message object.
+		"""
+		pass
+
+	def error (self, file, line, text, code):
+		"""
+		This method is called when the parsing of the log file found an error.
+		The arguments are, respectively, the name of the file and the line
+		number where the error occurred, the description of the error, and the
+		offending code (up to the error). The line number and the code may be
+		None, the file name and the text are required.
+		"""
+		pass
+
+	def abort (self, what, why):
+		"""
+		This method is called when the compilation was aborted, for instance
+		due to lack of input. The arguments are the nature of the error and
+		the cause of the interruption.
+		"""
+		pass
+
+	def info (self, where, what):
+		"""
+		This method is called when reporting information and warnings. The
+		first argument is a dictionary that describes the position the
+		information concerns (it may contain entries 'file', 'page' and
+		'line'). The second argument is the information message.
+		"""
+		pass
 
 #---------------------------------------
 

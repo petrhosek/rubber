@@ -13,10 +13,11 @@ from rubber import _
 from rubber import *
 from rubber.info import *
 from rubber.version import *
+import rubber.cmdline
 
 class Main:
 	def __init__ (self):
-		self.msg = Message()
+		self.msg = rubber.cmdline.Message()
 
 	def short_help (self):
 		self.msg(0, _("""\
@@ -152,12 +153,9 @@ actions:
 		elif act == "check":
 			if log.show_errors(): return 0
 			self.msg(0, _("There was no error."))
-			self.msg(0, "")
 			if log.show_references(): return 0
 			self.msg(0, _("There is no undefined reference."))
-			self.msg(0, "")
 			if not log.show_warnings():	self.msg(0, _("There is no warning."))
-			self.msg(0, "")
 			if not log.show_boxes(): self.msg(0, _("There is no bad box."))
 		elif act == "errors":
 			if not log.show_errors():
