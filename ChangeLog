@@ -1,3 +1,8 @@
+2003-02-03  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/cmd_info.py: Modified action "deps" so that dependencies are
+	listed only once.
+
 2003-01-29  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Fixed the behaviour in the case where LaTeX cannot

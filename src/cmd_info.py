@@ -105,10 +105,11 @@ actions:
 
 		if self.act == "deps":
 			self.prepare(src)
-			deps = []
+			deps = {}
 			for dep in self.env.depends.values():
-				deps.extend(dep.leaves())
-			print string.join(deps)
+				for file in dep.leaves():
+					deps[file] = None
+			print string.join(deps.keys())
 		else:
 			return self.info_log(src, self.act)
 

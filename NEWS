@@ -3,6 +3,9 @@ Version 0.99.6
   Features:
     - Parsing of MetaPost log files for errors.
 
+  Bugfixes:
+    - The action "--deps" in rubber-info now lists each dependency only once.
+
 Version 0.99.5 (2002-12-04)
 
   Features:
