@@ -116,9 +116,9 @@ PostScript document. This module is also loaded by the command line option
 the document and consider them as dependencies for compilation. They also use
 standard rules to build these files with external programs. Current rules
 include conversion from EPS to PDF using \cmd(epstopdf)(1), conversion of XFig
-figures to EPS, PDF or PNG using \cmd(fig2dev)(1), and compilation of Metapost
-sources (using \cmd(mpost)(1)). Note that these features are young and not
-very experienced yet.])
+figures to EPS, PDF or PNG using \cmd(fig2dev)(1), compilation of Metapost
+sources (using \cmd(mpost)(1)), and bounding box extraction from gzipped EPS
+figures.])
 
 \item(makeidx, [Process the document's index with \cmd(makeindex) when
 needed.])

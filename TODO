@@ -32,7 +32,8 @@ Long-term ideas:
 - use the clean class structuration (possibly cleaning it a bit more) to
   provide other front-ends, e.g. a clever X11 interface
 
-- internationalize the program
+- internationalize the program (this is on the way in CVS in the branch
+  'gettextized')
 
 - introduce a configuration file, some kind of .rubberrc
 

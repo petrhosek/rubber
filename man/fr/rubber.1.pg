@@ -117,9 +117,9 @@ inclus par le document et de les considèrent comme des dépendances à la
 compilation. Ils utilisent en plus certaines règles pour construire ces
 fichiers. Les règles actuelles incluent la conversion de figures EPS en PDF
 avec \cmd(epstopdf)(1), la conversion de figures produites par Xfig vers EPS,
-PDF ou PNG avc \cmd(fig2dev)(1), ainsi que la compilation de sources Metapost
-(avec \cmd(mpost)(1)). Notez que cette fonctionnalité est encore jeune et peu
-expérimentée.])
+PDF ou PNG avc \cmd(fig2dev)(1), la compilation de sources Metapost (avec
+\cmd(mpost)(1)), et l'extraction d'information de taille des figures EPS
+compressées.])
 
 \item(makeidx, [Traite l'index du document avec \cmd(makeindex) lorsque c'est
 nécessaire.])
