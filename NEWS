@@ -71,7 +71,7 @@ Version 0.99.1 (2002-06-21)
 
   Packaging:
     - Introduced the Debian package.
-    - Added module of the modules in the man pages.
+    - Added the description of the modules in the man pages.
 
 Version 0.99 (2002-05-31)
 
