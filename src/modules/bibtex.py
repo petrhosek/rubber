@@ -28,14 +28,32 @@ class Module:
 
 		self.undef_cites = None
 
+		self.db = []
 		if dict["arg"]:
 			for db in dict["arg"].split(","):
 				if os.path.exists(db + ".bib"):
-					env.process.depends.append(db + ".bib")
+					self.db.append(db + ".bib")
+		env.process.ext_building.append(self.first_bib)
 		env.process.compile_process.append(self.check_bib)
 		env.process.cleaning_process.append(self.clean)
 
-		self.re_cite = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
+		self.re_cite = re.compile(
+			"LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
+
+	def first_bib (self):
+		"""
+		Run BibTeX if needed before the first compilation. The condition is
+		only on the database files' modification dates, but it would be more
+		clever to check if the results have changed.
+		"""
+		if not os.path.exists(self.env.process.src_pbase + ".dvi"):
+			return 0
+		dtime = os.path.getmtime(self.env.process.src_pbase + ".dvi")
+		for db in self.db:
+			if os.path.getmtime(db) > dtime:
+				self.msg(2, _("bibliography database %s was modified") % db)
+				return self.run()
+		return 0
 
 	def list_cites (self):
 		"""
@@ -62,9 +80,16 @@ class Module:
 		if not self.bibtex_needed():
 			self.msg(2, _("no BibTeXing needed"))
 			return 0
+		return self.run()
+
+	def run (self):
+		"""
+		This method actually runs BibTeX.
+		"""
 		self.msg(0, _("running BibTeX..."))
 		self.env.process.execute(["bibtex", self.env.process.src_pbase])
 		self.env.process.must_compile = 1
+		return 0
 
 	def bibtex_needed (self):
 		"""
