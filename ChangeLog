@@ -1,3 +1,7 @@
+2004-02-20  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modiles/epsfig.py: Added hooks for \epfbox and \epsffile.
+
 2004-02-19  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/cmdline.py, src/cmd_info.py: Added info action --rules, allowed

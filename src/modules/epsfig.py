@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003
+# (c) Emmanuel Beffara, 2003--2004
 """
 Epsfig support for Rubber.
 
@@ -19,6 +19,8 @@ class Module (rubber.modules.graphics.Module):
 		does that too.
 		"""
 		rubber.modules.graphics.Module.__init__(self, env, dict)
+		env.add_hook("epsfbox", self.includegraphics)
+		env.add_hook("epsffile", self.includegraphics)
 		env.add_hook("epsfig", self.epsfig)
 		env.add_hook("psfig", self.epsfig)
 
