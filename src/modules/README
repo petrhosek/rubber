@@ -1,16 +1,20 @@
 Conventions for module interfacing:
 
 Each module must contain a class simply named `Module' whose __init__ method
-takes the building environment as its argument. All messages must be output
-using the method
+takes the building environment as its first argument and a dictionary as its
+second argument. This dictionary describes the command that caused the module
+to be loaded, its keys are the following:
 
-msg(verbosity_level, text)
+  name = the macro's name (i.e. "usepackage" or "RequirePackage", or undefined
+    if the module is loaded from the command line)
+  arg = the module's name (i.e. the argument of the macro)
+  opt = the module's options or None (either \usepackage's optional argument
+    or the module options on the command line)
 
-Technically, this is not a method but a callable object. This function is
-supposed to register the module's functions using the following methods of the
-environment:
+The __init__ function is supposed to register the module's functions using the
+following methods of the environment:
 
-add_hook(name, fun)
+  add_hook(name, fun)
     The function `fun' will be called when the macro of the given name is
     found. This functions recieves as argument a dictionary that describes the
     macro call with the following keys:
@@ -20,23 +24,30 @@ add_hook(name, fun)
 
 The following member data of the environment can also be modified:
 
-ext_building
+  ext_building
     The list of functions called before the first compilation.
-compile_process
+  compile_process
     The list of functions called after each compilation.
-output_processing
+  output_processing
     The list of functions called after the last compilation.
 
-cleaning_process
+  cleaning_process
     The list of functions called when cleaning compilation results.
 
-src_path = the pathname to the main source
-src_base = the base name of the main source
-src_ext = the extension of the main source (e.g. ".tex")
-out_ext = the extension of the compiler's output file (e.g. ".dvi")
+  src_path = the pathname to the main source
+  src_base = the base name of the main source
+  src_ext = the extension of the main source (e.g. ".tex")
+  out_ext = the extension of the compiler's output file (e.g. ".dvi")
 
 depends = a dictionary that associates the names of the files needed for
     compilation with dependency nodes (from class Depend in rubber.util)
 
 The functions added to compile_process may additionally turn the variable
 must_compile to true to force a compilation in the next step.
+
+During execution, all messages must be output using the method
+
+  msg(verbosity_level, text)
+
+of the environment passed to the __init__ method (technically, this is not a
+method but a callable object).
