@@ -9,7 +9,7 @@ Standards-Version: 3.6.1
 Package: rubber
 Architecture: all
 Depends: ${python:Depends}, tetex-bin
-Suggests: imagemagick, jpeg2ps, transfig
+Suggests: imagemagick, transfig
 Description: an automated system for building LaTeX documents
  This is a building system for LaTeX documents. It is based on a routine that
  runs just as many compilations as necessary. The module system provides a
@@ -19,3 +19,5 @@ Description: an automated system for building LaTeX documents
  pdftex, makeindex. A good number of standard packages are supported,
  including graphics/graphicx (with automatic conversion between various
  formats and Metapost compilation).
+ .
+ Homepage: http://beffara.org/stuff/rubber.html

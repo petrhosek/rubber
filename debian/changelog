@@ -1,3 +1,18 @@
+rubber (0.99.7-6) unstable; urgency=low
+
+  * Added homepage link to package description.
+
+ -- Baruch Even <baruch@debian.org>  Thu, 20 May 2004 21:45:39 +0300                                          
+
+rubber (0.99.7-5) unstable; urgency=low
+
+  * Add Baruch Even as co-maintainer.
+  * Remove the Suggest-ion for jpeg2ps, there is no such thing in the archive
+    anymore. (closes: #250044)
+  * Install the upstream changelog with the correct name.
+
+ -- Baruch Even <baruch@debian.org>  Thu, 20 May 2004 21:10:57 +0300                                          
+
 rubber (0.99.7-4) unstable; urgency=low
 
   * REALLY fix the damn thing, missed a part of the provided fix.
