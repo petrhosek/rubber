@@ -377,7 +377,9 @@ class Environment:
 
 		# (a priori) static dictionaries:
 
-		self.source_exts = { ".w" : "cweb" }
+		self.source_exts = {
+			".w" : "cweb",
+			".lhs" : "lhs2TeX" }
 
 		self.kpse_msg = {
 			"mktextfm" : _("making font metrics for \\g<arg>..."),
@@ -526,6 +528,9 @@ class Environment:
 			except IOError:
 				self.msg(1, _("cannot read option file %s") % arg)
 
+		elif cmd == "watch":
+			self.watch_file(arg)
+
 		else:
 			lst = string.split(cmd, ".", 1)
 			if len(lst) > 1:
@@ -654,11 +659,11 @@ class Environment:
 				self.modules.register(name, dict)
 
 	def h_tableofcontents (self, dict):
-		self.watch_file(".toc")
+		self.watch_file(self.base + ".toc")
 	def h_listoffigures (self, dict):
-		self.watch_file(".lof")
+		self.watch_file(self.base + ".lof")
 	def h_listoftables (self, dict):
-		self.watch_file(".lot")
+		self.watch_file(self.base + ".lot")
 
 	def h_bibliography (self, dict):
 		"""
@@ -902,29 +907,29 @@ class Environment:
 
 	###  utility methods
 
-	def watch_file (self, suffix):
+	def watch_file (self, file):
 		"""
-		Register the file with the given suffix (typically .toc or such) to be
+		Register the given file (typically "jobname.toc" or such) to be
 		watched. When the file changes during a compilation, it means that
 		another compilation has to be done.
 		"""
-		if exists(self.src_base + suffix):
-			self.watched_files[suffix] = md5_file(self.src_base + suffix)
+		if exists(file):
+			self.watched_files[file] = md5_file(file)
 		else:
-			self.watched_files[suffix] = None
+			self.watched_files[file] = None
 
 	def update_watches (self):
 		"""
-		Update the MD5 sums of all files watched, and return the suffix of one
+		Update the MD5 sums of all files watched, and return the name of one
 		of the files that changed, or None of they didn't change.
 		"""
 		changed = None
-		for suffix in self.watched_files.keys():
-			if exists(self.src_base + suffix):
-				new = md5_file(self.src_base + suffix)
-				if self.watched_files[suffix] != new:
-					changed = suffix
-				self.watched_files[suffix] = new
+		for file in self.watched_files.keys():
+			if exists(file):
+				new = md5_file(file)
+				if self.watched_files[file] != new:
+					changed = file
+				self.watched_files[file] = new
 		return changed
 
 	def execute (self, prog, env={}, pwd=None, out=None):

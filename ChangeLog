@@ -1,3 +1,11 @@
+2003-09-26  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, man/...: Changed the semantics of watched_files a
+	bit, added directive 'watch'.
+
+	* src/__init__.py, src/modules/lhs2TeX.py: Added module 'lhs2TeX' for
+	Literate Haskell support.
+
 2003-07-31  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Fixed the reinitialization process.

@@ -202,6 +202,11 @@ follows the spaces after "\tt(path)".])
 must contain one directive per line. Empty lines and lines that begin with
 "\tt(%)" are ignored.])
 
+\item([watch \narg(file)], [Watch the specified file for changes. If the
+contents of this file has changed after a compilation, then another
+compilation is triggered. This is useful in the case of tables of contents,
+for instance.])
+
 \end(description)
 
 If a command has the form "\tt(foo.bar)", it is considered a command

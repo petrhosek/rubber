@@ -213,6 +213,11 @@ suit les espaces après "\tt(path)".])
 fichier doit comporter une commande par ligne. Les lignes vides ou commençant
 par un "\tt(%)" sont ignorées.])
 
+\item([watch \narg(fichier)], [Surveille les modifications sur le fichier
+spécifié. Si le contenu de ce fichier change lors d'une compilation, une
+nouvelle compilation est déclenchée. Ce mécanisme est utile par exemple pour
+les tables des matières.])
+
 \end(description)
 
 Si une commande est de la forme "\tt(toto.tutu)", elle est considérée comme
