@@ -130,9 +130,9 @@ Metapost compilation).\
 		scripts = ["rubber", "rubber-info", "rubber-pipe"],
 		data_files =
 		[(mandir + "/man1",
-			["doc/man-en/rubber.1", "doc/man-en/rubber-info.1"]),
+			["doc/man-en/rubber.1", "doc/man-en/rubber-info.1", "doc/man-en/rubber-pipe.1"]),
 		 (mandir + "/fr/man1",
-			["doc/man-fr/rubber.1", "doc/man-fr/rubber-info.1"]),
+			["doc/man-fr/rubber.1", "doc/man-fr/rubber-info.1", "doc/man-fr/rubber-pipe.1"]),
 		 (infodir, ["doc/rubber.info"])]
 		)
 
