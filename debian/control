@@ -2,8 +2,9 @@ Source: rubber
 Section: tex
 Priority: optional
 Maintainer: Emmanuel Beffara <manu@beffara.org>
-Build-Depends-Indep: debhelper (>> 4.1.67), python-dev (>= 2.3)
-Standards-Version: 3.5.8
+Uploaders: Baruch Even <baruch@debian.org>
+Build-Depends-Indep: debhelper (>> 4.1.67), python-dev (>= 2.3), texinfo
+Standards-Version: 3.6.1
 
 Package: rubber
 Architecture: all
