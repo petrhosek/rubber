@@ -110,7 +110,7 @@ document.""",
 		author_email = "emmanuel@beffara.org",
 		url = "http://beffara.org/stuff/rubber.html",
 		licence = "GPL",
-		packages = ["rubber", "rubber.modules"],
+		packages = ["rubber", "rubber.modules", "rubber.graphics"],
 		package_dir = {"rubber": "src"},
 		scripts = ["rubber", "rubber-info"],
 		data_files =

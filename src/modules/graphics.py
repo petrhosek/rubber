@@ -18,26 +18,28 @@ import os
 from os.path import *
 import string
 
+import rubber.graphics
+
 def _ (txt): return txt
 
 # default suffixes for each device driver (taken from the .def files)
 
 drv_suffixes = {
-	"dvipdf" : [".eps", ".ps", ".eps.gz", ".ps.gz", ".eps.Z"],
-	"dvipdfm" : [".jpg", ".jpeg", ".pdf", ".png"],
-	"dvips" : [".eps", ".ps", ".eps.gz", ".ps.gz", ".eps.Z"],
-	"dvipsone" : [".eps", ".ps", ".pcx", ".bmp"],
-	"dviwin" : [".eps", ".ps", ".wmf", ".tif"],
-	"emtex" : [".eps", ".ps", ".pcx", ".bmp"],
-	"pctex32" : [".eps", ".ps", ".wmf", ".bmp"],
-	"pctexhp" : [".pcl"],
-	"pctexps" : [".eps", ".ps"],
-	"pctexwin" : [".eps", ".ps", ".wmf", ".bmp"],
-	"pdftex" : [".png", ".pdf", ".jpg", ".mps", ".tif"],
-	"tcidvi" : [],
-	"textures" : [".ps", ".eps", ".pict"],
-	"truetex" : [".eps", ".ps"],
-	"vtex" : [".gif", ".png", ".jpg", ".tif", ".bmp", ".tga", ".pcx",
+	"dvipdf" : ["", ".eps", ".ps", ".eps.gz", ".ps.gz", ".eps.Z"],
+	"dvipdfm" : ["", ".jpg", ".jpeg", ".pdf", ".png"],
+	"dvips" : ["", ".eps", ".ps", ".eps.gz", ".ps.gz", ".eps.Z"],
+	"dvipsone" : ["", ".eps", ".ps", ".pcx", ".bmp"],
+	"dviwin" : ["", ".eps", ".ps", ".wmf", ".tif"],
+	"emtex" : ["", ".eps", ".ps", ".pcx", ".bmp"],
+	"pctex32" : ["", ".eps", ".ps", ".wmf", ".bmp"],
+	"pctexhp" : ["", ".pcl"],
+	"pctexps" : ["", ".eps", ".ps"],
+	"pctexwin" : ["", ".eps", ".ps", ".wmf", ".bmp"],
+	"pdftex" : ["", ".png", ".pdf", ".jpg", ".mps", ".tif"],
+	"tcidvi" : [""],
+	"textures" : ["", ".ps", ".eps", ".pict"],
+	"truetex" : ["", ".eps", ".ps"],
+	"vtex" : ["", ".gif", ".png", ".jpg", ".tif", ".bmp", ".tga", ".pcx",
 	          ".eps", ".ps", ".mps", ".emf", ".wmf"]
 }
 
@@ -51,8 +53,10 @@ class Module:
 		self.msg = env.message
 		env.parser.add_hook("includegraphics", self.includegraphics)
 		env.process.ext_building.append(self.build)
+		env.process.cleaning_process.append(self.clean)
 
 		self.path = env.config.path
+		self.files = []
 		self.not_found = []
 
 		# I take dvips as the default, but it is not portable.
@@ -72,9 +76,12 @@ class Module:
 		dependencies or to the list of graphics not found.
 		"""
 		name = dict["arg"]
-		file = self.find_input(name)
-		if file:
-			self.env.process.depends.append(file)
+		d = rubber.graphics.dep_file(name, self.suffixes, self.path, self.env)
+		if d:
+			self.msg(1, _("graphics %s found") % name)
+			for file in d.prods:
+				self.env.process.depends[file] = d;
+			self.files.append(d)
 		else:
 			self.not_found.append(name)
 
@@ -98,8 +105,18 @@ class Module:
 		Prepare the graphics before compilation. Currently, this only means
 		printing warnings if some graphics are not found.
 		"""
+		for dep in self.files:
+			dep.make()
 		if self.not_found == []:
 			return 0
 		self.msg(0, _("Warning: these graphics files were not found:"))
 		self.msg(0, string.join(self.not_found, ", "))
 		return 0
+
+	def clean (self):
+		"""
+		Remove all graphics files that are produced by the transformation of
+		some other file.
+		"""
+		for dep in self.files:
+			dep.clean()
