@@ -1,3 +1,8 @@
+2003-02-05  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/graphics/__init__.py, src/graphics/jpeg2ps.py: Introduced
+	automatic JPEG to EPS conversion with jpeg2ps.
+
 2003-02-03  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/cmd_info.py: Modified action "deps" so that dependencies are

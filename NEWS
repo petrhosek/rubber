@@ -2,6 +2,7 @@ Version 0.99.6
 
   Features:
     - Parsing of MetaPost log files for errors.
+    - Automatic JPEG to EPS conversion (with jpeg2ps).
 
   Bugfixes:
     - The action "--deps" in rubber-info now lists each dependency only once.

@@ -24,7 +24,9 @@ conv = {
 "(.*)\\.[0-9]+$" : {
 	"\\1.mp" : "mpost" },
 "(.*)\\.eps$" : {
-	"\\1.fig" : "fig2dev" },
+	"\\1.fig" : "fig2dev",
+	"\\1.jpeg" : "jpeg2ps",
+	"\\1.jpg" : "jpeg2ps" },
 "(.*)\\.png$" : {
 	"\\1.fig" : "fig2dev" },
 "(.*\\.e?ps)\\.bb$" : {
