@@ -25,4 +25,4 @@ class Module:
 				"dependency %s added for external references") % aux)
 		else:
 			self.env.msg(3, _(
-				"file %s id required by xr package but not found") % aux)
+				"file %s is required by xr package but not found") % aux)
