@@ -6,7 +6,7 @@ by the modules for various tasks.
 """
 
 import md5
-import os
+import os, stat
 from os.path import *
 import imp
 import time
@@ -92,6 +92,27 @@ def count_braces (str):
 		elif str[pos] == '}':
 			level = level - 1
 	return level
+
+
+#-- Checking for program availability
+
+checked_progs = {}
+
+def prog_available (prog):
+	"""
+	Test whether the specified program is available in the current path.
+	"""
+	if checked_progs.has_key(prog):
+		return checked_progs[prog]
+	for path in os.getenv("PATH").split(":"):
+		file = os.path.join(path, prog)
+		if (os.path.exists(file)):
+			st = os.stat(file)
+			if stat.S_ISREG(st.st_mode):
+				checked_progs[prog] = 1
+				return 1
+	checked_progs[prog] = 0
+	return 0
 
 
 #-- Plugin management
