@@ -1,5 +1,7 @@
 2002-11-13  Emmanuel Beffara  <manu@beffara.org>
 
+	* setup.py (do_check): Added checks for system-specific features.
+
 	* src/__init__.py: Modified the execute method so that it reads
 	the standard output of the external program (thus avoiding possible
 	deadlocks and allowing for output redirection).
