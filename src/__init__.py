@@ -656,7 +656,7 @@ class Environment:
 	def compile_needed (self):
 		"""
 		Returns true if a first compilation is needed. This method supposes
-		that no compilatin was done (by the script) yet.
+		that no compilation was done (by the script) yet.
 		"""
 		if self.must_compile:
 			return 1
