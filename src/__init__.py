@@ -494,7 +494,7 @@ class Environment:
 				self.modules.register(args[0], dict)
 
 		elif cmd == "path":
-			self.conf.path.append(arg)
+			self.conf.path.append(expanduser(arg))
 
 		elif cmd == "read":
 			try:

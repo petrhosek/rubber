@@ -57,7 +57,7 @@ class Module (rubber.Module):
 				else: self.msg(1,
 					_("unknown option '%s' for 'makeidx.order'") % opt)
 		elif cmd == "path":
-			self.path.append(arg)
+			self.path.append(os.path.expanduser(arg))
 		elif cmd == "style":
 			self.style = arg
 

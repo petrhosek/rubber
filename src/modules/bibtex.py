@@ -64,9 +64,9 @@ class Module (rubber.Module):
 
 	def command (self, cmd, arg):
 		if cmd == "path":
-			self.bib_path.append(arg)
+			self.bib_path.append(expanduser(arg))
 		elif cmd == "stylepath":
-			self.bst_path.append(arg)
+			self.bst_path.append(expanduser(arg))
 
 	def add_db (self, name):
 		"""
