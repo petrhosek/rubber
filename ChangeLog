@@ -1,3 +1,7 @@
+2003-04-01  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/epsfig.py, man/...: Added support for epsfig.
+
 2003-03-31  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/info.py: Fixed file name tracking again.

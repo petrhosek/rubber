@@ -135,6 +135,10 @@ loaded if the file specified on the command line has \tt(.w) as its suffix.])
 PostScript document. This module is also loaded by the command line option
 \ddopt(ps).])
 
+\item(epsfig, [This modules handles graphics inclusion for the documents that
+use the old style \macro(psfig) macro. It is actually an interface for the
+graphics module, see this one for details.])
+
 \item([graphics, graphicx], [These modules identify the graphics included in
 the document and consider them as dependencies for compilation. They also use
 standard rules to build these files with external programs. Current rules

@@ -140,6 +140,10 @@ suffixe.])
 document PostScript. Ce module est aussi chargé par l'option de ligne de
 commande \ddopt(ps).])
 
+\item(epsfig, [Ce module gère l'inclusion de figures pour les documents qui
+utilisent l'ancienne méthode avec \macro(psfig). Il s'agit en fait d'une
+interface pour le module graphics, voir celui-ci pour les détails.])
+
 \item([graphics, graphicx], [Ces modules identifient les fichier graphiques
 inclus par le document et de les considèrent comme des dépendances à la
 compilation. Ils utilisent en plus certaines règles pour construire ces

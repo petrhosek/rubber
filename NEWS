@@ -4,7 +4,7 @@ Version 0.99.6
     - Handling of \graphicspath.
     - Parsing of MetaPost log files for errors.
     - Automatic JPEG to EPS conversion (with jpeg2ps).
-    - Support for package "natbib".
+    - Support for packages "epsfig" and "natbib".
     - Rubber directives in source comments.
     - Directives for specifying paths for LaTeX and BibTeX.
     - Directives to control the operation of Makeindex.
