@@ -114,6 +114,7 @@ available options:
 				if self.env.modules.register(mod, arg):
 					self.env.message(
 						0, _("module %s could not be registered") % mod)
+		self.env.parse()
 
 	def __call__ (self, cmdline):
 		if cmdline == []:

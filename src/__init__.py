@@ -187,13 +187,14 @@ class Parser:
 	def usepackage (self, dict):
 		"""
 		Called when a \\usepackage macro is found. If there is a package in the
-		directory of the source file, then it is treated as an includes file,
+		directory of the source file, then it is treated as an include file
+		unless there is a supporting module in the current directory,
 		otherwise it is treated as a package.
 		"""
 		if not dict["arg"]: return
 		for name in string.split(dict["arg"], ","):
-			file = self.conf.find_input (name + ".sty")
-			if file:
+			file = self.conf.find_input(name + ".sty")
+			if file and not exists(name + ".py"):
 				self.process(file)
 			else:
 				self.env.modules.register(name, dict)
@@ -592,14 +593,18 @@ class Environment:
 
 	def prepare (self, name):
 		"""
-		Initialize the process for the given document and make the source if
-		needed, then process the source for packages.
+		Initialize the process for the given document and make the LaTeX
+		source if needed.
 		"""
 		if self.process.set_source(name): return 1
-		if self.process.make_source(): return 1
+		return self.process.make_source()
+
+	def parse (self):
+		"""
+		Parse the source for packages and supported macros.
+		"""
 		self.parser.process(self.process.source())
 		self.message(2, _("dependencies: %r") % self.process.depends)
-		return 0
 
 	def make (self):
 		"""
