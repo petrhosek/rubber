@@ -156,5 +156,12 @@ class DependLeaf (Depend):
 	"""
 	def __init__ (self, dest):
 		Depend.__init__(self, dest, {})
+	def run (self):
+		# FIXME
+		if len(self.prods) == 1:
+			print "%r does not exit" % self.prods[1]
+		else:
+			print "one of %r does not exit" % self.prods
+		return 1
 	def clean (self):
 		pass
