@@ -103,8 +103,10 @@ def do_setup ():
 	from distutils.core import setup
 	try:
 		mandir = expand_vars(settings.sub, settings.sub["mandir"])
+		infodir = expand_vars(settings.sub, settings.sub["infodir"])
 	except NameError:
 		mandir = "man"
+		infodir = "info"
 	setup(
 		name = "rubber",
 		version = settings.sub["version"],
@@ -129,7 +131,8 @@ epstopdf and XFig picture conversion and Metapost compilation).\
 		[(mandir + "/man1",
 			["doc/man-en/rubber.1", "doc/man-en/rubber-info.1"]),
 		 (mandir + "/fr/man1",
-			["doc/man-fr/rubber.1", "doc/man-fr/rubber-info.1"])]
+			["doc/man-fr/rubber.1", "doc/man-fr/rubber-info.1"]),
+		 (infodir, ["doc/rubber.info"])]
 		)
 
 

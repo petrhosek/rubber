@@ -4,7 +4,7 @@ Version:	@version@
 Release:	@release@
 License:	GPL
 Group:		Applications/Publishing
-URL:		http://beffara.org/soft/rubber/
+URL:		http://rubber.sourceforge.net/
 Packager:	Emmanuel Beffara <manu@beffara.org>
 Source:		%{name}-%{version}.tar.gz
 Requires:	python2, tetex
@@ -24,7 +24,7 @@ XFig picture conversion and Metapost compilation).
 %setup
 
 %build
-./configure --prefix=%{_prefix} --mandir='${datadir}/man' --python=python2
+./configure --prefix=%{_prefix} --mandir='${datadir}/man' --infodir='${datadir}/info' --python=python2
 make
 
 %install
@@ -45,4 +45,4 @@ make install prefix=$RPM_BUILD_ROOT%{_prefix}
 %doc %{_mandir}/fr/man1/rubber.1*
 %doc %{_mandir}/man1/rubber-info.1*
 %doc %{_mandir}/man1/rubber.1*
-
+%doc %{_infodir}/rubber.info

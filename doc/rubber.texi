@@ -27,25 +27,6 @@ translation approved by the Free Software Foundation.
 Copyright @copyright{} 2003 Emmanuel Beffara.
 @end copying
 
-
-@ifhtml
-@html
-<div class="menu">
-contents:
-<div class="toc">
-@end html
-@shortcontents
-@html
-</div></div>
-@end html
-@end ifhtml
-
-@html
-<div class="main">
-<h1>Rubber</h1>
-<div class="subtitle">documentation for version 0.99.7</div>
-@end html
-
 @titlepage
 @title Rubber
 @subtitle Documentation for version 0.99.7
@@ -60,10 +41,6 @@ contents:
 @end iftex
 
 @c ---  Introduction  ---
-
-@html
-<!----
-@end html
 
 @dircategory teTeX
 @direntry
@@ -80,20 +57,17 @@ all references, possibly running satellite programs such as BibTeX,
 makeindex, Metapost, etc. to produce appropriate data files.
 @end ifnottex
 
-@html
----->
-@end html
-
 @menu
 * Introduction::  Introduction.
 
 * Invoking::      Syntax of the command lines.
 * Directives::    Directives in LaTeX comments.
 * Modules::       List of standard modules.
+* Graphics::      Support for graphics conversion.
 
 * Programming::   Writing modules and embedding Rubber.
 
-* Index::
+* Index::         Directive and modules index.
 @end menu
 
 @node Introduction, Invoking, Top, Top
@@ -167,12 +141,13 @@ rubber [options] files
 rubber-pipe [options]
 @end example
 
-The source files may be either LaTeX sources (in which case the suffix .tex
-may be omitted) or documents in a format Rubber knows how to translate into
-LaTeX (this currently means CWEB or Literate Haskell documents). If any
-compilation fails, the whole process stops, including the compilation of the
-next documents on the command line, and the program returns a non-zero exit
-code.
+@noindent
+The source files may be either LaTeX sources (in which case the suffix
+@file{.tex} may be omitted) or documents in a format Rubber knows how to
+translate into LaTeX (this currently means CWEB or Literate Haskell
+documents). If any compilation fails, the whole process stops, including the
+compilation of the next documents on the command line, and the program returns
+a non-zero exit code.
 
 The options are the following:
 
@@ -345,9 +320,8 @@ directive name, possibly followed by spaces and arguments.
 
 If a directive name has the form @samp{foo.bar}, it is considered a command
 @command{bar} for the module @command{foo}. If this module is not registered
-when the directive is found, then it is loaded with no option and the command
-is executed. See the individual documentation for modules for module-specific
-directives.
+when the directive is found, then the directive is silently ignored. See the
+individual documentation for modules for module-specific directives.
 
 @menu
 * General directives::
@@ -402,7 +376,7 @@ useful in the case of tables of contents, for instance.
 * Compiler choice::    Choosing which LaTeX compiler to use.
 @end menu
 
-@node Packages, Pre-processing, Modules, Modules
+@node Packages, BibTeX, Modules, Modules
 @section Supported Packages
 
 For every package that a document uses, Rubber looks for a module of
@@ -419,7 +393,7 @@ of contents.
 @item bibtex
 Takes care of processing the document's bibliography with BibTeX when needed.
 This module is automatically loaded if the document contains the macro
-@code{\bibliography}.
+@code{\bibliography}. For details, see @ref{BibTeX}.
 
 @item combine
 The combine package is used to gather several LaTeX documents into a single
@@ -428,19 +402,17 @@ one, and this module handles the dependencies in this case.
 @item epsfig
 This modules handles graphics inclusion for the documents that use the old
 style @code{\psfig} macro. It is actually an interface for the graphics
-module, see this one for details.
+system, for details see @ref{Graphics}.
 
 @item graphics
 @itemx graphicx
 These modules identify the graphics included in the document and consider them
 as dependencies for compilation. They also use standard rules to build these
-files with external programs. Current rules include conversion from EPS to PDF
-using @command{epstopdf}, conversion of XFig figures to EPS, combined
-EPS+LaTeX, PDF or PNG using @command{fig2dev}, compilation of Metapost sources
-(using @command{mpost}), and bounding box extraction from gzipped EPS figures.
+files with external programs. For more details, see @ref{Graphics}.
 
 @item makeidx
-Process the document's index with makeindex when needed.
+Process the document's index with @command{makeindex} when needed. For
+details, see @ref{Makeindex}.
 
 @item minitoc
 @itemx minitoc-hyper
@@ -465,7 +437,52 @@ dependencies, so recompiling is automatic when refer- enced document are
 changed.
 @end vtable
 
-@node Pre-processing, Post-processing, Packages, Modules
+@menu
+* BibTeX::       Details on BibTeX support.
+* Makeindex::    Details on Makeindex support.
+@end menu
+
+@node BibTeX, Makeindex, Packages, Packages
+@subsection BibTeX support
+
+If the document contains a call to @code{\bibliography} or
+@code{\bibliographystyle}, then the BibTeX module is used. This triggers the
+execution of BibTeX between compilations when new references are made,
+bibliographies are changed, and in other appropriate cases. The following
+directives may be used to control BibTeX's behaviour:
+
+@ftable @command
+@item bibtex.path <directory>
+Add the specified directory to the seach path for BibTeX database files
+(@file{.bib} files).
+
+@item bibtex.stylepath <directory>
+Add the specified directory  to  the  search  path  for  BibTeX style files
+(@file{.bst} files).
+@end ftable
+
+@node Makeindex, Pre-processing, BibTeX, Packages
+@subsection Makeindex support
+
+The use of @command{makeidx} package triggers the use of @command{makeindex}
+when necessary to process the document's index. The following directives may
+be used to control how @command{makeindex} is called:
+
+@ftable @command
+@item makeidx.order <options>
+Modifies the sorting options for the index. Tha argument must be a
+space-separated list of words among @samp{standard}, @samp{german} and
+@samp{letter}.
+
+@item makeidx.path <directory>
+Adds the specified directory to the search path for index style files
+(@file{.ist} files).
+
+@item makeidx.style <style>
+Specifies the index style to be used.
+@end ftable
+
+@node Pre-processing, Post-processing, Makeindex, Modules
 @section Pre-processors
 
 The following modules are provided for using programs that generate a LaTeX
@@ -483,7 +500,7 @@ source from a Literate Haskell program. It is automatically triggered if the
 input file's name ends with @file{.lhs}.
 @end vtable
 
-@node Post-processing, Compiler choice, Pre-processing, Modules
+@node Post-processing, Dvips and Dvipdfm, Pre-processing, Modules
 @section Post-processors
 
 The following modules are provided to support different kinds of
@@ -500,13 +517,73 @@ document. This module is also loaded by the command line option @option{--ps}.
 @item expand
 Produce an expanded LaTeX source by replacing @code{\input} macros by included
 files, bibliography macros by the bibliography produced by @command{bibtex},
-and local classes and packages by their source. The module options
-@option{nobib}, @option{nocls}, @option{nopkg} turn off specific expansions.
-If the main file is @file{foo.tex} then then expanded file will be named
-@file{foo-final.tex}.
+and local classes and packages by their source. For details, see @ref{Expand}.
 @end vtable
 
-@node Compiler choice, Programming, Post-processing, Modules
+@menu
+* Dvips and Dvipdfm::    Details on DVI to PS/PDF conversion.
+* Expand::               Details on the source expansion plugin.
+@end menu
+
+@node Dvips and Dvipdfm, Expand, Post-processing, Post-processing
+@subsection Dvips and Dvipdfm
+
+The @command{dvips} and @command{dvipdfm} modules can be used to call the
+associated DVI drivers to produce PostScript or PDF documents from the DVI
+output of LaTeX. The following directives may be used to change their
+behaviour:
+
+@ftable @command
+@item paper <options>
+Specify options related to paper size. Currently they are used to give
+@option{-t} options to @command{dvips} and @option{-p} options to
+@command{dvipdfm}. The command-line option @option{--landscape} is equivalent
+to the directive @samp{paper landscape}.
+
+@item dvipdfm.options <options>
+@itemx dvips.options <options>
+Pass the specified options to the driver. The argument is a space-separated
+list of options that are passed before the DVI file's name.
+@end ftable
+
+@node Expand, Compiler choice, Dvips and Dvipdfm, Post-processing
+@subsection Source file expansion
+
+The module @command{expand} produces a LaTeX source from the original one by
+expanding included files and packages. If the main file is @file{foo.tex}
+then then expanded file will be named @file{foo-final.tex}. This file will be
+self-contained, in particular it will not need BibTeXing nor user-defined
+packages, as may be required when preparing the final version of a document
+for publication.
+
+As additional effect, this module removes all comments from the source file
+(including those that may contain Rubber directives). It also removes any text
+that may be present after @code{\end@{document@}}.
+
+Please note that this module is rather experimental.
+
+@noindent
+The following options control how the expansion is done:
+
+@table @option
+@item class
+If the document class is user-defined (i.e. if it is in a local directory
+instead of a system directory), the @code{\documentclass} call will be
+replaced by the code of the @file{.cls} file. Note that this is dangerous in
+general.
+
+@item nobib
+Do not expand the bibliography. When this option is @emph{not} present, any
+call to @command{\bibiography} is discarded and the call to
+@command{\bibliographystyle} is replaced by the document's @file{.bbl} file.
+
+@item nopkg
+Do not expand user-defined packages. When this option is @emph{not} present,
+local packages (i.e. those that are in the current directory) are replaced by
+their contents.
+@end table
+
+@node Compiler choice, Graphics, Expand, Modules
 @section Changing compilers
 
 The following modules are used to change the LaTeX compiler:
@@ -528,14 +605,70 @@ compiler used is @command{vlatexp} and the result is a PostScript file.
 @end vtable
 
 
+@c ---  Graphics conversion  ---
+
+@node Graphics, Programming, Compiler choice, Top
+@chapter Graphics conversion
+
+Rubber includes a system for automatic conversion of graphics between various
+file formats. This is used when graphics are included using commands from the
+packages @command{graphicx}, @command{graphics} or @command{epsfig}.
+
+When a graphics inclusion macro like @command{\includegraphics} (even with the
+parameters allowed by the @command{graphicx} package) or @command{\epsfig} is
+found in a LaTeX source, Rubber looks for the corresponding file or a way to
+generate it. If the call to the macro does not specify a file extension, then
+the list of possible suffixes for the current compiler is tried. For each
+possible file name, Rubber first tries to find a way to convert this file from
+a source, and then looks for the file itself. This way, the source file will
+be considered as the actual dependency.
+
+The path searched for graphics files is the same as that for LaTeX inputs by
+default. If the macro @command{\graphicspath} is used, the specified paths are
+also searched, the same way as LaTeX does. Limited support is also provided
+for the @command{\DeclareGraphicsExtensions} and
+@command{\DeclareGraphicsRule} macros.
+
+@noindent
+The following programs may be used when available:
+
+@table @command
+@item convert
+This is the image conversion program from the ImageMagick program. It can
+convert between a lot of different formats, just refer to ImageMagick's
+documentation for details.
+
+@item epstopdf
+This program is used to convert EPS graphics for use in PDF documents.
+
+@item fig2dev
+This is the exporting program that goes with XFig. It is used to convert files
+in @file{.fig} format into EPS, PDF or PNG. Rubber also supports the use of
+combined EPS/LaTeX, it is detected when an @command{\input} macro refers to a
+filename that ends in @file{.eps_t} or @file{.pstex_t}.
+
+@item jpeg2ps
+This tool is used to convert JPEG images into efficient EPS files.
+
+@item mpost
+MetaPost has extra support in Rubber. If a graphics is included with a
+filename that ends with a dot and a decimal number like @file{foo.42}, then
+it is considered to be generated from @file{foo.mp} if it exists. Dependency
+analysis is performed between MetaPost sources, so that recompilation always
+occurs when needed. If the compilation of a MetaPost source fails, the errors
+are reported as it would be done for LaTeX errors.
+@end table
+
 @c ---  Programming with Rubber  ---
 
-@node Programming, Program structure, Compiler choice, Top
+@node Programming, Program structure, Graphics, Top
 @chapter Programming with Rubber
 
 Rubber is written in the Python language. Its structure makes it possible to
 use the compilation system from any Pyhton program. The module system is
 based on Python's ability to load modules at run time.
+
+This chapter is widely incomplete.
 
 @menu
 * Program structure::  The classes and interfaces in Rubber.
@@ -546,11 +679,12 @@ based on Python's ability to load modules at run time.
 @node Program structure, Writing modules, Programming, Programming
 @section The structure of Rubber
 
-The core of the program is contained in a Python package named @var{rubber},
+The core of the program is contained in a Python package named @code{rubber},
 which resides in an installation-dependent directory like
 @file{/usr/share/rubber}. The classes defined in this module are the
 following:
-@table @var
+
+@table @code
 @item Environment
 This is the core of Rubber. An object in this class contains information about
 a given document, including a dependency graph between source files, a set of
@@ -560,44 +694,46 @@ All messages, including progress and error reports, are issued using an
 instance of a class that implements the interface Message.
 @end table
 
-More should be written.
-
 @node Writing modules, Embedding Rubber, Program structure, Programming
 @section Writing Rubber modules
 
 The modules that handle packages, pre- and post-processing and compiler change
-are the Python modules in the package @var{rubber.modules}. Each module must
-define a class @var{Module} that derives from @var{rubber.Module}. An object
+are the Python modules in the package @code{rubber.modules}. Each module must
+define a class @code{Module} that derives from @code{rubber.Module}. An object
 of this class is created for each document that uses the module.
 
-The @var{__init__} method takes the building environment as
-its first argument and a dictionary as its second argument. This dictionary
-describes the command that caused the module to be loaded, its keys are the
+The @code{__init__} method takes the building environment as its first
+argument and a dictionary as its second argument. This dictionary describes
+the command that caused the module to be loaded, its keys are the
 following:
-@table @samp
+
+@table @code
 @item name
 the macro's name (i.e. @samp{usepackage} or @samp{RequirePackage}, or
 undefined if the module is loaded from the command line)
 @item arg
 the module's name (i.e. the argument of the macro)
 @item opt
-the module's options or @var{None} (either @code{\usepackage}'s optional
+the module's options or @code{None} (either @code{\usepackage}'s optional
 argument or the module options on the command line)
 @end table
-The @var{__init__} function is supposed to register the macros supported by
+
+@noindent
+The @code{__init__} function is supposed to register the macros supported by
 the module using the following method of the environment:
-@table @samp
+
+@table @code
 @item add_hook(name, fun)
-The function @var{fun} will be called when the macro of the given name is
+The function @code{fun} will be called when the macro of the given name is
 found. This function recieves as argument a dictionary that describes the
 macro call with the following keys:
-@table @samp
+@table @code
 @item name
 the name of the macro
 @item opt
-the optional argument or @var{None}
+the optional argument or @code{None}
 @item arg
-the first argument (if it doesn't contain any brace) or @var{None}
+the first argument (if it doesn't contain any brace) or @code{None}
 @item line
 the rest of the line where the macro occurs
 @end table
@@ -606,11 +742,13 @@ the rest of the line where the macro occurs
 @node Embedding Rubber, Index, Writing modules, Programming
 @section Embedding Rubber
 
+This section will describe how to use Rubber directly from your program.
+
 
 @c ---  Indices  ---
 
 @node Index, Directive index, Embedding Rubber, Top
-@chapter Indices
+@chapter Index
 
 @menu
 * Directive index::
@@ -628,9 +766,5 @@ the rest of the line where the macro occurs
 @section Index of modules
 @printindex vr
 @end ifnothtml
-
-@html
-</div>
-@end html
 
 @bye

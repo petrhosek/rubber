@@ -1,3 +1,18 @@
+2004-02-11  Emmanuel Beffara  <manu@beffara.org>
+
+	* doc/...: Documentation updates.
+
+	* configure, setup.py, rubber.spec.in, debian/rules: Added
+	installation of the info documentation.
+
+	* src/modules/expand.py: Don't expand local classes by default.
+
+	* src/util.py, src/graphics/__init__.py: Made the rules for graphics
+	conversion safer.
+
+	* src/__init__.py, src/cmdline.py, src/cmd_info.py: Let the classes
+	derive from "object".
+
 2004-01-24  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/bibtex.py, src/modules/multibib.sty: Added support for

@@ -1,10 +1,10 @@
 #!/bin/sh
 # This is the configuration script for Rubber.
 # As a part of Rubber, it is covered by the GPL (see COPYING for details).
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2004
 
 # this is the only place where there is version number:
-version=0.99.6
+version=0.99.7
 release=1
 
 python=""
