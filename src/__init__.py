@@ -34,7 +34,7 @@ class Config (object):
 		self.latex = "latex"
 		self.cmdline = ["\\nonstopmode\\input{%s}"]
 		self.tex = "TeX"
-		self.loghead = re.compile("This is [0-9a-zA-Z-]*TeX")
+		self.loghead = re.compile("This is [0-9a-zA-Z-]*(TeX|Omega)")
 		self.paper = []
 
 	def find_input (self, name):
@@ -120,8 +120,8 @@ class Modules (Plugins):
 
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
-re_badbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
-re_line = re.compile("l\\.(?P<line>[0-9]+)( (?P<text>.*))?$")
+re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
+re_line = re.compile(r"l\.(?P<line>[0-9]+)( (?P<text>.*))?$")
 
 class LogCheck (object):
 	"""
@@ -255,7 +255,7 @@ class LogCheck (object):
 
 #---------------------------------------
 
-re_comment = re.compile("(?P<line>[^%]*)(%.*)?")
+re_comment = re.compile(r"(?P<line>([^\\%]|\\%|\\)*)(%.*)?")
 re_command = re.compile("[% ]*(rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*))?.*")
 re_input = re.compile("\\\\input +(?P<arg>[^{} \n\\\\]+)")
 re_kpse = re.compile("kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
@@ -562,6 +562,9 @@ class Environment (Depend):
 		its dependency node. The return value is (None,None) is the source
 		could neither be read nor built.
 		"""
+		if name.find("\\") >= 0 or name.find("#") >= 0:
+			return None, None
+
 		for path in self.conf.path:
 			pname = join(path, name)
 			dep = self.convert(pname, self)
@@ -572,6 +575,7 @@ class Environment (Depend):
 			if dep:
 				self.sources[pname] = dep
 				return pname + ".tex", dep
+
 		file = self.conf.find_input(name)
 		if file:
 			self.process(file)
@@ -802,6 +806,8 @@ class Environment (Depend):
 		self.msg(2, _("running post-compilation scripts..."))
 
 		for file, md5 in self.onchange_md5.items():
+			if not exists(file):
+				continue
 			new = md5_file(file)
 			if md5 != new:
 				self.msg(0, _("running %s...") % self.onchange_cmd[file])

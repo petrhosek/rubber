@@ -283,6 +283,25 @@ convert this document to PDF using
 .SS Compiler choice
 The following modules are used to change the LaTeX compiler:
 .TP
+.B etex
+Instructs Rubber to use
+.BR elatex (1)
+instead of
+.BR latex .
+.TP
+.B omega
+Use the Omega compiler instead of TeX, i.e. compiles the document using
+.BR lambda (1)
+instead of
+.BR latex .
+If the module
+.B dvips
+is used too, it will use
+.BR odvips (1)
+to translate the DVI file. Note that this module is triggered automatically
+when the document uses the package
+.BR omega .
+.TP
 .B pdftex
 Instructs Rubber to use
 .BR pdflatex (1)

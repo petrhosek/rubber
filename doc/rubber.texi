@@ -165,12 +165,12 @@ rubber --ps --clean foo
 @end example
 will.
 
-@item -c
+@item -c <command>
 @itemx --command <command>
 Execute the specified command (or directive) @emph{before} parsing the source
 files. @xref{Directives}.
 
-@item -e
+@item -e <command>
 @itemx --epilogue <command>
 Execute the specified command (or directive) @emph{after} parsing the source
 fiels. @xref{Directives}.
@@ -202,11 +202,18 @@ on standard output. The temporary document is named @file{rubtmpX.tex}, where
 Specify that the final document should use landscape orientation. This is
 relevant only when using @command{dvips} or @command{dvipdfm}.
 
-@item -m
+@item -m <module>[:<args>]
 @itemx --module <module>[:<args>]
 Use the specified module in addition to the document's packages. Arguments
 can be passed to the package by adding them after a colon, they correspond to
-the package options in LaTeX.
+the package options in LaTeX. The module is loaded @emph{before} parsing the
+document's sources.
+
+@item -o <module>[:<args>]
+@itemx --post <module>[:<args>]
+Used the specified module as a post-processor. This is similar to the
+@option{-m} options except that the module is loaded @emph{after} parsing the
+document.
 
 @item -d
 @itemx --pdf
@@ -223,7 +230,7 @@ is naturally incompatible with @option{--pdf}.
 @itemx --quiet
 Suppress all messages during the process.
 
-@item -r
+@item -r <file>
 @itemx --read <file>
 Read additional directives form the specified file (see also the directive
 @command{read}).
@@ -232,7 +239,7 @@ Read additional directives form the specified file (see also the directive
 @itemx --short
 Display LaTeX's error messages in a compact form (one error per line).
 
-@item -I
+@item -I <dir>
 @itemx --texpath <dir>
 Add the specified directory to the search path of TeX files.
 
@@ -297,10 +304,10 @@ contain the string "Warning".
 @end table
 
 @noindent
-In addition to these actions, the following optionds may be specified:
+In addition to these actions, the following options may be specified:
 
 @table @option
-@item -m
+@item -m <module>[:<args>]
 @itemx --module <module>[:<args>]
 Use the specified module in addition to the document's packages. Arguments
 can be passed to the package by adding them after a colon, they correspond to
@@ -633,6 +640,16 @@ their contents.
 The following modules are used to change the LaTeX compiler:
 
 @vtable @command
+@item etex
+Instructs Rubber to use @command{elatex} instead of @command{latex}.
+
+@item omega
+Use the Omega compiler instead of TeX, i.e. compiles the document using
+@command{lambda} instead of @command{latex}. If the module @command{dvips} is
+used too, it will use @command{odvips} to translate the DVI file. Note that
+this module is triggered automatically when the document uses the package
+@command{omega}.
+
 @item pdftex
 Instructs Rubber to use @command{pdflatex} instead of @command{latex} to
 compile the document. By default, this produces a PDF file instead of a DVI,

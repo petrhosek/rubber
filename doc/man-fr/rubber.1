@@ -288,11 +288,31 @@ convertit ce document en PDF avec
 .SS Choix du compilateur
 Les modules suivants servent à changer de compilateur LaTeX:
 .TP
+.B etex
+Indique à Rubber d'utiliser
+.BR elatex (1)
+au lieu de
+.B latex
+pour compiler le document.
+.TP
+.B omega
+Utilise Omega au lieu de TeX, c'est-à-dire compile le document avec
+.BR lambda (1)
+au lieu de
+.BR latex .
+Si le module
+.B dvips
+est utilisé, il transformera le DVI avec la commande
+.BR odvips (1).
+Notez que si le package
+.B omega
+est utilisé par le document, ce module sera chargé automatiquement.
+.TP
 .B pdftex
 Indique à Rubber d'utiliser
 .BR pdflatex (1)
 au lieu de
-.BR latex (1)
+.BR latex
 pour compiler le document. Par défaut, celà a pour effet
 de produire un fichier PDF au lieu d'un DVI, mais si le module est chargé avec
 l'option

@@ -1,3 +1,12 @@
+2004-05-14  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, src/modules/...: Added support for e-TeX and Omega.
+
+	* src/__init__.py: Corrected input_file to ignore names that contain
+	the characters \ and #.
+
+	* src/modules/bibtex.py: Refined dependency handling.
+
 2004-05-04  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Added directive "onchange".

@@ -1,11 +1,11 @@
 Version 0.99.8 (CVS)
 
   Features:
+    - Support for e-TeX and Omega.
     - New directive "onchange".
 
   Bugfixes:
     - Portability improvement (for Cygwin and hopefully others).
-    - Support for e-Tex.
 
 Version 0.99.7 (2004-02-20)
 

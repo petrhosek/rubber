@@ -2,6 +2,10 @@
 # (c) Emmanuel Beffara, 2002--2004
 """
 PostScript generation through dvips with Rubber.
+
+This module has specific support for Omega: when the name of the main compiler
+is "Omega" (instead of "TeX" for instance), then "odvips" is used instead of
+"dvips".
 """
 
 import sys
@@ -22,11 +26,15 @@ class Module (Depend, rubber.Module):
 		self.ps = self.dvi[:-3] + "ps"
 		Depend.__init__(self, [self.ps], { self.dvi: env.final }, env.msg)
 		env.final = self
+		if env.conf.tex == "Omega":
+			self.command = "odvips"
+		else:
+			self.command = "dvips"
 		self.options = []
 
 	def run (self):
-		self.msg(0, _("running dvips on %s...") % self.dvi)
-		cmd = ["dvips"] + self.options + ["-o", self.ps, self.dvi]
+		self.msg(0, _("running %s on %s...") % (self.command, self.dvi))
+		cmd = [self.command] + self.options + ["-o", self.ps, self.dvi]
 		for opt in self.env.conf.paper:
 			cmd.extend(["-p", opt])
 		if self.env.execute(cmd):
