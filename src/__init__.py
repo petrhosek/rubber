@@ -108,16 +108,16 @@ class Message:
 		"""
 		if self.short:
 			if line:
-				self.write(0, "%s:%d: %s" % (file, line, text))
+				self.write(-1, "%s:%d: %s" % (file, line, text))
 			else:
-				self.write(0, "%s: %s" % (file, text))
+				self.write(-1, "%s: %s" % (file, text))
 		else:
 			if line:
-				self.write(0, _("\nline %d in %s:\n  %s") % (line, file, text))
+				self.write(-1, _("\nline %d in %s:\n  %s") % (line, file, text))
 			else:
-				self.write(0, _("\nin %s:\n  %s") % (file, text))
+				self.write(-1, _("\nin %s:\n  %s") % (file, text))
 			if code:
-				self.write(0, "  --> " + code)
+				self.write(-1, "  --> " + code)
 
 	def abort (self, what, why):
 		"""

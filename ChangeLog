@@ -1,5 +1,9 @@
 2003-11-10  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py: Made errors visible even when quiet.
+
+	* src/cmd_pipe.py: Made quietness the default in rubber-pipe.
+
 	* Makefile.in: Made the man pages a dependency for install.
 
 	* src/cmdline.py, src/cmd_info.py, src/cmd_pipe.py: Modified the help
