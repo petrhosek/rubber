@@ -29,6 +29,7 @@ class Module:
 		self.msg = env.msg
 
 		self.undef_cites = None
+		self.style = None
 		self.set_style("plain")
 		self.db = []
 		self.run_needed = 0
@@ -52,9 +53,10 @@ class Module:
 		\\bibliographystyle is found. If the style file is found in the
 		current directory, it is considered a dependency.
 		"""
-		old_bst = self.style + ".bst"
-		if exists(old_bst) and self.env.depends.has_key(old_bst):
-			del self.env.depends[old_bst]
+		if self.style:
+			old_bst = self.style + ".bst"
+			if exists(old_bst) and self.env.depends.has_key(old_bst):
+				del self.env.depends[old_bst]
 
 		self.style = style
 		new_bst = style + ".bst"
