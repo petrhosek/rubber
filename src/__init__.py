@@ -318,7 +318,7 @@ class Environment:
 
 		self.hooks = {
 			"input" : self.h_input,
-			"include" : self.h_input,
+			"include" : self.h_include,
 			"usepackage" : self.h_usepackage,
 			"RequirePackage" : self.h_usepackage,
 			"documentclass" : self.h_documentclass,
@@ -340,6 +340,7 @@ class Environment:
 		self.watched_files = {}
 
 		self.cleaning_process = []
+		self.removed_files = []
 
 		# state of the builder:
 
@@ -420,13 +421,27 @@ class Environment:
 
 	def h_input (self, dict):
 		"""
-		Called when an \\input or an \\include is found. This calls the
-		`process' method if the included file is found.
+		Called when an \\input macro is found. This calls the `process' method
+		if the included file is found.
 		"""
 		if dict["arg"]:
 			file = self.conf.find_input(dict["arg"])
 			if file:
 				self.process(file)
+
+	def h_include (self, dict):
+		"""
+		Called when an \\include macro is found. This includes files into the
+		source in a way very similar to \\input, except that LaTeX also
+		creates .aux files for them, so we have to notice this.
+		"""
+		if dict["arg"]:
+			file = self.conf.find_input(dict["arg"])
+			if file:
+				self.process(file)
+				if file[-4:] == ".tex":
+					file = file[:-4]
+				self.removed_files.append(file + ".aux")
 
 	def h_documentclass (self, dict):
 		"""
@@ -591,6 +606,12 @@ class Environment:
 		"""
 		self.remove_suffixes([
 			".log", ".aux", ".toc", ".lof", ".lot", self.out_ext])
+
+		for file in self.removed_files:
+			if exists(file):
+				self.msg(3, _("removing %s") % file)
+				os.unlink(file)
+
 		if self.cleaning_process != []:
 			self.msg(2, _("cleaning additional files..."))
 			for proc in self.cleaning_process:

@@ -33,6 +33,8 @@ The following member data of the environment can also be modified:
 
   cleaning_process
     The list of functions called when cleaning compilation results.
+  removed_files
+    A list of additional files to be removed on cleaning.
 
   src_path = the pathname to the main source
   src_base = the base name of the main source
