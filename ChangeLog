@@ -1,3 +1,8 @@
+2004-06-15  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Added delayed directives, to improve the semantic
+	of directives in sources.
+
 2004-06-09  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/makeidx.py, src/modules/index.py: Added support for

@@ -27,14 +27,14 @@ class Module (Depend, rubber.Module):
 		Depend.__init__(self, [self.ps], { self.dvi: env.final }, env.msg)
 		env.final = self
 		if env.conf.tex == "Omega":
-			self.command = "odvips"
+			self.cmd = "odvips"
 		else:
-			self.command = "dvips"
+			self.cmd = "dvips"
 		self.options = []
 
 	def run (self):
-		self.msg(0, _("running %s on %s...") % (self.command, self.dvi))
-		cmd = [self.command] + self.options + ["-o", self.ps, self.dvi]
+		self.msg(0, _("running %s on %s...") % (self.cmd, self.dvi))
+		cmd = [self.cmd] + self.options + ["-o", self.ps, self.dvi]
 		for opt in self.env.conf.paper:
 			cmd.extend(["-p", opt])
 		if self.env.execute(cmd):

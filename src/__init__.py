@@ -77,6 +77,7 @@ class Modules (Plugins):
 		Plugins.__init__(self, rubber.modules.__path__)
 		self.env = env
 		self.objects = {}
+		self.commands = {}
 
 	def __getitem__ (self, name):
 		"""
@@ -94,8 +95,9 @@ class Modules (Plugins):
 		"""
 		Attempt to register a package with the specified name. If a module is
 		found, create an object from the module's class called `Module',
-		passing it the environment and `dict' as arguments. This dictionary
-		describes the command that caused the registration.
+		passing it the environment and `dict' as arguments, and execute all
+		delayed commands for this module. The dictionary describes the
+		command that caused the registration.
 		"""
 		r = Plugins.register(self, name)
 		if r == 0:
@@ -106,6 +108,12 @@ class Modules (Plugins):
 			return 2
 		mod = self.modules[name].Module(self.env, dict)
 		self.env.msg(2, _("module %s registered") % name)
+
+		if self.commands.has_key(name):
+			for (cmd,arg) in self.commands[name]:
+				mod.command(cmd, arg)
+			del self.commands[name]
+
 		self.objects[name] = mod
 		return 1
 
@@ -115,6 +123,19 @@ class Modules (Plugins):
 		"""
 		Plugins.clear(self)
 		self.objects = {}
+		self.commands = {}
+
+	def command (self, mod, cmd, arg):
+		"""
+		Send a command to a particular module. If this module is not loaded,
+		store the command so that it will be sent when the module is register.
+		"""
+		if self.objects.has_key(mod):
+			self.objects[mod].command(cmd, arg)
+		else:
+			if not self.commands.has_key(mod):
+				self.commands[mod] = []
+			self.commands[mod].append((cmd,arg))
 
 #---------------------------------------
 
@@ -379,6 +400,7 @@ class Environment (Depend):
 			self.process(self.source())
 		except EndDocument:
 			pass
+		self.set_date()
 		self.msg(2, _("dependencies: %r") % self.sources.keys())
 
 	def do_process (self, file, path, dump=None):
@@ -526,8 +548,7 @@ class Environment (Depend):
 		else:
 			lst = string.split(cmd, ".", 1)
 			if len(lst) > 1:
-				if self.modules.has_key(lst[0]):
-					self.modules[lst[0]].command(lst[1], arg)
+				self.modules.command(lst[0], lst[1], arg)
 			else:
 				self.msg.info(pos, _("unknown directive '%s'") % cmd)
 
