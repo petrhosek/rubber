@@ -1,3 +1,10 @@
+rubber (0.99.4-2) unstable; urgency=low
+
+  * Included various bugfixes that were made since the release of 0.99.4
+    (see the main ChangeLog for details).
+
+ -- Emmanuel Beffara <manu@beffara.org>  Fri,  8 Nov 2002 14:15:47 +0100
+
 rubber (0.99.4-1) unstable; urgency=low
 
   * Switched to version 0.99.4, introducing modules for minitoc and
