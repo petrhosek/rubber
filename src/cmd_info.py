@@ -28,21 +28,19 @@ For more information, try `rubber-info --help'."""))
 This is Rubber's information extractor version %s.
 usage: rubber-info [options] source
 available options:
-  -m / --module <mod>[:<options>] =
-                   use a specific module (with the given options)
-  -o / --readopts <file> =
-                   read additional options from a file
-  -s / --short   = display data in a compact form
-  -v / --verbose = increase verbosity
+  -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
+  -o, --readopts=FILE      read additional options from a file
+  -s, --short              display data in a compact form
+  -v, --verbose            increase verbosity
 actions:
-  --boxes    = report overfull and underfull boxes
-  --check    = report errors or warnings (default action)
-  --deps     = show the target file's dependencies
-  --errors   = show all errors that occured during compilation
-  --help     = display this help
-  --refs     = show the list of undefined references
-  --version  = print the program's version and exit
-  --warnings = show all LaTeX warnings\
+  --boxes     report overfull and underfull boxes
+  --check     report errors or warnings (default action)
+  --deps      show the target file's dependencies
+  --errors    show all errors that occured during compilation
+  --help      display this help
+  --refs      show the list of undefined references
+  --version   print the program's version and exit
+  --warnings  show all LaTeX warnings\
 """) % version)
 
 	def parse_opts (self, cmdline):

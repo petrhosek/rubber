@@ -69,21 +69,18 @@ For more information, try `rubber-pipe --help'."""))
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
-  -c / --command <cmd> = run the specified command
-                   (see man page section "Directives" for details)
-  -h / --help    = display this help
-  -k / --keep    = keep the temporary files after compiling
-  -l / --landscape = change paper orientation (if relevant)
-  -m / --module <mod>[:<options>] =
-                   use a specific module (with the given options)
-  -d / --pdf     = produce PDF output instead of DVI (synonym for -m pdftex)
-  -p / --ps      = produce a PostScript document (synonym for -m dvips)
-  -q / --quiet   = suppress messages
-  -s / --short   = display errors in a compact form
-  -r / --read <file> =
-                   read additional directives from a file
-  -v / --verbose = increase verbosity
-       --version = print version information and exit\
+  -c, --command=CMD        run the directive CMD (see man page for details)
+  -h, --help               display this help
+  -k, --keep               keep the temporary files after compiling
+  -l, --landscape          change paper orientation (if relevant)
+  -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
+  -d, --pdf                compile with pdftex (synonym for -m pdftex)
+  -p, --ps                 process through dvips (synonym for -m dvips)
+  -q, --quiet              suppress messages
+  -s, --short              display errors in a compact form
+  -r, --read=FILE          read additional directives from FILE
+  -v, --verbose            increase verbosity
+      --version            print version information and exit\
 """) % version)
 
 	def parse_opts (self, cmdline):
