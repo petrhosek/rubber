@@ -1,3 +1,10 @@
+2003-11-10  Emmanuel Beffara  <manu@beffara.org>
+
+	* Makefile.in: Made the man pages a dependency for install.
+
+	* src/cmdline.py, src/cmd_info.py, src/cmd_pipe.py: Modified the help
+	messages so they conform to GNU conventions.
+
 2003-11-01  Emmanuel Beffara  <manu@beffara.org>
 
 	* man/...: Added documentation for "rubber-pipe".
