@@ -1,3 +1,7 @@
+2003-04-09  Emmanuel Beffara  <manu@beffara.org>
+
+	* Version 0.99.6 released.
+
 2003-04-01  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/graphics.py: Added support for EPS/LaTeX figures.
