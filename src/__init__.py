@@ -101,7 +101,7 @@ class Message:
 		offending code (up to the error).
 		"""
 		self.write(0, _("\nline %d in %s:\n  %s") % (line, file, text))
-		if string.strip(code) != "":
+		if code:
 			self.write(0, "  --> " + code)
 
 	def abort (self, what, why):
@@ -156,7 +156,7 @@ class Modules (Plugins):
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ (){}]*)|\\))")
 re_badbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
-re_line = re.compile("l\\.(?P<line>[0-9]+) ")
+re_line = re.compile("l\\.(?P<line>[0-9]+)( (?P<text>.*))?$")
 
 class LogCheck:
 	"""
@@ -249,7 +249,7 @@ class LogCheck:
 					parsing = 0
 					skipping = 1
 					self.msg.error(pos[-1], int(m.group("line")),
-						error, line[m.end():])
+						error, m.group("text"))
 				elif line[0:3] == "***":
 					parsing = 0
 					skipping = 1

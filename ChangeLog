@@ -1,3 +1,7 @@
+2002-11-14  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Fixed error line number matching.
+
 2002-11-13  Emmanuel Beffara  <manu@beffara.org>
 
 	* setup.py (do_check): Added checks for system-specific features.
