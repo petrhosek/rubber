@@ -1,3 +1,7 @@
+2003-06-25  Emmanuel Beffara  <manu@beffara.org>
+
+	* rubber.spec.in: Fixed the RPM spec file (patch by Oron Peled).
+
 2003-04-28  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/graphics.py: Fixed a stupid typo.

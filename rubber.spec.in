@@ -1,14 +1,15 @@
-Name: rubber
-Summary: An automated system for building LaTeX documents.
-Version: @version@
-Release: @release@
-Copyright: GPL
-Group: Applications/Publishing
-URL: http://beffara.org/soft/rubber.html
-Packager: Emmanuel Beffara <manu@beffara.org>
-Source: rubber-@version@.tar.gz
-Requires: python2, tetex
-BuildArch: noarch
+Name:		rubber
+Summary:	An automated system for building LaTeX documents.
+Version:	@version@
+Release:	@release@
+License:	GPL
+Group:		Applications/Publishing
+URL:		http://beffara.org/soft/rubber/
+Packager:	Emmanuel Beffara <manu@beffara.org>
+Source:		%{name}-%{version}.tar.gz
+Requires:	python2, tetex
+BuildArch:	noarch
+BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 
 %description
 This is a building system for LaTeX documents. It is based on a routine that
@@ -21,15 +22,27 @@ XFig picture conversion and Metapost compilation).
 
 %prep
 %setup
-./configure --prefix=/usr --mandir=\${prefix}/share/man --python=python2
 
 %build
+./configure --prefix=%{_prefix} --mandir='${datadir}/man' --python=python2
 make
 
 %install
-make install prefix=$RPM_BUILD_ROOT/usr
+[ "$RPM_BUILD_ROOT" != "/" ] && [ -d "$RPM_BUILD_ROOT" ] && rm -rf "$RPM_BUILD_ROOT"
+mkdir $RPM_BUILD_ROOT
+make install prefix=$RPM_BUILD_ROOT%{_prefix}
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && [ -d "$RPM_BUILD_ROOT" ] && rm -rf "$RPM_BUILD_ROOT"
 
 %files
 %defattr(-, root, root)
 %doc ChangeLog COPYING NEWS README
-/usr
+%{_bindir}/rubber
+%{_bindir}/rubber-info
+%{_datadir}/rubber
+%doc %{_mandir}/fr/man1/rubber-info.1*
+%doc %{_mandir}/fr/man1/rubber.1*
+%doc %{_mandir}/man1/rubber-info.1*
+%doc %{_mandir}/man1/rubber.1*
+
