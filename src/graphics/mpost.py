@@ -9,12 +9,35 @@ Metapost's log files after the process. Is it enough?
 
 import re
 
-from rubber import _
+from rubber import _, LogCheck
 from rubber.util import *
 
 re_input = re.compile("input +(?P<file>[^ ]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 re_mpext = re.compile("[0-9]+|mpx|log")
+
+class MPLogCheck (LogCheck):
+	"""
+	This class adapats the LogCheck class from the main program to the case of
+	MetaPost log files, which are very similar to TeX log files.
+	"""
+	def read (self, name):
+		"""
+		The read() method in LogCheck checks that the log is produced by TeX,
+		here we check that it is produced by MetaPost.
+		"""
+		file = open(name)
+		line = file.readline()
+		if not line:
+			file.close()
+			return 1
+		if line.find("This is MetaPost,") == -1:
+			file.close()
+			return 1
+		self.lines = file.readlines()
+		file.close()
+		return 0
+
 
 class Dep (Depend):
 	"""
@@ -59,30 +82,21 @@ class Dep (Depend):
 
 	def run (self):
 		self.env.msg(0, _("running Metapost on %s.mp...") % self.base)
-		self.env.execute(self.cmd, self.penv)
+		if self.env.execute(self.cmd, self.penv) == 0:
+			return 0
 
 		# This creates a log file that has the same aspect as TeX logs.
 
-		log = open(self.base + ".log")
-		# The semantics of `error' is:
-		# 0: no error occured,
-		# 1: there has been an error,
-		# 2: there has been an error, we are showing it.
-		error = 0
-		line = log.readline()
-		while line != "":
-			if error == 2:
-				self.env.msg(0, line.rstrip())
-				if line[0:2] == "l." or line[0:3] == "***":
-					error = 1
-			elif line[0] == "!":
-				if not error:
-					self.env.msg(0, _("There were errors in Metapost code:"))
-				self.env.msg(0, line.rstrip())
-				error = 2
-			line = log.readline()
-		log.close()
-		return error
+		log = MPLogCheck(self.env)
+		if log.read(self.base + ".log"):
+			self.env.msg(0,_(
+				"I can't read MeatPost's log file, this is wrong."))
+			return 1
+		if log.errors():
+			self.env.msg(0, _("There were errors in Metapost code:"))
+			log.show_errors()
+			return 1
+		return 0
 
 	def clean (self):
 		"""

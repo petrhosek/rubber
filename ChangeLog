@@ -1,3 +1,11 @@
+2003-01-25  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/graphics/mpost.py: Introduced class MPLogCheck to report
+	Metapost errors correctly.
+
+	* setup.py: Removed accented characters in comments so that the
+	new specification is followed.
+
 2002-12-04  Emmanuel Beffara  <manu@beffara.org>
 
 	* Version 0.99.5 released.
