@@ -1,7 +1,5 @@
 Bugs to fix:
 
-- find out the best behaviour for DependLeaf
-
 - find a good way for graphics.mpost to handle the fact that several figures
   can be produced by the same source (without using a global variable)
 
@@ -9,10 +7,10 @@ Bugs to fix:
   errors are reported after compilation; harmonize this, i.e. find a stable
   way for modules to report their errors
 
-Improvements:
-
 - let modules that need external programs look for them and fail to load if
   these program are not found
+
+Improvements:
 
 - specify clearly what kind of messages each verbosity level is for
 

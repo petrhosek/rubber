@@ -331,6 +331,7 @@ class LogCheck:
 #---------------------------------------
 
 re_comment = re.compile("(?P<line>[^%]*)(%.*)?")
+re_command = re.compile("%* *(rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*))?.*")
 re_input = re.compile("\\\\input +(?P<arg>[^{} \n\\\\]+)")
 re_kpse = re.compile("kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
 
@@ -448,7 +449,12 @@ class Environment:
 		"""
 		lines = file.readlines()
 		for line in lines:
-			line = re_comment.match(line).group(1)
+			if line[0] == "%":
+				m = re_command.match(line)
+				if m.group("cmd"):
+					self.command(m.group("cmd"), m.group("arg"))
+				continue
+			line = re_comment.match(line).group("line")
 			match = self.seq.search(line)
 			while match:
 				dict = match.groupdict()
@@ -467,6 +473,13 @@ class Environment:
 				self.hooks[name](dict)
 				line = dict["line"]
 				match = self.seq.search(line)
+
+	def command (self, cmd, arg):
+		"""
+		Execute the rubber command 'cmd' with argument 'arg'. This is called
+		when a command is found in the source file or in a configuration file.
+		"""
+		pass
 
 	def process (self, path):
 		"""
