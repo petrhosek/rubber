@@ -48,7 +48,7 @@ class Main (rubber.cmdline.Main):
 		"""
 		Display the description of all the options and exit.
 		"""
-		self.msg (-1, _("""\
+		self.msg (0, _("""\
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
