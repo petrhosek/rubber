@@ -262,20 +262,20 @@ class Environment:
 	"""
 	This class represents de building process for the document. It handles the
 	execution of all required programs. The steps are the following:
-	  1. building of the LaTeX source (e.g. when using WEB)
+	  1. building of the LaTeX source (e.g. when using CWEB)
 	  2. preparation of external dependencies (e.g. compilation of figures)
 	  3. cyclic LaTeX compilation until a stable output, including:
 	     a. actual compilation (with a parametrable executable)
 	     b. possible processing of compilation results (e.g. running BibTeX)
 	  4. processing of the final output (e.g. dvips)
 	The class also handles the cleaning mechanism.
-	"""
-	"""
-	Objects from this class read text lines from a file and parse them to
-	extract LaTeX macro calls. When such a macro is found, a handler is
-	searched for in the `hooks' dictionary. Handlers are called with two
-	arguments, the processor object and the dictionary for the regular
-	expression.
+
+	Before building (or cleaning) the document, the method `parse' must be
+	called to load and configure all required modules. Text lines are read
+	from the files and parsed to extract LaTeX macro calls. When such a macro
+	is found, a handler is searched for in the `hooks' dictionary. Handlers
+	are called with one arguments: the dictionary for the regular expression
+	that matches the macro call.
 	"""
 	def __init__ (self, message):
 		"""
