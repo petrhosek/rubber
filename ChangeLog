@@ -1,5 +1,8 @@
 2004-02-19  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/cmdline.py, src/cmd_info.py: Added info action --rules, allowed
+	any rubber option in rubber-info.
+
 	* src/modules/hyperref.py: Added support for hyperref.
 
 	* src/modules/beamer.py: Update for the new version of beamer.

@@ -283,6 +283,11 @@ Display the list of all available options and exit nicely.
 Show a list of undefined references (i.e. the @code{\ref}'s that are not
 defined by any @code{\label}).
 
+@item --rules
+Analyse the source files and produce a list of dependency rules. One rule is
+produced for each intermediate target that would be made when running
+@command{rubber}. Rules are formatted in the style of Makefiles.
+
 @item --version
 Print the version number and exit nicely.
 
@@ -398,7 +403,7 @@ standard modules are the following:
 
 @vtable @command
 @item beamer
-This module handles Beamer's @file{.head} files the same way as other tables
+This module handles Beamer's extra files the same way as other tables
 of contents.
 
 @item bibtex
@@ -420,6 +425,9 @@ system, for details see @ref{Graphics}.
 These modules identify the graphics included in the document and consider them
 as dependencies for compilation. They also use standard rules to build these
 files with external programs. For more details, see @ref{Graphics}.
+
+@item hyperref
+Handle the extra files that this package produces in some cases.
 
 @item makeidx
 Process the document's index with @command{makeindex} when needed. For

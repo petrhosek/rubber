@@ -16,6 +16,10 @@ erreurs et avertissements). Cet utilitaire est un complément au système de
 compilation
 .BR rubber (1).
 
+Les options de ligne de commande sont celles utilisées par
+.BR rubber (1)
+plus l'une des actions décrites plus bas.
+
 .SH ACTIONS
 L'une des options de ligne de commande suivantes doit être spécifiée,
 afin de choisir quel information extraire. Bien entendu, les actions qui
@@ -51,6 +55,12 @@ Affiche la liste de toutes les options disponibles et quitte.
 Affiche la liste des références non définies (i.e. les \\ref qui ne
 correspndent à aucun \\label).
 .TP
+.B --rules
+Analyse les sources et produit une liste de règles de dépendances. Une règle
+est produite pour chaque fichier intermédiaire qui serait construit par
+.BR rubber .
+Les règles sont formattées dans le style des Makefile.
+.TP
 .B --version
 Affiche le numéro de version et termine.
 .TP
@@ -59,32 +69,23 @@ Affiche stupidement la liste de tous les avertissements de LaTeX, c'est-à-dire
 toutes les lignes du fichier log qui contiennent "Warning".
 .PP
 
-.SH OPTIONS
-.TP
-.BI -m,\ --module \ <module> [: <args> ]
-Utilise le module spécifié en plus des packages du document. Des arguments
-peuvent être passés au module en les ajoutant après un signe deux-points, ils
-correspondent aux options du package dans LaTeX. Voir la documentation de
-.BR rubber (1)
-pour la liste des modules standard.
-.TP
-.B -s, --short
-Formate les messages d'erreur de LaTeX de façon compacte (une erreur par
-ligne).
-.TP
-.B -v, --verbose
-Incrémente le degré de détail dans les messages affichés. Le niveau par défaut
-est 0, les niveaux existent jusqu'à 3.
-.PP
-
 .SH BUGS
 Il y en a surement quelques uns...
 
-Cette page se rapporte à la version 0.99.6 de Rubber. Le programme et cette
-documentation sont maintenus par Emmanuel Beffara <manu at beffara point org>.
-La page web du programme se trouve à l'adresse
-http://beffara.org/stuff/rubber.html.
+Cette page se rapporte à la version 0.99.7 de Rubber. Le programme et cette
+documentation sont maintenus par Emmanuel Beffara <manu@beffara.org>.
+La page web du programme se trouve à l'adresse http://rubber.sourceforge.net/.
 
 .SH VOIR AUSSI
-.BR rubber (1),
-.BR latex (1)
+La documentation complète de
+.B rubber
+est maintenue en tant que manuel en Texinfo. Si les programmes
+.B info
+et
+.B rubber
+sont installés correctement sur votre système, la commande
+.IP
+.B info rubber
+.PP
+devrait vous donner accès au manuel complet (en anglais).
+

@@ -15,6 +15,10 @@ when calculating dependencies) or from the compilation log files (to extract
 errors and warnings). This program is a complement for the compilation system
 .BR rubber (1).
 
+The command-line options are those used by
+.BR rubber (1)
+plus one of the actions described below.
+
 .SH ACTIONS
 One of the following command-line options must be specified, to decide which
 information to extract. Of course, for actions that read a log file, a
@@ -45,6 +49,12 @@ Display the list of all available options and exit nicely.
 Show a list of undefined references (i.e. the \\ref's that are not defined by
 any \\label).
 .TP
+.B --rules
+Analyse the source files and produce a list of dependency rules. One rule is
+produced for each intermediate target that would be made when running
+.BR rubber .
+Rules are formatted in the style of Makefiles.
+.TP
 .B --version
 Print the version number and exit nicely.
 .TP
@@ -53,31 +63,22 @@ Stupidly enumerate all LaTeX warnings, i.e. all the lines in the log file that
 contain the string "Warning".
 .PP
 
-.SH OPTIONS
-The following options may be specified:
-.TP
-.BI -m,\ --module \ <module> [: <args> ]
-Use the specified module in addition to the document's packages. Arguments
-can be passed to the package by adding them after a colon, they correspond to
-the package options in LaTeX. See the manpage of
-.BR rubber (1)
-for the list of standard modules.
-.TP
-.B -s, --short
-Display LaTeX's error messages in a compact form (one error per line).
-.TP
-.B -v, --verbose
-Increase the verbosity level. The default level is 0, levels up to 3 exist.
-.PP
-
 .SH BUGS
 There are surely a some...
 
-This page documents Rubber version 0.99.6. The program and this man-page are
-maintained by Emmanuel Beffara <manu at beffara dot org>.
-The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
+This page documents Rubber version 0.99.7. The program and this man-page are
+maintained by Emmanuel Beffara <manu@beffara.org>.
+The homepage for Rubber can be found at http://rubber.sourceforge.net/.
 
 .SH SEE ALSO
-
-.BR rubber (1),
-.BR latex (1)
+The full documentation for
+.B rubber
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B rubber
+programs are properly installed at your site, the command
+.IP
+.B info rubber
+.PP
+should give you access to the complete manual.
