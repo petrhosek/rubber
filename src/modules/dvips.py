@@ -22,6 +22,7 @@ class Module (rubber.Module):
 			sys.exit(2)
 		env.output_processing = self.run
 		env.final_file = env.src_base + ".ps"
+		self.options = []
 
 	def run (self):
 		"""
@@ -31,8 +32,8 @@ class Module (rubber.Module):
 			return 0
 		self.msg(0, _("running dvips on %s...") %
 				(self.env.src_base + ".dvi"))
-		cmd = ["dvips", self.env.src_base + ".dvi",
-			"-o", self.env.src_base + ".ps"]
+		cmd = ["dvips"] + self.options + [
+			self.env.src_base + ".dvi", "-o", self.env.src_base + ".ps"]
 		for opt in self.env.conf.paper:
 			cmd.extend(["-t", opt])
 		if self.env.execute(cmd):
@@ -56,3 +57,7 @@ class Module (rubber.Module):
 
 	def clean (self):
 		self.env.remove_suffixes([".ps"])
+
+	def command (self, cmd, arg):
+		if cmd == "options":
+			self.options.extend(arg.split())
