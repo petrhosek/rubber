@@ -9,7 +9,7 @@ from getopt import *
 import string
 from os.path import *
 
-from rubber import _, msg
+from rubber import _
 from rubber import *
 from rubber.info import *
 from rubber.version import *
@@ -102,7 +102,7 @@ actions:
 		if self.act == "deps":
 			self.prepare(src)
 			deps = {}
-			for dep in self.env.sources.values():
+			for dep in self.env.main.sources.values():
 				for file in dep.leaves():
 					deps[file] = None
 			print string.join(deps.keys())
@@ -123,6 +123,7 @@ actions:
 				print string.join(node.sources.keys())
 				next.extend(node.sources.values())
 		else:
+			self.prepare(src)
 			return self.info_log(src, self.act)
 
 		return 0
@@ -139,18 +140,14 @@ actions:
 			sys.exit(1)
 
 		for cmd in self.prologue:
-			cmd = string.split(cmd, maxsplit = 1)
-			if len(cmd) == 1:
-				cmd.append("")
-			env.command(cmd[0], cmd[1:], {'file': 'command line'})
+			cmd = parse_line(cmd, {})
+			env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 
-		self.env.parse()
+		self.env.main.parse()
 
 		for cmd in self.epilogue:
-			cmd = string.split(cmd, maxsplit = 1)
-			if len(cmd) == 1:
-				cmd.append("")
-			env.command(cmd[0], cmd[1:], {'file': 'command line'})
+			cmd = parse_line(cmd, {})
+			env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 	def info_log (self, src, act):
 		"""
@@ -161,7 +158,7 @@ actions:
 		if not exists(logfile):
 			msg.error(_("I cannot find the log file."))
 			return 1
-		log = LogInfo(self.env)
+		log = LogInfo(self.env.main)
 		log.read(logfile)
 		if act == "boxes":
 			if not log.show_boxes():

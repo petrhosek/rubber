@@ -155,31 +155,33 @@ available options:
 			# Check the source and prepare it for processing
 	
 			if env.set_source(src):
-				sys.exit(1)
+				msg.error(_("cannot find %s") % src)
+				return 1
+
+			if self.clean:
+				if env.main.prods == []:
+					msg.warn(_("there is no LaTeX source for %s") % src)
+					continue
+			else:
+				env.make_source()
 
 			for cmd in self.prologue:
 				cmd = parse_line(cmd, {})
-				env.command(cmd[0], cmd[1:], {'file': 'command line'})
+				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 
-			if self.clean:
-				if not os.path.exists(env.source()):
-					msg.warn(_("there is no LaTeX source"))
-					continue
-
-			env.make_source()
-			env.parse()
+			env.main.parse()
 
 			for cmd in self.epilogue:
 				cmd = parse_line(cmd, {})
-				env.command(cmd[0], cmd[1:], {'file': 'command line'})
+				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 			# Compile the document
 
 			if self.clean:
-				env.clean(1)
+				env.final.clean()
 			else:
 				if self.force:
-					ret = env.make(1)
+					ret = env.main.make(1)
 					if ret != 0:
 						ret = env.final.make()
 					else:
@@ -190,10 +192,9 @@ available options:
 					ret = env.final.make(self.force)
 
 				if ret == 1:
-					msg.info(_("nothing to be done for %s") % env.source())
+					msg.info(_("nothing to be done for %s") % src)
 				elif ret == 0:
-					msg.info(_("There were errors compiling %s.")
-						% env.source())
+					msg.info(_("There were errors compiling %s.") % src)
 					try:
 						env.final.failed().show_errors()
 					except MoreErrors:

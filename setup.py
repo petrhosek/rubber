@@ -127,7 +127,7 @@ Metapost compilation).\
 		author_email = "manu@beffara.org",
 		url = "http://rubber.sourceforge.net/",
 		license = "GPL",
-		packages = ["rubber", "rubber.modules", "rubber.graphics"],
+		packages = ["rubber", "rubber.rules", "rubber.rules.latex"],
 		package_dir = {"rubber": "src"},
 		scripts = ["rubber", "rubber-info", "rubber-pipe"],
 		data_files =

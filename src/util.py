@@ -201,189 +201,6 @@ class Plugins (object):
 		self.modules.clear()
 
 
-#-- Dependency nodes
-
-class Depend (object):
-	"""
-	This is a base class to represent file dependencies. It provides the base
-	functionality of date checking and recursive making, supposing the
-	existence of a method `run()' in the object. This method is supposed to
-	rebuild the files of this node, returning zero on success and something
-	else on failure.
-	"""
-	def __init__ (self, prods, sources, loc={}):
-		"""
-		Initialize the object for a given set of output files and a given set
-		of sources. The argument `prods' is a list of file names, and the
-		argument `sources' is a dictionary that associates file names with
-		dependency nodes. The optional argument `loc' is a dictionary that
-		describes where in the sources this dependency was created.
-		"""
-		self.prods = prods
-		self.set_date()
-		self.sources = sources
-		self.making = 0
-		self.failed_dep = None
-		self.loc = loc
-
-	def set_date (self):
-		"""
-		Define the date of the last build of this node as that of the most
-		recent file among the products. If some product does not exist or
-		there are ne products, the date is set to None.
-		"""
-		if self.prods == []:
-			# This is a special case used in rubber.Environment
-			self.date = None
-		else:
-			try:
-				# We set the node's date to that of the most recently modified
-				# product file, assuming all other files were up to date then
-				# (though not necessarily modified).
-				self.date = max(map(getmtime, self.prods))
-			except OSError:
-				# If some product file does not exist, set the last
-				# modification date to None.
-				self.date = None
-
-	def should_make (self):
-		"""
-		Check the dependencies. Return true if this node has to be recompiled,
-		i.e. if some dependency is modified. Nothing recursive is done here.
-		"""
-		if not self.date:
-			return 1
-		for src in self.sources.values():
-			if src.date > self.date:
-				return 1
-		return 0
-
-	def make (self, must_make=0):
-		"""
-		Make the destination file. This recursively makes all dependencies,
-		then compiles the target if dependencies were modified. The semantics
-		of the return value is the following:
-		- 0 means that the process failed somewhere (in this node or in one of
-		  its dependencies)
-		- 1 means that nothing had to be done
-		- 2 means that something was recompiled (therefore nodes that depend
-		  on this one have to be remade)
-		"""
-		if self.making:
-			print "FIXME: cyclic make"
-			return 1
-		self.making = 1
-
-		# Make the sources
-
-		self.failed_dep = None
-		for src in self.sources.values():
-			ret = src.make()
-			if ret == 0:
-				self.making = 0
-				self.failed_dep = src.failed_dep
-				return 0
-			if ret == 2:
-				must_make = 1
-		
-		# Make this node if necessary
-
-		if must_make or self.should_make():
-			if self.run():
-				self.making = 0
-				self.failed_dep = self
-				return 0
-
-			# Here we must take the integer part of the value returned by
-			# time.time() because the modification times for files, returned
-			# by os.path.getmtime(), is an integer. Keeping the fractional
-			# part could lead to errors in time comparison with the main log
-			# file when the compilation of the document is shorter than one
-			# second...
-
-			self.date = int(time.time())
-			self.making = 0
-			return 2
-		self.making = 0
-		return 1
-
-	def failed (self):
-		"""
-		Return a reference to the node that caused the failure of the last
-		call to "make". If there was no failure, return None.
-		"""
-		return self.failed_dep
-
-	def show_errors (self):
-		"""
-		Report the errors that caused the failure of the last call to run.
-		"""
-		pass
-
-	def clean (self):
-		"""
-		Remove the files produced by this rule and recursively clean all
-		dependencies.
-		"""
-		for file in self.prods:
-			if exists(file):
-				msg.log(_("removing %s") % file)
-				os.unlink(file)
-		for src in self.sources.values():
-			src.clean()
-
-	def leaves (self):
-		"""
-		Return a list of all source files that are required by this node and
-		cannot be built, i.e. the leaves of the dependency tree.
-		"""
-		if self.sources == {}:
-			return self.prods
-		ret = []
-		for dep in self.sources.values():
-			ret.extend(dep.leaves())
-		return ret
-
-class DependLeaf (Depend):
-	"""
-	This class specializes Depend for leaf nodes, i.e. source files with no
-	dependencies.
-	"""
-	def __init__ (self, dest, loc={}):
-		"""
-		Initialize the node. The argument of this method is a *list* of file
-		names, since one single node may contain several files.
-		"""
-		Depend.__init__(self, dest, {}, loc)
-
-	def run (self):
-		# FIXME
-		if len(self.prods) == 1:
-			msg.error(_("%r does not exist") % self.prods[0], **self.loc)
-		else:
-			msg.error(_("one of %r does not exist") % self.prods, **self.loc)
-		return 1
-
-	def clean (self):
-		pass
-
-class DependShell (Depend):
-	"""
-	This class specializes Depend for generating files using shell commands.
-	"""
-	def __init__ (self, dest, src, cmd, env):
-		Depend.__init__(self, dest, src)
-		self.env = env
-		self.cmd = cmd
-
-	def run (self):
-		msg.progress(_("running %s") % self.cmd[0])
-		if self.env.execute(self.cmd):
-			msg.error(_("execution of %s failed") % self.cmd[0])
-			return 1
-		return 0
-
-
 #-- Automatic source conversion
 
 class Converter (object):
@@ -441,13 +258,14 @@ class Converter (object):
 				return 1
 		return 0
 
-	def __call__ (self, target, env, safe=0):
+	def __call__ (self, target, env, safe=0, **args):
 		"""
 		Search for an applicable rule for the given target. If such a rule is
 		found, return the dependency node for the target with the least weight
 		according to this rule, otherwise return None. If the optional
 		argument 'safe' is true, then a dependency node is returned only if
-		the source file may not be generated by the same converter.
+		the source file may not be generated by the same converter. Other
+		keyword arguments are passed to the converters.
 		"""
 		conv = []
 		for dest, rules in self.rules.items():
@@ -459,7 +277,7 @@ class Converter (object):
 				if not exists(source):
 					continue
 				if safe and exists(target) and self.may_produce(source):
-					return DependLeaf([target])
+					return DependLeaf(env, target)
 				for (weight, mod) in mods:
 					if not self.plugins.register(mod):
 						continue
@@ -467,7 +285,7 @@ class Converter (object):
 
 		conv.sort()
 		for (weight, source, target, mod) in conv:
-			dep = self.plugins[mod].convert(source, target, env)
+			dep = self.plugins[mod].convert(source, target, env, **args)
 			if dep:
 				return (weight, dep)
 

@@ -10,7 +10,7 @@ import string
 import re
 from getopt import *
 
-from rubber import _, msg
+from rubber import _
 from rubber import *
 from rubber.version import *
 import rubber.cmdline
@@ -79,7 +79,7 @@ available options:
 		Run Rubber as a pipe for the specified command line. This dumps the
 		standard input into a temporary file, compiles it, dumps the result on
 		standard output, and then removes the files if requested. If an error
-		happens while building the document, the process stops.  The method
+		happens while building the document, the process stops. The method
 		returns the program's exit code.
 		"""
 		self.prologue = []
@@ -106,22 +106,20 @@ available options:
 		env = Environment()
 
 		if env.set_source(src):
-			sys.exit(1)
-
-		for cmd in self.prologue:
-			cmd = string.split(cmd, maxsplit = 1)
-			if len(cmd) == 1:
-				cmd.append("")
-			env.command(cmd[0], cmd[1:], {'file': 'command line'})
+			msg.error(_("cannot open the temporary %s") % src)
+			return 1
 
 		env.make_source()
-		env.parse()
+
+		for cmd in self.prologue:
+			cmd = parse_line(cmd, {})
+			env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
+
+		env.main.parse()
 
 		for cmd in self.epilogue:
-			cmd = string.split(cmd, maxsplit = 1)
-			if len(cmd) == 1:
-				cmd.append("")
-			env.command(cmd[0], cmd[1:], {'file': 'command line'})
+			cmd = parse_line(cmd, {})
+			env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 
 		ret = env.final.make()
 
@@ -142,7 +140,7 @@ available options:
 		# Clean the intermediate files
 
 		if self.clean:
-			env.clean(1)
+			env.final.clean()
 			os.unlink(src)
 		return 0
 
