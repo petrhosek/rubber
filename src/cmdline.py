@@ -6,6 +6,7 @@ This is the command line interface for Rubber.
 
 import sys
 import os.path
+import string
 from getopt import *
 
 from rubber import _
@@ -36,6 +37,8 @@ This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
        --clean   = remove produced files instead of compiling
+  -c / --command <cmd> = run the specified command
+                   (see man page section "Directives" for details)
   -f / --force   = force at least one compilation
   -h / --help    = display this help
   -m / --module <mod>[:<options>] =
@@ -44,8 +47,8 @@ available options:
   -p / --ps      = produce a PostScript document (synonym for -m dvips)
   -q / --quiet   = suppress messages
   -s / --short   = display errors in a compact form
-  -o / --readopts <file> =
-                   read additional options from a file
+  -r / --read <file> =
+                   read additional directives from a file
   -v / --verbose = increase verbosity
        --version = print version information and exit\
 """) % version)
@@ -53,9 +56,9 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "dfhm:o:pqsv",
-				["clean", "force", "help", "module=", "pdf", "ps",
-				 "quiet", "readopts=", "short", "verbose", "version"])
+				cmdline, "c:dfhm:pqr:sv",
+				["clean", "command=", "force", "help", "module=", "pdf",
+				 "ps", "quiet", "read=", "short", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -63,26 +66,26 @@ available options:
 		for (opt,arg) in opts:
 			if opt == "--clean":
 				self.clean = 1
+			elif opt in ("-c", "--command"):
+				self.commands.append(arg)
 			elif opt in ("-f", "--force"):
 				self.force = 1
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
 			elif opt in ("-m", "--module"):
-				self.modules.append(arg)
+				self.commands.append("module " +
+					string.replace(arg, ":", " ", 1))
 			elif opt in ("-d", "--pdf"):
-				self.modules.append("pdftex")
+				self.commands.append("module pdftex")
 			elif opt in ("-p", "--ps"):
-				self.modules.append("dvips")
+				self.commands.append("module dvips")
 			elif opt in ("-q", "--quiet"):
 				self.msg.level = -1
 			elif opt in ("-s", "--short"):
 				self.msg.short = 1
-			elif opt in ("-o" ,"--readopts"):
-				file = open(arg)
-				opts2 = file.read().split()
-				file.close()
-				args = self.parse_opts(opts2) + args
+			elif opt in ("-r" ,"--read"):
+				self.commands.append("read " + arg)
 			elif opt in ("-v", "--verbose"):
 				self.msg.level = self.msg.level + 1
 			elif opt == "--version":
@@ -100,7 +103,7 @@ available options:
 		"""
 		self.env = Environment(self.msg)
 		env = self.env
-		self.modules = []
+		self.commands = []
 		self.clean = 0
 		self.force = 0
 		args = self.parse_opts(cmdline)
@@ -127,23 +130,17 @@ available options:
 
 	def prepare (self, src):
 		"""
-		Check for the source file and prepare it for processing.
+		Check for the source file and prepare it for processing. This executes
+		the directives from the command line before parsing the sources.
 		"""
 		env = self.env
 		if env.set_source(src):
 			sys.exit(1)
-		for mod in self.modules:
-			colon = mod.find(":")
-			if colon == -1:
-				if env.modules.register(mod, { "arg": mod, "opt": None }):
-					self.msg(0,
-						_("module %s could not be registered") % mod)
-			else:
-				arg = { "arg": mod[:colon], "opt": mod[colon+1:] }
-				mod = mod[0:colon]
-				if env.modules.register(mod, arg):
-					self.msg(0,
-						_("module %s could not be registered") % mod)
+		for cmd in self.commands:
+			cmd = string.split(cmd, maxsplit = 1)
+			if len(cmd) == 1:
+				cmd.append("")
+			env.command(cmd[0], cmd[1])
 		if self.clean and not os.path.exists(env.source()):
 			self.msg(1, _("there is no LaTeX source"))
 		else:

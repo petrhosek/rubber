@@ -1,5 +1,8 @@
 2003-03-22  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py, src/cmdline.py, man/...: Added directive "read" and
+	changed the command line to use directives.
+
 	* src/modules/mkeidx.py, man/...: Added directives in makeidx to specify
 	options for makeindex.
 

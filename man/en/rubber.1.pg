@@ -70,6 +70,9 @@ rubber --ps --clean foo
 \end(example)
 will.])
 
+\item([\dash[]c, \ddash[]command \narg(command)], [Execute the specified
+command (or directive). See section "Directives" for details.])
+
 \item([\dash[]f, \ddash[]force], [Force at least one compilation of the
 source. This may be useful, for instance, if some unusual dependency was
 modified (e.g. a package in a system directory).])
@@ -92,8 +95,8 @@ for \ddopt(module dvips), it is naturally incompatible with \ddopt(pdf).])
 
 \item([\dash[]q, \ddash[]quiet], [Suppress all messages during the process.])
 
-\item([\dash[]o, \ddash[]readopts \narg(file)], [Read additional options form
-the specified file.])
+\item([\dash[]r, \ddash[]read \narg(file)], [Read additional directives form
+the specified file (see also the directive "\tt(read)").])
 
 \item([\dash[]s, \ddash[]short], [Display LaTeX's error messages in a compact
 form (one error per line).])
@@ -170,6 +173,9 @@ following:
 
 \begin(description)
 
+\item([depend \narg(file)], [Consider the specified file as a dependency, so
+that its modification time will be checked.])
+
 \item([module \narg(module) \optarg(\narg(options))], [Loads the specified
 module, possibly with options. This is equivalent to the command-line option
 \ddopt(module).])
@@ -177,6 +183,10 @@ module, possibly with options. This is equivalent to the command-line option
 \item([path \narg(directory)], [Adds the specified directory to the search
 path for TeX (and Rubber). The name of the directory is everything that
 follows the spaces after "\tt(path)".])
+
+\item([read \narg(file)], [Read the specified file of directives. The file
+must contain one directive per line. Empty lines and lines that begin with
+"\tt(%)" are ignored.])
 
 \end(description)
 

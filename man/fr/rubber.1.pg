@@ -71,6 +71,9 @@ rubber --ps --clean toto
 \end(example)
 le fera.])
 
+\item([\dash[]c, \ddash[]command \narg(commande)], [Exécute la commande (ou
+directive) spécifiée. Voir la section "Directives" pour plus de détails.])
+
 \item([\dash[]f, \ddash[]force], [Force au moins une compilation du source.
 Ceci peut être utile, par exemple, si une dépendance inhabituelle a été
 modifiée (par exemple un package dans un répertoire système).])
@@ -95,8 +98,9 @@ synonyme de \ddopt(module dvips), elle est naturellement incompatible avec
 \item([\dash[]q, \ddash[]quiet], [Supprime les messages affichés en cours
 d'exécution.])
 
-\item([\dash[]o, \ddash[]readopts \narg(fichier)], [Lire des options
-supplémentaires dans le fichier spécifié.])
+\item([\dash[]r, \ddash[]read \narg(fichier)], [Lire des directives
+supplémentaires dans le fichier spécifié (voir aussi la directive
+"\tt(read)").])
 
 \item([\dash[]s, \ddash[]short], [Formate les messages d'erreur de LaTeX de
 façon compacte (une erreur par ligne).])
@@ -189,6 +193,10 @@ l'option de ligne de commande \ddopt(module).])
 \item([path \narg(répertoire)], [Ajoute le répertoire spécifié au chemin de
 recherche de TeX (et de Rubber). Le nom du répertoire est tout le texte qui
 suit les espaces après "\tt(path)".])
+
+\item([read \narg(fichier)], [Lit le fichier de directives spécifié. Le
+fichier doit comporter une commande par ligne. Les lignes vides ou commençant
+par un "\tt(%)" sont ignorées.])
 
 \end(description)
 

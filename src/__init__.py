@@ -496,6 +496,21 @@ class Environment:
 		elif cmd == "path":
 			self.conf.path.append(arg)
 
+		elif cmd == "read":
+			try:
+				file = open(arg)
+				for line in file.readlines():
+					line = line.strip()
+					if line == "" or line[0] == "%":
+						continue
+					lst = string.split(line, maxsplit = 1)
+					if len(lst) == 1:
+						lst.append("")
+					self.command(lst[0], lst[1])
+				file.close()
+			except IOError:
+				self.msg(1, _("cannot read option file %s") % arg)
+
 		else:
 			lst = string.split(cmd, ".", 1)
 			if len(lst) > 1:
