@@ -1,4 +1,10 @@
-2003-10-27  Emmanuel Beffara  <manu@beffara.org>
+2003-10-30  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/beamer.py, man/...: Added a module for package 'beamer'.
+
+	* src/__init__.py: Modified the heuristics for pdfTeX's fake errors.
+
+2003-10-29  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, src/util.py: Added support for multi-line macro
 	arguments.
