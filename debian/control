@@ -2,12 +2,12 @@ Source: rubber
 Section: tex
 Priority: optional
 Maintainer: Emmanuel Beffara <manu@beffara.org>
-Build-Depends-Indep: debhelper (>> 3.0.0), python-dev (>= 2.3)
-Standards-Version: 3.5.2
+Build-Depends-Indep: debhelper (>> 4.1.67), python-dev (>= 2.3)
+Standards-Version: 3.5.8
 
 Package: rubber
 Architecture: all
-Depends: python (>= 2.3, << 2.4), tetex-bin
+Depends: ${python:Depends}, tetex-bin
 Suggests: imagemagick, jpeg2ps, transfig
 Description: an automated system for building LaTeX documents
  This is a building system for LaTeX documents. It is based on a routine that

@@ -74,6 +74,7 @@ binary-arch: build install
 	dh_installchangelogs 
 	dh_link
 	dh_strip
+	dh_python
 	dh_compress
 	dh_fixperms
 #	dh_makeshlibs

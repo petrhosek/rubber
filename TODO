@@ -7,9 +7,6 @@ Bugs to fix:
   errors are reported after compilation; harmonize this, i.e. find a stable
   way for modules to report their errors
 
-- let modules that need external programs look for them and fail to load if
-  these program are not found
-
 Improvements:
 
 - specify clearly what kind of messages each verbosity level is for
@@ -32,11 +29,8 @@ Long-term ideas:
 
 - introduce a configuration file, some kind of .rubberrc
 
-Longer-term ideas:
+- use some kind of scoring in graphics conversion rules so that the most
+  relevant rules are used
 
-- design a way to integrate Rubber's action with text editors
-
-- even better: develop a robust, flexible and extensible text editor using
-  Python as its scripting language, then make Rubber a plug-in for it
-
-- take over the world
+- find a way to cache the parsing and results between successive compilations
+  of a given document

@@ -1,5 +1,7 @@
 2004-02-20  Emmanuel Beffara  <manu@beffara.org>
 
+	* Version 0.99.7 released.
+
 	* src/modiles/epsfig.py: Added hooks for \epfbox and \epsffile.
 
 2004-02-19  Emmanuel Beffara  <manu@beffara.org>
