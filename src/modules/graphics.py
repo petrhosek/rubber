@@ -90,11 +90,12 @@ class Module:
 		suffixes = self.suffixes
 
 		if dict["opt"]:
-			if self.opts.has_key("ext"):
+			opts = rubber.util.parse_keyval(dict["opt"])
+			if opts.has_key("ext"):
 				# no suffixes are tried when the extension is explicit
 				suffixes = [""]
-				if self.opts["ext"]:
-					name = name + self.opts["ext"]
+				if opts["ext"]:
+					name = name + opts["ext"]
 
 		d = rubber.graphics.dep_file(name, suffixes, self.path, self.env)
 		if d:
