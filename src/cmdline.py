@@ -121,4 +121,8 @@ available options:
 		if cmdline == []:
 			self.short_help()
 			return 1
-		self.main(cmdline)
+		try:
+			self.main(cmdline)
+		except KeyboardInterrupt:
+			print _("*** interrupted")
+			return 2
