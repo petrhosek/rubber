@@ -48,7 +48,7 @@ class Main (rubber.cmdline.Main):
 		"""
 		Display the description of all the options and exit.
 		"""
-		self.msg (0, _("""\
+		self.msg (-1, _("""\
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
@@ -96,7 +96,7 @@ available options:
 		try:
 			srcfile = open(src, 'w')
 		except IOError:
-			self.msg(0, _("cannot create temporary files"))
+			self.msg(-1, _("cannot create temporary files"))
 			return 1
 
 		self.msg(1, _("saving the input in %s...") % src)

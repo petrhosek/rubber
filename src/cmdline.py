@@ -229,6 +229,10 @@ available options:
 					ret = env.make(1)
 					if ret != 0:
 						ret = env.final.make()
+					else:
+						# This is a hack for the call to show_errors() below
+						# to work when compiling failed when using -f.
+						env.final.failed_dep = env
 				else:
 					ret = env.final.make(self.force)
 
