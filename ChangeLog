@@ -1,3 +1,8 @@
+2002-10-14  Emmanuel Beffara  <manu@beffara.org>
+
+	* configure, setup.py, Makefile.in: Made the Pyhton interpreter a
+	parameter in the setup, with a probed default value.
+
 2002-10-12  Emmanuel Beffara  <manu@beffara.org>
 
 	* Version 0.99.3 released.

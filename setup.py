@@ -145,12 +145,15 @@ if len(sys.argv) > 1:
 			"Makefile", "man/Makefile",
 			"rubber", "rubber-info", "src/version.py"])
 		print ("""\
-Rubber is now configured. It will be installed in the following directories:
+Rubber is now configured. It will use the following Python interpreter:
+    %s
+It will be installed in the following directories:
     the main script: %s
     the modules:     %s
     the man pages:   %s
 (unless you specify otherwise when running `make install')""" %
-		(expand_vars(sub, sub["bindir"]),
+		(expand_vars(sub, sub["python"]),
+		 expand_vars(sub, sub["bindir"]),
 		 expand_vars(sub, sub["moddir"]),
 		 expand_vars(sub, sub["mandir"])))
 	elif cmd == "inst":

@@ -3,7 +3,7 @@
 # (c) Emmanuel Beffara, 2002
 
 version = @version@
-
+python = @python@
 prefix = @prefix@
 bindir = @bindir@
 moddir = @moddir@
@@ -18,7 +18,7 @@ all:
 ifneq ($(wildcard man/Makefile),)
 	@make -C man all
 endif
-	python setup.py build
+	@python@ setup.py build
 
 clean:
 	rm -rf build dist MANIFEST
@@ -31,7 +31,7 @@ endif
 	rm -f Makefile rubber settings.py src/version.py
 
 install:
-	python setup.py inst ${prefix}
+	@python@ setup.py inst ${prefix}
 
 ###  distribution-related targets
 
@@ -40,7 +40,7 @@ sdist:
 ifneq ($(wildcard man/Makefile),)
 	@make -C man all
 endif
-	python setup.py sdist
+	@python@ setup.py sdist
 
 deb: sdist
 	cd dist ; tar zxf rubber-@version@.tar.gz 
