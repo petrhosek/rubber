@@ -8,7 +8,7 @@ schemes for generating the figures that are supposed to be included, among
 other features.
 
 Another feature to include in the future concerns the parsing of the commands
-that cusomize the operation of the package, such as \\DeclareGraphicsRule.
+that customize the operation of the package, such as \\DeclareGraphicsRule.
 
 Currently, only dependency analysis is provided. The command parsing is
 incomplete, because \\includegraphics can have a complex format.
