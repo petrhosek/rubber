@@ -1,8 +1,11 @@
 rubber (0.99.7-6) unstable; urgency=low
 
-  * Added homepage link to package description.
+  * Added homepage link to package description
+  * rubber-pipe should send output to stdout and not stderr.
+  * Correct minus signs in man pages. Thanks Lintian!
+  * Add rubber-pipe manpage, it's a link to rubber(1).
 
- -- Baruch Even <baruch@debian.org>  Thu, 20 May 2004 21:45:39 +0300                                          
+ -- Baruch Even <baruch@debian.org>  Mon, 24 May 2004 08:11:40 +0300
 
 rubber (0.99.7-5) unstable; urgency=low
 
