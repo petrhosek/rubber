@@ -13,6 +13,7 @@ bindir='${prefix}/bin'
 datadir='${prefix}/share'
 moddir='${datadir}/rubber'
 mandir='${prefix}/man'
+infodir='${prefix}/info'
 
 ###  First, parse the command line.
 
@@ -29,6 +30,7 @@ Options: [defaults in brackets after descriptions]
   --datadir=DATADIR  read-only data in DATADIR [PREFIX/share]
   --moddir=DIR       python modules in DIR [DATADIR/rubber]
   --mandir=DIR       man documentation in DIR [PREFIX/man]
+  --infodir=DIR      texinfo documentation in DIR [PREFIX/info]
 EOF
 			exit
 			;;
@@ -50,6 +52,9 @@ EOF
 			;;
 		--mandir=*)
 			mandir=${1#*=}
+			;;
+		--infodir=*)
+			infodir=${1#*=}
 			;;
 		*)
 			echo "$0: unrecognized option $1" 1>&2
@@ -112,7 +117,8 @@ sub = {
   "bindir": "$bindir",
   "datadir": "$datadir",
   "moddir": "$moddir",
-  "mandir": "$mandir"
+  "mandir": "$mandir",
+  "infodir": "$infodir"
 }
 EOF
 

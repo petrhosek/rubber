@@ -11,13 +11,17 @@ mandir = @mandir@
 
 all:
 	@python@ setup.py build
+	$(MAKE) -C doc all
 
-clean:
+clean: clean-local
+	$(MAKE) -C doc clean
+clean-local:
 	rm -rf build dist MANIFEST
 	find \( -name '*~' -or -name '*.py[co]' \) -exec rm {} \;
 
-distclean: clean
+distclean: clean-local
 	rm -f rubber.spec Makefile rubber settings.py src/version.py
+	$(MAKE) -C doc distclean
 
 install:
 	@python@ setup.py inst ${prefix}

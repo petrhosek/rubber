@@ -6,4 +6,6 @@ include README
 include NEWS
 include COPYING
 include ChangeLog
-recursive-include man *.1
+include doc/Makefile
+include doc/rubber.texi
+recursive-include doc *.1

@@ -17,6 +17,9 @@ Version CVS
     - Better dependency analysis for MetaPost.
     - Macro arguments can now contain line breaks.
 
+  Packaging:
+    - Introduced Texinfo documentation.
+
 Version 0.99.6 (2003-04-09)
 
   Features:

@@ -126,8 +126,10 @@ epstopdf and XFig picture conversion and Metapost compilation).\
 		package_dir = {"rubber": "src"},
 		scripts = ["rubber", "rubber-info", "rubber-pipe"],
 		data_files =
-		[(mandir + "/man1", ["man/en/rubber.1", "man/en/rubber-info.1"]),
-		 (mandir + "/fr/man1", ["man/fr/rubber.1", "man/fr/rubber-info.1"])]
+		[(mandir + "/man1",
+			["doc/man-en/rubber.1", "doc/man-en/rubber-info.1"]),
+		 (mandir + "/fr/man1",
+			["doc/man-fr/rubber.1", "doc/man-fr/rubber-info.1"])]
 		)
 
 
@@ -149,7 +151,7 @@ if len(sys.argv) > 1:
 		sub = settings.sub
 		make_files(sub, [
 			"rubber.spec",
-			"Makefile", "man/Makefile",
+			"Makefile", "doc/Makefile",
 			"rubber", "rubber-info", "rubber-pipe", "src/version.py"])
 		print ("""
 Rubber is now configured. It will use the following Python interpreter:
@@ -158,11 +160,13 @@ It will be installed in the following directories:
     the main script: %s
     the modules:     %s
     the man pages:   %s
+    the info pages:  %s
 (unless you specify otherwise when running `make install')""" %
 		(expand_vars(sub, sub["python"]),
 		 expand_vars(sub, sub["bindir"]),
 		 expand_vars(sub, sub["moddir"]),
-		 expand_vars(sub, sub["mandir"])))
+		 expand_vars(sub, sub["mandir"]),
+		 expand_vars(sub, sub["infodir"])))
 	elif cmd == "inst":
 		sub = settings.sub
 		sub["prefix"] = sys.argv[2]
