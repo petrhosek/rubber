@@ -1,3 +1,10 @@
+2002-11-13  Emmanuel Beffara  <manu@beffara.org>
+
+	* rubber.in, man/:  Added a relevant return code to the command-line.
+
+	* src/cmdline.py, src/__init__.py: Moved the report of compilation
+	errors out of the main source into the command-line interface.
+
 2002-11-12  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Restructured message displaying, by introducing

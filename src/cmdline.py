@@ -91,7 +91,10 @@ available options:
 
 	def main (self, cmdline):
 		"""
-		Run Rubber for the specified command line.
+		Run Rubber for the specified command line. This processes each
+		specified source in order (for making or cleaning). If an error
+		happens while making one of the documents, the whole process stops.
+		The method returns the program's exit code.
 		"""
 		self.env = Environment(self.msg)
 		env = self.env
@@ -109,9 +112,15 @@ available options:
 			if self.clean:
 				env.clean()
 			else:
-				env.make(self.force)
-				if not env.something_done:
+				error = env.make(self.force)
+				if not error and not env.something_done:
 					self.msg(0, _("nothing to be done for %s") % env.source())
+				elif error == 1:
+					self.msg(-1, _("There were errors compiling %s.")
+						% env.source())
+					env.log.show_errors()
+				if error:
+					return error
 		return 0
 
 	def prepare (self, src):
@@ -139,11 +148,16 @@ available options:
 			env.parse()
 
 	def __call__ (self, cmdline):
+		"""
+		This method is a wrapper around the main method, showing a short help
+		message when the command line is empty, and catching the keyboard
+		interruption signal.
+		"""
 		if cmdline == []:
 			self.short_help()
 			return 1
 		try:
-			self.main(cmdline)
+			return self.main(cmdline)
 		except KeyboardInterrupt:
 			self.msg(0, _("*** interrupted"))
 			return 2

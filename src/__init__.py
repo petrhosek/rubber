@@ -99,7 +99,7 @@ class Message:
 		number where the error occurred, the description of the error, and the
 		offending code (up to the error).
 		"""
-		self.write(-1, _("\nline %d in %s:\n  %s") % (line, file, text))
+		self.write(0, _("\nline %d in %s:\n  %s") % (line, file, text))
 		if string.strip(code) != "":
 			self.write(0, "  --> " + code)
 
@@ -577,16 +577,14 @@ class Environment:
 
 	def compile (self):
 		"""
-		Run one LaTeX compilation on the source. If errors occured, display
-		them and return true, otherwise return false.
+		Run one LaTeX compilation on the source. Return true if errors
+		occured, and false if compilaiton succeeded.
 		"""
 		self.msg(0, _("compiling %s...") % self.source())
 		(cmd, env) = self.conf.compile_cmd(self.source())
 		self.execute(cmd, env)
 		self.log.read(self.src_base + ".log")
 		if self.log.errors():
-			self.msg(-1, _("There were errors."))
-			self.log.show_errors()
 			return 1
 		self.aux_md5_old = self.aux_md5
 		self.aux_md5 = md5_file(self.src_base + ".aux")
@@ -661,19 +659,22 @@ class Environment:
 		Run the building process until the end, or stop on error. This method
 		supposes that the inputs were parsed to register packages and that the
 		LaTeX source is ready. If the second (optional) argument is true, then
-		at least one compilation is done. The method returns zero on success
-		and non-zero (aka 1) on failure.
+		at least one compilation is done. The method returns 0 on success, 1
+		if a LaTeX compilation failed, and 2 if some auxiliary processing
+		failed.
 		"""
-		if self.pre_compile(): return 1
+		if self.pre_compile(): return 2
 		if force or self.compile_needed():
 			self.must_compile = 0
 			if self.compile(): return 1
-			if self.post_compile(): return 1
+			if self.post_compile(): return 2
 			while self.recompile_needed():
 				self.must_compile = 0
 				if self.compile(): return 1
-				if self.post_compile(): return 1		
-		return self.post_process()
+				if self.post_compile(): return 2
+		if self.post_process():
+			return 1
+		return 0
 
 	def compile_needed (self):
 		"""

@@ -6,7 +6,7 @@ import sys
 sys.path.append("@@moddir@@")
 try:
 	from rubber.cmdline import Main
-	Main()(sys.argv[1:])
+	sys.exit(Main()(sys.argv[1:]))
 except ImportError:
 	print "I cannot find the program's modules, I am not installed correctly."
 	sys.exit(1)

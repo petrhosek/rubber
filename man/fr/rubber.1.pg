@@ -37,7 +37,11 @@ des fichiers de données si besoin est.\br
 L'action par défaut consiste à construire complètement les documents spécifié.
 Les sources passés en argument peuvent être des sources LaTeX (auquel cas le
 suffixe \tt(.tex) peut être omis), ou des fichiers dans un format que Rubber
-sait traduire vers LaTeX (pour le moment, cela signifie un source CWEB).
+sait traduire vers LaTeX (pour le moment, cela signifie un source CWEB).\br
+
+Si une compilation échoue, l'ensemble du processus est interrompu, y compris
+la compilation des documents suivants sur la ligne de commande, et
+\cmd(rubber) renvoie un code de retour non nul.
 
 \section(2, Options)
 
@@ -93,9 +97,11 @@ Attention, dire \dopt(vvv) rend Rubber très bavard.])
 
 \section(2, Modules)
 
-Des modules peuvent être ajoutés à ceux fournis par défaut pour ajouter de
-nouvelles fonctionnalités (c'est d'ailleurs l'intérêt du système modulaire).
-Les modules standard sont les suivants:
+Pour chaque package qu'un document utilise, Rubber recherche un module de même
+nom pour effectuer les opérations que ce package peut nécessiter en plus de la
+compilation par LaTeX. Des modules peuvent être ajoutés à ceux fournis par
+défaut pour ajouter de nouvelles fonctionnalités (c'est d'ailleurs un intérêt
+du système modulaire). Les modules standard sont les suivants:
 
 \begin(description)
 

@@ -37,7 +37,11 @@ appropriate data files.\br
 The default action is to build the specified documents completely. The source
 files may be either LaTeX sources (in which case the suffix \tt(.tex) may be
 omitted) or documents in a format Rubber knows how to translate to LaTeX (this
-currently means a CWEB document).
+currently means a CWEB document).\br
+
+If one compilation fails, the whole process stops, including the compilation
+of the next documents on the command line, and \cmd(rubber) returns a non-zero
+exit code.
 
 \section(2, Options)
 
@@ -94,9 +98,11 @@ a lot.])
 
 \section(2, Modules)
 
-Modules can be added to the ones provided by default to include new features
-(this is the point of the module system). The standard modules are the
-following:
+For every package that a document uses, Rubber looks for a module of the same
+name to perform the tasks that this package my require apart from the
+compilation by LaTeX. Modules can be added to the ones provided by default to
+include new features (this is the point of the module system). The standard
+modules are the following:
 
 \begin(description)
 
