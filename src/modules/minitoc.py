@@ -25,7 +25,6 @@ class Module:
 
 	def clean (self):
 		self.env.remove_suffixes([".bmt"])
-		path = self.env.src_path
 		base = self.env.src_base + "."
 		ln = len(base)
 		for file in os.listdir("."):
