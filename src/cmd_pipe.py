@@ -54,6 +54,7 @@ available options:
   -e, --epilogue=CMD       run the directive CMD after parsing
   -z, --gzip               compress the final document
   -h, --help               display this help
+      --into=DIR           go to directory DIR before compiling
   -k, --keep               keep the temporary files after compiling
   -l, --landscape          change paper orientation (if relevant)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
@@ -85,10 +86,18 @@ available options:
 		self.prologue = []
 		self.epilogue = []
 		self.clean = 1
+		self.place = "."
+		self.path = []
 		self.parse_opts(cmdline)
 		msg.log(_("This is Rubber version %s.") % version)
 
 		# Put the standard input in a file
+
+		if self.place is not None and self.place != ".":
+			dir = os.getcwd()
+			self.path = map(os.path.abspath, self.path)
+			self.path.insert(0, dir)
+			os.chdir(self.place)
 
 		src = make_name() + ".tex"
 		try:
@@ -111,6 +120,8 @@ available options:
 
 		env.make_source()
 
+		for dir in self.path:
+			env.main.do_path(dir)
 		for cmd in self.prologue:
 			cmd = parse_line(cmd, {})
 			env.main.command(cmd[0], cmd[1:], {'file': 'command line'})

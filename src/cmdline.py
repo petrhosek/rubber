@@ -55,6 +55,8 @@ available options:
   -f, --force              force at least one compilation
   -z, --gzip               compress the final document
   -h, --help               display this help
+      --inplace            compile the documents from their source directory
+      --into=DIR           go to directory DIR before compiling
   -l, --landscape          change paper orientation (if relevant)
   -n, --maxerr=NUM         display at most NUM errors (default: 10)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
@@ -75,9 +77,9 @@ available options:
 			opts, args = getopt(
 				cmdline, "I:c:de:fhklm:n:o:pqr:svW:z" + short,
 				["clean", "command=", "epilogue=", "force", "gzip", "help",
-				 "keep", "landcape", "maxerr=", "module=", "post=", "pdf",
-				 "ps", "quiet", "read=", "short", "texpath=", "verbose",
-				 "version", "warn="] + long)
+				 "inplace", "into=", "keep", "landcape", "maxerr=", "module=",
+				 "post=", "pdf", "ps", "quiet", "read=", "short", "texpath=",
+				 "verbose", "version", "warn="] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -98,6 +100,10 @@ available options:
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
+			elif opt == "--inplace":
+				self.place = None
+			elif opt == "--into":
+				self.place = arg
 			elif opt in ("-k", "--keep"):
 				self.clean = 0
 			elif opt in ("-l", "--landscape"):
@@ -121,7 +127,7 @@ available options:
 			elif opt in ("-s", "--short"):
 				msg.short = 1
 			elif opt in ("-I", "--texpath"):
-				self.prologue.append("path " + arg)
+				self.path.append(arg)
 			elif opt in ("-v", "--verbose"):
 				msg.level = msg.level + 1
 			elif opt == "--version":
@@ -165,12 +171,31 @@ available options:
 		self.warn_misc = 0
 		self.warn_refs = 0
 
+		self.place = "."
+		self.path = []
+
 		args = self.parse_opts(cmdline)
+
+		if self.place != ".":
+			initial_dir = os.getcwd()
+			if self.place is not None:
+				self.place = os.path.abspath(self.place)
+			self.path = map(os.path.abspath, self.path)
 
 		msg.log(_("This is Rubber version %s.") % version)
 
 		for src in args:
 			env = Environment()
+
+			# Go to the appropriate directory
+
+			if self.place != ".":
+				src = os.path.abspath(os.path.join(initial_dir, src))
+				if self.place is None:
+					os.chdir(os.path.dirname(src))
+					src = os.path.basename(src)
+				else:
+					os.chdir(self.place)
 
 			# Check the source and prepare it for processing
 	
@@ -185,6 +210,8 @@ available options:
 			else:
 				env.make_source()
 
+			for dir in self.path:
+				env.main.do_path(dir)
 			for cmd in self.prologue:
 				cmd = parse_line(cmd, {})
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
