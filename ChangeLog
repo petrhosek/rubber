@@ -1,0 +1,133 @@
+2002-09-04  Emmanuel Beffara  <emmanuel@beffara.org>
+
+	* ChangeLog: introduced the change log (thanks to cvs2cl :-)
+
+2002-09-02  Emmanuel Beffara <manu@beffara.org>
+
+	* README, TODO, configure, man/.cvsignore: Introduced TODO. Some
+	updates.
+
+	* setup.py: Added installation of rubber-info's man pages.
+
+	* src/graphics/mpost.py: Added dependency analysis for Metapost
+	sources.
+
+	* src/modules/vt100.py: Introduced experimental VT100 coloring
+	module.
+
+	* debian/control: Fixed building dependencies for Debian.
+
+	* src/__init__.py, modules/: Fixed file name computation so that
+	compiling a document from another directory works.
+
+2002-08-21  Emmanuel Beffara <manu@beffara.org>
+
+	* src/util.py, src/modules/bibtex.py: Small bugfix in DependLeaf.
+
+2002-08-03  Emmanuel Beffara <manu@beffara.org>
+
+	* src/graphics/mpost.py: Fixed a small bug in MetaPost support.
+
+2002-07-16  Emmanuel Beffara <manu@beffara.org>
+
+	* README: Kudos to Mr Jeandel!
+
+	* src/util.py: Now (but temporarily) fails when a leaf dependency
+	doesn't exist.
+
+	* src/__init__.py: Included starred macros in the parser.
+
+2002-06-21  Emmanuel Beffara <manu@beffara.org>
+
+	* Version 0.99.1 released.
+
+	* Makefile.in, setup.py, man/: Synchronized version numbers in the
+	man pages and the program.
+
+	* setup.py, src/graphics/, src/modules/graphics.py: Introduced
+	modular graphics support.
+
+	* src/__init__.py, src/util.py, src/modules/bibtex.py: Introduced
+	classes to represent dependency graphs.
+
+	* man/en/rubber-info.1.pg, man/fr/rubber-info.1.pg: Added man
+	pages for rubber-info.
+
+2002-06-13  Emmanuel Beffara <manu@beffara.org>
+
+	* src/cmd_info.py: Small improvement in command line reading.
+
+	* src/info.py: Added page number tracking.
+
+2002-06-13  Emmanuel Beffara <manu@beffara.org>
+
+	* man/en/rubber.1.pg, man/fr/rubber.1.pg: Small fix in the man
+	pages.
+
+2002-06-12  Emmanuel Beffara <manu@beffara.org>
+
+	* README, rubber-info.in, setup.py, src/cmd_info.py, src/info.py:
+	Introduced rubber-info.
+
+	* src/util.py: Small bugfix in module util.
+
+	* src/__init__.py: Added source file tracking in error extraction.
+
+	* src/cmdline.py: Now catches keyboard interrupts.
+
+2002-06-11  Emmanuel Beffara <manu@beffara.org>
+
+	* src/__init__.py: Adapted the source searching mechanism to TeX's
+	actual behaviour.
+
+	* src/__init__.py, src/util.py: Extracted a class Plugins from
+	class Modules to allow other parts of the program to use plug-ins.
+
+2002-06-11  Emmanuel Beffara <manu@beffara.org>
+
+	* src/modules/graphics.py: Allowed empty suffix for all graphics
+	file names.
+
+2002-06-04  Emmanuel Beffara <manu@beffara.org>
+
+	* src/__init__.py, src/modules/bibtex.py: Improved BibTeX-related
+	analysis.
+
+2002-06-03  Emmanuel Beffara <manu@beffara.org>
+
+	* MANIFEST.in, Makefile.in: Fixed source package generation rules.
+
+	* COPYING, Makefile.in: Fixed package building rules, included the
+	GPL.
+
+	* src/__init__.py: Introduced watched files.
+
+	* src/util.py, src/modules/makeidx.py: Introduced module util.
+
+	* src/__init__.py, src/cmdline.py, src/modules/dvips.py: Allowed
+	(kind of) cleanly the processing of multiple sources.
+
+2002-05-31  Emmanuel Beffara <manu@beffara.org>
+
+	* src/modules/graphics.py, src/modules/graphicx.py: Added initial
+	support for the graphics and graphicx packages.
+
+	* src/__init__.py, src/cmdline.py: Moved the registration of
+	command-line modules before the parsing of the source files.
+
+	* configure: Small portability improvement.
+
+	* setup.py: Fixed failure handling in the configuration.
+
+	* src/__init__.py: Removed the erroneous error extraction.
+
+	* MANIFEST.in, Makefile.in, configure, setup.py: Improved
+	management of the version number.
+
+	* debian/: Added Debian package generation.
+
+	* man/: Added module descriptions to the man pages.
+
+2002-05-31  Emmanuel Beffara <manu@beffara.org>
+
+	* Version 0.99 released.
