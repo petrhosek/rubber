@@ -2,18 +2,19 @@ Source: rubber
 Section: tex
 Priority: optional
 Maintainer: Emmanuel Beffara <manu@beffara.org>
-Build-Depends-Indep: debhelper (>> 3.0.0), python-dev (>= 2.1)
+Build-Depends-Indep: debhelper (>> 3.0.0), python-dev (>= 2.3)
 Standards-Version: 3.5.2
 
 Package: rubber
 Architecture: all
-Depends: python (>= 2.1), tetex-bin
-Suggests: transfig
+Depends: python (>= 2.3, << 2.4), tetex-bin
+Suggests: imagemagick, jpeg2ps, transfig
 Description: an automated system for building LaTeX documents
  This is a building system for LaTeX documents. It is based on a routine that
  runs just as many compilations as necessary. The module system provides a
  great flexibility that virtually allows support for any package with no user
  intervention, as well as pre- and post-processing of the document. The
- standard modules currently provide support for bibtex, dvips, pdftex,
- makeindex, cweb and graphics/graphicx (currently with automatic epstopdf and
- XFig picture conversion and Metapost compilation).
+ standard modules currently provide support for bibtex, dvips, dvipdfm,
+ pdftex, makeindex. A good number of standard packages are supported,
+ including graphics/graphicx (with automatic conversion between various
+ formats and Metapost compilation).

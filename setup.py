@@ -113,17 +113,18 @@ def do_setup ():
 		description = "an automated system for building LaTeX documents",
 		long_description = """\
 This is a building system for LaTeX documents. It is based on a routine that
-runs (hopefully) just as many compilations as necessary. The module system
-provides a great flexibility that virtually allows support for any package
-with no user intervention, as well as pre- and post-processing of the
-document. The standard modules currently provide support for bibtex, dvips,
-pdftex, makeindex, cweb and graphics/graphicx (currently with automatic
-epstopdf and XFig picture conversion and Metapost compilation).\
+runs just as many compilations as necessary. The module system provides a
+great flexibility that virtually allows support for any package with no user
+intervention, as well as pre- and post-processing of the document. The
+standard modules currently provide support for bibtex, dvips, dvipdfm, pdftex,
+makeindex. A good number of standard packages are supported, including
+graphics/graphicx (with automatic conversion between various formats and
+Metapost compilation).\
 """,
 		author = "Emmanuel Beffara",
 		author_email = "manu@beffara.org",
-		url = "http://beffara.org/stuff/rubber.html",
-		licence = "GPL",
+		url = "http://rubber.sourceforge.net/",
+		license = "GPL",
 		packages = ["rubber", "rubber.modules", "rubber.graphics"],
 		package_dir = {"rubber": "src"},
 		scripts = ["rubber", "rubber-info", "rubber-pipe"],
