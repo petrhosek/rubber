@@ -35,9 +35,9 @@ a short description of the command line's syntax. The included manual page
 
 Rubber is written and maintained by Emmanuel Beffara <emmanuel@beffara.org>.
 
-Thanks to Vincent Beffara, Arnaud Carayol, Samuel Hym, Emmanuel Jeandel and
-Guillaume Theyssier for testing, comments and suggestions. And re-thanks to
-Vincent Beffara and Emmanuel Jeandel for patches.
+Thanks to all those who provided testing, comments and suggestions, and
+re-thanks to Vincent Beffara, Emmanuel Jeandel and Denis Oddoux for patches
+and bugfixes.
 
 Any kind of feedback is appreciated, in order to make this program as useful,
 robust and powerful as possible...

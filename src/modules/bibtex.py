@@ -235,6 +235,7 @@ class Module (rubber.Module):
 				return 1
 			else:
 				self.msg(2, _("the undefined citations are the same"))
+				return 0
 		else:
 			self.undef_cites = self.list_undefs()
 
