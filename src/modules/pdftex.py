@@ -11,3 +11,4 @@ class Module (rubber.Module):
 		env.conf.latex = "pdflatex"
 		env.conf.tex = "pdfTeX"
 		env.out_ext = ".pdf"
+		env.final_file = env.src_base + ".pdf"

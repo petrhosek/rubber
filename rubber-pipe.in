@@ -1,0 +1,12 @@
+#!@@python@@
+# This is just a wrapper script for the main Python program
+# This script is part of Rubber, which is covered by the GPL license.
+# (c) Emmanuel Beffara, 2003
+import sys
+sys.path.append("@@moddir@@")
+try:
+	from rubber.cmd_pipe import Main
+	sys.exit(Main()(sys.argv[1:]))
+except ImportError:
+	print "I cannot find the program's modules, I am not installed correctly."
+	sys.exit(1)

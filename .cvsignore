@@ -4,5 +4,6 @@ build
 dist
 rubber
 rubber-info
+rubber-pipe
 settings.py*
 MANIFEST

@@ -124,7 +124,7 @@ epstopdf and XFig picture conversion and Metapost compilation).\
 		licence = "GPL",
 		packages = ["rubber", "rubber.modules", "rubber.graphics"],
 		package_dir = {"rubber": "src"},
-		scripts = ["rubber", "rubber-info"],
+		scripts = ["rubber", "rubber-info", "rubber-pipe"],
 		data_files =
 		[(mandir + "/man1", ["man/en/rubber.1", "man/en/rubber-info.1"]),
 		 (mandir + "/fr/man1", ["man/fr/rubber.1", "man/fr/rubber-info.1"])]
@@ -150,7 +150,7 @@ if len(sys.argv) > 1:
 		make_files(sub, [
 			"rubber.spec",
 			"Makefile", "man/Makefile",
-			"rubber", "rubber-info", "src/version.py"])
+			"rubber", "rubber-info", "rubber-pipe", "src/version.py"])
 		print ("""
 Rubber is now configured. It will use the following Python interpreter:
     %s

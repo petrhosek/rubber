@@ -1,6 +1,14 @@
+2003-11-01  Emmanuel Beffara  <manu@beffara.org>
+
+	* rubber-pipe.in, src/cmd_pipe.py: Added the "rubber-pipe"
+	command-line frontend.
+
+	* src/__init__.py, src/modules/dvips.py, src/modules/pdftex.py: Added
+	a field "final_file" in the "Environment" class.
+
 2003-10-30  Emmanuel Beffara  <manu@beffara.org>
 
-	* src/beamer.py, man/...: Added a module for package 'beamer'.
+	* src/modules/beamer.py, man/...: Added a module for package 'beamer'.
 
 	* src/__init__.py: Modified the heuristics for pdfTeX's fake errors.
 

@@ -21,6 +21,7 @@ class Module (rubber.Module):
 			self.msg(0, _("there is already a post-processor registered"))
 			sys.exit(2)
 		env.output_processing = self.run
+		env.final_file = env.src_base + ".ps"
 
 	def run (self):
 		"""

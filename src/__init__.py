@@ -749,6 +749,7 @@ class Environment:
 		self.src_pbase = join(self.src_path, self.src_base)
 
 		self.out_ext = ".dvi"
+		self.final_file = self.src_base + ".dvi"
 
 		if self.source_exts.has_key(self.src_ext):
 			self.modules.register(self.source_exts[self.src_ext])
