@@ -110,10 +110,10 @@ provides a great flexibility that virtually allows support for any package
 with no user intervention, as well as pre- and post-processing of the
 document. The standard modules currently provide support for bibtex, dvips,
 pdftex, makeindex, cweb and graphics/graphicx (currently with automatic
-epstopdf conversion and Metapost compilation).\
+epstopdf and XFig picture conversion and Metapost compilation).\
 """,
 		author = "Emmanuel Beffara",
-		author_email = "emmanuel@beffara.org",
+		author_email = "manu@beffara.org",
 		url = "http://beffara.org/stuff/rubber.html",
 		licence = "GPL",
 		packages = ["rubber", "rubber.modules", "rubber.graphics"],

@@ -1,3 +1,10 @@
+rubber (0.99.3-1) unstable; urgency=low
+
+  * Switched to version 0.99.3, introducing initial XFig support and some
+    bugfixes and improvements.
+
+ -- Emmanuel Beffara <manu@beffara.org>  Sat, 12 Oct 2002 17:42:45 +0200
+
 rubber (0.99.2-1) unstable; urgency=low
 
   * Switched to version 0.99.2, introducing the --force option, various
