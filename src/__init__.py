@@ -499,12 +499,9 @@ class Environment:
 		else:
 			lst = string.split(cmd, ".", 1)
 			if len(lst) > 1:
-				try:
-					self.modules[lst[0]].command(lst[1], arg)
-				except KeyError:
-					self.msg(1,
-						_("module '%s' is not loaded, command '%s' ignored")
-						% (lst[0], cmd))
+				self.modules.register(lst[0],
+					dict = { 'arg': lst[0], 'opt': None })
+				self.modules[lst[0]].command(lst[1], arg)
 			else:
 				self.msg(1, _("unknown command '%s'") % cmd)
 
