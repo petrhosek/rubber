@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003
+# (c) Emmanuel Beffara, 2003--2004
 """
 Support for package 'combine' in Rubber.
 
@@ -18,6 +18,7 @@ class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
 		env.add_hook("import", self.import_doc)
+		del env.hooks["end{document}"]
 
 	def import_doc (self, dict):
 		if not dict["arg"]:
