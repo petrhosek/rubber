@@ -1,5 +1,8 @@
 2003-10-27  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/graphics.py: Added a hook for \DeclareGraphicsExtension
+	and preliminary support for \DeclareGraphicsRule.
+
 	* src/graphics/mpost.py: Fixed the regular expression for dependency
 	analysis in MetaPost sources.
 

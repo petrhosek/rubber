@@ -73,9 +73,12 @@ class PSTDep (Depend):
 		if self.env.execute(self.cmd_t): return 1
 		self.env.execute(self.cmd_p)
 
-# This regular expression is used to parse path lists in \graphicspath.
+# These regular expressions are used to parse path lists in \graphicspath and
+# arguments in \DeclareGraphicsRule respectively.
 
 re_gpath = re.compile("{(?P<prefix>[^{}]*)}")
+re_grule = re.compile("{(?P<type>[^{}]*)}\\s*\
+{(?P<read>[^{}]*)}\\s*{(?P<command>[^{}]*)}")
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):
@@ -87,6 +90,8 @@ class Module (rubber.Module):
 		self.msg = env.msg
 		env.add_hook("includegraphics", self.includegraphics)
 		env.add_hook("graphicspath", self.graphicspath)
+		env.add_hook("DeclareGraphicsExtensions", self.declareExtensions)
+		env.add_hook("DeclareGraphicsRule", self.declareRule)
 		env.convert.add_rule("(.*)\\.(eps|pstex)_t", "\\1.fig", "graphics")
 
 		self.prefixes = map(lambda x: join(x, ""), env.conf.path)
@@ -107,6 +112,8 @@ class Module (rubber.Module):
 		for opt in self.opts.keys():
 			if drv_suffixes.has_key(opt):
 				self.suffixes = drv_suffixes[opt]
+
+	#  supported macros
 
 	def includegraphics (self, dict):
 		"""
@@ -168,6 +175,37 @@ class Module (rubber.Module):
 
 		dict["line"] = line
 
+	def declareExtensions (self, dict):
+		"""
+		This method is triggered by the \\DeclareGraphicsExtensions macro. It
+		registers new suffixes for graphics inclusion.
+		"""
+		if not dict["arg"]:
+			return
+		for suffix in dict["arg"].split(","):
+			self.suffixes.insert(0, string.strip(suffix))
+
+	def declareRule (self, dict):
+		"""
+		This method is triggered by the \\DeclareGraphicsRule macro. It
+		declares a rule to include a given graphics file type.
+		This implementation is preliminary, its correctness chould be checked.
+		"""
+		if not dict["arg"]:
+			return
+		m = re_grule.match(dict["line"])
+		if not m:
+			return
+		dict["line"] = dict["line"][m.end():]
+		read = m.group("read")
+		if read in self.suffixes:
+			return
+		self.suffixes.insert(0, read)
+		print "*** FIXME ***  rule %s -> %s [%s]" % (
+			dict["arg"], m.group("read"), m.group("type"))
+
+	#  auxiliary method
+
 	def find_input (self, name):
 		"""
 		Look for a source file with the given name and one of the registered
@@ -182,6 +220,8 @@ class Module (rubber.Module):
 				if exists(test + suffix):
 					return test + suffix
 		return None
+
+	#  module interface
 
 	def pre_compile (self):
 		"""
