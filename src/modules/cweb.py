@@ -9,14 +9,32 @@ needed.
 
 from os.path import *
 
-import rubber
+import rubber, rubber.util
 from rubber import _
+
+class Dep (rubber.util.Depend):
+	def __init__ (self, source, target, env):
+		leaf = rubber.util.DependLeaf([source])
+		rubber.util.Depend.__init__(self, [target], { source: leaf })
+		self.env = env
+		self.source = source
+		self.cmd = ["cweave", source, target]
+
+	def run (self):
+		self.env.msg(0, _("weaving %s...") % self.source)
+		if self.env.execute(self.cmd):
+			self.env.msg(0, _("weaving failed"))
+			return 1
+		return 0
+		
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
-		env.source_building = self.make
-		env.src_ext = ".tex"
+		if env.src_ext == ".w":
+			env.source_building = self.make
+			env.src_ext = ".tex"
+		env.convert.add_rule("(.*)\\.tex$", "\\1.w", "cweb")
 
 	def make (self):
 		"""
@@ -49,3 +67,10 @@ class Module (rubber.Module):
 		Remove the LaTeX source and the other files produced by cweave.
 		"""
 		self.env.remove_suffixes([".tex", ".scn", ".idx"])
+
+	def convert (self, source, target, env):
+		"""
+		Return a dependency node for the given target and the given source
+		file names.
+		"""
+		return Dep(source, target, env)

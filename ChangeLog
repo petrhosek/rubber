@@ -1,5 +1,13 @@
 2003-04-01  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/cweb.py: Added a conversion rule for imported CWEB
+	source files.
+
+	* src/cmdline.py: Added the missing call to env.make_source().
+
+	* src/__init__.py, src/util.py: Added support for LaTeX source
+	conversion rules.
+
 	* src/modules/epsfig.py, man/...: Added support for epsfig.
 
 2003-03-31  Emmanuel Beffara  <manu@beffara.org>

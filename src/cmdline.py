@@ -147,6 +147,7 @@ available options:
 		if self.clean and not os.path.exists(env.source()):
 			self.msg(1, _("there is no LaTeX source"))
 		else:
+			env.make_source()
 			env.parse()
 
 	def __call__ (self, cmdline):
