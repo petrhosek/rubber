@@ -365,16 +365,11 @@ class Environment:
 			pass
 		self.msg(2, _("dependencies: %r") % self.depends.keys())
 
-	def do_process (self, file, path, seq=None, hooks=None, dump=None):
+	def do_process (self, file, path, dump=None):
 		"""
 		Process a LaTeX source. The file must be open, it is read to the end
 		calling the handlers for the macro calls. This recursively processes
 		the included sources.
-
-		The optional argument 'seq' is the regular expression used to match
-		sequences, and 'hooks' is the dictionary of functions to be called
-		when mathing succeeds. If they are not specified, their value is taken
-		in the fields of the same name in the object.
 
 		If the optional argument 'dump' is not None, then it is considered as
 		a stream on which all text not matched as a macro is written.
@@ -398,7 +393,8 @@ class Environment:
 			if line[0] == "%":
 				m = re_command.match(string.rstrip(line))
 				if m.group("cmd"):
-					self.command(m.group("cmd"), m.group("arg"))
+					self.command(m.group("cmd"), m.group("arg"),
+						{ 'file' : path, 'line' : lineno } )
 				continue
 
 			# Otherwise we accumulate lines (with comments stripped) until
@@ -444,12 +440,13 @@ class Environment:
 
 			if dump: dump.write(line)
 
-	def command (self, cmd, arg):
+	def command (self, cmd, arg, pos={}):
 		"""
 		Execute the rubber command 'cmd' with argument 'arg'. This is called
 		when a command is found in the source file or in a configuration file.
 		A command name of the form 'foo.bar' is considered to be a command
-		'bar' for module 'foo'.
+		'bar' for module 'foo'. The argument 'pos' describes the position
+		(file and line) where the command occurs.
 		"""
 		if cmd == "clean":
 			self.removed_files.append(arg)
@@ -459,7 +456,7 @@ class Environment:
 			if file:
 				self.depends[file] = DependLeaf([file], self.msg)
 			else:
-				self.msg(1, _("dependency '%s' not found") % arg)
+				self.msg.info(pos, _("dependency '%s' not found") % arg)
 
 		elif cmd == "latex":
 			self.conf.latex = arg
@@ -467,7 +464,7 @@ class Environment:
 		elif cmd == "module":
 			args = string.split(arg, maxsplit=1)
 			if len(args) == 0:
-				self.msg(1, _("argument required for command 'module'"))
+				self.msg.info(pos, _("argument required for command 'module'"))
 			else:
 				dict = { 'arg': args[0], 'opt': None }
 				if len(args) > 1:
@@ -493,7 +490,7 @@ class Environment:
 					self.command(lst[0], lst[1])
 				file.close()
 			except IOError:
-				self.msg(1, _("cannot read option file %s") % arg)
+				self.msg.info(pos, _("cannot read option file %s") % arg)
 
 		elif cmd == "watch":
 			self.watch_file(arg)
@@ -505,7 +502,7 @@ class Environment:
 					dict = { 'arg': lst[0], 'opt': None })
 				self.modules[lst[0]].command(lst[1], arg)
 			else:
-				self.msg(0, _("unknown directive '%s'") % cmd)
+				self.msg.info(pos, _("unknown directive '%s'") % cmd)
 
 	def process (self, path):
 		"""

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2004
 """
 This module contains utility functions and classes used by the main system and
 by the modules for various tasks.
@@ -14,7 +14,7 @@ import re, string
 
 from rubber import _
 
-#-- MD5 computation
+#-- Miscellaneous functions
 
 def md5_file (fname):
 	"""
@@ -26,6 +26,17 @@ def md5_file (fname):
 		m.update(line)
 	file.close()
 	return m.digest()
+
+def simplify_path (file):
+	"""
+	Simplify a file name, removing a leading "./" or the directory name if
+	it is the current working directory.
+	"""
+	dir = dirname(file)
+	if dir == os.curdir or dir == os.getcwd():
+		return basename(file)
+	else:
+		return file
 
 
 #-- Keyval parsing

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2004
 """
 This is the command line interface for Rubber.
 """
@@ -36,8 +36,7 @@ class Message (Message):
 		self.write(level, text)
 
 	def error (self, file, line, text, code):
-		if dirname(file) == os.curdir:
-			file = basename(file)
+		file = simplify_path(file)
 
 		if line:
 			prefix = "%s:%d: " % (file, line)
@@ -59,18 +58,14 @@ class Message (Message):
 
 	def info (self, where, what):
 		if where.has_key("file"):
-			file = where["file"]
-			if dirname(file) == os.curdir:
-				text = basename(file)
-			else:
-				text = file
+			text = simplify_path(where["file"])
 			if where.has_key("line"):
 				text = "%s:%d" % (text, where["line"])
 				if where.has_key("last"):
 					if where["last"] != where["line"]:
 						text = "%s-%d" % (text, where["last"])
 		else:
-			text = _("nowhere")
+			text = _("(nowhere)")
 		text = "%s: %s" % (text, what)
 		if where.has_key("page"):
 			text = "%s (page %d)" % (text, where["page"])
@@ -156,7 +151,8 @@ available options:
 			elif opt in ("-v", "--verbose"):
 				self.msg.level = self.msg.level + 1
 			elif opt == "--version":
-				print version
+				print "Rubber version: " + version
+				print "module path: " + moddir
 				sys.exit(0)
 
 		return args
@@ -208,7 +204,7 @@ available options:
 			cmd = string.split(cmd, maxsplit = 1)
 			if len(cmd) == 1:
 				cmd.append("")
-			env.command(cmd[0], cmd[1])
+			env.command(cmd[0], cmd[1], {'file': 'command line'})
 		if self.clean and not os.path.exists(env.source()):
 			self.msg(1, _("there is no LaTeX source"))
 		else:

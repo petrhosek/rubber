@@ -1,3 +1,12 @@
+2004-01-24  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/cmdline.py: Added the installation directory in "--version".
+
+	* src/util.py: Added function simplify_path.
+
+	* src/__init__.py, src/cmdline.py: Added an argument to env.command to
+	indicate the position of directives in the sources.
+
 2004-01-21  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/pdftex.py, src/modules/graphics.py: Added support for
