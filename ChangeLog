@@ -1,5 +1,8 @@
 2003-10-20  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/__init__.py (Environment): Added method "prog_available" to
+	check for external programs.
+
 	* src/graphics/__init__.py, src/graphics/convert.py: Added graphics
 	module 'convert' for ImageMagick conversion.
 

@@ -7,7 +7,7 @@ This module contains all the code in Rubber that actually does the job of
 building a LaTeX document from start to finish.
 """
 
-import os, sys, posix
+import os, sys, posix, stat
 from os.path import *
 import re
 import string
@@ -940,6 +940,31 @@ class Environment:
 				self.watched_files[file] = new
 		return changed
 
+	def remove_suffixes (self, list):
+		"""
+		Remove all files derived from the main source with one of the
+		specified suffixes.
+		"""
+		for suffix in list:
+			file = self.src_base + suffix
+			if exists(file):
+				self.msg(3, _("removing %s") % file)
+				os.unlink(file)
+
+	###  program execution
+
+	def prog_available (self, prog):
+		"""
+		Test whether the specified program is available in the current path.
+		"""
+		for path in os.getenv("PATH").split(":"):
+			file = os.path.join(path, prog)
+			if (os.path.exists(file)):
+				st = os.stat(file)
+				if stat.S_ISREG(st.st_mode):
+					return 1
+		return 0
+
 	def execute (self, prog, env={}, pwd=None, out=None):
 		"""
 		Silently execute an external program. The `prog' argument is the list
@@ -1043,17 +1068,6 @@ class Environment:
 
 		self.something_done = 1
 		return ret
-
-	def remove_suffixes (self, list):
-		"""
-		Remove all files derived from the main source with one of the
-		specified suffixes.
-		"""
-		for suffix in list:
-			file = self.src_base + suffix
-			if exists(file):
-				self.msg(3, _("removing %s") % file)
-				os.unlink(file)
 
 #---------------------------------------
 
