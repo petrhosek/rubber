@@ -69,10 +69,10 @@ For more information, try `rubber-pipe --help'."""))
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
-       --clean   = remove produced files after of compiling
   -c / --command <cmd> = run the specified command
                    (see man page section "Directives" for details)
   -h / --help    = display this help
+  -k / --keep    = keep the temporary files after compiling
   -l / --landscape = change paper orientation (if relevant)
   -m / --module <mod>[:<options>] =
                    use a specific module (with the given options)
@@ -89,21 +89,21 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "c:dfhlm:pqr:sv",
-				["clean", "command=", "help", "landcape", "module=",
+				cmdline, "c:dfhklm:pqr:sv",
+				["command=", "help", "keep", "landcape", "module=",
 				 "pdf", "ps", "quiet", "read=", "short", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
 
 		for (opt,arg) in opts:
-			if opt == "--clean":
-				self.clean = 1
-			elif opt in ("-c", "--command"):
+			if opt in ("-c", "--command"):
 				self.commands.append(arg)
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
+			elif opt in ("-k", "--keep"):
+				self.clean = 0
 			elif opt in ("-l", "--landscape"):
 				self.commands.append("paper landscape")
 			elif opt in ("-m", "--module"):
@@ -140,7 +140,7 @@ available options:
 		self.env = Environment(self.msg)
 		env = self.env
 		self.commands = []
-		self.clean = 0
+		self.clean = 1
 		self.parse_opts(cmdline)
 		self.msg(2, _("This is Rubber version %s.") % version)
 		first = 1

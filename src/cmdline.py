@@ -124,8 +124,9 @@ available options:
 				if not error and not env.something_done:
 					self.msg(0, _("nothing to be done for %s") % env.source())
 				elif error == 1:
-					self.msg(-1, _("There were errors compiling %s.")
-						% env.source())
+					if not self.msg.short:
+						self.msg(-1, _("There were errors compiling %s.")
+							% env.source())
 					env.log.show_errors()
 				if error:
 					return error

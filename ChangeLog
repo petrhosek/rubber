@@ -1,5 +1,7 @@
 2003-11-01  Emmanuel Beffara  <manu@beffara.org>
 
+	* man/...: Added documentation for "rubber-pipe".
+
 	* rubber-pipe.in, src/cmd_pipe.py: Added the "rubber-pipe"
 	command-line frontend.
 

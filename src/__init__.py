@@ -108,7 +108,7 @@ class Message:
 		"""
 		if self.short:
 			if line:
-				self.write(0, "%s %d: %s" % (file, line, text))
+				self.write(0, "%s:%d: %s" % (file, line, text))
 			else:
 				self.write(0, "%s: %s" % (file, text))
 		else:
