@@ -14,6 +14,7 @@ import sys
 from rubber import _
 from rubber.util import *
 
+re_citation = re.compile("\\citation{(?P<cite>.*)}")
 re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 
 # The regular expression that identifies errors in BibTeX log files is heavily
@@ -39,6 +40,7 @@ class Module:
 		self.msg = env.msg
 
 		self.undef_cites = None
+		self.def_cites = None
 		self.style = None
 		self.set_style("plain")
 		self.db = []
@@ -94,6 +96,8 @@ class Module:
 		"""
 		self.run_needed = self.first_run_needed()
 		if self.env.must_compile:
+			# If a LaTeX compilation is going to happen, it is not necessary
+			# to bother with BibTeX yet.
 			return 0
 		if self.run_needed:
 			return self.run()
@@ -126,6 +130,25 @@ class Module:
 			self.msg(2, _("the bibliography style file was modified"))
 			return 1
 		return 0
+
+	def list_cites (self):
+		"""
+		Return the list of all defined citations (from the aux file, which is
+		supposed to exist).
+		"""
+		list = []
+		aux = open(self.env.src_base + ".aux")
+		for line in aux.readlines():
+			match = re_citation.match(line)
+			if match:
+				cite = match.group("cite")
+				pos = bisect_left(list, cite)
+				if pos == len(list):
+					list.append(cite)
+				elif list[pos] != cite:
+					list.insert(pos, cite)
+		aux.close()
+		return list
 
 	def list_undefs (self):
 		"""
@@ -179,25 +202,34 @@ class Module:
 			return 1
 		self.msg(2, _("checking if BibTeX must be run..."))
 
+		# If there was a list of undefined citations, we check if it has
+		# changed. If it has and it is not empty, we have to rerun.
+
 		if self.undef_cites:
 			new = self.list_undefs()
 			if new == []:
 				self.msg(2, _("no more undefined citations"))
 				self.undef_cites = new
-				return 0
-			if self.undef_cites != new:
+			elif self.undef_cites != new:
 				self.msg(2, _("the list of undefined citations changed"))
 				self.undef_cites = new
 				return 1
-			self.msg(2, _("the undefined citations are the same"))
-			return 0
-		
-		self.undef_cites = self.list_undefs()
+			else:
+				self.msg(2, _("the undefined citations are the same"))
+		else:
+			self.undef_cites = self.list_undefs()
+
+		# At this point we don't know if undefined citations changed. If
+		# BibTeX has not been run before (i.e. there is no log file) we know
+		# that it has to be run now.
 
 		blg = self.env.src_base + ".blg"
 		if not exists(blg):
 			self.msg(2, _("no BibTeX log file"))
 			return 1
+
+		# Here, BibTeX has been run before but we don't know if undefined
+		# citations changed.
 
 		if self.undef_cites == []:
 			self.msg(2, _("no undefined citations"))
