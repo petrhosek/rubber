@@ -22,14 +22,13 @@ def _ (txt): return txt
 class Config:
 	"""
 	This class contains all configuration parameters. This includes search
-	paths, the verbosity level, the name of the compiler and options for it.
+	paths, the name of the compiler and options for it.
 	"""
 	def __init__ (self):
 		"""
 		Initialize the configuration with default settings.
 		"""
 		self.path = [""]
-		self.verb_level = 0
 		self.latex = "latex"
 		self.latex_opts = ["--interaction=batchmode"]
 		self.tex = "TeX"
@@ -63,12 +62,17 @@ class Config:
 
 class Message:
 	"""
-	All messages should be output using this class. It manages verbosity level
-	and possible redirection. One can imagine using a derived class to
-	redirect messages to a GUI widget, or any other funky stuff.
+	All messages in the program are output using the `message' object in the
+	main class. This class provides a simple version that writes text on the
+	standard output. It manages verbosity level and possible redirection. One
+	can imagine using a derived class to redirect messages to a GUI widget, or
+	any other funky stuff.
 	"""
-	def __init__ (self, env):
-		self.conf = env.config
+	def __init__ (self, level=0):
+		"""
+		Initialize the object with the specified verbosity threshold.
+		"""
+		self.level = level
 		self.write = self.do_write
 
 	def do_write (self, level, text):
@@ -76,175 +80,59 @@ class Message:
 		Output a text with the specified verbosity level. If this level is
 		larger than the current output level, no message is produced.
 		"""
-		if level <= self.conf.verb_level:
+		if level <= self.level:
 			print text
 
 	def __call__ (self, level, text):
 		"""
 		This method calls the actual writing function. This extra indirection
-		allows redefinig the output method while the program is running, while
-		allowing objects to store references to the Message object.
+		allows redefining the output method while the program is running,
+		while allowing objects to store references to the Message object.
 		"""
 		self.write(level, text)
 
 #---------------------------------------
 
-class Parser:
+class Modules (Plugins):
 	"""
-	Objects from this class read text lines from a file and parse them to
-	extract LaTeX macro calls. When such a macro is found, a handler is
-	searched for in the `hooks' dictionary. Handlers are called with two
-	arguments, the processor object and the dictionary for the regular
-	expression.
+	This class gathers all operations related to the management of modules.
+	The modules are	searched for first in the current directory, then in the
+	package `rubber.modules'.
 	"""
 	def __init__ (self, env):
-		"""
-		Initialize the object, compiling the regular expressions and
-		initializing the hook dictionary.
-		"""
+		Plugins.__init__(self)
 		self.env = env
-		self.conf = env.config
-		self.msg = env.message
-		self.comment = re.compile("(?P<line>[^%]*)(%.*)?")
-		self.input_seq = re.compile("\\\\input +(?P<arg>[^{} \n\\\\]+)")
+		self.objects = {}
 
-		self.hooks = {
-			"input" : self.input, "include" : self.input,
-			"usepackage" : self.usepackage, "RequirePackage" : self.usepackage,
-			"documentclass" : self.documentclass,
-			"tableofcontents" : self.tableofcontents,
-			"listoffigures" : self.listoffigures,
-			"listoftables" : self.listoftables,
-			"bibliography" : self.bibliography,
-			"bibliographystyle" : self.bibliographystyle
-		}
-		self.update_seq()
+	def __getitem__ (self, name):
+		"""
+		Return the module object of the given name.
+		"""
+		return self.objects[name]
 
-	def update_seq (self):
+	def register (self, name, dict={}):
 		"""
-		Update the regular expression used to match macro calls using the keys
-		in the `hook' dictionary.
+		Attempt to register a package with the specified name. If a module is
+		found, create an object from the module's class called `Module',
+		passing it the environment and `dict' as arguments. This dictionary
+		describes the command that caused the registration.
 		"""
-		self.seq = re.compile("\\\\(?P<name>%s)\*?( *(\\[(?P<opt>[^\\]]*)\\])?{(?P<arg>[^\\\\{}]*)}|[^A-Za-z])" % string.join(self.hooks.keys(), "|"))
-
-	def do_process (self, file):
-		"""
-		Process a LaTeX source. The file must be open, it is read to the end
-		calling the handlers for the macro calls. This recursively processes
-		the included sources.
-		"""
-		lines = file.readlines()
-		for line in lines:
-			line = self.comment.match(line).group(1)
-			match = self.seq.search(line)
-			while match:
-				dict = match.groupdict()
-				name = dict["name"]
-				
-				# The case of \input is handled specifically, because of the
-				# TeX syntax with no braces
-
-				if name == "input" and not dict["arg"]:
-					match2 = self.input_seq.search(line)
-					if match2:
-						match = match2
-						dict = match.groupdict()
-
-				self.hooks[name](dict)
-				line = line[match.end():]
-				match = self.seq.search(line)
-
-	def process (self, path):
-		"""
-		This method is called when an included file is processed. The argument
-		must be a valid file name.
-		"""
-		self.msg(2, "parsing " + path)
-		file = open(path)
-		self.env.process.depends[path] = DependLeaf([path])
-		self.do_process(file)
-		file.close()
-		self.msg(3, "end of " + path)
-
-	# Module interface:
-
-	def add_hook (self, name, fun):
-		"""
-		Register a given function to be called (with no arguments) when a
-		given macro is found.
-		"""
-		self.hooks[name] = fun
-		self.update_seq()
-
-	# Now the macro handlers:
-
-	def input (self, dict):
-		"""
-		Called when an \\input or an \\include is found. This calls the
-		`process' method if the included file is found.
-		"""
-		if dict["arg"]:
-			file = self.conf.find_input(dict["arg"])
-			if file:
-				self.process(file)
-
-	def documentclass (self, dict):
-		"""
-		Called when the macro \\documentclass is found. It almost has the same
-		effect as `usepackage': if the source's directory contains the class
-		file, in which case this file is treated as an input, otherwise a
-		module is searched for to support the class.
-		"""
-		if not dict["arg"]: return
-		for name in string.split(dict["arg"], ","):
-			file = self.conf.find_input (name + ".cls")
-			if file:
-				self.process(file)
-			else:
-				self.env.modules.register(name, dict)
-
-	def usepackage (self, dict):
-		"""
-		Called when a \\usepackage macro is found. If there is a package in the
-		directory of the source file, then it is treated as an include file
-		unless there is a supporting module in the current directory,
-		otherwise it is treated as a package.
-		"""
-		if not dict["arg"]: return
-		for name in string.split(dict["arg"], ","):
-			file = self.conf.find_input(name + ".sty")
-			if file and not exists(name + ".py"):
-				self.process(file)
-			else:
-				self.env.modules.register(name, dict)
-
-	def tableofcontents (self, dict):
-		self.env.process.watch_file(".toc")
-	def listoffigures (self, dict):
-		self.env.process.watch_file(".lof")
-	def listoftables (self, dict):
-		self.env.process.watch_file(".lot")
-
-	def bibliography (self, dict):
-		"""
-		Called when the macro \\bibliography is found. This method actually
-		registers the module bibtex (if not already done) and registers the
-		databases.
-		"""
-		self.env.modules.register("bibtex", dict)
-		for db in dict["arg"].split(","):
-			self.env.modules["bibtex"].add_db(db)
-
-	def bibliographystyle (self, dict):
-		"""
-		Called when \\bibliographystyle is found. This registers the module
-		bibtex (if not already done) and calls the method set_style() of the
-		module.
-		"""
-		self.env.modules.register("bibtex", dict)
-		self.env.modules["bibtex"].set_style(dict["arg"])
+		r = self.load_module(name, "rubber.modules")
+		if r == 0:
+			self.env.msg(3, _("no support found for %s") % name)
+			return 1
+		elif r == 2:
+			self.env.msg(3, _("module %s already registered") % name)
+			return 1
+		mod = self.modules[name].Module(self.env, dict)
+		self.env.msg(2, _("module %s registered") % name)
+		self.objects[name] = mod
+		return 0
 
 #---------------------------------------
+
+re_rerun = re.compile("LaTeX Warning:.*Rerun")
+re_file = re.compile("(\((?P<file>[^ ()]*)|\))")
 
 class LogCheck:
 	"""
@@ -254,9 +142,7 @@ class LogCheck:
 	"""
 	def __init__ (self, env):
 		self.env = env
-		self.msg = env.message
-		self.re_rerun = re.compile("LaTeX Warning:.*Rerun")
-		self.re_file = re.compile("(\((?P<file>[^ ()]*)|\))")
+		self.msg = env.msg
 
 	def read (self, name):
 		"""
@@ -268,7 +154,7 @@ class LogCheck:
 		if not line:
 			file.close()
 			return 1
-		if line.find("This is " + self.env.config.tex) == -1:
+		if line.find("This is " + self.env.conf.tex) == -1:
 			file.close()
 			return 1
 		self.lines = file.readlines()
@@ -291,7 +177,7 @@ class LogCheck:
 		Returns true if LaTeX indicated that another compilation is needed.
 		"""
 		for line in self.lines:
-			if self.re_rerun.match(line):
+			if re_rerun.match(line):
 				return 1
 		return 0
 
@@ -303,7 +189,7 @@ class LogCheck:
 		update the list `stack'. Newly opened files are at the end, therefore
 		stack[0] is the main source while stack[-1] is the current one.
 		"""
-		m = self.re_file.search(line)
+		m = re_file.search(line)
 		if not m:
 			return
 		while m:
@@ -313,7 +199,7 @@ class LogCheck:
 			else:
 				del stack[-1]
 			line = line[m.end():]
-			m = self.re_file.search(line)
+			m = re_file.search(line)
 		return
 
 	def show_errors (self):
@@ -349,7 +235,11 @@ class LogCheck:
 
 #---------------------------------------
 
-class Process:
+re_comment = re.compile("(?P<line>[^%]*)(%.*)?")
+re_input = re.compile("\\\\input +(?P<arg>[^{} \n\\\\]+)")
+re_kpse = re.compile("kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
+
+class Environment:
 	"""
 	This class represents de building process for the document. It handles the
 	execution of all required programs. The steps are the following:
@@ -361,14 +251,67 @@ class Process:
 	  4. processing of the final output (e.g. dvips)
 	The class also handles the cleaning mechanism.
 	"""
-	def __init__ (self, env):
+	"""
+	Objects from this class read text lines from a file and parse them to
+	extract LaTeX macro calls. When such a macro is found, a handler is
+	searched for in the `hooks' dictionary. Handlers are called with two
+	arguments, the processor object and the dictionary for the regular
+	expression.
+	"""
+	def __init__ (self, message):
 		"""
-		Initialize the processing steps for the given file. All steps are
-		initialized empty.
+		Initialize the environment. This prepares the processing steps for the
+		given file (all steps are initialized empty) and sets the regular
+		expressions and the hook dictionary.
 		"""
-		self.env = env
-		self.msg = env.message
-		self.log = env.logcheck
+		self.msg = message
+		self.msg(2, _("initializing Rubber..."))
+
+		self.conf = Config()
+		self.log = LogCheck(self)
+		self.modules = Modules(self)
+
+		# (a priori) static dictionaries:
+
+		self.source_exts = { ".w" : "cweb" }
+
+		self.kpse_msg = {
+			"mktextfm" : _("making font metrics for \\g<arg>..."),
+			"mktexmf" : _("making font \\g<arg>..."),
+			"mktexpk" : _("making bitmap for font \\g<arg>...")
+			}
+
+		self.initialize()
+
+	def restart (self):
+		"""
+		Reinitialize the environment, in order to process a new document. This
+		resets the process and the hook dictionary and unloads modules.
+		"""
+		self.msg(1, _("initializing..."))
+		self.modules.clear()
+		self.initialize()
+
+	def initialize (self):
+		"""
+		This is the method that actually does the initialization. It is also
+		used when restarting the process.
+		"""
+		# the initial hooks:
+
+		self.hooks = {
+			"input" : self.h_input,
+			"include" : self.h_input,
+			"usepackage" : self.h_usepackage,
+			"RequirePackage" : self.h_usepackage,
+			"documentclass" : self.h_documentclass,
+			"tableofcontents" : self.h_tableofcontents,
+			"listoffigures" : self.h_listoffigures,
+			"listoftables" : self.h_listoftables,
+			"bibliography" : self.h_bibliography,
+			"bibliographystyle" : self.h_bibliographystyle
+		}
+		self.update_seq()
 
 		# description of the building process:
 
@@ -386,15 +329,147 @@ class Process:
 		self.must_compile = 0
 		self.something_done = 0
 
-		# additional data:
+		self.msg(3, _("ready"))
 
-		self.re_kpse = re.compile(
-			"kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
-		self.kpse_msg = {
-			"mktextfm" : _("making font metrics for \\g<arg>..."),
-			"mktexmf" : _("making font \\g<arg>..."),
-			"mktexpk" : _("making bitmap for font \\g<arg>...")
-			}
+	#
+	# The following methods are related to LaTeX source parsing.
+	#
+
+	def parse (self):
+		"""
+		Parse the source for packages and supported macros.
+		"""
+		self.process(self.source())
+		self.msg(2, _("dependencies: %r") % self.depends.keys())
+
+	def do_process (self, file):
+		"""
+		Process a LaTeX source. The file must be open, it is read to the end
+		calling the handlers for the macro calls. This recursively processes
+		the included sources.
+		"""
+		lines = file.readlines()
+		for line in lines:
+			line = re_comment.match(line).group(1)
+			match = self.seq.search(line)
+			while match:
+				dict = match.groupdict()
+				name = dict["name"]
+				
+				# The case of \input is handled specifically, because of the
+				# TeX syntax with no braces
+
+				if name == "input" and not dict["arg"]:
+					match2 = re_input.search(line)
+					if match2:
+						match = match2
+						dict = match.groupdict()
+
+				self.hooks[name](dict)
+				line = line[match.end():]
+				match = self.seq.search(line)
+
+	def process (self, path):
+		"""
+		This method is called when an included file is processed. The argument
+		must be a valid file name.
+		"""
+		self.msg(2, "parsing " + path)
+		file = open(path)
+		self.depends[path] = DependLeaf([path])
+		self.do_process(file)
+		file.close()
+		self.msg(3, "end of " + path)
+
+	def update_seq (self):
+		"""
+		Update the regular expression used to match macro calls using the keys
+		in the `hook' dictionary. We don't match all control sequences for
+		obvious efficiency reasons.
+		"""
+		self.seq = re.compile("\\\\(?P<name>%s)\*?( *(\\[(?P<opt>[^\\]]*)\\])?{(?P<arg>[^\\\\{}]*)}|[^A-Za-z])" % string.join(self.hooks.keys(), "|"))
+
+	# Module interface:
+
+	def add_hook (self, name, fun):
+		"""
+		Register a given function to be called (with no arguments) when a
+		given macro is found.
+		"""
+		self.hooks[name] = fun
+		self.update_seq()
+
+	# Now the macro handlers:
+
+	def h_input (self, dict):
+		"""
+		Called when an \\input or an \\include is found. This calls the
+		`process' method if the included file is found.
+		"""
+		if dict["arg"]:
+			file = self.conf.find_input(dict["arg"])
+			if file:
+				self.process(file)
+
+	def h_documentclass (self, dict):
+		"""
+		Called when the macro \\documentclass is found. It almost has the same
+		effect as `usepackage': if the source's directory contains the class
+		file, in which case this file is treated as an input, otherwise a
+		module is searched for to support the class.
+		"""
+		if not dict["arg"]: return
+		for name in string.split(dict["arg"], ","):
+			file = self.conf.find_input (name + ".cls")
+			if file:
+				self.process(file)
+			else:
+				self.modules.register(name, dict)
+
+	def h_usepackage (self, dict):
+		"""
+		Called when a \\usepackage macro is found. If there is a package in the
+		directory of the source file, then it is treated as an include file
+		unless there is a supporting module in the current directory,
+		otherwise it is treated as a package.
+		"""
+		if not dict["arg"]: return
+		for name in string.split(dict["arg"], ","):
+			file = self.conf.find_input(name + ".sty")
+			if file and not exists(name + ".py"):
+				self.process(file)
+			else:
+				self.modules.register(name, dict)
+
+	def h_tableofcontents (self, dict):
+		self.watch_file(".toc")
+	def h_listoffigures (self, dict):
+		self.watch_file(".lof")
+	def h_listoftables (self, dict):
+		self.watch_file(".lot")
+
+	def h_bibliography (self, dict):
+		"""
+		Called when the macro \\bibliography is found. This method actually
+		registers the module bibtex (if not already done) and registers the
+		databases.
+		"""
+		self.modules.register("bibtex", dict)
+		for db in dict["arg"].split(","):
+			self.modules["bibtex"].add_db(db)
+
+	def h_bibliographystyle (self, dict):
+		"""
+		Called when \\bibliographystyle is found. This registers the module
+		bibtex (if not already done) and calls the method set_style() of the
+		module.
+		"""
+		self.modules.register("bibtex", dict)
+		self.modules["bibtex"].set_style(dict["arg"])
+
+	#
+	# The following macros are related to the building process.
+	#
 
 	###  preparation things
 
@@ -404,22 +479,21 @@ class Process:
 		are determined, and the source building process is updated if needed,
 		according the the source file's extension.
 		"""
-		env = self.env
-		name = env.config.find_input(path)
+		name = self.conf.find_input(path)
 		if not name:
 			self.msg(0, _("cannot find %s") % path)
 			return 1
 		self.depends = {}
 		(self.src_path, name) = split(name)
 		if self.src_path != "":
-			env.config.path.append(self.src_path)
+			self.conf.path.append(self.src_path)
 		(self.src_base, self.src_ext) = splitext(name)
 		self.src_pbase = join(self.src_path, self.src_base)
 
 		self.out_ext = ".dvi"
 
-		if env.source_exts.has_key(self.src_ext):
-			env.modules.register(env.source_exts[self.src_ext])
+		if self.source_exts.has_key(self.src_ext):
+			self.modules.register(self.source_exts[self.src_ext])
 
 		return 0
 
@@ -447,7 +521,7 @@ class Process:
 		them and return true, otherwise return false.
 		"""
 		self.msg(0, _("compiling %s...") % self.source())
-		self.execute(self.env.config.compile_cmd(self.source()))
+		self.execute(self.conf.compile_cmd(self.source()))
 		self.log.read(self.src_base + ".log")
 		if self.log.errors():
 			self.msg(-1, _("There were errors."))
@@ -544,7 +618,7 @@ class Process:
 			self.msg(3, _("the source is younger than the log file"))
 			return 1
 		if self.log.read(self.src_base + ".log"):
-			self.msg(3, _("the log file is not produced by %s") % self.env.config.tex)
+			self.msg(3, _("the log file is not produced by %s") % self.conf.tex)
 			return 1
 		return self.recompile_needed()
 
@@ -625,7 +699,7 @@ class Process:
 			line = f_err.readline()
 			if line == "": break
 			line = line.rstrip()
-			m = self.re_kpse.match(line)
+			m = re_kpse.match(line)
 			if m:
 				self.msg(1, line)
 				cmd = m.group("cmd")
@@ -645,99 +719,3 @@ class Process:
 			if exists(file):
 				self.msg(3, _("removing %s") % file)
 				os.unlink(file)
-
-#---------------------------------------
-
-class Modules (Plugins):
-	"""
-	This class gathers all operations related to the management of modules.
-	The modules are	searched for first in the current directory, then in the
-	package `rubber.modules'.
-	"""
-	def __init__ (self, env):
-		Plugins.__init__(self)
-		self.env = env
-		self.objects = {}
-
-	def __getitem__ (self, name):
-		"""
-		Return the module object of the given name.
-		"""
-		return self.objects[name]
-
-	def register (self, name, dict={}):
-		"""
-		Attempt to register a package with the specified name. If a module is
-		found, create an object from the module's class called `Module',
-		passing it the environment and `dict' as arguments. This dictionary
-		describes the command that caused the registration.
-		"""
-		r = self.load_module(name, "rubber.modules")
-		if r == 0:
-			self.env.message(3, _("no support found for %s") % name)
-			return 1
-		elif r == 2:
-			self.env.message(3, _("module %s already registered") % name)
-			return 1
-		mod = self.modules[name].Module(self.env, dict)
-		self.env.message(2, _("module %s registered") % name)
-		self.objects[name] = mod
-		return 0
-
-#---------------------------------------
-
-class Environment:
-	"""
-	This class contains the whole processing environment.
-	"""
-	def __init__ (self):
-		"""
-		Initialize the environment by creating an object of each required
-		class.
-		"""
-		self.config = Config()
-		self.message = Message(self)
-		self.message(3, _("initializing Rubber..."))
-		self.parser = Parser(self)
-		self.logcheck = LogCheck(self)
-		self.process = Process(self)
-		self.modules = Modules(self)
-		self.source_exts = { ".w" : "cweb" }
-		self.message(3, _("ready"))
-
-	def restart (self):
-		"""
-		Restart the system by unregistering all modules.
-		"""
-		self.message(1, _("initializing..."))
-		self.modules.clear()
-		self.parser.__init__(self)
-		self.process.__init__(self)
-
-	def prepare (self, name):
-		"""
-		Initialize the process for the given document and make the LaTeX
-		source if needed.
-		"""
-		self.message(1, _("preparing compilation of %s...") % name)
-		if self.process.set_source(name): return 1
-		return self.process.make_source()
-
-	def parse (self):
-		"""
-		Parse the source for packages and supported macros.
-		"""
-		self.parser.process(self.process.source())
-		self.message(2, _("dependencies: %r") % self.process.depends.keys())
-
-	def make (self):
-		"""
-		Make the document initialized using `prepare'.
-		"""
-		self.process.make()
-
-	def clean (self):
-		"""
-		Clean all files produced by the (prepared) document's compilation.
-		"""
-		self.process.clean()

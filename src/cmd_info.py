@@ -16,13 +16,16 @@ from rubber.version import *
 def _ (txt) : return txt
 
 class Main:
+	def __init__ (self):
+		self.msg = Message()
+
 	def short_help (self):
-		print _("""\
+		self.msg(0, _("""\
 usage: rubber-info [options] source
-For more information, try `rubber-info --help'.""")
+For more information, try `rubber-info --help'."""))
 
 	def help (self):
-		print _("""\
+		self.msg(0, _("""\
 This is Rubber's information extractor version %s.
 usage: rubber-info [options] source
 available options:
@@ -37,7 +40,7 @@ actions:
   --boxes  = report overfull and underfull boxes
   --deps   = show the target file's dependencies
   --errors = show all errors that occured during compilation\
-""" % version)
+""") % version)
 
 	def parse_opts (self, cmdline):
 		try:
@@ -46,7 +49,7 @@ actions:
 				["help", "module=", "readopts=", "verbose", "version",
 				 "boxes", "deps", "errors"])
 		except GetoptError, e:
-			print e
+			self.msg(0, e)
 			sys.exit(1)
 
 		for (opt,arg) in opts:
@@ -61,35 +64,35 @@ actions:
 				file.close()
 				args = self.parse_opts(opts2) + args
 			elif opt in ("-v", "--verbose"):
-				self.env.config.verb_level = self.env.config.verb_level + 1
+				self.msg.level = self.msg.level + 1
 			elif opt == "--version":
-				print version
+				self.msg(0, version)
 				sys.exit(0)
 			else:
 				self.act = opt[2:]
 		return args
 
 	def main (self, cmdline):
-		self.env = Environment()
+		self.env = Environment(self.msg)
 		self.modules = []
 		self.act = None
 		args = self.parse_opts(cmdline)
-		self.env.message(1, _(
+		self.msg(1, _(
 			"This is Rubber's information extractor version %s.") % version)
 
 		if len(args) != 1:
-			print _("You must specify one source file.")
+			self.msg(0, _("You must specify one source file."))
 			sys.exit(1)
 		if exists(args[0] + ".tex"):
 			src = args[0]
 		elif exists(args[0]):
 			src, ext = splitext(args[0])
 		else:
-			print _("I cannot find %s.") % args[0]
+			self.msg(0, _("I cannot find %s.") % args[0])
 			sys.exit(1)
 
 		if not self.act:
-			print _("You must specify an action.")
+			self.msg(0, _("You must specify an action."))
 			return 1
 
 		elif self.act == "deps":
@@ -113,13 +116,13 @@ actions:
 			colon = mod.find(":")
 			if colon == -1:
 				if self.env.modules.register(mod):
-					self.env.message(
+					self.msg(
 						0, _("module %s could not be registered") % mod)
 			else:
 				arg = { "arg" : mod[colon+1:] }
 				mod = mod[0:colon]
 				if self.env.modules.register(mod, arg):
-					self.env.message(
+					self.msg(
 						0, _("module %s could not be registered") % mod)
 		self.env.parse()
 
@@ -130,19 +133,19 @@ actions:
 		"""
 		logfile = src + ".log"
 		if not exists(logfile):
-			print _("I cannot find the log file.")
+			self.msg(0, _("I cannot find the log file."))
 			return 1
 		log = LogInfo(self.env)
 		log.read(logfile)
 		if act == "boxes":
 			if not log.show_boxes():
-				self.env.message(0, _("There is no bad box."))
+				self.msg(0, _("There is no bad box."))
 		elif act == "errors":
 			if not log.show_errors():
-				self.env.message(0, _("There was no error."))
+				self.msg(0, _("There was no error."))
 		else:
-			print _("\
-I don't know the action `%s'. This should not happen." % act)
+			self.msg(0, _("\
+I don't know the action `%s'. This should not happen.") % act)
 			return 1
 		return 0
 
@@ -153,5 +156,5 @@ I don't know the action `%s'. This should not happen." % act)
 		try:
 			self.main(cmdline)
 		except KeyboardInterrupt:
-			print _("*** interrupted")
+			self.msg(0, _("*** interrupted"))
 			return 2

@@ -7,12 +7,10 @@ Bugs to fix:
 
 Improvements:
 
-- introduce a ChangeLog ?
+- let modules that need external programs look for them and fail to load if
+  these program are not found
 
 - handle graphics modules using the Plugins class
-
-- unite Environment, Process and Parser (maybe more) into one single class,
-  for more simplicity
 
 - specify clearly what kind of messages each verbosity level is for
 

@@ -1,10 +1,16 @@
-Convetions for module interfacing:
+Conventions for module interfacing:
 
-Each module must contain a function named `register' that takes the building
-environment as its argument. This function is supposed to register the
-module's functions using the following methods of the environment:
+Each module must contain a class simply named `Module' whose __init__ method
+takes the building environment as its argument. All messages must be output
+using the method
 
-parser.add_hook(name, fun)
+msg(verbosity_level, text)
+
+Technically, this is not a method but a callable object. This function is
+supposed to register the module's functions using the following methods of the
+environment:
+
+add_hook(name, fun)
     The function `fun' will be called when the macro of the given name is
     found. This functions recieves as argument a dictionary that describes the
     macro call with the following keys:
@@ -14,22 +20,23 @@ parser.add_hook(name, fun)
 
 The following member data of the environment can also be modified:
 
-process.ext_building
+ext_building
     The list of functions called before the first compilation.
-process.compile_process
+compile_process
     The list of functions called after each compilation.
-process.output_processing
+output_processing
     The list of functions called after the last compilation.
 
-process.cleaning_process
+cleaning_process
     The list of functions called when cleaning compilation results.
 
-process.src_path = the pathname to the main source
-process.src_base = the base name of the main source
-process.src_ext = the extension of the main source (e.g. ".tex")
-process.out_ext = the extension of the compiler's output file (e.g. ".dvi")
+src_path = the pathname to the main source
+src_base = the base name of the main source
+src_ext = the extension of the main source (e.g. ".tex")
+out_ext = the extension of the compiler's output file (e.g. ".dvi")
 
-process.depends = the list of file names the document depends on
+depends = a dictionary that associates the names of the files needed for
+    compilation with dependency nodes (from class Depend in rubber.util)
 
 The functions added to compile_process may additionally turn the variable
-process.must_compile to true to force a compilation in the next step.
+must_compile to true to force a compilation in the next step.

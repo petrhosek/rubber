@@ -15,8 +15,8 @@ class Dep (Depend):
 		self.cmd = ["epstopdf", "--outfile=" + target, source]
 
 	def run (self):
-		self.env.message(0, "converting %s to PDF..." % self.source)
-		self.env.process.execute(self.cmd)
+		self.env.msg(0, "converting %s to PDF..." % self.source)
+		self.env.execute(self.cmd)
 		# FIXME: we should check that the conversion worked
 		return 0
 

@@ -11,5 +11,4 @@ form the module for `graphics'. We do this as an import, so it requires that
 import rubber.modules.graphics
 
 class Module (rubber.modules.graphics.Module):
-	def foo (self):
-		print "bar"
+	pass

@@ -20,15 +20,9 @@ color = [
 
 class Module:
 	def __init__ (self, env, dict):
-		self.conf = env.config
-		if self.conf.verb_level <= 0:
-			# if no extra verbosity is required, there is no need to write
-			# everything in boldface
-			self.shift = 1
-		else:
-			self.shift = 1
-		env.message.write = self.write
+		self.msg = env.msg
+		self.msg.write = self.write
 
 	def write (self, level, text):
-		if level <= self.conf.verb_level:
-			print "%s%s\x1B[0m" % (color[level+self.shift], text)
+		if level <= self.msg.level:
+			print "%s%s\x1B[0m" % (color[level + 1], text)

@@ -23,16 +23,16 @@ class Dep (Depend):
 	def __init__ (self, target, source, env):
 		sources = []
 		self.include(source, sources)
-		env.message(2, "%s is made from %r" % (target, sources))
+		env.msg(2, "%s is made from %r" % (target, sources))
 		self.leaf = DependLeaf(sources)
 		Depend.__init__(self, [target], {source: self.leaf})
 		self.env = env
 		self.base = source[:-3]
 		self.cmd = ["mpost", "--interaction=batchmode", self.base]
-		if env.process.src_path != "":
+		if env.src_path != "":
 			cmd = [
 				"env", "MPINPUTS=:%s:%s" %
-				(self.env.process.src_path, os.getenv("MPINPUTS", ""))] + cmd
+				(self.env.src_path, os.getenv("MPINPUTS", ""))] + cmd
 
 	def include (self, source, list):
 		"""
@@ -55,8 +55,8 @@ class Dep (Depend):
 		fd.close()
 
 	def run (self):
-		self.env.message(0, "running Metapost on %s.mp..." % self.base)
-		self.env.process.execute(self.cmd)
+		self.env.msg(0, "running Metapost on %s.mp..." % self.base)
+		self.env.execute(self.cmd)
 
 		# This creates a log file that has the same aspect as TeX logs.
 

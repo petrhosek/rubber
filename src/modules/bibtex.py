@@ -26,19 +26,18 @@ class Module:
 		in the main process.
 		"""
 		self.env = env
-		self.msg = env.message
-		self.log = env.logcheck
+		self.msg = env.msg
 
 		self.undef_cites = None
 		self.set_style("plain")
 		self.db = []
 		self.run_needed = 0
 
-		bbl = env.process.src_base + ".bbl"
-		#env.process.depends[bbl] = DependLeaf([bbl])
-		env.process.ext_building.append(self.first_bib)
-		env.process.compile_process.append(self.check_bib)
-		env.process.cleaning_process.append(self.clean)
+		bbl = env.src_base + ".bbl"
+		#env.depends[bbl] = DependLeaf([bbl])
+		env.ext_building.append(self.first_bib)
+		env.compile_process.append(self.check_bib)
+		env.cleaning_process.append(self.clean)
 
 		self.re_cite = re.compile(
 			"LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
@@ -67,7 +66,7 @@ class Module:
 		Run BibTeX if needed before the first compilation.
 		"""
 		self.run_needed = self.first_run_needed()
-		if self.env.process.must_compile:
+		if self.env.must_compile:
 			return 0
 		if self.run_needed:
 			return self.run()
@@ -79,11 +78,11 @@ class Module:
 		BibTeXing is also needed in the very particular case when the style
 		has changed since last compilation.
 		"""
-		if not exists(self.env.process.src_base + ".aux"):
+		if not exists(self.env.src_base + ".aux"):
 			return 0
-		if not exists(self.env.process.src_base + ".blg"):
+		if not exists(self.env.src_base + ".blg"):
 			return 1
-		dtime = getmtime(self.env.process.src_base + ".blg")
+		dtime = getmtime(self.env.src_base + ".blg")
 		for db in self.db:
 			if getmtime(db) > dtime:
 				self.msg(2, _("bibliography database %s was modified") % db)
@@ -101,7 +100,7 @@ class Module:
 		specified in the source. This supposes that the style is mentioned on
 		a line with the form 'The style file: foo.bst'.
 		"""
-		blg = self.env.process.src_base + ".blg"
+		blg = self.env.src_base + ".blg"
 		if not exists(blg):
 			return 0
 		log = open(blg)
@@ -121,7 +120,7 @@ class Module:
 		Return the list of all undefined citations.
 		"""
 		list = []
-		for line in self.log.lines:
+		for line in self.env.log.lines:
 			match = self.re_cite.match(line)
 			if match:
 				cite = match.group("cite")
@@ -148,16 +147,16 @@ class Module:
 		This method actually runs BibTeX.
 		"""
 		self.msg(0, _("running BibTeX..."))
-		if self.env.process.src_path != "":
+		if self.env.src_path != "":
 			prefix = [
 				"env", "BIBINPUTS=:%s:%s" %
-				(self.env.process.src_path, os.getenv("BIBINPUTS", ""))]
+				(self.env.src_path, os.getenv("BIBINPUTS", ""))]
 		else:
 			prefix = []
-		self.env.process.execute(prefix + [
-			"bibtex", "-terse", self.env.process.src_base])
+		self.env.execute(prefix + [
+			"bibtex", "-terse", self.env.src_base])
 		self.run_needed = 0
-		self.env.process.must_compile = 1
+		self.env.must_compile = 1
 		return 0
 
 	def bibtex_needed (self):
@@ -183,7 +182,7 @@ class Module:
 		
 		self.undef_cites = self.list_cites()
 
-		blg = self.env.process.src_base + ".blg"
+		blg = self.env.src_base + ".blg"
 		if not exists(blg):
 			self.msg(2, _("no BibTeX log file"))
 			return 1
@@ -192,7 +191,7 @@ class Module:
 			self.msg(2, _("no undefined citations"))
 			return 0
 
-		log = self.env.process.src_base + ".log"
+		log = self.env.src_base + ".log"
 		if getmtime(blg) < getmtime(log):
 			self.msg(2, _("BibTeX's log is older than the main log"))
 			return 1
@@ -200,4 +199,4 @@ class Module:
 		return 0
 
 	def clean (self):
-		self.env.process.remove_suffixes([".bbl", ".blg"])
+		self.env.remove_suffixes([".bbl", ".blg"])

@@ -6,6 +6,6 @@ pfdLaTeX support for Rubber.
 
 class Module:
 	def __init__ (self, env, dict):
-		env.config.latex = "pdflatex"
-		env.config.tex = "pdfTeX"
-		env.process.out_ext = ".pdf"
+		env.conf.latex = "pdflatex"
+		env.conf.tex = "pdfTeX"
+		env.out_ext = ".pdf"

@@ -50,17 +50,17 @@ class Module:
 		possible extensions from de compiler's name and the package's options.
 		"""
 		self.env = env
-		self.msg = env.message
-		env.parser.add_hook("includegraphics", self.includegraphics)
-		env.process.ext_building.append(self.build)
-		env.process.cleaning_process.append(self.clean)
+		self.msg = env.msg
+		env.add_hook("includegraphics", self.includegraphics)
+		env.ext_building.append(self.build)
+		env.cleaning_process.append(self.clean)
 
-		self.path = env.config.path
+		self.path = env.conf.path
 		self.files = []
 		self.not_found = []
 
 		# I take dvips as the default, but it is not portable.
-		if env.config.tex == "pdfTeX":
+		if env.conf.tex == "pdfTeX":
 			self.suffixes = drv_suffixes["pdftex"]
 		else:
 			self.suffixes = drv_suffixes["dvips"]
@@ -80,7 +80,7 @@ class Module:
 		if d:
 			self.msg(1, _("graphics %s found") % name)
 			for file in d.prods:
-				self.env.process.depends[file] = d;
+				self.env.depends[file] = d;
 			self.files.append(d)
 		else:
 			self.not_found.append(name)

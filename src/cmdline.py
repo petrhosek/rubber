@@ -5,6 +5,7 @@ This is the command line interface for Rubber.
 """
 
 import sys
+import os.path
 from getopt import *
 
 from rubber import *
@@ -13,19 +14,25 @@ from rubber.version import *
 def _ (txt) : return txt
 
 class Main:
+	def __init__ (self):
+		"""
+		Create the object used for message output.
+		"""
+		self.msg = Message()
+
 	def short_help (self):
 		"""
 		Display a short description of the command line.
 		"""
-		print _("""\
+		self.msg (0, _("""\
 usage: rubber [options] sources...
-For more information, try `rubber --help'.""")
+For more information, try `rubber --help'."""))
 
 	def help (self):
 		"""
 		Display the description of all the options and exit.
 		"""
-		print _("""\
+		self.msg (0, _("""\
 This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
@@ -40,7 +47,7 @@ available options:
                    read additional options from a file
   -v / --verbose = increase verbosity
        --version = print version information and exit\
-""" % version)
+""") % version)
 
 	def parse_opts (self, cmdline):
 		try:
@@ -70,9 +77,9 @@ available options:
 			elif opt in ("-p", "--ps"):
 				self.modules.append("dvips")
 			elif opt in ("-q", "--quiet"):
-				self.env.config.verb_level = -1
+				self.msg.level = -1
 			elif opt in ("-v", "--verbose"):
-				self.env.config.verb_level = self.env.config.verb_level + 1
+				self.msg.level = self.msg.level + 1
 			elif opt == "--version":
 				print version
 				sys.exit(0)
@@ -83,14 +90,17 @@ available options:
 		"""
 		Run Rubber for the specified command line.
 		"""
-		self.env = Environment()
+		self.env = Environment(self.msg)
 		self.modules = []
 		self.clean = 0
 		args = self.parse_opts(cmdline)
-		self.env.message(1, _("This is Rubber version %s.") % version)
+		self.msg(1, _("This is Rubber version %s.") % version)
+		first = 1
 		for src in args:
-			self.env.restart()
+			if not first:
+				self.env.restart()
 			self.prepare(src)
+			first = 0
 			if self.clean:
 				self.env.clean()
 			else:
@@ -101,21 +111,25 @@ available options:
 		"""
 		Check for the source file and prepare it for processing.
 		"""
-		if self.env.prepare(src):
+		env = self.env
+		if env.set_source(src):
 			sys.exit(1)
 		for mod in self.modules:
 			colon = mod.find(":")
 			if colon == -1:
-				if self.env.modules.register(mod):
-					self.env.message(
-						0, _("module %s could not be registered") % mod)
+				if env.modules.register(mod):
+					self.msg(0,
+						_("module %s could not be registered") % mod)
 			else:
 				arg = { "arg" : mod[colon+1:] }
 				mod = mod[0:colon]
-				if self.env.modules.register(mod, arg):
-					self.env.message(
-						0, _("module %s could not be registered") % mod)
-		self.env.parse()
+				if env.modules.register(mod, arg):
+					self.msg(0,
+						_("module %s could not be registered") % mod)
+		if self.clean and not os.path.exists(env.source()):
+			self.msg(1, _("there is no LaTeX source"))
+		else:
+			env.parse()
 
 	def __call__ (self, cmdline):
 		if cmdline == []:
@@ -124,5 +138,5 @@ available options:
 		try:
 			self.main(cmdline)
 		except KeyboardInterrupt:
-			print _("*** interrupted")
+			self.msg(0, _("*** interrupted"))
 			return 2

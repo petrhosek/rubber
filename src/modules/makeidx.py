@@ -20,10 +20,10 @@ class Module:
 		Initialize the module, checking if there is already an index.
 		"""
 		self.env = env
-		self.msg = env.message
-		env.process.compile_process.append(self.make)
-		env.process.cleaning_process.append(self.clean)
-		self.pbase = env.process.src_base
+		self.msg = env.msg
+		env.compile_process.append(self.make)
+		env.cleaning_process.append(self.clean)
+		self.pbase = env.src_base
 		if os.path.exists(self.pbase + ".idx"):
 			self.md5 = md5_file(self.pbase + ".idx")
 		else:
@@ -39,8 +39,8 @@ class Module:
 		if not self.run_needed():
 			return 0
 		self.msg(0, "making index...")
-		self.env.process.execute(["makeindex", self.pbase])
-		self.env.process.must_compile = 1
+		self.env.execute(["makeindex", self.pbase])
+		self.env.must_compile = 1
 
 	def run_needed (self):
 		"""
@@ -66,4 +66,4 @@ class Module:
 		"""
 		Remove all generated files related to the document's index.
 		"""
-		self.env.process.remove_suffixes([".idx", ".ind", ".ilg"])
+		self.env.remove_suffixes([".idx", ".ind", ".ilg"])
