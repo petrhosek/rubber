@@ -19,9 +19,14 @@ the main module system.
 
 conv = {
 "(.*)\\.pdf$" : {
+	"\\1.fig" : "fig2dev",
 	"\\1.eps" : "epstopdf" },
 "(.*)\\.[0-9]+$" : {
-	"\\1.mp" : "mpost" }
+	"\\1.mp" : "mpost" },
+"(.*)\\.eps" : {
+	"\\1.fig" : "fig2dev" },
+"(.*)\\.png" : {
+	"\\1.fig" : "fig2dev" }
 }
 
 import re

@@ -115,9 +115,10 @@ PostScript document. This module is also loaded by the command line option
 \item([graphics, graphicx], [These modules identify the graphics included in
 the document and consider them as dependencies for compilation. They also use
 standard rules to build these files with external programs. Current rules
-include conversion using \cmd(epstopdf)(1) and compilation using Metapost
-(\cmd(mpost)(1)). Note that these features are young and not very experienced
-yet.])
+include conversion from EPS to PDF using \cmd(epstopdf)(1), conversion of XFig
+figures to EPS, PDF or PNG using \cmd(fig2dev)(1), and compilation of Metapost
+sources (using \cmd(mpost)(1)). Note that these features are young and not
+very experienced yet.])
 
 \item(makeidx, [Process the document's index with \cmd(makeindex) when
 needed.])
@@ -140,6 +141,7 @@ The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
 
 \section(2, See also)
 
+\manref(rubber-info, 1),
 \manref(latex, 1),
 \manref(pdflatex, 1),
 \manref(bibtex, 1),

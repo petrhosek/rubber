@@ -6,6 +6,8 @@ Conversion of EPS graphics into PDF.
 
 from rubber.util import *
 
+def _ (txt): return txt
+
 class Dep (Depend):
 	def __init__ (self, target, source, env):
 		leaf = DependLeaf([source])
@@ -15,7 +17,7 @@ class Dep (Depend):
 		self.cmd = ["epstopdf", "--outfile=" + target, source]
 
 	def run (self):
-		self.env.msg(0, "converting %s to PDF..." % self.source)
+		self.env.msg(0, _("converting %s to PDF...") % self.source)
 		self.env.execute(self.cmd)
 		# FIXME: we should check that the conversion worked
 		return 0

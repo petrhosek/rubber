@@ -1,3 +1,7 @@
+2002-10-12  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/graphics/, man/: Introduced XFig support.
+
 2002-09-20  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/util.py: Introduced a parsing funtion for keyval-like
