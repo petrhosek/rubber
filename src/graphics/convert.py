@@ -8,39 +8,43 @@ from ImageMagick.
 from rubber import _
 from rubber.util import *
 
-# Useful formats that 'convert' can produce:
+# Useful formats that 'convert' can produce, with a "position" to compute
+# their distance to other formats:
 
-outputs = ["epdf", "eps", "pdf", "png", "ps"]
+outputs = [
+	("epdf", 1), ("eps", 1), ("pdf", 1), ("ps", 1),
+	("png", 10),
+	("jpg", 15), ("jpeg", 15)]
 
-# Useful formats that 'convert' can read:
+# Useful formats that 'convert' can read, also with positions:
 
 inputs = [
-	"bmp", "eps", "epdf", "gif", "jbg", "jbig", "jpeg", "jpg", "pct", "pcx",
-	"pdf", "pgm", "pict", "png", "pnm", "ppm", "ps", "tga", "tif", "tiff",
-	"wmf", "xbm", "xcf", "xpm"]
-
-# A set of rules we actually don't want:
-
-avoid = { "pdf": ["png"], "png": ["pdf", "eps"] }
+	("eps", 1), ("epdf", 1), ("pdf", 1), ("ps", 2), ("wmf", 3),
+	("bmp", 10), ("gif", 10), ("jbg", 10), ("jbig", 10), ("pct", 10),
+	("pcx", 10), ("pgm", 10), ("pict", 10), ("png", 10), ("pnm", 10),
+	("ppm", 10), ("tga", 10), ("tif", 10), ("tiff", 10), ("xbm", 10),
+	("xcf", 10), ("xpm", 10),
+	("jpeg", 15), ("jpg", 15) ]
 
 # A function to update the translation table with these:
 
 def update_rules (rules):
-	for o in outputs:
+	for (o,po) in outputs:
 		expr = "(.*)\\." + o + "$"
 		if rules.has_key(expr):
 			table = rules[expr]
 		else:
 			table = {}
 			rules[expr] = table
-		for i in inputs:
-			if o == i or (avoid.has_key(o) and i in avoid[o]):
+		for (i,pi) in inputs:
+			if o == i:
 				continue
 			expr = "\\1." + i
+			weight = abs(pi - po) + 2
 			if table.has_key(expr):
-				table[expr].insert(0, "convert")
+				table[expr].insert(0, (weight, "convert"))
 			else:
-				table[expr] = ["convert"]
+				table[expr] = [(weight, "convert")]
 
 # The actual dependency node:
 

@@ -47,7 +47,7 @@ class Module (rubber.Module):
 			env.src_ext = ".tex"
 		else:
 			self.clean_tex = 0
-		env.convert.add_rule("(.*)\\.tex$", "\\1.lhs", "lhs2TeX")
+		env.convert.add_rule("(.*)\\.tex$", "\\1.lhs", 0, "lhs2TeX")
 		self.style = "-math"
 
 	def make (self):

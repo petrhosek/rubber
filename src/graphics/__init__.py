@@ -23,18 +23,18 @@ from rubber.util import *
 
 conv = {
 "(.*)\\.pdf$" : {
-	"\\1.fig" : ["fig2dev"],
-	"\\1.eps" : ["epstopdf"] },
+	"\\1.fig" : [(0, "fig2dev")],
+	"\\1.eps" : [(5, "epstopdf")] },
 "(.*)\\.[0-9]+$" : {
-	"\\1.mp" : ["mpost"] },
+	"\\1.mp" : [(0, "mpost")] },
 "(.*)\\.eps$" : {
-	"\\1.fig" : ["fig2dev"],
-	"\\1.jpeg" : ["jpeg2ps"],
-	"\\1.jpg" : ["jpeg2ps"] },
+	"\\1.fig" : [(0, "fig2dev")],
+	"\\1.jpeg" : [(10, "jpeg2ps")],
+	"\\1.jpg" : [(10, "jpeg2ps")] },
 "(.*)\\.png$" : {
-	"\\1.fig" : ["fig2dev"] },
+	"\\1.fig" : [(10, "fig2dev")] },
 "(.*\\.e?ps)\\.bb$" : {
-	"\\1.gz" : ["eps_gz"] }
+	"\\1.gz" : [(0, "eps_gz")] }
 }
 
 # The module 'convert' (for the conversion program shipped with ImageMagick)
@@ -56,13 +56,17 @@ def dep_file (base, suffixes, prefixes, env, loc={}):
 	node for this file (as a leaf) is returned. If all fails, return None.
 	"""
 	targets = []
+	rules = []
 	for p in prefixes:
 		for s in suffixes:
 			target = p + base + s
-			dep = convert(target, env)
+			(weight, dep) = convert(target, env)
 			if dep:
-				dep.loc = loc
-				return dep
+				rules.append((weight, dep))
 			if exists(target):
-				return DependLeaf([target], env.msg, loc)
-	return None
+				rules.append((1,DependLeaf([target], env.msg, loc)))
+	if rules == []:
+		return None
+	(_, dep) = min(rules)
+	dep.loc = loc
+	return dep

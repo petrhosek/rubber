@@ -43,7 +43,7 @@ class Module (rubber.Module):
 			env.src_ext = ".tex"
 		else:
 			self.clean_tex = 0
-		env.convert.add_rule("(.*)\\.tex$", "\\1.w", "cweb")
+		env.convert.add_rule("(.*)\\.tex$", "\\1.w", 0, "cweb")
 
 	def make (self):
 		"""

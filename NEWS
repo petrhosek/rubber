@@ -1,5 +1,8 @@
 Version 0.99.9 (CVS)
 
+  Features:
+    - More intelligent graphics conversion rules.
+
   Bugfixes:
     - Modules "index" and "verbatim" fixed.
     - Fixed path searching in Metapost.

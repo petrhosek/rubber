@@ -111,7 +111,7 @@ class Module (rubber.Module):
 		env.add_hook("DeclareGraphicsExtensions", self.declareExtensions)
 		env.add_hook("DeclareGraphicsRule", self.declareRule)
 		env.convert.add_rule("(.*)\\.(eps|pstex|pdf|pdftex)_t",
-				"\\1.fig", "graphics")
+				"\\1.fig", 0, "graphics")
 
 		self.prefixes = map(lambda x: join(x, ""), env.conf.path)
 		self.files = []

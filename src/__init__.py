@@ -592,12 +592,12 @@ class Environment (Depend):
 
 		for path in self.conf.path:
 			pname = join(path, name)
-			dep = self.convert(pname, self)
+			(_, dep) = self.convert(pname, self)
 			if dep:
 				dep.loc = loc
 				self.sources[pname] = dep
 				return pname, dep
-			dep = self.convert(pname + ".tex", self)
+			(_, dep) = self.convert(pname + ".tex", self)
 			if dep:
 				dep.loc = loc
 				self.sources[pname] = dep
