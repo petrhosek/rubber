@@ -214,6 +214,18 @@ class Depend:
 		for src in self.sources.values():
 			src.clean()
 
+	def leaves (self):
+		"""
+		Return a list of all source files that are required by this node and
+		cannot be built, i.e. the leaves of the dependency tree.
+		"""
+		if self.sources == {}:
+			return self.prods
+		ret = []
+		for dep in self.sources.values():
+			ret.extend(dep.leaves())
+		return ret
+
 class DependLeaf (Depend):
 	"""
 	This class specializes Depend for leaf nodes, i.e. source files with no
@@ -222,9 +234,10 @@ class DependLeaf (Depend):
 	def __init__ (self, dest):
 		"""
 		Initialize the node. The argument of this method is a *list* of file
-	names, since one single node may contain several files.
+		names, since one single node may contain several files.
 		"""
 		Depend.__init__(self, dest, {})
+
 	def run (self):
 		# FIXME
 		if len(self.prods) == 1:
@@ -232,5 +245,6 @@ class DependLeaf (Depend):
 		else:
 			print "one of %r does not exit" % self.prods
 		return 1
+
 	def clean (self):
 		pass

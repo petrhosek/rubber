@@ -84,8 +84,11 @@ actions:
 	def main (self, cmdline):
 		self.env = Environment(self.msg)
 		self.modules = []
-		self.act = "check"
+
+		self.act = None
 		args = self.parse_opts(cmdline)
+		if not self.act: self.act = "check"
+
 		self.msg(1, _(
 			"This is Rubber's information extractor version %s.") % version)
 
@@ -102,10 +105,10 @@ actions:
 
 		if self.act == "deps":
 			self.prepare(src)
-			print "%s%s: %s" % (
-				self.env.src_base,
-				self.env.out_ext,
-				string.join(self.env.depends.keys()))
+			deps = []
+			for dep in self.env.depends.values():
+				deps.extend(dep.leaves())
+			print string.join(deps)
 		else:
 			return self.info_log(src, self.act)
 
@@ -150,9 +153,12 @@ actions:
 		elif act == "check":
 			if log.show_errors(): return 0
 			self.msg(0, _("There was no error."))
+			self.msg(0, "")
 			if log.show_references(): return 0
 			self.msg(0, _("There is no undefined reference."))
+			self.msg(0, "")
 			if not log.show_warnings():	self.msg(0, _("There is no warning."))
+			self.msg(0, "")
 			if not log.show_boxes(): self.msg(0, _("There is no bad box."))
 		elif act == "errors":
 			if not log.show_errors():

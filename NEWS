@@ -10,6 +10,7 @@ Version 0.99.5 ()
     - Made the calls to LaTeX and others more portable.
     - Better date computations (this caused useless compilations).
     - Avoid crash whith documents with cyclic file inclusion.
+    - The action "--deps" now lists all files the document depends on.
 
 Version 0.99.4 (2002-11-06)
 
