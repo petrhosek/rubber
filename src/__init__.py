@@ -193,9 +193,8 @@ class LogCheck:
 		if not m:
 			return
 		while m:
-			file = m.group("file")
-			if file:
-				stack.append(file)
+			if line[m.start()] == '(':
+				stack.append(m.group("file"))
 			else:
 				del stack[-1]
 			line = line[m.end():]
