@@ -118,7 +118,8 @@ modules are the following:
 
 \item(bibtex, [Takes care of processing the document's bibliography with
 BibTeX when needed. This module is automatically loaded if the document
-contains the macro \macro(bibliography).])
+contains the macro \macro(bibliography) (see also in "Directives" for
+options).])
 
 \item(cweb, [This module's purpose is to run \cmd(cweave) if needed before the
 compiling process to produce the LaTeX source. This module is automatically
@@ -137,7 +138,7 @@ sources (using \cmd(mpost)(1)), and bounding box extraction from gzipped EPS
 figures.])
 
 \item(makeidx, [Process the document's index with \cmd(makeindex) when
-needed.])
+needed (see section "Directives" for options).])
 
 \item([minitoc, minitoc-hyper], [On cleaning, remove additional files that
 produced to make partial tables of contents.])
@@ -191,6 +192,15 @@ search path for BibTeX databases (\tt(.bib) files).])
 
 \item([bibtex.stylepath \narg(directory)], [Adds the specified directory to
 the search path for BibTeX styles (\tt(.bst) files).])
+
+\item([makeidx.order \narg(options...)], [Modifies the sorting options for the
+index. Tha argument must be a space-separated list of words among "standard",
+"german" and "letter".])
+
+\item([makeidx.path \narg(directory)], [Adds the specified directory to
+the search path for index styles (\tt(.ist) files).])
+
+\item([makeidx.style \narg(style)], [Specifies the index style to be used.])
 
 \end(description)
 

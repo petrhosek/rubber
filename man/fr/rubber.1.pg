@@ -121,7 +121,8 @@ du système modulaire). Les modules standard sont les suivants:
 
 \item(bibtex, [S'occupe de traiter la bibliographie du document avec BibTeX
 lorsque c'est nécessaire. Ce module est chargé automatiquement lorsque le
-document contient la macro \macro(bibliography).])
+document contient la macro \macro(bibliography) (voir aussi dans "Directives"
+pour les options).])
 
 \item(cweb, [Ce module sert à exécuter \cmd(cweave) si nécessaire avant le
 processus de compilation pour produire le source LaTeX. Ce module est chargé
@@ -142,7 +143,7 @@ PDF ou PNG avc \cmd(fig2dev)(1), la compilation de sources Metapost (avec
 compressées.])
 
 \item(makeidx, [Traite l'index du document avec \cmd(makeindex) lorsque c'est
-nécessaire.])
+nécessaire (voir dans "Directives" pour les options).])
 
 \item([minitoc, minitoc-hyper], [Lors du nettoyage, supprime les fichiers
 supplémentaires produits pour la construction de tables des matières
@@ -204,6 +205,15 @@ recherche de bases de données BibTeX (fichiers \tt(.bib)).])
 
 \item([bibtex.stylepath \narg(répertoire)], [Ajoute le répertoire spécifié au
 chemin de recherche de styles BibTeX (fichiers \tt(.bst)).])
+
+\item([makeidx.order \narg(options...)], [Modifie les options de tri de
+l'index. L'argument est une liste de mots (séparés par des espaces) parmi
+"\tt(standard)", "\tt(german)", "\tt(letter)".])
+
+\item([makeidx.path \narg(répertoire)], [Ajoute le répertoire spécifié au
+chemin de recherche de styles d'index (fichiers \tt(.ist)).])
+
+\item([makeidx.style \narg(style)], [Spécifie le style d'index à utiliser.])
 
 \end(description)
 

@@ -7,6 +7,7 @@ Version 0.99.6
     - Support for package "natbib".
 	- Rubber directives in source comments.
 	- Directives for specifying paths for LaTeX and BibTeX.
+	- Directives to control the operation of Makeindex.
 
   Bugfixes:
     - The action "--deps" in rubber-info now lists each dependency only once.

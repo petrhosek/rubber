@@ -6,6 +6,21 @@ Makeindex support for Rubber.
 This module (associated to the package makeidx) handles the processing of the
 document's index using makeindex. It stores an MD5 sum of the .idx file
 between two runs, in order to detect modifications.
+
+The following directives are provided to specify options for makeindex:
+
+  order <ordering> =
+    Modify the ordering to be used. The argument must be a space separated
+    list of:
+    - standard = use default ordering (no options, this is the default)
+    - german = use German ordering (option "-g")
+    - letter = use letter instead of word ordering (option "-l")
+
+  path <directory> =
+    Add the specified directory to the search path for styles.
+
+  style <name> =
+    Use the specified style file.
 """
 
 import os
@@ -27,19 +42,49 @@ class Module (rubber.Module):
 		else:
 			self.md5 = None
 
+		self.path = [""]
+		if env.src_path != "" and env.src_path != ".":
+			self.path.append(env.src_path)
+		self.style = None
+		self.opts = []
+
+	def command (self, cmd, arg):
+		if cmd == "order":
+			for opt in arg.split():
+				if opt == "standard": self.opts = []
+				elif opt == "german": self.opts.append("-g")
+				elif opt == "letter": self.opts.append("-l")
+				else: self.msg(1,
+					_("unknown option '%s' for 'makeidx.order'") % opt)
+		elif cmd == "path":
+			self.path.append(arg)
+		elif cmd == "style":
+			self.style = arg
+
 	def post_compile (self):
 		"""
-		Run makeindex if needed.
+		Run makeindex if needed, with appropriate options and environment.
 		"""
 		if not os.path.exists(self.pbase + ".idx"):
 			self.msg(2, _("strange, there is no index file"))
 			return 0
 		if not self.run_needed():
 			return 0
+
 		self.msg(0, "making index...")
-		if self.env.execute(["makeindex", self.pbase]):
+		cmd = ["makeindex"] + self.opts
+		if self.style:
+			cmd.extend(["-s", self.style])
+		cmd.append(self.pbase)
+		if self.path != [""]:
+			env = { 'INDEXSTYLE':
+				string.join(self.path + [os.getenv("INDEXSTYLE", "")], ":") }
+		else:
+			env = {}
+		if self.env.execute(cmd, env):
 			self.env.msg(0, _("the operation failed"))
 			return 1
+
 		self.env.must_compile = 1
 		return 0
 
