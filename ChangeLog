@@ -1,3 +1,7 @@
+2003-10-07  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Fixed the modification about error-like warnings.
+
 2003-09-29  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, man/...: Added directive 'clean'.

@@ -256,7 +256,8 @@ class LogCheck:
 				# sometimes issues warnings (like undefined references) in the
 				# form of errors...
 
-				return string.find(line, "warning:") != -1
+				if string.find(line, "warning:") == -1:
+					return 1
 		return 0
 
 	def run_needed (self):
