@@ -22,7 +22,8 @@ def _ (txt): return txt
 class Config:
 	"""
 	This class contains all configuration parameters. This includes search
-	paths, the name of the compiler and options for it.
+	paths, the name of the compiler and options for it, and paper size
+	options.
 	"""
 	def __init__ (self):
 		"""
@@ -31,6 +32,7 @@ class Config:
 		self.path = [""]
 		self.latex = "latex"
 		self.tex = "TeX"
+		self.paper = []
 
 	def find_input (self, name):
 		"""
@@ -492,6 +494,9 @@ class Environment:
 				if len(args) > 1:
 					dict['opt'] = args[1]
 				self.modules.register(args[0], dict)
+
+		elif cmd == "paper":
+			self.conf.paper.extend(string.split(arg))
 
 		elif cmd == "path":
 			self.conf.path.append(expanduser(arg))

@@ -1,3 +1,8 @@
+2003-03-26  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, src/cmdline.py, src/modules/dvips.py: Added paper
+	size options.
+
 2003-03-22  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, src/cmdline.py, man/...: Added directive "read" and

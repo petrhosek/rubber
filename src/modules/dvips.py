@@ -29,10 +29,12 @@ class Module (rubber.Module):
 		if not self.run_needed():
 			return 0
 		self.msg(0, _("running dvips on %s...") %
-		         (self.env.src_base + ".dvi"))
-		if self.env.execute(
-			["dvips", self.env.src_base + ".dvi",
-			 "-o", self.env.src_base + ".ps"]):
+				(self.env.src_base + ".dvi"))
+		cmd = ["dvips", self.env.src_base + ".dvi",
+			"-o", self.env.src_base + ".ps"]
+		for opt in self.env.conf.paper:
+			cmd.extend(["-t", opt])
+		if self.env.execute(cmd):
 			self.env.msg(0, _("the operation failed"))
 			return 1
 		return 0

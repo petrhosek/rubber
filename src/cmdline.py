@@ -41,6 +41,7 @@ available options:
                    (see man page section "Directives" for details)
   -f / --force   = force at least one compilation
   -h / --help    = display this help
+  -l / --landscape = change paper orientation (if relevant)
   -m / --module <mod>[:<options>] =
                    use a specific module (with the given options)
   -d / --pdf     = produce PDF output instead of DVI (synonym for -m pdftex)
@@ -56,9 +57,9 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "c:dfhm:pqr:sv",
-				["clean", "command=", "force", "help", "module=", "pdf",
-				 "ps", "quiet", "read=", "short", "verbose", "version"])
+				cmdline, "c:dfhlm:pqr:sv",
+				["clean", "command=", "force", "help", "landcape", "module=",
+				 "pdf", "ps", "quiet", "read=", "short", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -73,6 +74,8 @@ available options:
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
+			elif opt in ("-l", "--landscape"):
+				self.commands.append("paper landscape")
 			elif opt in ("-m", "--module"):
 				self.commands.append("module " +
 					string.replace(arg, ":", " ", 1))

@@ -81,6 +81,9 @@ modifiée (par exemple un package dans un répertoire système).])
 \item([\dash[]h, \ddash[]help], [Affiche la liste de toutes les options
 disponibles et quitte.])
 
+\item([\dash[]l, \ddash[]landscape], [Produit un document orienté en paysage.
+Cette option n'a d'effet qu'avec \cmd(dvips).])
+
 \item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
 [Utilise le module spécifié en plus des packages du document. Des arguments
 peuvent être passés au module en les ajoutant après un signe deux-points, ils
@@ -189,6 +192,10 @@ dépendance à la compilation, sa date de modification sera vérifiée.])
 \item([module \narg(module) \optarg(\narg(options))], [Charge le module
 spécifié, éventuellement avec des options. Cette directive est équivalente à
 l'option de ligne de commande \ddopt(module).])
+
+\item([paper \narg(options)], [Spécifie des options relatives à la taille du
+papier. Pour le moment, ces options sont passées à \cmd(dvips) sous forme
+d'options \dopt(p).])
 
 \item([path \narg(répertoire)], [Ajoute le répertoire spécifié au chemin de
 recherche de TeX (et de Rubber). Le nom du répertoire est tout le texte qui

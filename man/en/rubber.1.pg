@@ -80,6 +80,9 @@ modified (e.g. a package in a system directory).])
 \item([\dash[]h, \ddash[]help], [Display the list of all available options
 and exit nicely.])
 
+\item([\dash[]l, \ddash[]landscape], [Specify that the final document should
+use landscape orientation. This is relevant only when using \cmd(dvips).])
+
 \item([\dash[]m, \ddash[]module \narg(module)\optarg([:\narg(args)])],
 [Use the specified module in addition to the document's packages. Arguments
 can be passed to the package by adding them after a colon, they correspond to
@@ -179,6 +182,9 @@ that its modification time will be checked.])
 \item([module \narg(module) \optarg(\narg(options))], [Loads the specified
 module, possibly with options. This is equivalent to the command-line option
 \ddopt(module).])
+
+\item([paper \narg(options)], [Specify options related to paper size.
+Currently they are used to give \dopt(p) options to \cmd(dvips).])
 
 \item([path \narg(directory)], [Adds the specified directory to the search
 path for TeX (and Rubber). The name of the directory is everything that

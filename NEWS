@@ -5,9 +5,10 @@ Version 0.99.6
     - Parsing of MetaPost log files for errors.
     - Automatic JPEG to EPS conversion (with jpeg2ps).
     - Support for package "natbib".
-	- Rubber directives in source comments.
-	- Directives for specifying paths for LaTeX and BibTeX.
-	- Directives to control the operation of Makeindex.
+    - Rubber directives in source comments.
+    - Directives for specifying paths for LaTeX and BibTeX.
+    - Directives to control the operation of Makeindex.
+    - Paper size specification (for dvips).
 
   Bugfixes:
     - The action "--deps" in rubber-info now lists each dependency only once.
