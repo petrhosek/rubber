@@ -23,14 +23,18 @@ class LogInfo (LogCheck):
 		Display all messages related so underfull and overfull boxes. Return 0
 		if there is nothing to display.
 		"""
-		pos = []
+		pos = ["(no file)"]
 		page = 1
 		something = 0
+		skip = 0
 		for line in self.lines:
 			line = line.rstrip()
-			if re_hvbox.match(line):
+			if skip:
+				if line == "": skip = 0
+			elif re_hvbox.match(line):
 				self.msg.info({"file":pos[-1], "page":page}, line)
 				something = 1
+				skip = 1
 			else:
 				self.update_file(line, pos)
 				page = self.update_page(line, page)
@@ -53,11 +57,16 @@ class LogInfo (LogCheck):
 		Display all warnings. This function is pathetically dumb, as it simply
 		shows all lines in the log that contain the substring 'Warning'.
 		"""
-		pos = []
+		pos = ["(no file)"]
 		page = 1
 		something = 0
+		skip = 0
 		for line in self.lines:
-			if line.find("Warning") != -1:
+			if skip:
+				if line == "": skip = 0
+			elif re_hvbox.match(line):
+				skip = 1
+			elif line.find("Warning") != -1:
 				self.msg.info(
 					{"file":pos[-1], "page":page},
 					string.rstrip(line))

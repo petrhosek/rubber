@@ -1,5 +1,7 @@
 2003-03-31  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/info.py: Fixed file name tracking again.
+
 	* src/__init__.py, src/util.py, src/graphics/__init__.py: Revised the
 	definition of Converter.
 
