@@ -1,5 +1,7 @@
 2004-07-25  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/moreverb.py: Bugfix in \listinginput.
+
 	* src/__init__.py, src/cmdline.py, src/util.py, src/modules/bibtex.py:
 	Improved the way errors are localized in the sources.
 

@@ -45,10 +45,11 @@ class Message (Message):
 					if where["last"] != where["line"]:
 						text = "%s-%d" % (text, where["last"])
 		else:
-			text = _("(nowhere)")
+			text = "%r" % where
+			#_("(nowhere)")
 		return text
 
-	def error (self, where, text, code):
+	def error (self, where, text, code=None):
 		prefix = self.format_pos(where) + ": "
 		if text[0:13] == "LaTeX Error: ":
 			text = text[13:]

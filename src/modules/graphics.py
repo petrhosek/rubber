@@ -61,13 +61,13 @@ class PSTDep (Depend):
 	XFig. They produce both a LaTeX source that contains an \\includegraphics
 	and an EPS file.
 	"""
-	def __init__ (self, fig, tex, env, module):
+	def __init__ (self, fig, tex, env, module, loc={}):
 		"""
 		The arguments of the constructor are, respectively, the figure's
 		source, the LaTeX source produced, the EPS figure produced, the name
 		to use for it (probably the same one), and the environment.
 		"""
-		leaf = DependLeaf([fig], env.msg)
+		leaf = DependLeaf([fig], env.msg, loc)
 		self.env = env
 
 		m = re_pstname.match(tex)
@@ -80,7 +80,7 @@ class PSTDep (Depend):
 			epsname = eps
 		lang, self.langname = pst_lang[type]
 
-		Depend.__init__(self, [tex, eps], { fig: leaf }, env.msg)
+		Depend.__init__(self, [tex, eps], { fig: leaf }, env.msg, loc)
 		self.fig = fig
 		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p", epsname, fig, tex ]
 		self.cmd_p = ["fig2dev", "-L", lang, fig, eps ]
@@ -157,7 +157,8 @@ class Module (rubber.Module):
 		if name.find("\\") >= 0 or name.find("#") >= 0:
 			return
 
-		d = rubber.graphics.dep_file(name, suffixes, self.prefixes, self.env)
+		d = rubber.graphics.dep_file(name, suffixes, self.prefixes, self.env,
+				dict["pos"])
 		if d:
 			self.msg(2, _("graphics `%s' found") % name)
 			for file in d.prods:
@@ -264,9 +265,9 @@ class Module (rubber.Module):
 		for dep in self.files:
 			dep.clean()
 
-	def convert (self, source, target, env):
+	def convert (self, source, target, env, loc={}):
 		"""
 		Return a dependency node (or None) for the conversion of the given
 		source figure into the given target LaTeX source.
 		"""
-		return PSTDep(source, target, env, self)
+		return PSTDep(source, target, env, self, loc)

@@ -105,6 +105,24 @@ def count_braces (str):
 	return level
 
 
+#-- Extra argument parsing
+
+def get_next_arg (dict):
+	"""
+	Assumes `dict' is a dictionary passed as argument to a macro hook, and
+	extracts an argument from the current line, i.e. a balanced text in braces
+	possibly preceded by spaces. Returns None if no argument is found.
+	"""
+	line = dict["line"].lstrip()
+	if len(line) == 0 or line[0] != "{":
+		return None
+	arg, next = match_brace(line[1:])
+	if next == "":
+		return None
+	dict["line"] = next
+	return arg
+
+
 #-- Checking for program availability
 
 checked_progs = {}
@@ -192,14 +210,15 @@ class Depend (object):
 	rebuild the files of this node, returning zero on success and something
 	else on failure.
 	"""
-	def __init__ (self, prods, sources, msg):
+	def __init__ (self, prods, sources, msg, loc={}):
 		"""
 		Initialize the object for a given set of output files and a given set
 		of sources. The argument `prods' is a list of file names, and the
 		argument `sources' is a dictionary that associates file names with
 		dependency nodes. The argument `msg' is an object that is used to
 		issue progress messages and error reports (see the Message class for
-		details).
+		details). The optional argument `loc' is a dictionary that describes
+		where in the sources this dependency was created.
 		"""
 		self.msg = msg
 		self.prods = prods
@@ -207,6 +226,7 @@ class Depend (object):
 		self.sources = sources
 		self.making = 0
 		self.failed_dep = None
+		self.loc = loc
 
 	def set_date (self):
 		"""
@@ -331,19 +351,19 @@ class DependLeaf (Depend):
 	This class specializes Depend for leaf nodes, i.e. source files with no
 	dependencies.
 	"""
-	def __init__ (self, dest, msg):
+	def __init__ (self, dest, msg, loc={}):
 		"""
 		Initialize the node. The argument of this method is a *list* of file
 		names, since one single node may contain several files.
 		"""
-		Depend.__init__(self, dest, {}, msg)
+		Depend.__init__(self, dest, {}, msg, loc)
 
 	def run (self):
 		# FIXME
 		if len(self.prods) == 1:
-			self.msg(0, _("%r does not exist") % self.prods[0])
+			self.msg.error(self.loc, _("%r does not exist") % self.prods[0])
 		else:
-			self.msg(0, _("one of %r does not exist") % self.prods)
+			self.msg.error(self.loc, _("one of %r does not exist") % self.prods)
 		return 1
 
 	def clean (self):

@@ -46,7 +46,7 @@ update_rules(conv)
 plugins = Plugins(__path__)
 convert = Converter(conv, plugins)
 
-def dep_file (base, suffixes, prefixes, env):
+def dep_file (base, suffixes, prefixes, env, loc={}):
 	"""
 	Search the given path list (prefix list, more precisely) for a file with
 	the given basename and one of the given suffixes. If some transformation
@@ -61,7 +61,8 @@ def dep_file (base, suffixes, prefixes, env):
 			target = p + base + s
 			dep = convert(target, env)
 			if dep:
+				dep.loc = loc
 				return dep
 			if exists(target):
-				return DependLeaf([target], env.msg)
+				return DependLeaf([target], env.msg, loc)
 	return None

@@ -153,7 +153,6 @@ class Module (rubber.Module):
 		Register the standard index.
 		"""
 		self.indices["default"] = Index(self.env, "idx", "ind")
-		print "*** index: default"
 
 	def newindex (self, dict):
 		"""
@@ -165,7 +164,6 @@ class Module (rubber.Module):
 		index = dict["arg"]
 		d = m.groupdict()
 		self.indices[index] = Index(self.env, d["idx"], d["ind"])
-		print "*** index:", dict, d
 		self.env.msg(1, _("index %s registered") % index)
 
 	def command (self, cmd, arg):

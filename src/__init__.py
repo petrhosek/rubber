@@ -556,7 +556,7 @@ class Environment (Depend):
 			else:
 				self.msg.info(pos, _("unknown directive '%s'") % cmd)
 
-	def process (self, path):
+	def process (self, path, loc={}):
 		"""
 		This method is called when an included file is processed. The argument
 		must be a valid file name.
@@ -568,7 +568,7 @@ class Environment (Depend):
 		self.msg(2, _("parsing %s") % path)
 		file = open(path)
 		if not self.sources.has_key(path):
-			self.sources[path] = DependLeaf([path], self.msg)
+			self.sources[path] = DependLeaf([path], self.msg, loc)
 		try:
 			try:
 				self.do_process(file, path)
@@ -578,7 +578,7 @@ class Environment (Depend):
 		except EndInput:
 			pass
 
-	def input_file (self, name):
+	def input_file (self, name, loc={}):
 		"""
 		Treat the given name as a source file to be read. If this source can
 		be the result of some conversion, then the conversion is performed,
@@ -594,16 +594,18 @@ class Environment (Depend):
 			pname = join(path, name)
 			dep = self.convert(pname, self)
 			if dep:
+				dep.loc = loc
 				self.sources[pname] = dep
 				return pname, dep
 			dep = self.convert(pname + ".tex", self)
 			if dep:
+				dep.loc = loc
 				self.sources[pname] = dep
 				return pname + ".tex", dep
 
 		file = self.conf.find_input(name)
 		if file:
-			self.process(file)
+			self.process(file, loc)
 			return file, self.sources[file]
 		else:
 			return None, None
@@ -638,7 +640,7 @@ class Environment (Depend):
 		if the included file is found.
 		"""
 		if dict["arg"]:
-			self.input_file(dict["arg"])
+			self.input_file(dict["arg"], dict)
 
 	def h_include (self, dict):
 		"""
@@ -650,7 +652,7 @@ class Environment (Depend):
 			return
 		if self.include_only and not self.include_only.has_key(dict["arg"]):
 			return
-		file, _ = self.input_file(dict["arg"])
+		file, _ = self.input_file(dict["arg"], dict)
 		if file:
 			if file[-4:] == ".tex":
 				file = file[:-4]
@@ -1153,7 +1155,7 @@ class Message (object):
 		"""
 		pass
 
-	def error (self, where, text, code):
+	def error (self, where, text, code=None):
 		"""
 		This method is called when the parsing of the log file found an error.
 		The arguments are, respectively, the positionr where the error
