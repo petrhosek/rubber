@@ -374,9 +374,6 @@ class Environment:
 		lines = file.readlines()
 		lineno = 0
 
-		if seq is None: seq = self.seq
-		if hooks is None: hooks = self.hooks
-
 		# If a line ends with braces open, we read on until we get a correctly
 		# braced text. We also stop accumulating on paragraph breaks, the way
 		# non-\long macros do in TeX.
@@ -414,7 +411,7 @@ class Environment:
 
 			# Then we check for supported macros in the text.
 
-			match = seq.search(line)
+			match = self.seq.search(line)
 			while match:
 				dict = match.groupdict()
 				name = dict["name"]
@@ -433,9 +430,9 @@ class Environment:
 				dict["line"] = line[match.end():]
 				dict["pos"] = { 'file': path, 'line': lineno }
 				dict["dump"] = dump
-				hooks[name](dict)
+				self.hooks[name](dict)
 				line = dict["line"]
-				match = seq.search(line)
+				match = self.seq.search(line)
 
 			if dump: dump.write(line)
 
@@ -555,7 +552,7 @@ class Environment:
 \\\\(?P<name>%s)\*?\
  *(\\[(?P<opt>[^\\]]*)\\])?\
  *({(?P<arg>[^{}]*)}|(?=[^A-Za-z]))"
-			% string.join(self.hooks.keys(), "|"))
+ 			% string.join(self.hooks.keys(), "|"))
 
 	# Module interface:
 

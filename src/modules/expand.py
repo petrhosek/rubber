@@ -93,8 +93,17 @@ class Module (rubber.Module):
 	def expand_path (self, path):
 		# self.out_stream.write("%%--- beginning of file %s\n" % path)
 		file = open(path)
-		self.env.do_process(file, path, seq=self.seq,
-				hooks=self.hooks, dump=self.out_stream)
+
+		# This is sort of a hack: we replace the 'seq' and 'hook' fields in
+		# the environment with our own, in order to reuse the parsing routine.
+
+		env = self.env
+		saved_seq = env.seq ; env.seq = self.seq
+		saved_hooks = env.hooks ; env.hooks = self.hooks
+		self.env.do_process(file, path, seq=self.seq, dump=self.out_stream)
+		env.hooks = saved_hooks
+		env.seq = saved_seq
+
 		file.close()
 		# self.out_stream.write("%%--- end of file %s\n" % path)
 
