@@ -42,9 +42,9 @@ class Config:
 		"""
 		for path in self.path:
 			test = join(path, name)
-			if exists(test):
+			if exists(test) and isfile(test):
 				return test
-			elif exists(test + ".tex"):
+			elif exists(test + ".tex") and isfile(test + ".tex"):
 				return test + ".tex"
 		return None
 
