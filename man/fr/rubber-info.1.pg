@@ -49,6 +49,13 @@ overfull et underfull \macro(hbox) et \macro(vbox)).])
 \item([\ddash[]errors], [Extrait du fichier log la liste des erreurs qui sont
 survenues durant la dernière compilation.])
 
+\item([\ddash[]refs], [Affiche la liste des références non définies (i.e. les
+\macro(ref) qui ne correspndent à aucun \macro(label)).])
+
+\item([\ddash[]warnings], [Affiche stupidement la liste de tous les
+avertissements de LaTeX, c'est-à-dire toutes les lignes du fichier log qui
+contiennent "Warning".])
+
 \end(description)
 
 \section(2, Options)

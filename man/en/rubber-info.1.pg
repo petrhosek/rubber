@@ -47,6 +47,12 @@ the style of a Makefile (with no building command)])
 \item([\ddash[]errors], [Extract from the log file the list of errors that
 occured during the last compilation.])
 
+\item([\ddash[]refs], [Show a list of undefined references (i.e. the
+\macro(ref)'s that are not defined by any \macro(label)).])
+
+\item([\ddash[]warnings], [Stupidly enumerate all LaTeX warnings, i.e. all
+the lines that contain the string "Warning".])
+
 \end(description)
 
 \section(2, Options)

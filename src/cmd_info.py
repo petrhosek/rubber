@@ -37,9 +37,11 @@ available options:
   -v / --verbose = increase verbosity
        --version = print version information and exit
 actions:
-  --boxes  = report overfull and underfull boxes
-  --deps   = show the target file's dependencies
-  --errors = show all errors that occured during compilation\
+  --boxes    = report overfull and underfull boxes
+  --deps     = show the target file's dependencies
+  --errors   = show all errors that occured during compilation
+  --refs     = show the list of undefined references
+  --warnings = show all LaTeX warnings\
 """) % version)
 
 	def parse_opts (self, cmdline):
@@ -47,7 +49,7 @@ actions:
 			opts, args = getopt(
 				cmdline, "hm:o:v",
 				["help", "module=", "readopts=", "verbose", "version",
-				 "boxes", "deps", "errors"])
+				 "boxes", "deps", "errors", "refs", "warnings"])
 		except GetoptError, e:
 			self.msg(0, e)
 			sys.exit(1)
@@ -69,6 +71,9 @@ actions:
 				self.msg(0, version)
 				sys.exit(0)
 			else:
+				if self.act:
+					self.msg(0, _("You must specify only one action."))
+					sys.exit(1)
 				self.act = opt[2:]
 		return args
 
@@ -143,6 +148,12 @@ actions:
 		elif act == "errors":
 			if not log.show_errors():
 				self.msg(0, _("There was no error."))
+		elif act == "refs":
+			if not log.show_references():
+				self.msg(0, _("There is no undefined reference."))
+		elif act == "warnings":
+			if not log.show_warnings():
+				self.msg(0, _("There is no warning."))
 		else:
 			self.msg(0, _("\
 I don't know the action `%s'. This should not happen.") % act)

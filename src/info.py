@@ -5,12 +5,14 @@ This module contains material to extract information from compilation results.
 """
 
 import re
+import string
 from rubber import *
 
 def _ (txt): return txt
 
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_hvbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
+re_reference = re.compile("LaTeX Warning: (?P<msg>Reference .*)")
 
 class LogInfo (LogCheck):
 	"""
@@ -37,6 +39,30 @@ class LogInfo (LogCheck):
 			else:
 				self.update_file(line, pos)
 				page = self.update_page(line, page)
+		return something
+
+	def show_references (self):
+		"""
+		Display all undefined references.
+		"""
+		something = 0
+		for line in self.lines:
+			m = re_reference.match(line)
+			if m:
+				self.msg(0, m.group("msg"))
+				something = 1
+		return something
+
+	def show_warnings (self):
+		"""
+		Display all warnings. This function is pathetically dumb, as it simply
+		shows all lines in the log that contain the substring 'Warning'.
+		"""
+		something = 0
+		for line in self.lines:
+			if line.find("Warning") != -1:
+				self.msg(0, string.rstrip(line))
+				something = 1
 		return something
 
 	def update_page (self, line, before):
