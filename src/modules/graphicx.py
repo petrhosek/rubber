@@ -1,3 +1,5 @@
+# This file is part of Rubber and thus covered by the GPL
+# (c) Emmanuel Beffara, 2002
 """
 Support for the `graphicx' package in Rubber.
 

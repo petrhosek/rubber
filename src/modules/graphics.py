@@ -1,3 +1,5 @@
+# This file is part of Rubber and thus covered by the GPL
+# (c) Emmanuel Beffara, 2002
 """
 Support for the `graphics' package in Rubber.
 
@@ -92,10 +94,10 @@ class Module:
 	def build (self):
 		"""
 		Prepare the graphics before compilation. Currently, this only means
-		failing if at least one is not found.
+		printing warnings if some graphics are not found.
 		"""
 		if self.not_found == []:
 			return 0
-		self.msg(0, _("Error: these graphics files were not found:"))
+		self.msg(0, _("Warning: these graphics files were not found:"))
 		self.msg(0, string.join(self.not_found, ", "))
-		return 1
+		return 0
