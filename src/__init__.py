@@ -252,11 +252,11 @@ class LogCheck:
 		"""
 		for line in self.lines:
 			if line[0] == "!":
-				# We check for the substring "warning:" because pdfTeX
+				# We check for the substring "pdfTeX warning" because pdfTeX
 				# sometimes issues warnings (like undefined references) in the
 				# form of errors...
 
-				if string.find(line, "warning:") == -1:
+				if string.find(line, "pdfTeX warning") == -1:
 					return 1
 		return 0
 
