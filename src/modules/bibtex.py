@@ -150,7 +150,11 @@ class Module:
 				"%s:%s" % (self.env.src_path, os.getenv("BIBINPUTS", "")) }
 		else:
 			env = {}
-		self.env.execute(["bibtex", "-terse", self.env.src_base], env)
+		if self.env.execute(["bibtex", "-terse", self.env.src_base], env):
+			self.env.msg(0,	_(
+				"There were errors running BibTeX (see %s for details)."
+				) % (self.env.src_base + ".blg"))
+			return 1
 		self.run_needed = 0
 		self.env.must_compile = 1
 		return 0

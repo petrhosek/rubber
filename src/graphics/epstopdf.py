@@ -18,9 +18,7 @@ class Dep (Depend):
 
 	def run (self):
 		self.env.msg(0, _("converting %s to PDF...") % self.source)
-		self.env.execute(self.cmd)
-		# FIXME: we should check that the conversion worked
-		return 0
+		return self.env.execute(self.cmd)
 
 def convert (source, target, env):
 	return Dep(target, source, env)

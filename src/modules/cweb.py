@@ -25,7 +25,7 @@ class Module:
 		if not self.run_needed():
 			return 0
 		self.env.msg(0, _("weaving %s.w...") % self.env.src_pbase)
-		self.env.execute(["cweave", self.env.src_pbase])
+		return self.env.execute(["cweave", self.env.src_pbase])
 
 	def run_needed (self):
 		"""

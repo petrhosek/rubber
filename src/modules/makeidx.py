@@ -39,8 +39,8 @@ class Module:
 		if not self.run_needed():
 			return 0
 		self.msg(0, "making index...")
-		self.env.execute(["makeindex", self.pbase])
 		self.env.must_compile = 1
+		return self.env.execute(["makeindex", self.pbase]):
 
 	def run_needed (self):
 		"""

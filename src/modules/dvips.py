@@ -30,10 +30,9 @@ class Module:
 			return 0
 		self.msg(0, _("running dvips on %s...") %
 		         (self.env.src_base + ".dvi"))
-		self.env.execute(
+		return self.env.execute(
 			["dvips", self.env.src_base + ".dvi",
 			 "-o", self.env.src_base + ".ps"])
-		return 0
 
 	def run_needed (self):
 		"""
