@@ -1,3 +1,7 @@
+2003-12-16  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py: Allowed backslashes in macro arguments.
+
 2003-12-11  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, src/cmdline.py: Moved the standard Message class

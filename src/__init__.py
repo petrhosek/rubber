@@ -538,7 +538,7 @@ class Environment:
 		self.seq = re.compile("\
 \\\\(?P<name>%s)\*?\
  *(\\[(?P<opt>[^\\]]*)\\])?\
- *({(?P<arg>[^\\\\{}]*)}|(?=[^A-Za-z]))"
+ *({(?P<arg>[^{}]*)}|(?=[^A-Za-z]))"
 			% string.join(self.hooks.keys(), "|"))
 
 	# Module interface:
