@@ -58,6 +58,7 @@ if which python > /dev/null; then
 	echo "I found Python, this is a good start."
 else
 	cat <<EOF
+
 I could not run the Python interpreter. Since Rubber is written in Python, you
 need a working Pyhton installation. Please make it so...
 EOF
@@ -70,8 +71,6 @@ echo "The system seems all right, so let's configure Rubber."
 
 
 ###  Configure the package
-
-fullmoddir=`eval echo $moddir`
 
 cat > settings.py <<EOF
 sub = {
