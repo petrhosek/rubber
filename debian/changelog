@@ -1,3 +1,15 @@
+rubber (0.99.8-1) unstable; urgency=low
+
+  * New release.
+  * Ignore \includegraphics when the file name contains # or \
+    (closes: #242906).
+  * Added support for combined PDF/LaTeX from XFig (closes: #260850)
+  * Added support for e-TeX and Omega (closes: #265240)
+  * Better check for availablility of external tools
+  	(closes: #247666, hopefully)
+
+ -- Emmanuel Beffara <manu@beffara.org>  Fri, 27 Aug 2004 22:56:38 +0100
+
 rubber (0.99.7-6) unstable; urgency=low
 
   * Added homepage link to package description

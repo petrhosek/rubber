@@ -1,5 +1,7 @@
 2004-08-27  Emmanuel Beffara  <manu@beffara.org>
 
+	* Version 0.99.8 released.
+
 	* src/cmdline.py: Added option --maxerr.
 
 2004-07-25  Emmanuel Beffara  <manu@beffara.org>
@@ -69,7 +71,7 @@
 
 	* rubber.spec.in: RPM packaging update.
 
-	* src/modules/epsfig.py: Added hooks for \epfbox and \epsffile.
+	* src/modules/epsfig.py: Added hooks for \epsfbox and \epsffile.
 
 2004-02-19  Emmanuel Beffara  <manu@beffara.org>
 
