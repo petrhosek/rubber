@@ -132,7 +132,7 @@ class Modules (Plugins):
 #---------------------------------------
 
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
-re_file = re.compile("(\\((?P<file>[^ ()]*)|\\))")
+re_file = re.compile("(\\((?P<file>[^ (){}]*)|\\))")
 re_badbox = re.compile("(Ov|Und)erfull \\\\[hv]box ")
 
 class LogCheck:
@@ -224,6 +224,7 @@ class LogCheck:
 				self.msg(0, line)
 				if line[0:2] == "l." or line[0:3] == "***":
 					showing = 0
+					skipping = 1
 				else:
 					self.update_file(line, pos)
 			elif line[0] == "!":
