@@ -67,13 +67,11 @@ class Module (rubber.rules.latex.Module):
 	# BibTeX uses.
 	#
 
-	def command (self, cmd, args):
-		if cmd == "path":
-			for arg in args:
-				self.bib_path.append(arg)
-		elif cmd == "stylepath":
-			for arg in args:
-				self.bst_path.append(arg)
+	def do_path (self, path):
+		self.bib_path.append(expanduser(path))
+
+	def do_stylepath (self, path):
+		self.bst_path.append(expanduser(path))
 
 	def add_db (self, name):
 		"""

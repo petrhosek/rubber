@@ -575,82 +575,6 @@ class LaTeXDep (Depend):
 
 			if dump: dump.write(line)
 
-	def command (self, cmd, args, pos={}):
-		"""
-		Execute the rubber command 'cmd' with arguments 'args'. This is called
-		when a command is found in the source file or in a configuration file.
-		A command name of the form 'foo.bar' is considered to be a command
-		'bar' for module 'foo'. The argument 'pos' describes the position
-		(file and line) where the command occurs.
-		"""
-		if cmd == "clean":
-			self.removed_files.extend(args)
-
-		elif cmd == "depend":
-			for arg in args:
-				file = self.env.find_file(arg)
-				if file:
-					self.sources[file] = DependLeaf(self.env, file)
-				else:
-					msg.warn(_("dependency '%s' not found") % arg, **pos)
-
-		elif cmd == "latex":
-			if len(args) > 1:
-				self.conf.latex = args[0]
-
-		elif cmd == "module":
-			if len(args) == 0:
-				msg.warn(_("argument required for command 'module'"), **pos)
-			else:
-				dict = { 'arg': args[0], 'opt': None }
-				if len(args) > 1:
-					dict['opt'] = args[1]
-				self.modules.register(args[0], dict)
-
-		elif cmd == "onchange":
-			if len(args) < 2:
-				msg.warn(_("two arguments required for command 'onchange'"), **pos)
-			else:
-				file = args[0]
-				self.onchange_cmd[file] = args[1]
-				if exists(file):
-					self.onchange_md5[file] = md5_file(file)
-				else:
-					self.onchange_md5[file] = None
-
-		elif cmd == "paper":
-			if len(args) > 1:
-				self.conf.paper.extend(string.split(args[0]))
-
-		elif cmd == "path":
-			for arg in args:
-				self.env.path.append(expanduser(arg))
-
-		elif cmd == "read":
-			for arg in args:
-				try:
-					file = open(arg)
-					for line in file.readlines():
-						line = line.strip()
-						if line == "" or line[0] == "%":
-							continue
-						lst = parse_line(line, pos)
-						self.command(lst[0], lst[1:])
-					file.close()
-				except IOError:
-					msg.warn(_("cannot read option file %s") % arg, **pos)
-
-		elif cmd == "watch":
-			for arg in args:
-				self.watch_file(arg)
-
-		else:
-			lst = string.split(cmd, ".", 1)
-			if len(lst) > 1:
-				self.modules.command(lst[0], lst[1], args)
-			else:
-				msg.warn(_("unknown directive '%s'") % cmd, **pos)
-
 	def process (self, path, loc={}):
 		"""
 		This method is called when an included file is processed. The argument
@@ -706,6 +630,81 @@ class LaTeXDep (Depend):
 			else:
 				return file, dep
 
+	#--  Directives  {{{2
+
+	def command (self, cmd, args, pos={}):
+		"""
+		Execute the rubber command 'cmd' with arguments 'args'. This is called
+		when a command is found in the source file or in a configuration file.
+		A command name of the form 'foo.bar' is considered to be a command
+		'bar' for module 'foo'. The argument 'pos' describes the position
+		(file and line) where the command occurs.
+		"""
+		# Calls to this method are actually translated into calls to "do_*"
+		# methods, except for calls to module directives.
+		lst = string.split(cmd, ".", 1)
+		if len(lst) > 1:
+			self.modules.command(lst[0], lst[1], args)
+		else:
+			if hasattr(self, "do_" + cmd):
+				try:
+					getattr(self, "do_" + cmd)(*args)
+				except:
+					msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
+			else:
+				msg.warn(_("unknown directive '%s'") % cmd, **pos)
+
+	def do_clean (self, *args):
+		self.removed_files.extend(args)
+
+	def do_depend (self, *args):
+		for arg in args:
+			file = self.env.find_file(arg)
+			if file:
+				self.sources[file] = DependLeaf(self.env, file)
+			else:
+				msg.warn(_("dependency '%s' not found") % arg, **pos)
+
+	def do_latex (self, arg):
+		self.conf.latex = arg
+
+	def do_module (self, mod, opt=None):
+		dict = { 'arg': mod, 'opt': opt }
+		self.modules.register(mod, dict)
+
+	def do_onchange (self, file, cmd):
+		self.onchange_cmd[file] = cmd
+		if exists(file):
+			self.onchange_md5[file] = md5_file(file)
+		else:
+			self.onchange_md5[file] = None
+
+	def do_paper (self, *args):
+		self.conf.paper.extend(args)
+
+	def do_path (self, name):
+		self.env.path.append(expanduser(name))
+
+	def do_read (self, name):
+		try:
+			file = open(name)
+			for line in file.readlines():
+				line = line.strip()
+				if line == "" or line[0] == "%":
+					continue
+				lst = parse_line(line, pos)
+				self.command(lst[0], lst[1:])
+			file.close()
+		except IOError:
+			msg.warn(_("cannot read option file %s") % name) #, **pos)
+
+	def do_watch (self, *args):
+		for arg in args:
+			self.watch_file(arg)
+
+
+	#--  Macro handling  {{{2
+
 		return None, None
 
 	def update_seq (self):
@@ -719,8 +718,6 @@ class LaTeXDep (Depend):
  *(\\[(?P<opt>[^\\]]*)\\])?\
  *({(?P<arg>[^{}]*)}|(?=[^A-Za-z]))"
  			% string.join(self.hooks.keys(), "|"))
-
-	#--  Macro handling  {{{2
 
 	def add_hook (self, name, fun):
 		"""
@@ -1106,7 +1103,14 @@ class Module (object):
 	def command (self, cmd, args):
 		"""
 		This is called when a directive for the module is found in the source.
+		By default, when called with argument "foo" it calls the method
+		"do_foo" if it exists, and fails otherwise.
 		"""
+		if hasattr(self, "do_" + cmd):
+			try:
+				getattr(self, "do_" + cmd)(*args)
+			except TypeError:
+				msg.warn(_("wrong syntax for %s") % cmd)
 
 	def show_errors (self):
 		"""

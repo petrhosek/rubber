@@ -49,6 +49,5 @@ class Module (rubber.rules.latex.Module):
 		self.dep = Dep(doc, ps, dvi, doc.env.final)
 		doc.env.final = self.dep
 
-	def command (self, cmd, args):
-		if cmd == "options":
-			self.dep.options.extend(args)
+	def do_options (self, *args):
+		self.dep.options.extend(args)

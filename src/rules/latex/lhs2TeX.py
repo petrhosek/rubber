@@ -20,10 +20,8 @@ class Module (rubber.rules.latex.Module):
 		doc.env.pkg_rules.add_rule("(.*)\\.tex$", "\\1.lhs", 0, "lhs2TeX")
 		self.style = "--poly"
 
-	def command (self, cmd, args):
-		if cmd == "style":
-			if len(args) > 0:
-				self.style = "--" + args[0]
+	def do_style (self, style):
+		self.style = "--" + style
 
 	def convert (self, source, target, env):
 		"""

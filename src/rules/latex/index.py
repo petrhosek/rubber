@@ -65,20 +65,19 @@ class Index:
 		self.style = None
 		self.opts = []
 
-	def command (self, cmd, args):
-		if cmd == "order":
-			for opt in args:
-				if opt == "standard": self.opts = []
-				elif opt == "german": self.opts.append("-g")
-				elif opt == "letter": self.opts.append("-l")
-				else: msg.warn(
-					_("unknown option '%s' for 'makeidx.order'") % opt)
-		elif cmd == "path":
-			for arg in args:
-				self.path.append(os.path.expanduser(arg))
-		elif cmd == "style":
-			if len(args) > 1:
-				self.style = args[0]
+	def do_order (self, *args):
+		for opt in args:
+			if opt == "standard": self.opts = []
+			elif opt == "german": self.opts.append("-g")
+			elif opt == "letter": self.opts.append("-l")
+			else: msg.warn(
+				_("unknown option '%s' for 'makeidx.order'") % opt)
+
+	def do_path (self, path):
+		self.path.append(expanduser(path))
+
+	def do_style (self, style):
+		self.style = style
 
 	def post_compile (self):
 		"""
