@@ -69,8 +69,6 @@ class Module (rubber.rules.latex.Module):
 		doc.add_hook("graphicspath", self.graphicspath)
 		doc.add_hook("DeclareGraphicsExtensions", self.declareExtensions)
 		doc.add_hook("DeclareGraphicsRule", self.declareRule)
-		doc.env.pkg_rules.add_rule("(.*)\\.(eps|pstex|pdf|pdftex)_t$",
-				"\\1.fig", 0, "fig2dev")
 
 		self.prefixes = map(lambda x: join(x, ""), doc.env.path)
 		self.files = []

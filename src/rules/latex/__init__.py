@@ -622,13 +622,15 @@ class LaTeXDep (Depend):
 					continue
 				dep = None
 
-			if dep is None or exists(file):
+			if dep is None or isinstance(dep, DependLeaf):
 				self.process(file, loc)
 
 			if dep is None:
 				return file, self.sources[file]
 			else:
 				return file, dep
+
+		return None, None
 
 	#--  Directives  {{{2
 

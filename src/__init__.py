@@ -306,45 +306,44 @@ class Converter (object):
 	"""
 	This class represents a set of translation rules that may be used to
 	produce input files. Objects contain a table of rewriting rules to deduce
-	potential source names from the target's name, and each rule has a give
-	weight that indicates how expensive the translation is.
+	potential source names from the target's name, and each rule has a given
+	cost that indicates how expensive the translation is.
 
-	Each rule associated to a given plugin name. Plugins are expected to
+	Each rule is associated to a given plugin name. Plugins are expected to
 	contain a method 'convert' that take as argument the source (an existing
 	file), the target, and the environment, and that returns a dependency node
 	or None if the rule is not applicable.
 	"""
-	def __init__ (self, rules, plugins):
+	def __init__ (self, plugins):
 		"""
-		Initialize the converter with a given set of rules. This set is a
-		dictionary that associates regular expressions (to match the target
-		names against) with dictionaries. Each of these dictionaries
-		associates templates (that depend on the regular expression) for the
-		source name with lists of couples (weight, plugin name). The third
-		argument is the plugin set to use.
-		See graphics.__init__ for an example.
+		Initialize the converter with an empty set of rules and the specified
+		plugin manager.
 		"""
 		self.rules = {}
-		for key, val in rules.items():
-			self.rules[re.compile(key)] = val
 		self.plugins = plugins
 
-	def add_rule (self, target, source, weight, module):
+	def read_ini (self, filename):
 		"""
-		Define a new conversion rule. The arguments are, respectively, the
-		expression to match the target against, the source name deduced from
-		it, the weight of the rule and the module to use when a source is
-		found. If another rule exists for the same translation, the new one
-		has priority over it.
+		Read a set of rules from a file. See the texinfo documentation for the
+		expected format of this file.
 		"""
-		e = re.compile(target)
-		if not self.rules.has_key(e):
-			self.rules[e] = {}
-		dict = self.rules[e]
-		if dict.has_key(source):
-			dict[source].insert(0, (weight, module))
-		else:
-			dict[source] = [(weight, module)]
+		from ConfigParser import ConfigParser
+		cp = ConfigParser()
+		cp.read(filename)
+		for name in cp.sections():
+			rule = dict(cp.items(name))
+			rule["cost"] = cost = cp.getint(name, "cost")
+			expr = re.compile(rule["target"] + "$")
+			self.rules[name] = (expr, cost, rule)
+
+	def add_rule (self, rule_name, **rule):
+		"""
+		Define a new conversion rule. The only arguments are keyword
+		arguments, they have the same meaning as parameters in the
+		initialization file.
+		"""
+		self.rules[rule_name] = (
+			re.compile(rule["target"] + "$"), rule["cost"], rule)
 
 	def may_produce (self, name):
 		"""
@@ -352,8 +351,8 @@ class Converter (object):
 		this converter, i.e. if it matches one of the target regular
 		expressions.
 		"""
-		for dest in self.rules.keys():
-			if dest.match(name):
+		for expr, _, _ in self.rules.values():
+			if expr.match(name):
 				return 1
 		return 0
 
@@ -361,10 +360,10 @@ class Converter (object):
 			suffixes=[""], prefixes=[""], **args):
 		"""
 		Search for an applicable rule for the given target with the least
-		weight. The return value is a pair:
+		cost. The return value is a pair:
 		- (None, None): no rule and no existing file was found
 		- (None, d): no rule was found, d is a leaf node for an existing file
-		- (w, d): a rule with weight w was found, the result node is d
+		- (c, d): a rule with cost w was found, the result node is d
 		Optional arguments are:
 		- check: a function that takes source and target as arguments can
 			return false if the rule is refused
@@ -376,31 +375,32 @@ class Converter (object):
 		conv = []
 		existing = None
 
-		for dest, rules in self.rules.items():
-			for prefix in prefixes:
-				for suffix in suffixes:
-					target = prefix + name + suffix
-					if existing is None and exists(target):
-						existing = target
-					m = dest.match(target)
-					if not m:
+		for expr, cost, rule in self.rules.values():
+			for target in [p + name + s for p in prefixes for s in suffixes]:
+				if existing is None and exists(target):
+					existing = target
+				m = expr.match(target)
+				if not m:
+					continue
+				templates, _ = expand_cases(rule["source"], {})
+				for tmpl in templates:
+					source = m.expand(tmpl)
+					if source == target:
 						continue
-					for src, mods in rules.items():
-						source = m.expand(src)
-						if not exists(source):
-							continue
-						if check and not check(source, target):
-							continue
-						for (weight, mod) in mods:
-							if not self.plugins.register(mod):
-								continue
-							conv.append((weight, source, target, mod))
+					if not exists(source):
+						continue
+					if check and not check(source, target):
+						continue
+					mod = rule["rule"]
+					if not self.plugins.register(mod):
+						continue
+					conv.append((cost, source, target, mod))
 
 		conv.sort()
-		for (weight, source, target, mod) in conv:
+		for (cost, source, target, mod) in conv:
 			dep = self.plugins[mod].convert(source, target, env, **args)
 			if dep:
-				return (weight, dep)
+				return (cost, dep)
 
 		if existing:
 			return (None, DependLeaf(env, existing))
@@ -433,8 +433,8 @@ class Environment:
 		self.vars = {}
 		self.path = [""]
 		self.plugins = Plugins(rubber.rules.__path__)
-		self.pkg_rules = Converter({}, self.plugins)
-		self.user_rules = Converter({}, self.plugins)
+		self.pkg_rules = Converter(self.plugins)
+		self.user_rules = Converter(self.plugins)
 		
 		self.main = None
 		self.final = None

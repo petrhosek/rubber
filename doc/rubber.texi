@@ -697,21 +697,35 @@ compiler used is @command{vlatexp} and the result is a PostScript file.
 
 @c ---  Graphics conversion  ---
 
-@node Graphics, Programming, Compiler choice, Top
+@node Graphics, Standard rules, Compiler choice, Top
 @chapter Graphics conversion
 
-Rubber includes a system for automatic conversion of graphics between various
-file formats. This is used when graphics are included using commands from the
-packages @command{graphicx}, @command{graphics} or @command{epsfig}.
+Rubber includes a system for automatic conversion of graphics (and other
+files) between various file formats. This is used when graphics are included
+using commands from the packages @command{graphicx}, @command{graphics} or
+@command{epsfig}.
 
 When a graphics inclusion macro like @command{\includegraphics} (even with the
 parameters allowed by the @command{graphicx} package) or @command{\epsfig} is
 found in a LaTeX source, Rubber looks for the corresponding file or a way to
 generate it. If the call to the macro does not specify a file extension, then
-the list of possible suffixes for the current compiler is tried. For each
-possible file name, Rubber first tries to find a way to convert this file from
-a source, and then looks for the file itself. This way, the source file will
-be considered as the actual dependency.
+the list of possible suffixes is tried (according to the current compiler and
+the options passed to the graphics package). For each possible file name,
+Rubber tries to find a good way to convert this file from a source, and then
+looks for the file itself. This way, the source file will be considered as the
+actual dependency.
+
+In order to find a good way to convert files, a @emph{cost} is attributed to
+each conversion rule. This cost is an integer that indicates how likely the
+conversion is, for instance the rule form @command{.fig} to @command{.eps}
+files (for XFig support) has cost zero because it is almost certain that this
+is the expected rule when the @command{.fig} file exists. On the other hand,
+the rule from @command{.eps} to @command{.jpeg} has cost 11 because this
+conversion is possible though usually not wanted.
+
+The list of standard rules is defined in the file @command{rules.ini} in the
+data directory. The syntax of this file is described in @ref{rules.ini}. The
+standard rules are described in @ref{Standard rules}.
 
 The path searched for graphics files is the same as that for LaTeX inputs by
 default. If the macro @command{\graphicspath} is used, the specified paths are
@@ -719,7 +733,14 @@ also searched, the same way as LaTeX does. Limited support is also provided
 for the @command{\DeclareGraphicsExtensions} and
 @command{\DeclareGraphicsRule} macros.
 
-@noindent
+@menu
+* Standard rules::  List of standard conversion rules.
+* rules.ini::       Syntax of rules.ini.
+@end menu
+
+@node Standard rules, rules.ini, Graphics, Graphics
+@section Standard conversion rules
+
 The following programs may be used when available:
 
 @table @command
@@ -749,9 +770,51 @@ occurs when needed. If the compilation of a MetaPost source fails, the errors
 are reported as it would be done for LaTeX errors.
 @end table
 
+@node rules.ini, Programming, Standard rules, Graphics
+@section Syntax of @command{rules.ini}
+
+The rules file has a format in the style of Wind*ws INI files. The lines that
+start with a semicolon @code{;} are comments, empty lines are ignored. The
+file is decomposed in sections, each introduced by a line of the form
+
+@example
+[rule-name]
+@end example
+
+@noindent
+where @code{rule-name} is a unique identifier for the rule. Following this
+header are lines of the form
+
+@example
+key = value
+@end example
+
+@noindent
+where @code{key} is an attribute name and @code{value} is its value, without
+any quotes. The spaces around the value are stripped.
+
+@noindent
+The following attributes are used:
+
+@table @code
+@item target
+A regular expression that matches the target file name.
+@item source
+A template that describes the source file name, with references to groups
+marked in the target expression as @code{\1}, @code{\2} etc. This template may
+also contain choices of the form @code{@{foo,bar,quux@}} to denote several
+possibilities for the source name.
+@item rule
+The name of the conversion rule. This name currently refers to internal
+modules of Rubber, as described in @ref{Standard rules}.
+@item cost
+The cost of the rule, as an integer. In the default file, this ranges between
+0 and 12.
+@end table
+
 @c ---  Programming with Rubber  ---
 
-@node Programming, Program structure, Graphics, Top
+@node Programming, Program structure, rules.ini, Top
 @chapter Programming with Rubber
 
 Rubber is written in the Python language. Its structure makes it possible to
