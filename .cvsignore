@@ -2,5 +2,6 @@ Makefile
 build
 dist
 rubber
+rubber-info
 settings.py*
 MANIFEST

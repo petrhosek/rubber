@@ -4,10 +4,14 @@ Rubber is a building system for LaTeX documents. It is based on a routine that
 runs (hopefully) just as many compilations as necessary. The module system
 provides a great flexibility that virtually allows support for any package
 with no user intervention, as well as pre- and post-processing of the
-document.
+document. The associated tool "rubber-info" extracts information, such as
+dependency relations or post-compilation diagnostics, in a useful way.
 
-Compiling and running Rubber requires Python, and nothing more. I don't know
-which version is required, but I think Python 2 is needed.
+
+* Installation
+
+Compiling and running Rubber requires Python version 2.1, and nothing more.
+However, it won't be of much use without a working LaTeX environment...
 
 To compile and install Rubber, just follow the usual procedure:
 
@@ -17,6 +21,20 @@ To compile and install Rubber, just follow the usual procedure:
 
 The options for configuration can be shown using ./configure --help.
 
+
+* Usage
+
+As civility requires, saying `rubber --help' and `rubber-info --help' provides
+a short description of the command line's syntax. The included manual page
+(available in English and French) contains more precise usage information.
+
+
+* Author
+
 Rubber is written and maintained by Emmanuel Beffara <emmanuel@beffara.org>.
+
+Thanks to Vincent Beffara, Arnaud Carayol, Samuel Hym, Emmanuel Jeandel and
+Guillaume Theyssier for testing, comments and suggestions.
+
 Any kind of feedback is appreciated, in order to make this program as useful,
 robust and powerful as possible...

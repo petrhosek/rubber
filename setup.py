@@ -112,7 +112,7 @@ document.""",
 		licence = "GPL",
 		packages = ["rubber", "rubber.modules"],
 		package_dir = {"rubber": "src"},
-		scripts = ["rubber"],
+		scripts = ["rubber", "rubber-info"],
 		data_files =
 		[(mandir + "/man1", ["man/en/rubber.1"]),
 		 (mandir + "/fr/man1", ["man/fr/rubber.1"])]
@@ -135,7 +135,8 @@ if len(sys.argv) > 1:
 		sys.exit(ret)
 	elif cmd == "config":
 		sub = settings.sub
-		make_files(sub, ["Makefile", "rubber", "src/version.py"])
+		make_files(sub, [
+			"Makefile", "rubber", "rubber-info", "src/version.py"])
 		print ("""\
 Rubber is now configured. It will be installed in the following directories:
     the main script: %s
