@@ -172,7 +172,7 @@ class Modules (Plugins):
 	package `rubber.modules'.
 	"""
 	def __init__ (self, env):
-		Plugins.__init__(self)
+		Plugins.__init__(self, "rubber.modules")
 		self.env = env
 		self.objects = {}
 
@@ -189,7 +189,7 @@ class Modules (Plugins):
 		passing it the environment and `dict' as arguments. This dictionary
 		describes the command that caused the registration.
 		"""
-		r = self.load_module(name, "rubber.modules")
+		r = Plugins.register(self, name)
 		if r == 0:
 			self.env.msg(3, _("no support found for %s") % name)
 			return 1

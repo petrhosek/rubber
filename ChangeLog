@@ -1,3 +1,8 @@
+2003-03-31  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, src/util.py, src/graphics/__init__.py: Revised the
+	definition of Converter.
+
 2003-03-27  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/util.py, src/graphics/__init__.py: Changed the converter
@@ -13,15 +18,16 @@
 	* src/__init__.py, src/cmdline.py, man/...: Added directive "read" and
 	changed the command line to use directives.
 
-	* src/modules/mkeidx.py, man/...: Added directives in makeidx to specify
-	options for makeindex.
+	* src/modules/mkeidx.py, man/...: Added directives in makeidx to
+	specify options for makeindex.
 
-	* src/modules/bibtex.py, man/...: Added support for BibTeX path changing.
+	* src/modules/bibtex.py, man/...: Added support for BibTeX path
+	changing.
 
 	* src/__init__.py: Introduced support for module-specific directives.
 
-	* src/__init__.py, src/modules/...: Modified the module structure into a
-	more object-oriented one, introducing a base class Module in module
+	* src/__init__.py, src/modules/...: Modified the module structure into
+	a more object-oriented one, introducing a base class Module in module
 	rubber.
 
 2003-03-21  Emmanuel Beffara  <manu@beffara.org>
@@ -38,8 +44,8 @@
 	* src/graphics/mpost.py: Fixed the execution rule for compiling in
 	different directories.
 
-	* src/modules/graphics.py, src/graphics/__init__: Added support for the
-	\graphicspath macro.
+	* src/modules/graphics.py, src/graphics/__init__: Added support for
+	the \graphicspath macro.
 
 	* src/__init__.py: Added support for running programs from different
 	directories, allowed macros to parse the rest of their line.

@@ -37,8 +37,8 @@ import re
 from os.path import *
 from rubber.util import *
 
-plugins = Plugins()
-convert = Converter(conv, plugins, "rubber.graphics")
+plugins = Plugins("rubber.graphics")
+convert = Converter(conv, plugins)
 
 def dep_file (base, suffixes, prefixes, env):
 	"""

@@ -81,12 +81,22 @@ def match_brace (str):
 class Plugins:
 	"""
 	This class gathers operations related to the management of external Python
-	modules. Modules are requested through the `load_module' method, and
+	modules. Modules are requested through the `register' method, and
 	they are searched for first in the current directory, then in the
 	(possibly) specified Python package (using Python's path).
 	"""
-	def __init__ (self):
+	def __init__ (self, package = None):
+		"""
+		Initialize the module set, possibly setting a package name in which
+		modules will be searched for.
+		"""
 		self.modules = {}
+		if package:
+			self.pname = ""
+			for p in package.split("."):
+				self.pname = join(self.pname, p)
+		else:
+			self.pname = None
 
 	def __getitem__ (self, name):
 		"""
@@ -94,7 +104,7 @@ class Plugins:
 		"""
 		return self.modules[name]
 
-	def load_module (self, name, package=None):
+	def register (self, name):
 		"""
 		Attempt to register a module with the specified name. If an
 		appropriate module is found, load it and store it in the object's
@@ -106,13 +116,10 @@ class Plugins:
 		try:
 			file, path, descr = imp.find_module(name, [""])
 		except ImportError:
-			if not package:
+			if not self.pname:
 				return 0
 			try:
-				pname = ""
-				for p in package.split("."):
-					pname = join(pname, p)
-				file, path, descr = imp.find_module(join(pname, name));
+				file, path, descr = imp.find_module(join(self.pname, name));
 			except ImportError:
 				return 0
 		module = imp.load_module(name, file, path, descr)
@@ -262,21 +269,19 @@ class Converter:
 	environment, and that returns a dependency node or None if the rule is not
 	applicable.
 	"""
-	def __init__ (self, rules, plugins, package):
+	def __init__ (self, rules, plugins):
 		"""
-		Initialize the ocnverter with a given set of rules. This set is a
+		Initialize the converter with a given set of rules. This set is a
 		dictionary that associates regular expressions (to match the target
 		names against) with dictionaries. Each of these dictionaries
 		associates templates (that depend on the regular expression) for the
 		source name with plugin names. See graphics.__init__ for an example.
-		The third argument is the plugin set to use and the fourth one is
-		Python package in which plugins are searched for.
+		The third argument is the plugin set to use.
 		"""
 		self.rules = {}
 		for key, val in rules.items():
 			self.rules[re.compile(key)] = val
 		self.plugins = plugins
-		self.package = package
 
 	def add_rule (self, target, source, module):
 		"""
@@ -298,7 +303,7 @@ class Converter:
 				for src, mod in rules.items():
 					source = m.expand(src)
 					if exists(source):
-						if not self.plugins.load_module(mod, self.package):
+						if not self.plugins.register(mod):
 							continue
 						dep = self.plugins[mod].convert(source, target, env)
 						if dep:
