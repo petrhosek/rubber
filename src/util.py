@@ -1,13 +1,15 @@
 # This file is part of Rubber and thus covered by the GPL
 # (c) Emmanuel Beffara, 2002
 """
-This module contains utility functions used by the main system and by the
-modules for various tasks.
+This module contains utility functions and classes used by the main system and
+by the modules for various tasks.
 """
 
 import md5
-import os.path
+import os
+from os.path import *
 import imp
+import time
 
 def md5_file (fname):
 	"""
@@ -54,8 +56,8 @@ class Plugins:
 			try:
 				pname = ""
 				for p in package.split("."):
-					pname = os.path.join(pname, p)
-				file, path, descr = imp.find_module(os.path.join(pname, name));
+					pname = join(pname, p)
+				file, path, descr = imp.find_module(join(pname, name));
 			except ImportError:
 				return 0
 		module = imp.load_module(name, file, path, descr)
@@ -70,3 +72,89 @@ class Plugins:
 		speeding the registration if the modules are loaded again.
 		"""
 		self.modules.clear()
+
+
+class Depend:
+	"""
+	This is a base class to represent file dependencies. It provides the base
+	functionality of date checking and recursive making, supposing the
+	existence of a method `run()' in the object. This method is supposed to
+	rebuild the files of this node, returning zero on success and something
+	else on failure.
+	"""
+	def __init__ (self, prods, sources):
+		"""
+		Initialize the object for a given set of output files and a given set
+		of sources. The argument `prods' is a list of file names, and the
+		argument `sources' is a dictionary that associates file names with
+		dependency nodes.
+		"""
+		self.prods = prods
+		try:
+			# We set the node's date to that of the most recently modified
+			# product file, assuming all other files were up to date then
+			# (though not necessarily modified).
+			self.date = max(map(getmtime, prods))
+		except OSError:
+			# If some product file does not exist, set the last modification
+			# date to None.
+			self.date = None
+		self.sources = sources
+
+	def should_make (self):
+		"""
+		Check the dependencies. Return true if this node has to be recompiled,
+		i.e. if some dependency is modified. Nothing recursive is done here.
+		"""
+		if not self.date:
+			return 1
+		for src in self.sources.values():
+			if src.date > self.date:
+				return 1
+		return 0
+
+	def make (self):
+		"""
+		Make the destination file. This recursively makes all dependencies,
+		then compiles the target if dependencies were modified. The semantics
+		of the return value is the following:
+		- 0 means that the process failed somewhere (in this node or in one of
+		  its dependencies)
+		- 1 means that nothing had to be done
+		- 2 means that something was recompiled (therefore nodes that depend
+		  on this one have to be remade)
+		"""
+		must_make = 0
+		for src in self.sources.values():
+			ret = src.make()
+			if ret == 0:
+				return 0
+			if ret == 2:
+				must_make = 1
+		if must_make or self.should_make():
+			if self.run():
+				return 0
+			self.date = time.time()
+			return 2
+		return 1
+
+	def clean (self):
+		"""
+		Remove the files produced by this rule and recursively clean all
+		dependencies.
+		"""
+		for file in self.prods:
+			if exists(file):
+				os.unlink(file)
+		for src in self.sources.values():
+			src.clean()
+
+class DependLeaf (Depend):
+	"""
+	This class specializes Depend for leaf nodes, i.e. source files with no
+	dependencies.
+	"""
+	def __init__ (self, dest):
+		Depend.__init__(self, dest, {})
+	def clean (self):
+		pass

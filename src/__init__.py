@@ -147,7 +147,7 @@ class Parser:
 		"""
 		self.msg(2, "parsing " + path)
 		file = open(path)
-		self.env.process.depends.append(path)
+		self.env.process.depends[path] = DependLeaf([path])
 		self.do_process(file)
 		file.close()
 		self.msg(3, "end of " + path)
@@ -307,7 +307,7 @@ class LogCheck:
 		Display all errors that occured during compilation. Return 0 if there
 		was no error.
 		"""
-		pos = []
+		pos = ["(no file)"]
 		last_file = None
 		showing = 0
 		something = 0
@@ -374,10 +374,13 @@ class Process:
 
 		# additional data:
 
-		self.re_kpse = re.compile("kpathsea: Running (?P<cmd>[^ ]*) +(?P<arg>.*)")
+		self.re_kpse = re.compile(
+			"kpathsea: Running (?P<cmd>[^ ]*).* (?P<arg>[^ ]*)$")
 		self.kpse_msg = {
-			"mktextfm" : _("making font metrics for %s..."),
-			"mktexmf" : _("making font %s...") }
+			"mktextfm" : _("making font metrics for \\g<arg>..."),
+			"mktexmf" : _("making font \\g<arg>..."),
+			"mktexpk" : _("making bitmap for font \\g<arg>...")
+			}
 
 	###  preparation things
 
@@ -392,7 +395,7 @@ class Process:
 		if not name:
 			self.msg(0, _("cannot find %s") % path)
 			return 1
-		self.depends = []
+		self.depends = {}
 		(self.src_path, name) = split(name)
 		(self.src_base, self.src_ext) = splitext(name)
 		self.src_pbase = join(self.src_path, self.src_base)
@@ -447,6 +450,9 @@ class Process:
 		self.must_compile = self.compile_needed()
 		if self.ext_building != []:
 			self.msg(1, _("building additional files..."))
+			for dep in self.depends.values():
+				if dep.make() == 0:
+					return 1
 			for proc in self.ext_building:
 				if proc(): return 1
 		return 0
@@ -557,12 +563,9 @@ class Process:
 		Returns true if any of the dependencies is younger than the specified
 		date.
 		"""
-		for file in self.depends:
-			if exists(file):
-				if getmtime(file) > date:
-					return 1
-			else:
-				self.msg(2, _("dependency %s does not exist") % file)
+		for dep in self.depends.values():
+			if dep.date > date:
+				return 1
 		return 0
 
 	###  utility methods
@@ -605,13 +608,15 @@ class Process:
 		while 1:
 			line = f_err.readline()
 			if line == "": break
+			line = line.rstrip()
 			m = self.re_kpse.match(line)
 			if m:
+				self.msg(1, line)
 				cmd = m.group("cmd")
 				if self.kpse_msg.has_key(cmd):
-					self.msg(0, self.kpse_msg[cmd] % m.group("arg"))
+					self.msg(0, m.expand(self.kpse_msg[cmd]))
 				else:
-					self.msg(0, _("kapthsea running %s...") % cmd)
+					self.msg(0, _("kpathsea running %s...") % cmd)
 		self.something_done = 1
 
 	def remove_suffixes (self, list):
@@ -707,7 +712,7 @@ class Environment:
 		Parse the source for packages and supported macros.
 		"""
 		self.parser.process(self.process.source())
-		self.message(2, _("dependencies: %r") % self.process.depends)
+		self.message(2, _("dependencies: %r") % self.process.depends.keys())
 
 	def make (self):
 		"""

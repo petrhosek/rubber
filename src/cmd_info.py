@@ -97,7 +97,7 @@ actions:
 			print "%s%s: %s" % (
 				self.env.process.src_pbase,
 				self.env.process.out_ext,
-				string.join(self.env.process.depends))
+				string.join(self.env.process.depends.keys()))
 		else:
 			return self.info_log(src, self.act)
 
