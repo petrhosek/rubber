@@ -2,8 +2,6 @@
 # As part of Rubber, it is covered by the GPL (see COPYING for details).
 # (c) Emmanuel Beffara, 2002
 
-version = @version@
-python = @python@
 prefix = @prefix@
 bindir = @bindir@
 moddir = @moddir@
@@ -28,7 +26,7 @@ distclean: clean
 ifneq ($(wildcard man/Makefile),)
 	@make -C man distclean
 endif
-	rm -f Makefile rubber settings.py src/version.py
+	rm -f rubber.spec Makefile rubber settings.py src/version.py
 
 install:
 	@python@ setup.py inst ${prefix}
@@ -43,7 +41,14 @@ endif
 	@python@ setup.py sdist
 
 deb: sdist
-	cd dist ; tar zxf rubber-@version@.tar.gz 
+	cd dist ; tar zxf rubber-@version@.tar.gz
 	cp -r debian dist/rubber-@version@/
 	rm -rf dist/rubber-@version@/debian/CVS
 	cd dist/rubber-@version@ ; dpkg-buildpackage -rfakeroot
+
+rpm: sdist
+	mkdir -p build/rpm/{BUILD,RPMS/noarch,SOURCES,SPECS,SRPMS}
+	cp rubber.spec build/rpm/SPECS/
+	cp dist/rubber-@version@.tar.gz build/rpm/SOURCES/
+	rpmbuild --define _topdir`pwd`/build/rpm --buildroot `pwd`/build/root -ba rubber.spec
+	mv build/rpm/RPMS/noarch/rubber-@version@-@release@.noarch.rpm build/rpm/SRPMS/rubber-@version@-@release@.src.rpm dist/

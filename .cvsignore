@@ -1,4 +1,5 @@
 Makefile
+rubber.spec
 build
 dist
 rubber

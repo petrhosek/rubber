@@ -142,9 +142,10 @@ if len(sys.argv) > 1:
 	elif cmd == "config":
 		sub = settings.sub
 		make_files(sub, [
+			"rubber.spec",
 			"Makefile", "man/Makefile",
 			"rubber", "rubber-info", "src/version.py"])
-		print ("""\
+		print ("""
 Rubber is now configured. It will use the following Python interpreter:
     %s
 It will be installed in the following directories:

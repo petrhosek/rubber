@@ -5,6 +5,7 @@
 
 # this is the only place where there is version number:
 version=0.99.3
+release=1
 
 python=""
 prefix=/usr/local
@@ -97,6 +98,7 @@ cat > settings.py <<EOF
 sub = {
   "python": "$python",
   "version": "$version",
+  "release": "$release",
   "prefix": "$prefix",
   "bindir": "$bindir",
   "datadir": "$datadir",

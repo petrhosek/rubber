@@ -1,3 +1,8 @@
+2002-10-15  Emmanuel Beffara  <manu@beffara.org>
+
+	* rubber.spec.in, configure, setup.py, Makefile.in: Introduced RPM
+	packaging rules.
+
 2002-10-14  Emmanuel Beffara  <manu@beffara.org>
 
 	* configure, setup.py, Makefile.in: Made the Pyhton interpreter a

@@ -4,4 +4,5 @@ exclude src/version.py
 include configure
 include README
 include COPYING
+include ChangeLog
 recursive-include man *.1

@@ -1,0 +1,35 @@
+Name: rubber
+Summary: An automated system for building LaTeX documents.
+Version: @version@
+Release: @release@
+Copyright: GPL
+Group: Applications/Publishing
+URL: http://beffara.org/soft/rubber.html
+Packager: Emmanuel Beffara <manu@beffara.org>
+Source: rubber-@version@.tar.gz
+Requires: python2, tetex
+BuildArch: noarch
+
+%description
+This is a building system for LaTeX documents. It is based on a routine that
+runs just as many compilations as necessary. The module system provides a
+great flexibility that virtually allows support for any package with no user
+intervention, as well as pre- and post-processing of the document. The
+standard modules currently provide support for bibtex, dvips, pdftex,
+makeindex, cweb and graphics/graphicx (currently with automatic epstopdf and
+XFig picture conversion and Metapost compilation).
+
+%prep
+%setup
+./configure --prefix=/usr --mandir=\${prefix}/share/man --python=python2
+
+%build
+make
+
+%install
+make install prefix=$RPM_BUILD_ROOT/usr
+
+%files
+%defattr(-, root, root)
+%doc ChangeLog COPYING README
+/usr
