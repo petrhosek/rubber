@@ -51,7 +51,7 @@ class PSTDep (Depend):
 	XFig. They produce both a LaTeX source that contains an \\includegraphics
 	and an EPS file.
 	"""
-	def __init__ (self, env, tex, fig, module=None, loc={}, **args):
+	def __init__ (self, env, tex, fig, vars, module=None, loc={}):
 		"""
 		The arguments of the constructor are, respectively, the figure's
 		source, the LaTeX source produced, the EPS figure produced, the name
@@ -81,11 +81,11 @@ class PSTDep (Depend):
 		if self.env.execute(self.cmd_t): return 1
 		return self.env.execute(self.cmd_p)
 
-def convert (source, target, env, loc={}, **args):
+def convert (source, target, env, vars, loc={}):
 	if not prog_available("fig2dev"):
 		return None
 	i = target.rfind(".")
 	if i > 0 and target[i+1:] in ["eps_t", "pstex_t", "pdf_t", "pdftex_t"]:
-		return PSTDep(env, target, source, loc=loc, **args)
+		return PSTDep(env, target, source, vars, loc=loc)
 	else:
 		return Dep(env, target, source)

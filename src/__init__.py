@@ -394,11 +394,14 @@ class Converter (object):
 					mod = rule["rule"]
 					if not self.plugins.register(mod):
 						continue
-					conv.append((cost, source, target, mod))
+					conv.append((cost, source, target, rule))
 
 		conv.sort()
-		for (cost, source, target, mod) in conv:
-			dep = self.plugins[mod].convert(source, target, env, **args)
+		for (cost, source, target, rule) in conv:
+			dict = rule.copy()
+			for key, val in args.items():
+				dict[key] = val
+			dep = self.plugins[rule["rule"]].convert(source, target, env, dict)
 			if dep:
 				return (cost, dep)
 

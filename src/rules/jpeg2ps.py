@@ -22,7 +22,7 @@ class Dep (Depend):
 			return 1
 		return 0
 
-def convert (source, target, env, **args):
+def convert (source, target, env, vars):
 	if not prog_available("jpeg2ps"):
 		return None
 	return Dep(env, target, source)

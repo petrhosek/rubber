@@ -140,7 +140,7 @@ class Dep (Depend):
 
 files = {}
 
-def convert (source, target, env, **args):
+def convert (source, target, env, vars):
 	if not prog_available("mpost"):
 		return None
 	if files.has_key(source):

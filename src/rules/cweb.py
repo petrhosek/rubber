@@ -31,5 +31,5 @@ class CWebDep (Depend):
 		return 0
 
 
-def convert (self, source, target, env, **args):
+def convert (self, source, target, env, vars):
 	return CWebDep(source, target, env)
