@@ -25,7 +25,7 @@ documentation for version 0.99
 
 \section(2, Synopsis)
 
-\syntax(rubber, [\optarg(options) \arg(source)])
+\syntax(rubber, [\optarg(options) \arg(sources)...])
 
 \section(2, Description)
 
@@ -34,9 +34,9 @@ LaTeX source to process, to compile it enough times to resolve all references,
 possibly running satellite programs such as BibTeX or makeindex to produce
 appropriate data files.\br
 
-The default action is to build the specified document completely. The source
-file may be either a LaTeX source (in which case the suffix \tt(.tex) may be
-omitted) or a document in a format Rubber knows how to translate to LaTeX (this
+The default action is to build the specified documents completely. The source
+files may be either LaTeX sources (in which case the suffix \tt(.tex) may be
+omitted) or documents in a format Rubber knows how to translate to LaTeX (this
 currently means a CWEB document).
 
 \section(2, Options)

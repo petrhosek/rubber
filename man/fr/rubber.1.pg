@@ -25,7 +25,7 @@ docmentation pour la version 0.99
 
 \section(2, Synopsis)
 
-\syntax(rubber, [\optarg(options) \arg(commande) \optarg(argument)])
+\syntax(rubber, [\optarg(options) \arg(sources)...])
 
 \section(2, Description)
 
@@ -34,9 +34,9 @@ est, étant donné un fichier source LaTeX, de le compiler tant que nécessaire
 et d'exécuter des programmes annexes comme BibTeX ou makeindex pour produire
 des fichiers de données si besoin est.\br
 
-L'action par défaut consiste à construire complètement le document spécifié.
-Le source passé en argument peut être soit un source LaTeX (auquel cas le
-suffixe \tt(.tex) peut être omis), soit un fichier dans un format que Rubber
+L'action par défaut consiste à construire complètement les documents spécifié.
+Les sources passés en argument peuvent être des sources LaTeX (auquel cas le
+suffixe \tt(.tex) peut être omis), ou des fichiers dans un format que Rubber
 sait traduire vers LaTeX (pour le moment, cela signifie un source CWEB).
 
 \section(2, Options)
@@ -136,6 +136,7 @@ http://beffara.org/stuff/rubber.html.
 
 \section(2, Voir aussi)
 
+\manref(rubber-info, 1),
 \manref(latex, 1),
 \manref(pdflatex, 1),
 \manref(bibtex, 1),
