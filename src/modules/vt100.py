@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2003
 """
 This is an experimental module that provides colored output using VT100 escape
 codes. It works by replacing the writing method in the standard Message class

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2003
 """
 BibTeX support for Rubber
 

@@ -1,3 +1,8 @@
+2003-10-27  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/{verbatim|moreverb}.py, man/...: Added modules for
+	packages 'verbatim' and 'moreverb' (providing dependency analysis).
+
 2003-10-20  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/...: Added a reference to the message writer in dependency

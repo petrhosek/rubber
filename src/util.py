@@ -253,9 +253,9 @@ class DependLeaf (Depend):
 	def run (self):
 		# FIXME
 		if len(self.prods) == 1:
-			self.msg(0, _("%r does not exit") % self.prods[0])
+			self.msg(0, _("%r does not exist") % self.prods[0])
 		else:
-			self.msg(0, _("one of %r does not exit") % self.prods)
+			self.msg(0, _("one of %r does not exist") % self.prods)
 		return 1
 
 	def clean (self):

@@ -1,3 +1,5 @@
+# This file is part of Rubber and thus covered by the GPL
+# (c) Emmanuel Beffara, 2003
 """
 Support for package 'combine' in Rubber.
 

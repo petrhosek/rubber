@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2003
 """
 Support for the `graphics' package in Rubber.
 
@@ -205,6 +205,10 @@ class Module (rubber.Module):
 			dep.clean()
 
 	def convert (self, source, target, env):
+		"""
+		Return a dependency node (or None) for the conversion of the given
+		source figure into the given target LaTeX source.
+		"""
 		if target[-6:] == ".eps_t":
 			return PSTDep(source, target, target[:-2], target[:-6], env)
 		elif target[-2:] == "_t":

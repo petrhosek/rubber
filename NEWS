@@ -4,6 +4,7 @@ Version CVS
     - Support for Literate Haskell code (with lhs2TeX).
     - Directives "watch" and "clean" for tables of contents and such.
     - Support for graphics conversion using ImageMagick (lots of new formats).
+	- Support for packages "moreverb" and "verbatim".
 
   Bugfixes:
     - Modules are handled correctly when compiling several documents at once.
@@ -105,5 +106,5 @@ Version 0.99.1 (2002-06-21)
 
 Version 0.99 (2002-05-31)
 
-This was actually the first version of Rubber. It was a rewrite in Pyhton of
+This was actually the first version of Rubber. It was a rewrite in Python of
 the now-deceased Eel (that was written in shell script).
