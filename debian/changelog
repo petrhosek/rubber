@@ -1,8 +1,18 @@
 rubber (0.99.7-1) unstable; urgency=low
 
   * New release.
+  * Support for \graphicspath (closes: #183825).
+  * Support for package natbib (closes: #184316).
+  * Changed parsing rule for \usepackage (closes: #189680).
+  * Included NMU for Python dependencies (closes: #208922).
+  * Made --clean mode verbose (closes: #216101).
+  * Added interface for ImageMagick (closes: #216220).
+  * Change error format to GNU style (closes: #219540).
+  * BibTeX bugfixes (closes: #227575).
+  * Support for pdfTeX in DVI mode (closes: #228675).
+  * Support for package multibib (closes: #229149).
 
- -- Emmanuel Beffara <manu@beffara.org>  Fri, 20 Feb 2004 14:54:22 +0100
+ -- Emmanuel Beffara <manu@beffara.org>  Fri, 21 Feb 2004 15:08:42 +0100
 
 rubber (0.99.6-1.1) unstable; urgency=low
 
