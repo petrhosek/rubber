@@ -237,12 +237,11 @@ Produit un source LaTeX à partir du document principal, en remplaçant les
 macros \\input par les fichiers inclus, les macros de bibliographies par la
 bibliographie produite par
 .BR bibtex (1),
-et les classes et packages locaux par leur source. Les options de module
-.I nobib, nocls, nopkg
-empêchent certaines expansions spécifiquement. Si le fichier principal est
+et les classes et packages locaux par leur source. Si le fichier principal est
 .IR foo.tex ,
 le fichier développé sera nommé
 .IR foo-final.tex .
+Voir la documentation en info pour plus de détails.
 .PP
 
 .SS Choix du compilateur
@@ -335,8 +334,8 @@ elle est considérée comme une commande
 pour le module
 .IR toto .
 Si ce module n'est pas encore enregistré lorsque la directive est rencontrée,
-il est chargé sans option puis la commande est exécutée. Pour les modules
-standard, les directives sont les suivantes:
+la commande est simplement ignorée. Pour les modules standard, les directives
+sont les suivantes:
 .TP
 .BI bibtex.path \ <répertoire> 
 Ajoute le répertoire spécifié au chemin de recherche de bases de données
@@ -369,16 +368,19 @@ Spécifie le style d'index à utiliser.
 .SH BUGS
 Il y en a surement quelques uns...
 
-Cette page se rapporte à la version 0.99.6 de Rubber. Le programme et cette
+Cette page se rapporte à la version 0.99.7 de Rubber. Le programme et cette
 documentation sont maintenus par Emmanuel Beffara <manu@beffara.org>.
-La page web du programme se trouve à l'adresse
-http://beffara.org/stuff/rubber.html.
+La page web du programme se trouve à l'adresse http://rubber.sourceforge.net/.
 
 .SH VOIR AUSSI
-.BR rubber-info (1),
-.BR latex (1),
-.BR pdflatex (1),
-.BR bibtex (1),
-.BR dvipdfm (1),
-.BR dvips (1),
-.BR texexec (1)
+La documentation complète de
+.B rubber
+est maintenue en tant que manuel en Texinfo. Si les programmes
+.B info
+et
+.B rubber
+sont installés correctement sur votre système, la commande
+.IP
+.B info rubber
+.PP
+devrait vous donner accès au manuel complet (en anglais).

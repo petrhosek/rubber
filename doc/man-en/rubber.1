@@ -234,12 +234,11 @@ also loaded by the command line option
 Produce an expanded LaTeX source by replacing \\input macros by included
 files, bibliography macros by the bibliography produced by
 .BR bibtex (1),
-and local classes and packages by their source. The module options
-.B nobib, nocls, nopkg
-turn off specific expansions. If the main file is
+and local classes and packages by their source. If the main file is
 .I foo.tex
 then then expanded file will be named
 .IR foo-final.tex .
+See the info documentation for details.
 .PP
 
 .SS Compiler choice
@@ -280,6 +279,7 @@ the sources. A directive is a line like
 The line must begin with a "%", then any sequence of "%" signs and
 spaces, then the text "rubber:" followed by spaces and a command name,
 possibly followed by spaces and arguments.
+
 .SS General directives
 .TP
 .BI clean \ <file>
@@ -319,6 +319,7 @@ Watch the specified file for changes. If the contents of this file has changed
 after a compilation, then another compilation is triggered. This is useful in
 the case of tables of contents, for instance.
 .PP
+
 .SS Module-specific directives
 If a command has the form
 .IR foo.bar ,
@@ -326,9 +327,9 @@ it is considered a command
 .I bar
 for the module
 .IR foo .
-If this module is not registered when the directive is found, then it is
-loaded with no option and the command is executed. For the standard modules,
-the directives are the following:
+If this module is not registered when the directive is found, then the command
+is silently ignored. For the standard modules, the directives are the
+following:
 .TP
 .BI bibtex.path \ <directory>
 Adds the specified directory to the search path for BibTeX databases (.bib
@@ -360,15 +361,19 @@ Specifies the index style to be used.
 .SH BUGS
 There are surely a some...
 
-This page documents Rubber version 0.99.6. The program and this man-page are
+This page documents Rubber version 0.99.7. The program and this man-page are
 maintained by Emmanuel Beffara <manu@beffara.org>.
-The homepage for Rubber can be found at http://beffara.org/stuff/rubber.html.
+The homepage for Rubber can be found at http://rubber.sourceforge.net/.
 
 .SH SEE ALSO
-.BR rubber-info (1),
-.BR latex (1),
-.BR pdflatex (1),
-.BR bibtex (1),
-.BR dvipdfm (1),
-.BR dvips (1),
-.BR texexec (1)
+The full documentation for
+.B rubber
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B rubber
+programs are properly installed at your site, the command
+.IP
+.B info rubber
+.PP
+should give you access to the complete manual.
