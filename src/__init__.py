@@ -370,6 +370,8 @@ class Environment:
 
 		# state of the builder:
 
+		self.processed_sources = {}
+
 		self.must_compile = 0
 		self.something_done = 0
 
@@ -418,6 +420,10 @@ class Environment:
 		This method is called when an included file is processed. The argument
 		must be a valid file name.
 		"""
+		if self.processed_sources.has_key(path):
+			self.msg(3, _("%s already parsed") % path)
+			return
+		self.processed_sources[path] = None
 		self.msg(2, _("parsing %s") % path)
 		file = open(path)
 		self.depends[path] = DependLeaf([path])
