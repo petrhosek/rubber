@@ -4,12 +4,12 @@
 # configuration script a la autoconf and as a setup script a la Distutils.
 #
 # As the rest of Rubber, this script is covered by the GPL (see COPYING).
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2005
 
 import re
 import string
 import sys
-import os.path
+import os.path, glob
 
 # The module `settings' is produced by the configuration script.
 
@@ -102,9 +102,11 @@ def do_setup ():
 	"""
 	from distutils.core import setup
 	try:
+		moddir = expand_vars(settings.sub, settings.sub["moddir"])
 		mandir = expand_vars(settings.sub, settings.sub["mandir"])
 		infodir = expand_vars(settings.sub, settings.sub["infodir"])
 	except NameError:
+		moddir = "rubber"
 		mandir = "man"
 		infodir = "info"
 	setup(
@@ -129,7 +131,8 @@ Metapost compilation).\
 		package_dir = {"rubber": "src"},
 		scripts = ["rubber", "rubber-info", "rubber-pipe"],
 		data_files =
-		[(mandir + "/man1",
+		[(moddir + "/modules", glob.glob("modules/*.rub")),
+		 (mandir + "/man1",
 			["doc/man-en/rubber.1", "doc/man-en/rubber-info.1", "doc/man-en/rubber-pipe.1"]),
 		 (mandir + "/fr/man1",
 			["doc/man-fr/rubber.1", "doc/man-fr/rubber-info.1", "doc/man-fr/rubber-pipe.1"]),

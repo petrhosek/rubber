@@ -16,6 +16,7 @@ import string
 def _ (txt): return txt
 
 from rubber.util import *
+from rubber.version import moddir
 import rubber.modules
 
 #---------------------------------------
@@ -70,8 +71,9 @@ class Config (object):
 class Modules (Plugins):
 	"""
 	This class gathers all operations related to the management of modules.
-	The modules are	searched for first in the current directory, then in the
-	package `rubber.modules'.
+	The modules are	searched for first in the current directory, then as
+	scripts in the 'modules' directory in the program's data directort, then
+	as a Python module in the package `rubber.modules'.
 	"""
 	def __init__ (self, env):
 		Plugins.__init__(self, rubber.modules.__path__)
@@ -99,15 +101,30 @@ class Modules (Plugins):
 		delayed commands for this module. The dictionary describes the
 		command that caused the registration.
 		"""
-		r = Plugins.register(self, name)
-		if r == 0:
-			self.env.msg(3, _("no support found for %s") % name)
-			return 0
-		elif r == 2:
+		if self.has_key(name):
 			self.env.msg(3, _("module %s already registered") % name)
 			return 2
-		mod = self.modules[name].Module(self.env, dict)
-		self.env.msg(2, _("module %s registered") % name)
+
+		# First look for a script
+
+		mod = None
+		for path in "", join(moddir, "modules"):
+			file = join(path, name + ".rub")
+			if exists(file):
+				mod = ScriptModule(self.env, file)
+				self.env.msg(2, _("script module %s registered") % name)
+				break
+
+		# Then look for a Python module
+
+		if not mod:
+			if Plugins.register(self, name) == 0:
+				self.env.msg(3, _("no support found for %s") % name)
+				return 0
+			mod = self.modules[name].Module(self.env, dict)
+			self.env.msg(2, _("built-in module %s registered") % name)
+
+		# Run any delayed commands.
 
 		if self.commands.has_key(name):
 			for (cmd,args) in self.commands[name]:
@@ -350,6 +367,7 @@ class Environment (Depend):
 		used when restarting the process.
 		"""
 		self.conf = Config()
+		self.vars = {}
 
 		# the initial hooks:
 
@@ -418,6 +436,8 @@ class Environment (Depend):
 		"""
 		lines = file.readlines()
 		lineno = 0
+		vars = self.vars
+		vars['file'] = path
 
 		# If a line ends with braces open, we read on until we get a correctly
 		# braced text. We also stop accumulating on paragraph breaks, the way
@@ -435,9 +455,9 @@ class Environment (Depend):
 			if line[0] == "%":
 				m = re_command.match(string.rstrip(line))
 				if m.group("cmd"):
-					env = { 'file' : path, 'line' : lineno }
-					args = parse_line(m.group("arg"), env)
-					self.command(m.group("cmd"), args, env)
+					vars['line'] = lineno
+					args = parse_line(m.group("arg"), vars)
+					self.command(m.group("cmd"), args, vars)
 				continue
 
 			# Otherwise we accumulate lines (with comments stripped) until
@@ -775,6 +795,8 @@ class Environment (Depend):
 		if self.source_exts.has_key(self.src_ext):
 			self.modules.register(self.source_exts[self.src_ext])
 
+		self.vars['job'] = self.src_base
+		self.vars['base'] = self.src_pbase
 		return 0
 
 	def source (self):
@@ -1231,3 +1253,22 @@ class Module (object):
 		This is called if something has failed during an operation performed
 		by this module.
 		"""
+
+class ScriptModule (Module):
+	"""
+	This class represents modules that are defined as Rubber scripts.
+	"""
+	def __init__ (self, env, filename):
+		vars = env.vars.copy()
+		vars['file'] = filename
+		lineno = 0
+		file = open(filename)
+		for line in file.readlines():
+			line = line.strip()
+			lineno = lineno + 1
+			if line == "" or line[0] == "%":
+				continue
+			vars['line'] = lineno
+			lst = parse_line(line, vars)
+			env.command(lst[0], lst[1:], vars)
+		file.close()

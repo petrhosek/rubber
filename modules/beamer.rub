@@ -1,0 +1,3 @@
+watch $job.head $job.nav $job.snm
+clean $job.head $job.nav $job.snm
+module hyperref
