@@ -1,3 +1,13 @@
+2003-12-01  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/modules/vtex.py, src/modules/graphics.py: Added support for the
+	VTeX compiler.
+
+	* src/graphics/...: Let graphics modules check for the availability of
+	the converters.
+
+	* src/__init__.py, src/util.py: Moved "prog_available" into "util".
+
 2003-11-10  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Made errors visible even when quiet.

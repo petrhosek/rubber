@@ -7,7 +7,7 @@ This module contains all the code in Rubber that actually does the job of
 building a LaTeX document from start to finish.
 """
 
-import os, sys, posix, stat
+import os, sys, posix
 from os.path import *
 import re
 import string
@@ -31,6 +31,7 @@ class Config:
 		"""
 		self.path = [""]
 		self.latex = "latex"
+		self.cmdline = ["\\nonstopmode\\input{%s}"]
 		self.tex = "TeX"
 		self.paper = []
 
@@ -54,7 +55,7 @@ class Config:
 		command-line arguments, and the second one is a dictionary of
 		environment variables to define.
 		"""
-		cmd = [self.latex, "\\nonstopmode\\input{%s}" % file]
+		cmd = [self.latex] + map(lambda x: x.replace("%s",file), self.cmdline)
 		inputs = string.join(self.path, ":")
 		if inputs == "":
 			return (cmd, {})
@@ -228,17 +229,20 @@ class LogCheck:
 	def read (self, name):
 		"""
 		Read the specified log file, checking that it was produced by the
-		right compiler. Returns true if the log file is invalid.
+		right compiler. Returns true if the log file is invalid or does not
+		exist.
 		"""
-		file = open(name)
+		self.lines = None
+		try:
+			file = open(name)
+		except IOError:
+			return 2
 		line = file.readline()
 		if not line:
 			file.close()
-			self.lines = None
 			return 1
 		if line.find("This is " + self.env.conf.tex) == -1:
 			file.close()
-			self.lines = None
 			return 1
 		self.lines = file.readlines()
 		file.close()
@@ -534,6 +538,9 @@ class Environment:
 			else:
 				self.msg(1, _("dependency '%s' not found") % arg)
 
+		elif cmd == "latex":
+			self.conf.latex = arg
+
 		elif cmd == "module":
 			args = string.split(arg, maxsplit=1)
 			if len(args) == 0:
@@ -575,7 +582,7 @@ class Environment:
 					dict = { 'arg': lst[0], 'opt': None })
 				self.modules[lst[0]].command(lst[1], arg)
 			else:
-				self.msg(1, _("unknown command '%s'") % cmd)
+				self.msg(0, _("unknown directive '%s'") % cmd)
 
 	def process (self, path):
 		"""
@@ -982,18 +989,6 @@ class Environment:
 				os.unlink(file)
 
 	###  program execution
-
-	def prog_available (self, prog):
-		"""
-		Test whether the specified program is available in the current path.
-		"""
-		for path in os.getenv("PATH").split(":"):
-			file = os.path.join(path, prog)
-			if (os.path.exists(file)):
-				st = os.stat(file)
-				if stat.S_ISREG(st.st_mode):
-					return 1
-		return 0
 
 	def execute (self, prog, env={}, pwd=None, out=None):
 		"""

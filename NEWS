@@ -1,11 +1,12 @@
 Version CVS
 
   Features:
-    - Support for Literate Haskell code (with lhs2TeX).
+    - Support for VTeX.
     - Directives "watch" and "clean" for tables of contents and such.
     - Support for graphics conversion using ImageMagick (lots of new formats).
     - Support for packages "moreverb", "verbatim", "beamer".
     - New frontend "rubber-pipe" with the behaviour of a filter.
+    - Support for Literate Haskell code (with lhs2TeX).
 
   Bugfixes:
     - Error-like messages from pdfTeX are now correctly handled.

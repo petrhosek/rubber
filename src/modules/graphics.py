@@ -101,6 +101,8 @@ class Module (rubber.Module):
 		# I take dvips as the default, but it is not portable.
 		if env.conf.tex == "pdfTeX":
 			self.suffixes = drv_suffixes["pdftex"]
+		elif env.conf.tex == "VTeX":
+			self.suffixes = drv_suffixes["vtex"]
 		else:
 			self.suffixes = drv_suffixes["dvips"]
 
