@@ -20,7 +20,7 @@ import rubber
 from rubber import _
 from rubber.util import *
 
-re_citation = re.compile("\\citation{(?P<cite>.*)}")
+re_citation = re.compile(r"\\citation{(?P<cite>.*)}")
 re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 
 # The regular expression that identifies errors in BibTeX log files is heavily
@@ -57,7 +57,7 @@ class Module (rubber.Module):
 		self.bst_path = [""]
 
 		self.undef_cites = None
-		self.def_cites = None
+		self.used_cites = None
 		self.style = None
 		self.set_style("plain")
 		self.db = []
@@ -115,6 +115,8 @@ class Module (rubber.Module):
 		checks if BibTeX has been run by someone else, and in this case it
 		tells the system that it should recompile the document.
 		"""
+		if exists(self.env.src_base + ".aux"):
+			self.used_cites = self.list_cites()
 		if self.env.log.lines:
 			self.undef_cites = self.list_undefs()
 
@@ -228,6 +230,18 @@ class Module (rubber.Module):
 		if self.run_needed:
 			return 1
 		self.msg(2, _("checking if BibTeX must be run..."))
+
+		# If there was a list of used citations, we check if it has
+		# changed. If it has, we have to rerun.
+
+		new = self.list_cites()
+		if self.used_cites:
+			if new != self.used_cites:
+				self.msg(2, _("the list of citations changed"))
+				self.used_cites = new
+				self.undef_cites = self.list_undefs()
+				return 1
+		self.used_cites = new
 
 		# If there was a list of undefined citations, we check if it has
 		# changed. If it has and it is not empty, we have to rerun.

@@ -1,5 +1,7 @@
 2004-06-15  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/bibtex.py: Added a check for defined citations.
+
 	* src/__init__.py: Added delayed directives, to improve the semantic
 	of directives in sources.
 
