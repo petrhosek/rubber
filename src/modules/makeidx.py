@@ -26,7 +26,7 @@ The following directives are provided to specify options for makeindex:
 import os
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 from rubber.modules.index import Index
 

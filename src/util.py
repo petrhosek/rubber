@@ -13,7 +13,7 @@ import time
 import re, string
 from string import whitespace
 
-from rubber import _
+from rubber import _, msg
 
 #-- Miscellaneous functions
 
@@ -211,17 +211,14 @@ class Depend (object):
 	rebuild the files of this node, returning zero on success and something
 	else on failure.
 	"""
-	def __init__ (self, prods, sources, msg, loc={}):
+	def __init__ (self, prods, sources, loc={}):
 		"""
 		Initialize the object for a given set of output files and a given set
 		of sources. The argument `prods' is a list of file names, and the
 		argument `sources' is a dictionary that associates file names with
-		dependency nodes. The argument `msg' is an object that is used to
-		issue progress messages and error reports (see the Message class for
-		details). The optional argument `loc' is a dictionary that describes
-		where in the sources this dependency was created.
+		dependency nodes. The optional argument `loc' is a dictionary that
+		describes where in the sources this dependency was created.
 		"""
-		self.msg = msg
 		self.prods = prods
 		self.set_date()
 		self.sources = sources
@@ -330,7 +327,7 @@ class Depend (object):
 		"""
 		for file in self.prods:
 			if exists(file):
-				self.msg(1, _("removing %s") % file)
+				msg.log(_("removing %s") % file)
 				os.unlink(file)
 		for src in self.sources.values():
 			src.clean()
@@ -352,19 +349,19 @@ class DependLeaf (Depend):
 	This class specializes Depend for leaf nodes, i.e. source files with no
 	dependencies.
 	"""
-	def __init__ (self, dest, msg, loc={}):
+	def __init__ (self, dest, loc={}):
 		"""
 		Initialize the node. The argument of this method is a *list* of file
 		names, since one single node may contain several files.
 		"""
-		Depend.__init__(self, dest, {}, msg, loc)
+		Depend.__init__(self, dest, {}, loc)
 
 	def run (self):
 		# FIXME
 		if len(self.prods) == 1:
-			self.msg.error(self.loc, _("%r does not exist") % self.prods[0])
+			msg.error(_("%r does not exist") % self.prods[0], **self.loc)
 		else:
-			self.msg.error(self.loc, _("one of %r does not exist") % self.prods)
+			msg.error(_("one of %r does not exist") % self.prods, **self.loc)
 		return 1
 
 	def clean (self):
@@ -375,14 +372,14 @@ class DependShell (Depend):
 	This class specializes Depend for generating files using shell commands.
 	"""
 	def __init__ (self, dest, src, cmd, env):
-		Depend.__init__(self, dest, src, env.msg)
+		Depend.__init__(self, dest, src)
 		self.env = env
 		self.cmd = cmd
 
 	def run (self):
-		self.msg(0, _("running %s...") % self.cmd[0])
+		msg.progress(_("running %s") % self.cmd[0])
 		if self.env.execute(self.cmd):
-			self.msg(0, _("the operation failed"))
+			msg.error(_("execution of %s failed") % self.cmd[0])
 			return 1
 		return 0
 
@@ -462,7 +459,7 @@ class Converter (object):
 				if not exists(source):
 					continue
 				if safe and exists(target) and self.may_produce(source):
-					return DependLeaf([target], env.msg)
+					return DependLeaf([target])
 				for (weight, mod) in mods:
 					if not self.plugins.register(mod):
 						continue

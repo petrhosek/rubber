@@ -6,7 +6,7 @@ This module contains material to extract information from compilation results.
 
 import re
 import string
-from rubber import _
+from rubber import _, msg
 from rubber import *
 
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
@@ -41,7 +41,7 @@ class LogInfo (LogCheck):
 					for key in "line", "last":
 						if md[key]: mpos[key] = int(md[key])
 					line = line[:m.start()]
-				self.msg.info(mpos, line)
+				msg.warn(line, **mpos)
 				something = 1
 				skip = 1
 			else:
@@ -57,7 +57,7 @@ class LogInfo (LogCheck):
 		for line in self.lines:
 			m = re_reference.match(line)
 			if m:
-				self.msg(0, m.group("msg"))
+				msg(0, m.group("msg"))
 				something = 1
 		return something
 
@@ -76,9 +76,7 @@ class LogInfo (LogCheck):
 			elif re_hvbox.match(line):
 				skip = 1
 			elif line.find("Warning") != -1:
-				self.msg.info(
-					{"file":pos[-1], "page":page},
-					string.rstrip(line))
+				msg.warn( string.rstrip(line), file=pos[-1], page=page)
 				something = 1
 			else:
 				self.update_file(line, pos)

@@ -38,7 +38,7 @@ from os.path import *
 import re, string
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Index:
@@ -51,7 +51,6 @@ class Index:
 		LaTeX) and the target file (the output of makeindex).
 		"""
 		self.env = env
-		self.msg = env.msg
 		self.pbase = env.src_base
 		self.source = env.src_base + "." + source
 		self.target = env.src_base + "." + target
@@ -72,7 +71,7 @@ class Index:
 				if opt == "standard": self.opts = []
 				elif opt == "german": self.opts.append("-g")
 				elif opt == "letter": self.opts.append("-l")
-				else: self.msg(1,
+				else: msg.warn(
 					_("unknown option '%s' for 'makeidx.order'") % opt)
 		elif cmd == "path":
 			for arg in args:
@@ -86,12 +85,12 @@ class Index:
 		Run makeindex if needed, with appropriate options and environment.
 		"""
 		if not os.path.exists(self.source):
-			self.msg(2, _("strange, there is no %s") % self.source)
+			msg.log(_("strange, there is no %s") % self.source)
 			return 0
 		if not self.run_needed():
 			return 0
 
-		self.msg(0, _("processing index %s...") % self.source)
+		msg.progress(_("processing index %s") % self.source)
 		cmd = ["makeindex", "-o", self.target] + self.opts
 		if self.style:
 			cmd.extend(["-s", self.style])
@@ -102,7 +101,7 @@ class Index:
 		else:
 			env = {}
 		if self.env.execute(cmd, env):
-			self.env.msg(0, _("the operation failed"))
+			msg.error(_("makeindex failed on %s") % self.source)
 			return 1
 
 		self.env.must_compile = 1
@@ -118,14 +117,14 @@ class Index:
 			return 1
 		if not self.md5:
 			self.md5 = md5_file(self.source)
-			self.msg(2, _("the index file %s is new") % self.source)
+			msg.log(_("the index file %s is new") % self.source)
 			return 1
 		new = md5_file(self.source)
 		if self.md5 == new:
-			self.msg(2, _("the index %s did not change") % self.source)
+			msg.log(_("the index %s did not change") % self.source)
 			return 0
 		self.md5 = new
-		self.msg(2, _("the index %s has changed") % self.source)
+		msg.log(_("the index %s has changed") % self.source)
 		return 1
 
 	def clean (self):
@@ -134,7 +133,7 @@ class Index:
 		"""
 		for file in self.source, self.target, self.pbase + ".ilg":
 			if exists(file):
-				self.env.msg(1, _("removing %s") % file)
+				msg.log(_("removing %s") % file)
 				os.unlink(file)
 
 re_newindex = re.compile(" *{(?P<idx>[^{}]*)} *{(?P<ind>[^{}]*)}")
@@ -166,7 +165,7 @@ class Module (rubber.Module):
 		index = dict["arg"]
 		d = m.groupdict()
 		self.indices[index] = Index(self.env, d["idx"], d["ind"])
-		self.env.msg(1, _("index %s registered") % index)
+		msg.log(_("index %s registered") % index)
 
 	def command (self, cmd, args):
 		indices = self.indices

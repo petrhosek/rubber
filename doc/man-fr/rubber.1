@@ -130,7 +130,8 @@ elle est naturellement incompatible avec
 .IR \-\-pdf .
 .TP
 .B \-q, \-\-quiet
-Supprime les messages affichés en cours d'exécution.
+Diminue la quantité de messages affichés. C'est l'inverse de
+.IR \-v .
 .TP
 .BI \-r,\ \-\-read \ <fichier>
 Lire des directives supplémentaires dans le fichier spécifié avant l'analyse
@@ -144,8 +145,12 @@ ligne).
 Ajoute le répertoire spécifié au chemin de recherche de fichiers de TeX.
 .TP
 .B \-v, \-\-verbose
-Incrémente le degré de détail dans les messages affichés. Le niveau par défaut
-est 0, les niveaux existent jusqu'à 3. Attention, dire
+Incrémente le degré de détail dans les messages affichés. Les niveaux
+existants vont de 0 à 4, le niveau par défaut est 1 pour
+.B rubber
+et 0 pour
+.BR rubber-pipe .
+Attention, dire
 .I \-vvv
 rend Rubber très bavard.
 .TP

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2003
+# (c) Emmanuel Beffara, 2002--2005
 """
 This is an experimental module that provides colored output using VT100 escape
 codes. It works by replacing the writing method in the standard Message class
@@ -14,17 +14,16 @@ translate in an appropriate way.
 import rubber
 
 color = [
-	"\x1B[31;1m", # level -1: red, boldface
-	"",           # level  0: normal
-	"\x1B[36m",   # level  1: cyan
-	"\x1B[34m",   # level  2: blue
-	"\x1B[35m" ]  # level  3: magenta
+	"\x1B[31;1m", # level 0: red, boldface
+	"",           # level 1: normal
+	"\x1B[34m",   # level 2: blue
+	"\x1B[35m",   # level 3: magenta
+	"\x1B[36m" ]  # level 4: cyan
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):
-		self.msg = env.msg
-		self.msg.write = self.write
+		rubber.msg.write = self.write
 
-	def write (self, level, text):
-		if level <= self.msg.level:
-			print "%s%s\x1B[0m" % (color[level + 1], text)
+	def write (self, text, level=0):
+		if level <= rubber.msg.level:
+			print "%s%s\x1B[0m" % (color[level], text)

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003--2004
+# (c) Emmanuel Beffara, 2003--2005
 """
 This module is used to produce a final self-contained version of the source of
 a document, as may be required when preparing a manuscript for an editor. It
@@ -19,7 +19,7 @@ from os.path import *
 import string, re
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Module (Depend, rubber.Module):
@@ -28,7 +28,7 @@ class Module (Depend, rubber.Module):
 		# register as the post-processor
 
 		if env.final != env:
-			env.msg(0, _("there is already a post-processor registered"))
+			msg.error(_("there is already a post-processor registered"))
 			sys.exit(2)
 
 		self.env = env
@@ -37,7 +37,7 @@ class Module (Depend, rubber.Module):
 		# FIXME: we make foo-final.tex depend on foo.dvi so that all auxiliary
 		#   files are built when expanding, this could be optimised...
 
-		Depend.__init__(self, [self.out], { env.prods[0]: env }, env.msg)
+		Depend.__init__(self, [self.out], { env.prods[0]: env })
 		env.final = self
 
 		# initialise the expansion table
@@ -74,7 +74,7 @@ class Module (Depend, rubber.Module):
 		self.opt_texts = []   # stack of used options
 
 	def run (self):
-		self.msg(0, _("writing %s...") % (self.out))
+		msg.progress(_("writing %s") % (self.out))
 		self.out_stream = open(self.out, "w")
 
 		# This is sort of a hack: we replace the 'seq' and 'hook' fields in

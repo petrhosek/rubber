@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2003
+# (c) Emmanuel Beffara, 2002--2005
 """
 Literate Haskell support for Rubber.
 
@@ -10,28 +10,28 @@ pretty-print Haskell code in the source file when needed.
 from os.path import *
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Dep (Depend):
 	def __init__ (self, source, target, env):
-		leaf = DependLeaf([source], env.msg)
+		leaf = DependLeaf([source])
 		tg_base = target[:-4]
-		Depend.__init__(self, [target], { source: leaf }, env.msg)
+		Depend.__init__(self, [target], { source: leaf })
 		self.env = env
 		self.source = source
 		self.target = target
 		self.cmd = ["lhs2TeX", "-math", source]
 
 	def run (self):
-		self.env.msg(0, _("pretty-printing %s...") % self.source)
+		msg.progress(_("pretty-printing %s") % self.source)
 		out = open(target, 'w')
 		def w (line, file=out):
 		  file.write(line)
 		  file.flush()
 		if self.env.execute(self.cmd, out=w):
 			out.close()
-			self.env.msg(0, _("processing failed"))
+			msg.error(_("pretty-printing of %s failed") % self.source)
 			return 1
 		out.close()
 		self.env.process(self.target)
@@ -56,14 +56,15 @@ class Module (rubber.Module):
 		"""
 		if not self.run_needed():
 			return 0
-		self.env.msg(0, _("pretty-printing %s.lhs...") % self.env.src_pbase)
+		msg.progress(_("pretty-printing %s.lhs") % self.env.src_pbase)
 		out = open(self.env.src_pbase + ".tex", 'w')
 		def w (line, file=out):
 		  file.write(line)
 		  file.flush()
 		if self.env.execute(["lhs2TeX", self.style, self.env.src_pbase + ".lhs"], out=w):
 			out.close()
-			self.env.msg(0, _("processing failed"))
+			msg.error(_("pretty-printing of %s failed") %
+					self.env.src_pbase)
 			return 1
 		out.close()
 		return 0
@@ -79,12 +80,12 @@ class Module (rubber.Module):
 		"""
 		pbase = self.env.src_pbase
 		if not exists(pbase + ".tex"):
-			self.env.msg(2, _("the LaTeX source does not exist"))
+			msg.log(_("the LaTeX source does not exist"))
 			return 1
 		if getmtime(pbase + ".tex") < getmtime(pbase + ".lhs"):
-			self.env.msg(2, _("the Haskell source was modified"))
+			msg.log(_("the Haskell source was modified"))
 			return 1
-		self.env.msg(2, _("the LaTeX source is up to date"))
+		msg.log(_("the LaTeX source is up to date"))
 		return 0
 
 	def clean (self):

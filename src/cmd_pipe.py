@@ -10,7 +10,7 @@ import string
 import re
 from getopt import *
 
-from rubber import _
+from rubber import _, msg
 from rubber import *
 from rubber.version import *
 import rubber.cmdline
@@ -39,16 +39,14 @@ def dump_file (f_in, f_out):
 
 class Main (rubber.cmdline.Main):
 	def __init__ (self):
-		"""
-		Create the object used for message output.
-		"""
-		self.msg = rubber.cmdline.Message(level=-1)
+		rubber.cmdline.Main.__init__(self)
+		msg.level = 0
 
 	def help (self):
 		"""
 		Display the description of all the options and exit.
 		"""
-		self.msg (-1, _("""\
+		msg (0, _("""\
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
@@ -73,7 +71,7 @@ available options:
 	def parse_opts (self, cmdline):
 		args = rubber.cmdline.Main.parse_opts(self, cmdline)
 		if len(args) > 0:
-			self.msg(0, _("warning: the following options were ignored: %s")
+			msg.warn(_("the following options were ignored: %s")
 				% string.join(args, " "))
 				
 	def main (self, cmdline):
@@ -88,7 +86,7 @@ available options:
 		self.epilogue = []
 		self.clean = 1
 		self.parse_opts(cmdline)
-		self.msg(2, _("This is Rubber version %s.") % version)
+		msg.log(_("This is Rubber version %s.") % version)
 
 		# Put the standard input in a file
 
@@ -96,16 +94,16 @@ available options:
 		try:
 			srcfile = open(src, 'w')
 		except IOError:
-			self.msg(-1, _("cannot create temporary files"))
+			msg.error(_("cannot create temporary files"))
 			return 1
 
-		self.msg(1, _("saving the input in %s...") % src)
+		msg.progress(_("saving the input in %s") % src)
 		dump_file(sys.stdin, srcfile)
 		srcfile.close()
 
 		# Make the document
 
-		env = Environment(self.msg)
+		env = Environment()
 
 		if env.set_source(src):
 			sys.exit(1)
@@ -128,10 +126,13 @@ available options:
 		ret = env.final.make()
 
 		if ret == 0:
-			if not self.msg.short:
-				self.msg(1, _("There were errors."))
-			env.final.failed().show_errors()
+			msg.info(_("There were errors."))
+			try:
+				env.final.failed().show_errors()
+			except rubber.cmdline.MoreErrors:
+				msg.info(_("More errors."))
 			return 1
+
 
 		# Dump the results on standard output
 
@@ -149,5 +150,5 @@ available options:
 		try:
 			return self.main(cmdline)
 		except KeyboardInterrupt:
-			self.msg(0, _("*** interrupted"))
+			msg.error(_("*** interrupted"))
 			return 2

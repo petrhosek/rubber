@@ -64,7 +64,7 @@ def dep_file (base, suffixes, prefixes, env, loc={}):
 			if dep:
 				rules.append((weight, dep))
 			if exists(target):
-				rules.append((1,DependLeaf([target], env.msg, loc)))
+				rules.append((1,DependLeaf([target], loc)))
 	if rules == []:
 		return None
 	(_, dep) = min(rules)

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2003
+# (c) Emmanuel Beffara, 2002--2005
 """
 Support for the minitoc package.
 
@@ -15,7 +15,7 @@ import os, os.path
 import re
 
 import rubber
-from rubber import _
+from rubber import _, msg
 
 re_tocext = re.compile("[mps](tc|l[ft])[0-9]+")
 
@@ -32,5 +32,5 @@ class Module (rubber.Module):
 				ext = file[ln:]
 				m = re_tocext.match(ext)
 				if m and ext[m.end():] == "":
-					self.env.msg(3, _("removing %s") % file)
+					msg.log(_("removing %s") % file)
 					os.unlink(file)

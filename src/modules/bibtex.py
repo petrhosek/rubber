@@ -17,7 +17,7 @@ from os.path import *
 import re, string
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 re_citation = re.compile(r"\\citation{(?P<cite>.*)}")
@@ -44,7 +44,6 @@ class Module (rubber.Module):
 		the base name of the aux file, it defaults to the document name.
 		"""
 		self.env = env
-		self.msg = env.msg
 
 		if base is None:
 			self.base = env.src_base
@@ -102,7 +101,7 @@ class Module (rubber.Module):
 			new_bst = join(dir, style + ".bst")
 			if exists(new_bst):
 				self.bst_file = new_bst
-				self.env.sources[new_bst] = DependLeaf([new_bst], self.msg)
+				self.env.sources[new_bst] = DependLeaf([new_bst])
 				return
 		self.bst_file = None
 
@@ -150,12 +149,12 @@ class Module (rubber.Module):
 		dtime = getmtime(self.base + ".blg")
 		for db in self.db:
 			if getmtime(db) > dtime:
-				self.msg(2, _("bibliography database %s was modified") % db)
+				msg.log(_("bibliography database %s was modified") % db)
 				return 1
 		if self.style_changed():
 			return 1
 		if self.bst_file and getmtime(self.bst_file) > dtime:
-			self.msg(2, _("the bibliography style file was modified"))
+			msg.log(_("the bibliography style file was modified"))
 			return 1
 		return 0
 
@@ -200,7 +199,7 @@ class Module (rubber.Module):
 		was run, then force a new LaTeX compilation.
 		"""
 		if not self.bibtex_needed():
-			self.msg(2, _("no BibTeXing needed"))
+			msg.log(_("no BibTeXing needed"))
 			return 0
 		return self.run()
 
@@ -209,7 +208,7 @@ class Module (rubber.Module):
 		This method actually runs BibTeX with the appropriate environment
 		variables set.
 		"""
-		self.msg(0, _("running BibTeX on %s...") % self.base)
+		msg.progress(_("running BibTeX on %s") % self.base)
 		env = {}
 		if len(self.bib_path) != 1:
 			env["BIBINPUTS"] = string.join(self.bib_path +
@@ -218,7 +217,7 @@ class Module (rubber.Module):
 			env["BSTINPUTS"] = string.join(self.bst_path +
 				[os.getenv("BSTINPUTS", "")], ":")
 		if self.env.execute(["bibtex", self.base], env):
-			self.msg(0, _("There were errors making the bibliography."))
+			msg.info(_("There were errors making the bibliography."))
 			return 1
 		self.run_needed = 0
 		self.env.must_compile = 1
@@ -230,7 +229,7 @@ class Module (rubber.Module):
 		"""
 		if self.run_needed:
 			return 1
-		self.msg(2, _("checking if BibTeX must be run..."))
+		msg.log(_("checking if BibTeX must be run..."))
 
 		# If there was a list of used citations, we check if it has
 		# changed. If it has, we have to rerun.
@@ -238,7 +237,7 @@ class Module (rubber.Module):
 		new = self.list_cites()
 		if self.used_cites:
 			if new != self.used_cites:
-				self.msg(2, _("the list of citations changed"))
+				msg.log(_("the list of citations changed"))
 				self.used_cites = new
 				self.undef_cites = self.list_undefs()
 				return 1
@@ -250,14 +249,14 @@ class Module (rubber.Module):
 		if self.undef_cites:
 			new = self.list_undefs()
 			if new == []:
-				self.msg(2, _("no more undefined citations"))
+				msg.log(_("no more undefined citations"))
 				self.undef_cites = new
 			elif self.undef_cites != new:
-				self.msg(2, _("the list of undefined citations changed"))
+				msg.log(_("the list of undefined citations changed"))
 				self.undef_cites = new
 				return 1
 			else:
-				self.msg(2, _("the undefined citations are the same"))
+				msg.log(_("the undefined citations are the same"))
 				return 0
 		else:
 			self.undef_cites = self.list_undefs()
@@ -268,19 +267,19 @@ class Module (rubber.Module):
 
 		blg = self.base + ".blg"
 		if not exists(blg):
-			self.msg(2, _("no BibTeX log file"))
+			msg.log(_("no BibTeX log file"))
 			return 1
 
 		# Here, BibTeX has been run before but we don't know if undefined
 		# citations changed.
 
 		if self.undef_cites == []:
-			self.msg(2, _("no undefined citations"))
+			msg.log(_("no undefined citations"))
 			return 0
 
 		log = self.env.src_base + ".log"
 		if getmtime(blg) < getmtime(log):
-			self.msg(2, _("BibTeX's log is older than the main log"))
+			msg.log(_("BibTeX's log is older than the main log"))
 			return 1
 
 		return 0
@@ -306,7 +305,7 @@ class Module (rubber.Module):
 		while line != "":
 			if line[:16] == "The style file: ":
 				if line.rstrip()[16:-4] != self.style:
-					self.msg(2, _("the bibliography style was changed"))
+					msg.log(_("the bibliography style was changed"))
 					log.close()
 					return 1
 			line = log.readline()
@@ -333,8 +332,7 @@ class Module (rubber.Module):
 					text = string.strip(line[:m.start()])
 				line = m.group("line")
 				if line: line = int(line)
-				self.env.msg.error(
-					{ "file": m.group("file"), "line": line }, text, None)
+				msg.error(text, file=m.group("file"), line=line)
 			last_line = line
 			line = log.readline()
 		log.close()

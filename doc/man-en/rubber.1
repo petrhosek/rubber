@@ -110,7 +110,7 @@ the package options in LaTeX. The module is loaded
 parsing the document's sources.
 .TP
 .B \-o,\ \-\-post \ <module> [: <args> ]
-Used the specified module as a post-processor. This is similar to the
+Use the specified module as a post-processor. This is similar to the
 .I \-m
 options except that the module is loaded
 .I after
@@ -130,7 +130,8 @@ it is naturally incompatible with
 .IR \-\-pdf .
 .TP
 .B \-q, \-\-quiet
-Suppress all messages during the process.
+Decrease the verbosity level. This is the reverse of
+.IR \-v .
 .TP
 .BI \-r,\ \-\-read \ <file>
 Read additional directives form the specified file (see also the directive
@@ -143,7 +144,11 @@ Display LaTeX's error messages in a compact form (one error per line).
 Add the specified directory to TeX's search path.
 .TP
 .B \-v, \-\-verbose
-Increase the verbosity level. The default level is 0, levels up to 3 exist.
+Increase the verbosity level. Levels between 0 and 4 exist, the default level
+is 1 for
+.B rubber
+and 0 for
+.BR rubber-pipe .
 Beware, saying
 .I \-vvv
 makes Rubber speak a lot.

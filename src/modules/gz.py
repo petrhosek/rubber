@@ -7,7 +7,7 @@ Gzipping the output of Rubber.
 from gzip import GzipFile
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Module (Depend, rubber.Module):
@@ -15,12 +15,12 @@ class Module (Depend, rubber.Module):
 		self.env = env
 		self.doc = env.final.prods[0]
 		self.gz = self.doc + ".gz"
-		Depend.__init__(self, [self.gz], { self.doc: env.final }, env.msg)
+		Depend.__init__(self, [self.gz], { self.doc: env.final })
 		env.final = self
 		self.options = []
 
 	def run (self):
-		self.msg(0, _("compressing %s...") % self.doc)
+		msg.progress(_("compressing %s") % self.doc)
 		out = GzipFile(self.gz, 'w')
 		file = open(self.doc)
 		out.write(file.read())

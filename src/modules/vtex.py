@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2004
+# (c) Emmanuel Beffara, 2002--2005
 """
 VTeX support for Rubber.
 
@@ -16,13 +16,13 @@ class Module (rubber.Module):
 		env.conf.tex = "VTeX"
 		if dict['opt'] == "ps":
 			if env.final != env and env.prods[0][-4:] != ".ps":
-				env.msg(0, _("there is already a post-processor registered"))
+				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
 			env.conf.latex = "vlatexp"
 			env.prods = [env.src_base + ".ps"]
 		else:
 			if env.final != env and env.prods[0][-4:] != ".pdf":
-				env.msg(0, _("there is already a post-processor registered"))
+				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
 			env.conf.latex = "vlatex"
 			env.prods = [env.src_base + ".pdf"]

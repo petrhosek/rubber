@@ -15,6 +15,97 @@ import string
 # The function `_' is defined here to prepare for internationalization.
 def _ (txt): return txt
 
+#---------------------------------------
+
+class Message (object):
+	"""
+	All messages in the program are output using the `msg' object in the
+	main package. This class defines the interface for this object.
+	"""
+	def __init__ (self, level=1, write=None):
+		"""
+		Initialize the object with the specified verbosity level and an
+		optional writing function. If no such function is specified, no
+		message will be output until the 'write' field is changed.
+		"""
+		self.level = level
+		self.write = write
+		self.short = 0
+
+	def __call__ (self, level, text):
+		"""
+		This is the low level printing function, it receives a line of text
+		with an associated verbosity level, so that output can be filtered
+		depending on command-line options.
+		"""
+		if self.write and level <= self.level:
+			self.write(text, level=level)
+
+	def error (self, text, code=None, **where):
+		"""
+		This method is called when reporting an error (that causes a failure
+		to build the document). The argument is the error text, any further
+		labelled argument further describes the error, possibly providing a
+		'file', 'line' or 'page' argument. An argument named 'code' provides
+		the text of the offending code (up to the error).
+		"""
+		if text[0:13] == "LaTeX Error: ":
+			text = text[13:]
+		self(0, self.format_pos(where, text))
+		if code and not self.short:
+			self(0, self.format_pos(where, _("leading text: ") + code))
+
+	def abort (self, what, why):
+		"""
+		This method is called when the compilation was aborted, for instance
+		due to lack of input. The arguments are the nature of the error and
+		the cause of the interruption.
+		"""
+		if self.short:
+			self(0, _("compilation aborted ") + why)
+		else:
+			self(0, _("compilation aborted: %s %s") % (what, why))
+
+	def warn (self, what, **where):
+		self(0, self.format_pos(where, what)) 
+	def progress (self, what, **where):
+		self(1, self.format_pos(where, what + "...")) 
+	def info (self, what, **where):
+		self(2, self.format_pos(where, what)) 
+	def log (self, what, **where):
+		self(3, self.format_pos(where, what)) 
+	def debug (self, what, **where):
+		self(4, self.format_pos(where, what)) 
+
+	def format_pos (self, where, text):
+		"""
+		Format the given text into a proper error message, with file and line
+		information in the standard format. Position information is taken from
+		the dictionary given as first argument.
+		"""
+		if where is None or where == {}:
+			return text
+		if where.has_key("file"):
+			pos = simplify_path(where["file"])
+			if where.has_key("line") and where["line"]:
+				pos = "%s:%d" % (pos, where["line"])
+				if where.has_key("last"):
+					if where["last"] != where["line"]:
+						text = "%s-%d" % (text, where["last"])
+		else:
+			pos = "%r" % where
+			#_("(nowhere)")
+		if where.has_key("page"):
+			text = "%s (page %d)" % (text, where["page"])
+		return "%s: %s" % (pos, text)
+
+# This is the message printer. We have to define it before importing
+# rubber.util because 'msg' is used there.
+
+msg = Message()
+
+#---------------------------------------
+
 from rubber.util import *
 from rubber.version import moddir
 import rubber.modules
@@ -102,7 +193,7 @@ class Modules (Plugins):
 		command that caused the registration.
 		"""
 		if self.has_key(name):
-			self.env.msg(3, _("module %s already registered") % name)
+			msg.debug(_("module %s already registered") % name)
 			return 2
 
 		# First look for a script
@@ -112,17 +203,17 @@ class Modules (Plugins):
 			file = join(path, name + ".rub")
 			if exists(file):
 				mod = ScriptModule(self.env, file)
-				self.env.msg(2, _("script module %s registered") % name)
+				msg.log(_("script module %s registered") % name)
 				break
 
 		# Then look for a Python module
 
 		if not mod:
 			if Plugins.register(self, name) == 0:
-				self.env.msg(3, _("no support found for %s") % name)
+				msg.debug(_("no support found for %s") % name)
 				return 0
 			mod = self.modules[name].Module(self.env, dict)
-			self.env.msg(2, _("built-in module %s registered") % name)
+			msg.log(_("built-in module %s registered") % name)
 
 		# Run any delayed commands.
 
@@ -170,7 +261,6 @@ class LogCheck (object):
 	"""
 	def __init__ (self, env):
 		self.env = env
-		self.msg = env.msg
 		self.lines = None
 
 	def read (self, name):
@@ -271,13 +361,12 @@ class LogCheck (object):
 				if m:
 					parsing = 0
 					skipping = 1
-					self.msg.error(
-						{ "file": pos[-1], "line": int(m.group("line")) },
-						error, m.group("text"))
+					msg.error(error, code=m.group("text"),
+						file=pos[-1], line=int(m.group("line")))
 				elif line[0:3] == "***":
 					parsing = 0
 					skipping = 1
-					self.msg.abort(error, line[4:])
+					msg.abort(error, line[4:])
 			elif line[0] == "!":
 				error = line[2:]
 				parsing = 1
@@ -333,14 +422,14 @@ class Environment (Depend):
 	are called with one argument: the dictionary for the regular expression
 	that matches the macro call.
 	"""
-	def __init__ (self, message):
+	def __init__ (self):
 		"""
 		Initialize the environment. This prepares the processing steps for the
 		given file (all steps are initialized empty) and sets the regular
 		expressions and the hook dictionary.
 		"""
-		Depend.__init__(self, [], {}, message)
-		self.msg(2, _("initializing Rubber..."))
+		Depend.__init__(self, [], {})
+		msg.debug(_("initializing Rubber..."))
 
 		self.log = LogCheck(self)
 		self.modules = Modules(self)
@@ -364,7 +453,7 @@ class Environment (Depend):
 		Reinitialize the environment, in order to process a new document. This
 		resets the process and the hook dictionary and unloads modules.
 		"""
-		self.msg(1, _("reinitializing..."))
+		msg.debug(_("reinitializing..."))
 		self.modules.clear()
 		self.initialize()
 
@@ -415,7 +504,7 @@ class Environment (Depend):
 		self.must_compile = 0
 		self.something_done = 0
 
-		self.msg(3, _("ready"))
+		msg.debug("ready")
 
 	#
 	# The following methods are related to LaTeX source parsing.
@@ -430,7 +519,7 @@ class Environment (Depend):
 		except EndDocument:
 			pass
 		self.set_date()
-		self.msg(2, _("dependencies: %r") % self.sources.keys())
+		msg.log(_("dependencies: %r") % self.sources.keys())
 
 	def do_process (self, file, path, dump=None):
 		"""
@@ -525,9 +614,9 @@ class Environment (Depend):
 			for arg in args:
 				file = self.conf.find_input(arg)
 				if file:
-					self.sources[file] = DependLeaf([file], self.msg)
+					self.sources[file] = DependLeaf([file])
 				else:
-					self.msg.info(pos, _("dependency '%s' not found") % arg)
+					msg.warn(_("dependency '%s' not found") % arg, pos)
 
 		elif cmd == "latex":
 			if len(args) > 1:
@@ -535,7 +624,7 @@ class Environment (Depend):
 
 		elif cmd == "module":
 			if len(args) == 0:
-				self.msg.info(pos, _("argument required for command 'module'"))
+				msg.warn(_("argument required for command 'module'"), pos)
 			else:
 				dict = { 'arg': args[0], 'opt': None }
 				if len(args) > 1:
@@ -544,7 +633,7 @@ class Environment (Depend):
 
 		elif cmd == "onchange":
 			if len(args) < 2:
-				self.msg.info(pos, _("two arguments required for command 'onchange'"))
+				msg.warn(_("two arguments required for command 'onchange'"), pos)
 			else:
 				file = args[0]
 				self.onchange_cmd[file] = args[1]
@@ -573,7 +662,7 @@ class Environment (Depend):
 						self.command(lst[0], lst[1:])
 					file.close()
 				except IOError:
-					self.msg.info(pos, _("cannot read option file %s") % arg)
+					msg.warn(_("cannot read option file %s") % arg, pos)
 
 		elif cmd == "watch":
 			for arg in args:
@@ -584,7 +673,7 @@ class Environment (Depend):
 			if len(lst) > 1:
 				self.modules.command(lst[0], lst[1], args)
 			else:
-				self.msg.info(pos, _("unknown directive '%s'") % cmd)
+				msg.warn(_("unknown directive '%s'") % cmd, pos)
 
 	def process (self, path, loc={}):
 		"""
@@ -592,19 +681,19 @@ class Environment (Depend):
 		must be a valid file name.
 		"""
 		if self.processed_sources.has_key(path):
-			self.msg(3, _("%s already parsed") % path)
+			msg.debug(_("%s already parsed") % path)
 			return
 		self.processed_sources[path] = None
-		self.msg(2, _("parsing %s") % path)
+		msg.log(_("parsing %s") % path)
 		file = open(path)
 		if not self.sources.has_key(path):
-			self.sources[path] = DependLeaf([path], self.msg, loc)
+			self.sources[path] = DependLeaf([path], loc)
 		try:
 			try:
 				self.do_process(file, path)
 			finally:
 				file.close()
-				self.msg(3, _("end of %s") % path)
+				msg.debug(_("end of %s") % path)
 		except EndInput:
 			pass
 
@@ -785,7 +874,7 @@ class Environment (Depend):
 		"""
 		name = self.conf.find_input(path)
 		if not name:
-			self.msg(0, _("cannot find %s") % path)
+			msg.error(_("cannot find %s") % path)
 			return 1
 		self.sources = {}
 		(self.src_path, name) = split(name)
@@ -820,7 +909,7 @@ class Environment (Depend):
 		returned by the `source' method) exists and is up to date.
 		"""
 		if self.source_building:
-			self.msg(1, _("building the source..."))
+			msg.log(_("building the source..."))
 			return self.source_building()
 		return 0
 
@@ -829,11 +918,11 @@ class Environment (Depend):
 		Run one LaTeX compilation on the source. Return true if errors
 		occured, and false if compilaiton succeeded.
 		"""
-		self.msg(0, _("compiling %s...") % self.source())
+		msg.progress(_("compiling %s") % self.source())
 		(cmd, env) = self.conf.compile_cmd(self.source())
 		self.execute(cmd, env)
 		if self.log.read(self.src_base + ".log"):
-			self.msg(0, _("Could not run %s.") % cmd[0])
+			msg.error(_("Could not run %s.") % cmd[0])
 			return 1
 		if self.log.errors():
 			return 1
@@ -859,7 +948,7 @@ class Environment (Depend):
 		self.must_compile = 0
 		self.must_compile = self.compile_needed()
 
-		self.msg(2, _("building additional files..."))
+		msg.log(_("building additional files..."))
 
 		for dep in self.sources.values():
 			if dep.make() == 0:
@@ -878,14 +967,14 @@ class Environment (Depend):
 		Run the package-specific operations that are to be performed after
 		each compilation of the main source. Returns true on failure.
 		"""
-		self.msg(2, _("running post-compilation scripts..."))
+		msg.log(_("running post-compilation scripts..."))
 
 		for file, md5 in self.onchange_md5.items():
 			if not exists(file):
 				continue
 			new = md5_file(file)
 			if md5 != new:
-				self.msg(0, _("running %s...") % self.onchange_cmd[file])
+				msg.progress(0, _("running %s") % self.onchange_cmd[file])
 				self.execute(["sh", "-c", self.onchange_cmd[file]])
 			self.onchange_md5[file] = new
 
@@ -900,7 +989,7 @@ class Environment (Depend):
 		Run all operations needed to post-process the result of compilation.
 		"""
 		if self.final != self:
-			self.msg(2, _("post-processing..."))
+			msg.log(_("post-processing..."))
 			return self.final.make()
 		return 0
 
@@ -912,10 +1001,10 @@ class Environment (Depend):
 
 		for file in self.prods + self.removed_files:
 			if exists(file):
-				self.msg(1, _("removing %s") % file)
+				msg.log(_("removing %s") % file)
 				os.unlink(file)
 
-		self.msg(2, _("cleaning additional files..."))
+		msg.log(_("cleaning additional files..."))
 
 		for dep in self.sources.values():
 			dep.clean()
@@ -964,18 +1053,18 @@ class Environment (Depend):
 		"""
 		if self.must_compile:
 			return 1
-		self.msg(3, _("checking if compiling is necessary..."))
+		msg.log(_("checking if compiling is necessary..."))
 		if not exists(self.prods[0]):
-			self.msg(3, _("the output file doesn't exist"))
+			msg.debug(_("the output file doesn't exist"))
 			return 1
 		if not exists(self.src_base + ".log"):
-			self.msg(3, _("the log file does not exist"))
+			msg.debug(_("the log file does not exist"))
 			return 1
 		if getmtime(self.prods[0]) < getmtime(self.source()):
-			self.msg(3, _("the source is younger than the output file"))
+			msg.debug(_("the source is younger than the output file"))
 			return 1
 		if self.log.read(self.src_base + ".log"):
-			self.msg(3, _("the log file is not produced by %s") % self.conf.tex)
+			msg.debug(_("the log file is not produced by %s") % self.conf.tex)
 			return 1
 		return self.recompile_needed()
 
@@ -988,24 +1077,24 @@ class Environment (Depend):
 			self.update_watches()
 			return 1
 		if self.log.errors():
-			self.msg(3, _("last compilation failed"))
+			msg.debug(_("last compilation failed"))
 			self.update_watches()
 			return 1
 		if self.deps_modified(getmtime(self.src_base + ".log")):
-			self.msg(3, _("dependencies were modified"))
+			msg.debug(_("dependencies were modified"))
 			self.update_watches()
 			return 1
 		suffix = self.update_watches()
 		if suffix:
-			self.msg(3, _("the %s file has changed") % suffix)
+			msg.debug(_("the %s file has changed") % suffix)
 			return 1
 		if self.log.run_needed():
-			self.msg(3, _("LaTeX asks to run again"))
+			msg.debug(_("LaTeX asks to run again"))
 			if self.aux_md5 and self.aux_md5 == self.aux_md5_old:
-				self.msg(3, _("but the aux file is unchanged"))
+				msg.debug(_("but the aux file is unchanged"))
 				return 0
 			return 1
-		self.msg(3, _("no new compilation is needed"))
+		msg.debug(_("no new compilation is needed"))
 		return 0
 
 	def deps_modified (self, date):
@@ -1056,7 +1145,7 @@ class Environment (Depend):
 		for suffix in list:
 			file = self.src_base + suffix
 			if exists(file):
-				self.msg(1, _("removing %s") % file)
+				msg.log(_("removing %s") % file)
 				os.unlink(file)
 
 	###  program execution
@@ -1071,18 +1160,18 @@ class Environment (Depend):
 		error output is parsed and messages from Kpathsea are processed (to
 		indicate e.g. font compilation).
 		"""
-		self.msg(1, _("executing: %s") % string.join(prog))
+		msg.log(_("executing: %s") % string.join(prog))
 		if pwd:
-			self.msg(2, _("  in directory %s") % pwd)
+			msg.log(_("  in directory %s") % pwd)
 		if env != {}:
-			self.msg(2, _("  with environment: %r") % env)
+			msg.log(_("  with environment: %r") % env)
 
 		# We first look for the program to run so we can fail properly if the
 		# executable is not found.
 
 		progname = prog_available(prog[0])
 		if not progname:
-			self.msg(-1, _("%s not found") % prog[0])
+			msg.error(_("%s not found") % prog[0])
 			return 1
 
 		penv = posix.environ.copy()
@@ -1154,12 +1243,11 @@ class Environment (Depend):
 			line = line.rstrip()
 			m = re_kpse.match(line)
 			if m:
-				self.msg(1, line)
 				cmd = m.group("cmd")
 				if self.kpse_msg.has_key(cmd):
-					self.msg(0, m.expand(self.kpse_msg[cmd]))
+					msg.info(m.expand(self.kpse_msg[cmd]))
 				else:
-					self.msg(0, _("kpathsea running %s...") % cmd)
+					msg.progress(_("kpathsea running %s") % cmd)
 
 		# After the executed program is finished (which we now be seeing that
 		# its error stream was closed), we wait for it and return its exit
@@ -1168,52 +1256,10 @@ class Environment (Depend):
 		(p, ret) = os.waitpid(pid, 0)
 		os.waitpid(pid2, 0)
 		f_err.close()
-		self.msg(3, _("process %d (%s) returned %d") % (pid, prog[0], ret))
+		msg.log(_("process %d (%s) returned %d") % (pid, prog[0], ret))
 
 		self.something_done = 1
 		return ret
-
-#---------------------------------------
-
-class Message (object):
-	"""
-	All messages in the program are output using the `msg' object in the
-	main class. This class defines the interface for this object.
-	"""
-	def __call__ (self, level, text):
-		"""
-		This method calls the actual writing function. This extra indirection
-		allows redefining the output method while the program is running,
-		while allowing objects to store references to the Message object.
-		"""
-		pass
-
-	def error (self, where, text, code=None):
-		"""
-		This method is called when the parsing of the log file found an error.
-		The arguments are, respectively, the positionr where the error
-		occurred (a dictionary that may contain entries 'file', 'line', etc),
-		the description of the error, and the offending code (up to the
-		error).
-		"""
-		pass
-
-	def abort (self, what, why):
-		"""
-		This method is called when the compilation was aborted, for instance
-		due to lack of input. The arguments are the nature of the error and
-		the cause of the interruption.
-		"""
-		pass
-
-	def info (self, where, what):
-		"""
-		This method is called when reporting information and warnings. The
-		first argument is a dictionary that describes the position the
-		information concerns (it may contain entries 'file', 'page' and
-		'line'). The second argument is the information message.
-		"""
-		pass
 
 #---------------------------------------
 

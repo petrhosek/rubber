@@ -1,16 +1,16 @@
 # This file is covered by the GPL as part of Rubber.
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2005
 """
 Conversion of EPS graphics into PDF.
 """
 
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Dep (Depend):
 	def __init__ (self, target, source, env):
-		leaf = DependLeaf([source], env.msg)
-		Depend.__init__(self, [target], {source: leaf}, env.msg)
+		leaf = DependLeaf([source])
+		Depend.__init__(self, [target], {source: leaf})
 		self.env = env
 		self.source = source
 
@@ -21,9 +21,9 @@ class Dep (Depend):
 		self.cmd = ["env", "epstopdf", "--outfile=" + target, source]
 
 	def run (self):
-		self.env.msg(0, _("converting %s to PDF...") % self.source)
+		msg.progress(_("converting %s to PDF") % self.source)
 		if self.env.execute(self.cmd):
-			self.env.msg(0, _("the operation failed"))
+			msg.error(_("conversion of %s into PDF failed") % self.source)
 			return 1
 		return 0
 

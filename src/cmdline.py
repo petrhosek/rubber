@@ -9,7 +9,7 @@ import os.path
 import string
 from getopt import *
 
-from rubber import _
+from rubber import _, msg
 from rubber import *
 from rubber.version import *
 from rubber.util import parse_line
@@ -19,81 +19,25 @@ class MoreErrors:
 	This exception is raised when the maximum number of displayed errors is
 	reached.
 	"""
-	def __init__ (self, where):
-		self.where = where
-
-class Message (Message):
-	"""
-	This class defines a message writer that outputs the messages on standard
-	error according to GNU conventions. It manages verbosity level and
-	possible redirection.
-	"""
-	def __init__ (self, level=0, short=0):
-		"""
-		Initialize the object with the specified verbosity threshold. The
-		other argument is a boolean that indicates whether error messages
-		should be short or normal.
-		"""
-		self.level = level
-		self.short = short
-		self.write = self.do_write
-		self.max_errors = 10
-
-	def do_write (self, level, text):
-		if level <= self.level:
-			sys.stderr.write(text + "\n")
-
-	def __call__ (self, level, text):
-		self.write(level, text)
-
-	def format_pos (self, where):
-		if where.has_key("file"):
-			text = simplify_path(where["file"])
-			if where.has_key("line") and where["line"]:
-				text = "%s:%d" % (text, where["line"])
-				if where.has_key("last"):
-					if where["last"] != where["line"]:
-						text = "%s-%d" % (text, where["last"])
-		else:
-			text = "%r" % where
-			#_("(nowhere)")
-		return text
-
-	def error (self, where, text, code=None):
-		self.max_errors = self.max_errors - 1
-		if self.max_errors == -1:
-			raise MoreErrors(where)
-		prefix = self.format_pos(where) + ": "
-		if text[0:13] == "LaTeX Error: ":
-			text = text[13:]
-		self.write(-1, prefix + text)
-		if code and not self.short:
-			self.write(-1, prefix + _("leading text: ") + code)
-
-	def abort (self, what, why):
-		if self.short:
-			self.write(0, _("compilation aborted ") + why)
-		else:
-			self.write(0, _("compilation aborted: %s %s") % (what, why))
-
-	def info (self, where, what):
-		text = self.format_pos(where) + ": " + what
-		if where.has_key("page"):
-			text = "%s (page %d)" % (text, where["page"])
-		self.write(0, text)
+	pass
 
 class Main (object):
 	def __init__ (self):
-		"""
-		Create the object used for message output.
-		"""
-		self.msg = Message()
+		self.max_errors = 10
+		msg.write = self.stderr_write
+
+	def stderr_write (self, text, level=0):
+		if level <= 0:
+			self.max_errors = self.max_errors - 1
+			if self.max_errors == -1:
+				raise MoreErrors()
+		sys.stderr.write(text + "\n")
 
 	def short_help (self):
 		"""
 		Display a short description of the command line.
 		"""
-		self.msg (0, _("""\
+		msg(0, _("""\
 usage: rubber [options] sources...
 For more information, try `rubber --help'."""))
 
@@ -101,7 +45,7 @@ For more information, try `rubber --help'."""))
 		"""
 		Display the description of all the options and exit.
 		"""
-		self.msg (0, _("""\
+		msg(0, _("""\
 This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
@@ -158,7 +102,7 @@ available options:
 			elif opt in ("-l", "--landscape"):
 				self.prologue.append("paper landscape")
 			elif opt in ("-n", "--maxerr"):
-				self.msg.max_errors = int(arg)
+				self.max_errors = int(arg)
 			elif opt in ("-m", "--module"):
 				self.prologue.append("module " +
 					string.replace(arg, ":", " ", 1))
@@ -170,15 +114,15 @@ available options:
 			elif opt in ("-p", "--ps"):
 				self.epilogue.append("module dvips")
 			elif opt in ("-q", "--quiet"):
-				self.msg.level = -1
+				msg.level = msg.level - 1
 			elif opt in ("-r" ,"--read"):
 				self.prologue.append("read " + arg)
 			elif opt in ("-s", "--short"):
-				self.msg.short = 1
+				msg.short = 1
 			elif opt in ("-I", "--texpath"):
 				self.prologue.append("path " + arg)
 			elif opt in ("-v", "--verbose"):
-				self.msg.level = self.msg.level + 1
+				msg.level = msg.level + 1
 			elif opt == "--version":
 				print "Rubber version: " + version
 				print "module path: " + moddir
@@ -203,10 +147,10 @@ available options:
 		self.clean = 0
 		self.force = 0
 		args = self.parse_opts(cmdline)
-		self.msg(2, _("This is Rubber version %s.") % version)
+		msg.log(_("This is Rubber version %s.") % version)
 
 		for src in args:
-			env = Environment(self.msg)
+			env = Environment()
 
 			# Check the source and prepare it for processing
 	
@@ -219,7 +163,7 @@ available options:
 
 			if self.clean:
 				if not os.path.exists(env.source()):
-					self.msg(1, _("there is no LaTeX source"))
+					msg.warn(_("there is no LaTeX source"))
 					continue
 
 			env.make_source()
@@ -246,16 +190,14 @@ available options:
 					ret = env.final.make(self.force)
 
 				if ret == 1:
-					self.msg(0, _("nothing to be done for %s") % env.source())
+					msg.info(_("nothing to be done for %s") % env.source())
 				elif ret == 0:
-					if not self.msg.short:
-						self.msg(1, _("There were errors compiling %s.")
-							% env.source())
+					msg.info(_("There were errors compiling %s.")
+						% env.source())
 					try:
 						env.final.failed().show_errors()
-					except MoreErrors, e:
-						self.msg(0, _("More errors in %s.") %
-							simplify_path(e.where["file"]))
+					except MoreErrors:
+						msg.info(_("More errors."))
 					return 1
 
 		return 0
@@ -272,5 +214,5 @@ available options:
 		try:
 			return self.main(cmdline)
 		except KeyboardInterrupt:
-			self.msg(0, _("*** interrupted"))
+			msg.error(_("*** interrupted"))
 			return 2

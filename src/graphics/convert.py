@@ -1,11 +1,11 @@
 # This file is covered by the GPL as part of Rubber.
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2005
 """
 Conversion of many image formats into many others using the program 'convert'
 from ImageMagick.
 """
 
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 # Useful formats that 'convert' can produce, with a "position" to compute
@@ -50,18 +50,19 @@ def update_rules (rules):
 
 class Dep (Depend):
 	def __init__ (self, target, source, env):
-		leaf = DependLeaf([source], env.msg)
-		Depend.__init__(self, [target], {source: leaf}, env.msg)
+		leaf = DependLeaf([source])
+		Depend.__init__(self, [target], {source: leaf})
 		self.env = env
 		self.source = source
 		self.target = target
 		self.cmd = ["convert", source, target]
 
 	def run (self):
-		self.env.msg(0, _("converting %s into %s...") %
+		msg.progress(_("converting %s into %s") %
 				(self.source, self.target))
 		if self.env.execute(self.cmd):
-			self.env.msg(0, _("the operation failed"))
+			msg.error(_("conversion of %s into %s failed") %
+					(self.source, self.target))
 			return 1
 		return 0
 

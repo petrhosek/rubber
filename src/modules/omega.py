@@ -6,7 +6,7 @@ Omega support for Rubber.
 
 import sys
 import rubber
-from rubber import _
+from rubber import _, msg
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):

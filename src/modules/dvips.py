@@ -12,19 +12,18 @@ import sys
 from os.path import *
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Module (Depend, rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
-		self.msg = env.msg
 		if env.final.prods[0][-4:] != ".dvi":
-			self.msg(0, _("I can't use dvips when not producing a DVI"))
+			msg.error(_("I can't use dvips when not producing a DVI"))
 			sys.exit(2)
 		self.dvi = env.final.prods[0]
 		self.ps = self.dvi[:-3] + "ps"
-		Depend.__init__(self, [self.ps], { self.dvi: env.final }, env.msg)
+		Depend.__init__(self, [self.ps], { self.dvi: env.final })
 		env.final = self
 		if env.conf.tex == "Omega":
 			self.cmd = "odvips"
@@ -33,13 +32,13 @@ class Module (Depend, rubber.Module):
 		self.options = []
 
 	def run (self):
-		self.msg(0, _("running %s on %s...") % (self.cmd, self.dvi))
+		msg.progress(_("running %s on %s") % (self.cmd, self.dvi))
 		cmd = [self.cmd]
 		for opt in self.env.conf.paper:
 			cmd.extend(["-t", opt])
 		cmd.extend(self.options + ["-o", self.ps, self.dvi])
 		if self.env.execute(cmd):
-			self.env.msg(0, _("the operation failed"))
+			msg.error(0, _("%s failed on %s") % (self.cmd, self.dvi))
 			return 1
 		return 0
 

@@ -1,5 +1,5 @@
 # This file is covered by the GPL as part of Rubber.
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2005
 """
 Metapost support for Rubber.
 
@@ -10,7 +10,7 @@ Metapost's log files after the process. Is it enough?
 import os, os.path
 import re
 
-from rubber import _, LogCheck
+from rubber import _, msg, LogCheck
 from rubber.util import *
 
 re_input = re.compile("input\\s+(?P<file>[^\\s;]+)")
@@ -50,9 +50,9 @@ class Dep (Depend):
 		sources = []
 		self.cmd_pwd = os.path.dirname(source)
 		self.include(os.path.basename(source), sources)
-		env.msg(2, _("%s is made from %r") % (target, sources))
-		self.leaf = DependLeaf(sources, env.msg)
-		Depend.__init__(self, [target], {source: self.leaf}, env.msg)
+		msg.log(_("%s is made from %r") % (target, sources))
+		self.leaf = DependLeaf(sources)
+		Depend.__init__(self, [target], {source: self.leaf})
 		self.env = env
 		self.base = source[:-3]
 		self.cmd = ["mpost", "\\batchmode;input %s" %
@@ -88,7 +88,7 @@ class Dep (Depend):
 		Run Metapost from the source file's directory, so that figures are put
 		next to their source file.
 		"""
-		self.env.msg(0, _("running Metapost on %s.mp...") % self.base)
+		msg.progress(_("running Metapost on %s.mp") % self.base)
 		if self.env.execute(self.cmd, self.penv, pwd=self.cmd_pwd) == 0:
 			return 0
 
@@ -96,7 +96,7 @@ class Dep (Depend):
 
 		self.log = MPLogCheck(self.env)
 		if self.log.read(self.base + ".log"):
-			self.env.msg(0,_(
+			msg.error(_(
 				"I can't read MetaPost's log file, this is wrong."))
 			return 1
 		return self.log.errors()
@@ -105,7 +105,7 @@ class Dep (Depend):
 		"""
 		Report the errors from the last compilation.
 		"""
-		self.env.msg(1, _("There were errors in Metapost code:"))
+		msg.info(_("There were errors in Metapost code:"))
 		self.log.show_errors()
 
 	def clean (self):
@@ -127,7 +127,7 @@ class Dep (Depend):
 				ext = file[ln:]
 				m = re_mpext.match(ext)
 				if m and ext[m.end():] == "":
-					self.env.msg(3, _("removing %s") % file)
+					msg.log(_("removing %s") % file)
 					os.unlink(file)
 
 # The `files' dictionary associates dependency nodes to MetaPost sources. It

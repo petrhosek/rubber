@@ -1,10 +1,10 @@
 # This file is covered by the GPL as part of Rubber.
-# (c) Emmanuel Beffara, 2002
+# (c) Emmanuel Beffara, 2002--2005
 """
 Extraction of bounding box information from gzipped PostScript figures.
 """
 
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 from gzip import GzipFile
@@ -14,8 +14,8 @@ re_bbox = re.compile("%[%\w]*BoundingBox:")
 
 class Dep (Depend):
 	def __init__ (self, target, source, env):
-		leaf = DependLeaf([source], env.msg)
-		Depend.__init__(self, [target], {source: leaf}, env.msg)
+		leaf = DependLeaf([source])
+		Depend.__init__(self, [target], {source: leaf})
 		self.env = env
 		self.source = source
 		self.target = target
@@ -27,7 +27,7 @@ class Dep (Depend):
 		bounding box indication. Then it creates the target file with this
 		single line.
 		"""
-		self.env.msg(0, _("extracting bounding box from %s...") % self.source)
+		msg.progress(_("extracting bounding box from %s") % self.source)
 		source = GzipFile(self.source)
 		line = source.readline()
 		while line != "":
@@ -38,7 +38,7 @@ class Dep (Depend):
 				return 0
 			line = source.readline()
 		source.close()
-		self.env.msg(0, _("no bounding box was found !"))
+		msg.error(_("no bounding box was found in %s!") % self.source)
 		return 1
 
 def convert (source, target, env):

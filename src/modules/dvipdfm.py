@@ -8,30 +8,29 @@ import sys
 from os.path import *
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Module (Depend, rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
-		self.msg = env.msg
 		if env.final.prods[0][-4:] != ".dvi":
-			self.msg(0, _("I can't use dvipdfm when not producing a DVI"))
+			msg.error(_("I can't use dvipdfm when not producing a DVI"))
 			sys.exit(2)
 		self.dvi = env.final.prods[0]
 		self.pdf = self.dvi[:-3] + "pdf"
-		Depend.__init__(self, [self.pdf], { self.dvi: env.final }, env.msg)
+		Depend.__init__(self, [self.pdf], { self.dvi: env.final })
 		env.final = self
 		self.options = []
 
 	def run (self):
-		self.msg(0, _("running dvipdfm on %s...") % self.dvi)
+		msg.progress(_("running dvipdfm on %s") % self.dvi)
 		cmd = ["dvipdfm"]
 		for opt in self.env.conf.paper:
 			cmd.extend(["-p", opt])
 		cmd.extend(self.options + ["-o", self.pdf, self.dvi])
 		if self.env.execute(cmd):
-			self.env.msg(0, _("the operation failed"))
+			msg.error(0, _("dvipdfm failed on %s") % self.dvi)
 			return 1
 		return 0
 

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2004
+# (c) Emmanuel Beffara, 2004--2005
 """
 Multibib support for Rubber
 
@@ -14,7 +14,7 @@ from os.path import *
 import string
 
 import rubber, rubber.modules, rubber.modules.bibtex
-from rubber import _
+from rubber import _, msg
 
 class Biblio (rubber.modules.bibtex.Module):
 	def __init__ (self, env, name):
@@ -44,7 +44,7 @@ class Module (rubber.Module):
 		"""
 		bib = dict["arg"]
 		self.bibs[bib] = Biblio(self.env, bib)
-		self.env.msg(1, _("bibliography %s registered") % bib)
+		msg.log(_("bibliography %s registered") % bib)
 
 	def pre_compile (self):
 		for bib in self.bibs.values():
@@ -61,5 +61,5 @@ class Module (rubber.Module):
 			for suffix in ".aux", ".bbl", ".blg":
 				file = bib + suffix
 				if exists(file):
-					self.env.msg(1, _("removing %s") % file)
+					msg.log(_("removing %s") % file)
 					os.unlink(file)

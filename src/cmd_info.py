@@ -9,23 +9,20 @@ from getopt import *
 import string
 from os.path import *
 
-from rubber import _
+from rubber import _, msg
 from rubber import *
 from rubber.info import *
 from rubber.version import *
 import rubber.cmdline
 
 class Main (rubber.cmdline.Main):
-	def __init__ (self):
-		self.msg = rubber.cmdline.Message()
-
 	def short_help (self):
-		self.msg(0, _("""\
+		msg(0, _("""\
 usage: rubber-info [options] source
 For more information, try `rubber-info --help'."""))
 
 	def help (self):
-		self.msg(0, _("""\
+		msg(0, _("""\
 This is Rubber's information extractor version %s.
 usage: rubber-info [options] source
 available options:
@@ -49,8 +46,9 @@ actions:
 				"warnings" ]
 			args = rubber.cmdline.Main.parse_opts(self, cmdline, long=long)
 			opts, args = getopt(args, "", long)
+			self.max_errors = -1
 		except GetoptError, e:
-			self.msg(0, e)
+			msg.error(e)
 			sys.exit(1)
 
 		for (opt,arg) in opts:
@@ -65,21 +63,21 @@ actions:
 				file.close()
 				args = self.parse_opts(opts2) + args
 			elif opt in ("-s", "--short"):
-				self.msg.short = 1
+				msg.short = 1
 			elif opt in ("-v", "--verbose"):
-				self.msg.level = self.msg.level + 1
+				msg.level = msg.level + 1
 			elif opt == "--version":
-				self.msg(0, version)
+				msg(0, version)
 				sys.exit(0)
 			else:
 				if self.act:
-					self.msg(0, _("You must specify only one action."))
+					msg.error(_("You must specify only one action."))
 					sys.exit(1)
 				self.act = opt[2:]
 		return args
 
 	def main (self, cmdline):
-		self.env = Environment(self.msg)
+		self.env = Environment()
 		self.prologue = []
 		self.epilogue = []
 
@@ -87,18 +85,18 @@ actions:
 		args = self.parse_opts(cmdline)
 		if not self.act: self.act = "check"
 
-		self.msg(1, _(
+		msg.log(_(
 			"This is Rubber's information extractor version %s.") % version)
 
 		if len(args) != 1:
-			self.msg(0, _("You must specify one source file."))
+			msg.error(_("You must specify one source file."))
 			sys.exit(1)
 		if exists(args[0] + ".tex"):
 			src = args[0]
 		elif exists(args[0]):
 			src, ext = splitext(args[0])
 		else:
-			self.msg(0, _("I cannot find %s.") % args[0])
+			msg.error(_("I cannot find %s.") % args[0])
 			sys.exit(1)
 
 		if self.act == "deps":
@@ -161,31 +159,31 @@ actions:
 		"""
 		logfile = src + ".log"
 		if not exists(logfile):
-			self.msg(0, _("I cannot find the log file."))
+			msg.error(_("I cannot find the log file."))
 			return 1
 		log = LogInfo(self.env)
 		log.read(logfile)
 		if act == "boxes":
 			if not log.show_boxes():
-				self.msg(0, _("There is no bad box."))
+				msg.info(_("There is no bad box."))
 		elif act == "check":
 			if log.show_errors(): return 0
-			self.msg(0, _("There was no error."))
+			msg.info(_("There was no error."))
 			if log.show_references(): return 0
-			self.msg(0, _("There is no undefined reference."))
-			if not log.show_warnings():	self.msg(0, _("There is no warning."))
-			if not log.show_boxes(): self.msg(0, _("There is no bad box."))
+			msg.info(_("There is no undefined reference."))
+			if not log.show_warnings():	msg.info(_("There is no warning."))
+			if not log.show_boxes(): msg.info(_("There is no bad box."))
 		elif act == "errors":
 			if not log.show_errors():
-				self.msg(0, _("There was no error."))
+				msg.info(_("There was no error."))
 		elif act == "refs":
 			if not log.show_references():
-				self.msg(0, _("There is no undefined reference."))
+				msg.info(_("There is no undefined reference."))
 		elif act == "warnings":
 			if not log.show_warnings():
-				self.msg(0, _("There is no warning."))
+				msg.info(_("There is no warning."))
 		else:
-			self.msg(0, _("\
+			msg.error(_("\
 I don't know the action `%s'. This should not happen.") % act)
 			return 1
 		return 0
@@ -197,5 +195,5 @@ I don't know the action `%s'. This should not happen.") % act)
 		try:
 			self.main(cmdline)
 		except KeyboardInterrupt:
-			self.msg(0, _("*** interrupted"))
+			msg.error(_("*** interrupted"))
 			return 2

@@ -3,13 +3,7 @@ Bugs to fix:
 - find a good way for graphics.mpost to handle the fact that several figures
   can be produced by the same source (without using a global variable)
 
-- currently the interface requires LaTeX errors to be reported, while BibTeX
-  errors are reported after compilation; harmonize this, i.e. find a stable
-  way for modules to report their errors
-
 Improvements:
-
-- specify clearly what kind of messages each verbosity level is for
 
 - study the status of the Message class and the way to change the output
   method (the current vt100 trick is not completely satisfactory)
@@ -19,7 +13,15 @@ Improvements:
 
 - check how the program behaves with various TeX implementations
 
+- add directives to specify which conversion rules should be used
+
+- add new directives, make the directive system into a small scripting
+  language, write more modules with this language
+
 Long-term ideas:
+
+- clean the idea of the Converter (as an inference system for building rules)
+  and make it the central object, with latex as just one particular rule
 
 - use the clean class structuration (possibly cleaning it a bit more) to
   provide other front-ends, e.g. a clever X11 interface
@@ -28,9 +30,6 @@ Long-term ideas:
   'gettextized')
 
 - introduce a configuration file, some kind of .rubberrc
-
-- use some kind of scoring in graphics conversion rules so that the most
-  relevant rules are used
 
 - find a way to cache the parsing and results between successive compilations
   of a given document

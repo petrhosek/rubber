@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2004
+# (c) Emmanuel Beffara, 2002--2005
 """
 Support for the `graphics' package in Rubber.
 
@@ -19,7 +19,7 @@ from os.path import *
 import string, re
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 import rubber.graphics
 
@@ -67,7 +67,7 @@ class PSTDep (Depend):
 		source, the LaTeX source produced, the EPS figure produced, the name
 		to use for it (probably the same one), and the environment.
 		"""
-		leaf = DependLeaf([fig], env.msg, loc)
+		leaf = DependLeaf([fig], loc)
 		self.env = env
 
 		m = re_pstname.match(tex)
@@ -80,13 +80,13 @@ class PSTDep (Depend):
 			epsname = eps
 		lang, self.langname = pst_lang[type]
 
-		Depend.__init__(self, [tex, eps], { fig: leaf }, env.msg, loc)
+		Depend.__init__(self, [tex, eps], { fig: leaf }, loc)
 		self.fig = fig
 		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p", epsname, fig, tex ]
 		self.cmd_p = ["fig2dev", "-L", lang, fig, eps ]
 
 	def run (self):
-		self.env.msg(0, _("converting %s into %s/LaTeX...") %
+		msg.progress(_("converting %s into %s/LaTeX") %
 				(self.fig, self.langname))
 		if self.env.execute(self.cmd_t): return 1
 		self.env.execute(self.cmd_p)
@@ -105,7 +105,6 @@ class Module (rubber.Module):
 		possible extensions from de compiler's name and the package's options.
 		"""
 		self.env = env
-		self.msg = env.msg
 		env.add_hook("includegraphics", self.includegraphics)
 		env.add_hook("graphicspath", self.graphicspath)
 		env.add_hook("DeclareGraphicsExtensions", self.declareExtensions)
@@ -160,13 +159,12 @@ class Module (rubber.Module):
 		d = rubber.graphics.dep_file(name, suffixes, self.prefixes, self.env,
 				dict["pos"])
 		if d:
-			self.msg(2, _("graphics `%s' found") % name)
+			msg.log(_("graphics `%s' found") % name)
 			for file in d.prods:
 				self.env.sources[file] = d;
 			self.files.append(d)
 		else:
-			self.msg.info(dict["pos"],
-				_("warning: graphics `%s' not found") % name)
+			msg.warn(_("graphics `%s' not found") % name, dict["pos"])
 
 	def graphicspath (self, dict):
 		"""
@@ -226,7 +224,7 @@ class Module (rubber.Module):
 		if read in self.suffixes:
 			return
 		self.suffixes.insert(0, read)
-		self.msg(1, "*** FIXME ***  rule %s -> %s [%s]" % (
+		msg.log("*** FIXME ***  rule %s -> %s [%s]" % (
 			string.strip(dict["arg"]), m.group("read"), m.group("type")))
 
 	#  auxiliary method

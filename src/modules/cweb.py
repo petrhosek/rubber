@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2003
+# (c) Emmanuel Beffara, 2002--2005
 """
 CWEB support for Rubber.
 
@@ -10,25 +10,25 @@ needed.
 from os.path import *
 
 import rubber
-from rubber import _
+from rubber import _, msg
 from rubber.util import *
 
 class Dep (Depend):
 	def __init__ (self, source, target, env):
-		leaf = DependLeaf([source], env.msg)
+		leaf = DependLeaf([source])
 		tg_base = target[:-4]
 		Depend.__init__(self,
 			[target, tg_base + ".idx", tg_base + ".scn"], { source: leaf },
-			env.msg)
+			msg)
 		self.env = env
 		self.source = source
 		self.target = target
 		self.cmd = ["cweave", source, target]
 
 	def run (self):
-		self.env.msg(0, _("weaving %s...") % self.source)
+		msg.progress(_("weaving %s") % self.source)
 		if self.env.execute(self.cmd):
-			self.env.msg(0, _("weaving failed"))
+			msg.error(_("weaving of %s failed") % self.source)
 			return 1
 		self.env.process(self.target)
 		return 0
@@ -51,9 +51,9 @@ class Module (rubber.Module):
 		"""
 		if not self.run_needed():
 			return 0
-		self.env.msg(0, _("weaving %s.w...") % self.env.src_pbase)
+		msg.progress(_("weaving %s.w") % self.env.src_pbase)
 		if self.env.execute(["cweave", self.env.src_pbase]):
-			self.env.msg(0, _("weaving failed"))
+			msg.error(_("weaving of %s.w failed") % self.env.src_pbase)
 			return 1
 		return 0
 
@@ -63,12 +63,12 @@ class Module (rubber.Module):
 		"""
 		pbase = self.env.src_pbase
 		if not exists(pbase + ".tex"):
-			self.env.msg(2, _("the LaTeX source does not exist"))
+			msg.log(_("the LaTeX source does not exist"))
 			return 1
 		if getmtime(pbase + ".tex") < getmtime(pbase + ".w"):
-			self.env.msg(2, _("the CWEB source was modified"))
+			msg.log(_("the CWEB source was modified"))
 			return 1
-		self.env.msg(2, _("the LaTeX source is up to date"))
+		msg.log(_("the LaTeX source is up to date"))
 		return 0
 
 	def clean (self):
