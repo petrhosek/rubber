@@ -115,11 +115,11 @@ actions:
 		for mod in self.modules:
 			colon = mod.find(":")
 			if colon == -1:
-				if self.env.modules.register(mod):
+				if self.env.modules.register(mod, { "arg": mod, "opt": None }):
 					self.msg(
 						0, _("module %s could not be registered") % mod)
 			else:
-				arg = { "arg" : mod[colon+1:] }
+				arg = { "arg": mod[:colon], "opt": mod[colon+1:] }
 				mod = mod[0:colon]
 				if self.env.modules.register(mod, arg):
 					self.msg(
