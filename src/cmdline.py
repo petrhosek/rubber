@@ -199,7 +199,7 @@ available options:
 
 			if self.clean:
 				env.final.clean()
-				return 0
+				continue
 
 			if self.force:
 				ret = env.main.make(1)
