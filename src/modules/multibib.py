@@ -18,7 +18,6 @@ from rubber import _
 class Biblio (rubber.modules.bibtex.Module):
 	def __init__ (self, env, name):
 		rubber.modules.bibtex.Module.__init__(self, env, {}, name)
-		env.watch_file(name + ".aux")
 
 class Module (rubber.Module):
 	def __init__ (self, env, dict):
