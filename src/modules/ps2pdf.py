@@ -17,6 +17,9 @@ class Module (DependShell, rubber.Module):
 			sys.exit(2)
 		ps = env.final.prods[0]
 		pdf = ps[:-2] + "pdf"
-		DependShell.__init__(self, [pdf], { ps: env.final },
-			["ps2pdf", ps, pdf], env)
+		cmd = ["ps2pdf"]
+		for opt in env.conf.paper:
+			cmd.append("-sPAPERSIZE=" + opt)
+		cmd.extend([ps, pdf])
+		DependShell.__init__(self, [pdf], { ps: env.final }, cmd, env)
 		env.final = self

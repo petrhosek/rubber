@@ -17,6 +17,6 @@ class Module (rubber.Module):
 		if not dict["arg"]:
 			return 0
 		file = dict["arg"]
-		if file.find("\\") < 0 and name.find("#") < 0:
+		if file.find("\\") < 0 and file.find("#") < 0:
 			self.env.sources[file] = DependLeaf([file], self.env.msg,
 				dict["pos"])

@@ -26,9 +26,10 @@ class Module (Depend, rubber.Module):
 
 	def run (self):
 		self.msg(0, _("running dvipdfm on %s...") % self.dvi)
-		cmd = ["dvipdfm"] + self.options + ["-o", self.pdf, self.dvi]
+		cmd = ["dvipdfm"]
 		for opt in self.env.conf.paper:
 			cmd.extend(["-p", opt])
+		cmd.extend(self.options + ["-o", self.pdf, self.dvi])
 		if self.env.execute(cmd):
 			self.env.msg(0, _("the operation failed"))
 			return 1

@@ -158,7 +158,7 @@ class Module (rubber.Module):
 		"""
 		Register a new index.
 		"""
-		m = re_index.match(dict["line"])
+		m = re_newindex.match(dict["line"])
 		if not m:
 			return
 		index = dict["arg"]

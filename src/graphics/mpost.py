@@ -13,7 +13,7 @@ import re
 from rubber import _, LogCheck
 from rubber.util import *
 
-re_input = re.compile("input\s+(?P<file>[^ ;]+)")
+re_input = re.compile("input\\s+(?P<file>[^\\s;]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 re_mpext = re.compile("[0-9]+|mpx|log")
 
@@ -48,7 +48,8 @@ class Dep (Depend):
 	"""
 	def __init__ (self, target, source, env):
 		sources = []
-		self.include(source, sources)
+		self.cmd_pwd = os.path.dirname(source)
+		self.include(os.path.basename(source), sources)
 		env.msg(2, _("%s is made from %r") % (target, sources))
 		self.leaf = DependLeaf(sources, env.msg)
 		Depend.__init__(self, [target], {source: self.leaf}, env.msg)
@@ -56,7 +57,6 @@ class Dep (Depend):
 		self.base = source[:-3]
 		self.cmd = ["mpost", "\\batchmode;input %s" %
 			os.path.basename(self.base)]
-		self.cmd_pwd = os.path.dirname(self.base)
 		if env.src_path == "":
 			self.penv = {}
 		else:
@@ -70,11 +70,10 @@ class Dep (Depend):
 		in the same directory), appends its actual name to the list, and
 		parses it to find recursively included files.
 		"""
-		if exists(source + ".mp"):
-			file = source + ".mp"
-		elif exists(source):
-			file = source
-		else:
+		file = os.path.normpath(os.path.join(self.cmd_pwd, source))
+		if exists(file + ".mp"):
+			file = file + ".mp"
+		elif not exists(file):
 			return
 		list.append(file)
 		fd = open(file)
