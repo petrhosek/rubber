@@ -194,6 +194,9 @@ disponibles sont les suivantes:
 
 \begin(description)
 
+\item([clean \narg(fichier)], [Indique que le fichier spécifié doit être
+effacé lors du nettoyage par \ddopt(clean).])
+
 \item([depend \narg(fichier)], [Considère le fichier spécifié comme une
 dépendance à la compilation, sa date de modification sera vérifiée.])
 

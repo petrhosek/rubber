@@ -184,6 +184,9 @@ following:
 
 \begin(description)
 
+\item([clean \narg(file)], [Indicates that the specified file should be
+removed when cleaning using \ddopt(clean).])
+
 \item([depend \narg(file)], [Consider the specified file as a dependency, so
 that its modification time will be checked.])
 

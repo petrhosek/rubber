@@ -252,7 +252,11 @@ class LogCheck:
 		"""
 		for line in self.lines:
 			if line[0] == "!":
-				return 1
+				# We check for the substring "warning:" because pdfTeX
+				# sometimes issues warnings (like undefined references) in the
+				# form of errors...
+
+				return string.find(line, "warning:") != -1
 		return 0
 
 	def run_needed (self):
@@ -490,7 +494,10 @@ class Environment:
 		A command name of the form 'foo.bar' is considered to be a command
 		'bar' for module 'foo'.
 		"""
-		if cmd == "depend":
+		if cmd == "clean":
+			self.removed_files.append(arg)
+
+		elif cmd == "depend":
 			file = self.conf.find_input(arg)
 			if file:
 				self.depends[file] = DependLeaf([file])
@@ -659,11 +666,11 @@ class Environment:
 				self.modules.register(name, dict)
 
 	def h_tableofcontents (self, dict):
-		self.watch_file(self.base + ".toc")
+		self.watch_file(self.src_base + ".toc")
 	def h_listoffigures (self, dict):
-		self.watch_file(self.base + ".lof")
+		self.watch_file(self.src_base + ".lof")
 	def h_listoftables (self, dict):
-		self.watch_file(self.base + ".lot")
+		self.watch_file(self.src_base + ".lot")
 
 	def h_bibliography (self, dict):
 		"""

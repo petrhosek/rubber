@@ -1,3 +1,11 @@
+2003-09-29  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, man/...: Added directive 'clean'.
+
+	* src/__init__.py: Fixed the calls to 'watch_file'.
+
+	* src/__init__.py: Handling of pdfTeX's error-like warning messages.
+
 2003-09-26  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py, man/...: Changed the semantics of watched_files a
