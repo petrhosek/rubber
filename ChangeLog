@@ -2,7 +2,9 @@
 
 	* Version 0.99.7 released.
 
-	* src/modiles/epsfig.py: Added hooks for \epfbox and \epsffile.
+	* rubber.spec.in: RPM packaging update.
+
+	* src/modules/epsfig.py: Added hooks for \epfbox and \epsffile.
 
 2004-02-19  Emmanuel Beffara  <manu@beffara.org>
 

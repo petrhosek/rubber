@@ -16,9 +16,10 @@ This is a building system for LaTeX documents. It is based on a routine that
 runs just as many compilations as necessary. The module system provides a
 great flexibility that virtually allows support for any package with no user
 intervention, as well as pre- and post-processing of the document. The
-standard modules currently provide support for bibtex, dvips, pdftex,
-makeindex, cweb and graphics/graphicx (currently with automatic epstopdf and
-XFig picture conversion and Metapost compilation).
+standard modules currently provide support for bibtex, dvips, dvipdfm, pdftex,
+makeindex. A good number of standard packages are supported, including
+graphics/graphicx (with automatic conversion between various formats and
+Metapost compilation).
 
 %prep
 %setup
@@ -39,10 +40,11 @@ make install prefix=$RPM_BUILD_ROOT%{_prefix}
 %defattr(-, root, root)
 %doc ChangeLog COPYING NEWS README
 %{_bindir}/rubber
+%{_bindir}/rubber-pipe
 %{_bindir}/rubber-info
 %{_datadir}/rubber
 %doc %{_mandir}/fr/man1/rubber-info.1*
 %doc %{_mandir}/fr/man1/rubber.1*
 %doc %{_mandir}/man1/rubber-info.1*
 %doc %{_mandir}/man1/rubber.1*
-%doc %{_infodir}/rubber.info
+%doc %{_infodir}/rubber.info.gz
