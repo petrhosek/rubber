@@ -1,3 +1,7 @@
+2003-12-23  Emmanuel Beffara  <manu@beffara.org>
+
+	* src/__init__.py, src/modules/expand.py: Added the 'expand' module.
+
 2003-12-16  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/__init__.py: Allowed backslashes in macro arguments.

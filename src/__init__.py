@@ -357,14 +357,25 @@ class Environment:
 		self.process(self.source())
 		self.msg(2, _("dependencies: %r") % self.depends.keys())
 
-	def do_process (self, file, path):
+	def do_process (self, file, path, seq=None, hooks=None, dump=None):
 		"""
 		Process a LaTeX source. The file must be open, it is read to the end
 		calling the handlers for the macro calls. This recursively processes
 		the included sources.
+
+		The optional argument 'seq' is the regular expression used to match
+		sequences, and 'hooks' is the dictionary of functions to be called
+		when mathing succeeds. If they are not specified, their value is taken
+		in the fields of the same name in the object.
+
+		If the optional argument 'dump' is not None, then it is considered as
+		a stream on which all text not matched as a macro is written.
 		"""
 		lines = file.readlines()
 		lineno = 0
+
+		if seq is None: seq = self.seq
+		if hooks is None: hooks = self.hooks
 
 		# If a line ends with braces open, we read on until we get a correctly
 		# braced text. We also stop accumulating on paragraph breaks, the way
@@ -403,7 +414,7 @@ class Environment:
 
 			# Then we check for supported macros in the text.
 
-			match = self.seq.search(line)
+			match = seq.search(line)
 			while match:
 				dict = match.groupdict()
 				name = dict["name"]
@@ -417,11 +428,16 @@ class Environment:
 						match = match2
 						dict = match.groupdict()
 
+				if dump: dump.write(line[:match.start()])
+				dict["match"] = line[match.start():match.end()]
 				dict["line"] = line[match.end():]
 				dict["pos"] = { 'file': path, 'line': lineno }
-				self.hooks[name](dict)
+				dict["dump"] = dump
+				hooks[name](dict)
 				line = dict["line"]
-				match = self.seq.search(line)
+				match = seq.search(line)
+
+			if dump: dump.write(line)
 
 	def command (self, cmd, arg):
 		"""
@@ -582,12 +598,11 @@ class Environment:
 		module is searched for to support the class.
 		"""
 		if not dict["arg"]: return
-		for name in string.split(dict["arg"], ","):
-			file = self.conf.find_input (name + ".cls")
-			if file:
-				self.process(file)
-			else:
-				self.modules.register(name, dict)
+		file = self.conf.find_input(dict["arg"] + ".cls")
+		if file:
+			self.process(file)
+		else:
+			self.modules.register(dict["arg"], dict)
 
 	def h_usepackage (self, dict):
 		"""

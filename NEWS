@@ -7,6 +7,7 @@ Version CVS
     - Support for packages "moreverb", "verbatim", "beamer".
     - Support for post-processing through dvipdfm.
     - New frontend "rubber-pipe" with the behaviour of a filter.
+	- New module "expand" to expand inputs and bibliographies.
     - Support for Literate Haskell code (with lhs2TeX).
     - Error messages are now issued in the style of GNU compilers.
 
