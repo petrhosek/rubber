@@ -36,6 +36,7 @@ install:
 ###  distribution-related targets
 
 sdist:
+	rm -f MANIFEST
 ifneq ($(wildcard man/Makefile),)
 	@make -C man all
 endif

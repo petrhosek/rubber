@@ -3,4 +3,5 @@ include src/version.py.in
 exclude src/version.py
 include configure
 include README
+include COPYING
 recursive-include man *.1
