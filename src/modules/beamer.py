@@ -12,6 +12,7 @@ class Module (rubber.Module):
 		env.watch_file(env.src_base + ".head")
 		env.watch_file(env.src_base + ".nav")
 		env.watch_file(env.src_base + ".snm")
+		env.command("module", "hyperref")
 
 	def clean (self):
 		self.env.remove_suffixes([".head", ".nav", ".snm"])

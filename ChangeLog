@@ -1,5 +1,7 @@
 2004-02-19  Emmanuel Beffara  <manu@beffara.org>
 
+	* src/modules/hyperref.py: Added support for hyperref.
+
 	* src/modules/beamer.py: Update for the new version of beamer.
 
 2004-02-18  Emmanuel Beffara  <manu@beffara.org>

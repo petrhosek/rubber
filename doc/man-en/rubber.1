@@ -76,13 +76,13 @@ directory). This option is irrelevant in
 Compress the final document (in
 .I gzip
 format). This option is a synonym for
-.IR -e\ module\ gz .
+.IR -o\ gz .
 .TP
 .B -h, --help
 Display the list of all available options and exit nicely.
 .TP
 .B -k, --keep
-This option is for
+This option is used in
 .B rubber-pipe
 only. With this option, the temporary files will not be removed after
 compiling the document and dumping the results on standard output. The
@@ -99,19 +99,27 @@ or
 .BI -m,\ --module \ <module> [: <args> ]
 Use the specified module in addition to the document's packages. Arguments
 can be passed to the package by adding them after a colon, they correspond to
-the package options in LaTeX.
+the package options in LaTeX. The module is loaded
+.I before
+parsing the document's sources.
+.TP
+.B -o,\ --post \ <module> [: <args> ]
+Used the specified module as a post-processor. This is similar to the
+.I -m
+options except that the module is loaded
+.I after
+parsing the document.
 .TP
 .B -d, --pdf
 Use pdfLaTeX instead of LaTeX in order to produce PDF output instead of DVI.
 This option is a synonym for
-.IR -e\ module\ pdftex .
+.IR -m\ pdftex .
 .TP
 .B -p, --ps
-Process the DVI produced by the process
-through
+Process the DVI produced by the process through
 .BR dvips (1)
 to produce a PostScript document. This option is a synonym for
-.IR -e\ module\ dvips ,
+.IR -o\ dvips ,
 it is naturally incompatible with
 .IR --pdf .
 .TP
@@ -150,7 +158,7 @@ include new features (this is the point of the module system). The standard
 modules are the following:
 .TP
 .B beamer
-This module handles Beamer's .head files the same way as other tables of
+This module handles Beamer's extra files the same way as other tables of
 contents.
 .TP
 .B bibtex
@@ -170,14 +178,10 @@ this one for details.
 .B graphics, graphicx
 These modules identify the graphics included in the document and consider them
 as dependencies for compilation. They also use standard rules to build these
-files with external programs. Current rules include conversion from EPS to PDF
-using
-.BR epstopdf (1),
-conversion of XFig figures to EPS, combined EPS+LaTeX, PDF or PNG using
-.BR fig2dev (1),
-compilation of Metapost sources (using
-.BR mpost (1)),
-and bounding box extraction from gzipped EPS figures.
+files with external programs. See the info documentation for details.
+.TP
+.B hyperref
+Handle the extra files that this package produces in some cases.
 .TP
 .B makeidx
 Process the document's index with

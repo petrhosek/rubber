@@ -4,7 +4,7 @@ Version 0.99.7 (CVS)
     - Support for VTeX.
     - Directives "watch" and "clean" for tables of contents and such.
     - Support for graphics conversion using ImageMagick (lots of new formats).
-    - Support for packages "moreverb", "verbatim", "beamer".
+    - Support for packages "moreverb", "verbatim", "hyperref", "beamer".
     - Support for post-processing through dvipdfm.
     - New frontend "rubber-pipe" with the behaviour of a filter.
     - New module "expand" to expand inputs and bibliographies.
