@@ -9,6 +9,7 @@ Version CVS
   Bugfixes:
     - Modules are handled correctly when compiling several documents at once.
     - Better dependency analysis for MetaPost.
+    - Macro arguments can now contain line breaks.
 
 Version 0.99.6 (2003-04-09)
 

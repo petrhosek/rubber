@@ -78,6 +78,22 @@ def match_brace (str):
 	return (str, "")
 
 
+#-- Brace counting
+
+def count_braces (str):
+	"""
+	Count the number of opening and closing braces in a string and return the
+	difference, i.e. the nomber of levels open at the end.
+	"""
+	level = 0
+	for pos in range(0, len(str)):
+		if str[pos] == '{':
+			level = level + 1
+		elif str[pos] == '}':
+			level = level - 1
+	return level
+
+
 #-- Plugin management
 
 class Plugins:

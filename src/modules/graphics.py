@@ -202,7 +202,7 @@ class Module (rubber.Module):
 			return
 		self.suffixes.insert(0, read)
 		print "*** FIXME ***  rule %s -> %s [%s]" % (
-			dict["arg"], m.group("read"), m.group("type"))
+			string.strip(dict["arg"]), m.group("read"), m.group("type"))
 
 	#  auxiliary method
 

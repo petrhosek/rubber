@@ -462,13 +462,42 @@ class Environment:
 		the included sources.
 		"""
 		lines = file.readlines()
+
+		# If a line ends with braces open, we read on until we get a correctly
+		# braced text. We also stop accumulating on paragraph breaks, the way
+		# non-\long macros do in TeX.
+
+		brace_level = 0
+		accu = ""
+
 		for line in lines:
+			# Lines that start with a comment are the ones where directives
+			# may be found.
+
 			if line[0] == "%":
 				m = re_command.match(string.rstrip(line))
 				if m.group("cmd"):
 					self.command(m.group("cmd"), m.group("arg"))
 				continue
+
+			# Otherwise we accumulate lines (with comments stripped) until
+			# bracing is correct.
+
 			line = re_comment.match(line).group("line")
+			if accu != "" and accu[-1] != '\n':
+				line = string.lstrip(line)
+			brace_level = brace_level + count_braces(line)
+
+			if brace_level <= 0 or string.strip(line) == "":
+				brace_level = 0
+				line = accu + line
+				accu = ""
+			else:
+				accu = accu + line
+				continue
+
+			# Then we check for supported macros in the text.
+
 			match = self.seq.search(line)
 			while match:
 				dict = match.groupdict()
