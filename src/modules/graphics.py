@@ -87,6 +87,8 @@ class Module:
 		dependencies or to the list of graphics not found.
 		"""
 		name = dict["arg"]
+		if not name:
+			return
 		suffixes = self.suffixes
 
 		if dict["opt"]:
