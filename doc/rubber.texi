@@ -167,13 +167,24 @@ will.
 
 @item -c
 @itemx --command <command>
-Execute the specified command (or directive). @xref{Directives}.
+Execute the specified command (or directive) @emph{before} parsing the source
+files. @xref{Directives}.
+
+@item -e
+@itemx --epilogue <command>
+Execute the specified command (or directive) @emph{after} parsing the source
+fiels. @xref{Directives}.
 
 @item -f
 @itemx --force
 Force at least one compilation of the source. This may be useful, for
 instance, if some unusual dependency was modified (e.g. a package in a system
 directory). This option is irrelevant in rubber-pipe.
+
+@item -z
+@itemx --gzip
+Compress the final document (in @command{gzip} format). This option is a
+synonym for @option{-e module gz}.
 
 @item -h
 @itemx --help
@@ -200,12 +211,12 @@ the package options in LaTeX.
 @item -d
 @itemx --pdf
 Use pdfLaTeX instead of LaTeX in order to produce PDF output
-instead of DVI. This option is a synonym for @option{--module pdftex}.
+instead of DVI. This option is a synonym for @option{-e module pdftex}.
 
 @item -p
 @itemx --ps
 Process the DVI produced by the process through @command{dvips} to produce a
-PostScript document. This option is a synonym for @option{--module dvips}, it
+PostScript document. This option is a synonym for @option{-e module dvips}, it
 is naturally incompatible with @option{--pdf}.
 
 @item -q
@@ -518,6 +529,9 @@ document. This module is also loaded by the command line option @option{--ps}.
 Produce an expanded LaTeX source by replacing @code{\input} macros by included
 files, bibliography macros by the bibliography produced by @command{bibtex},
 and local classes and packages by their source. For details, see @ref{Expand}.
+
+@item gz
+Produce a verion of the final document compressed with @command{gzip}.
 @end vtable
 
 @menu

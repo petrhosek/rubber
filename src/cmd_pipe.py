@@ -61,7 +61,8 @@ class Main (rubber.cmdline.Main):
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
-  -c, --command=CMD        run the directive CMD (see man page for details)
+  -c, --command=CMD        run the directive CMD before parsing (see man page)
+  -e, --epilogue=CMD       run the directive CMD after parsing
   -h, --help               display this help
   -k, --keep               keep the temporary files after compiling
   -l, --landscape          change paper orientation (if relevant)
@@ -79,39 +80,41 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "I:c:dfhklm:pqr:sv",
-				["command=", "help", "keep", "landcape", "module=",
-				 "pdf", "ps", "quiet", "read=", "short", "texpath=",
-				 "verbose", "version"])
+				cmdline, "I:c:de:fhklm:pqr:svz",
+				["command=", "epilogue=", "gzip", "help", "keep", "landcape",
+				 "module=", "pdf", "ps", "quiet", "read=", "short",
+				 "texpath=", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
 
 		for (opt,arg) in opts:
 			if opt in ("-c", "--command"):
-				self.commands.append(arg)
+				self.prologue.append(arg)
+			elif opt in ("-e", "--epilogue"):
+				self.epilogue.append(arg)
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
 			elif opt in ("-k", "--keep"):
 				self.clean = 0
 			elif opt in ("-l", "--landscape"):
-				self.commands.append("paper landscape")
+				self.prologue.append("paper landscape")
 			elif opt in ("-m", "--module"):
-				self.commands.append("module " +
+				self.prologue.append("module " +
 					string.replace(arg, ":", " ", 1))
 			elif opt in ("-d", "--pdf"):
-				self.commands.append("module pdftex")
+				self.prologue.append("module pdftex")
 			elif opt in ("-p", "--ps"):
-				self.commands.append("module dvips")
+				self.prologue.append("module dvips")
 			elif opt in ("-q", "--quiet"):
 				self.msg.level = -1
 			elif opt in ("-r" ,"--read"):
-				self.commands.append("read " + arg)
+				self.prologue.append("read " + arg)
 			elif opt in ("-s", "--short"):
 				self.msg.short = 1
 			elif opt in ("-I", "--texpath"):
-				self.commands.append("path " + arg)
+				self.prologue.append("path " + arg)
 			elif opt in ("-v", "--verbose"):
 				self.msg.level = self.msg.level + 1
 			elif opt == "--version":
@@ -130,7 +133,8 @@ available options:
 		happens while building the document, the process stops.  The method
 		returns the program's exit code.
 		"""
-		self.commands = []
+		self.prologue = []
+		self.epilogue = []
 		self.clean = 1
 		self.parse_opts(cmdline)
 		self.msg(2, _("This is Rubber version %s.") % version)
@@ -155,7 +159,7 @@ available options:
 		if env.set_source(src):
 			sys.exit(1)
 
-		for cmd in self.commands:
+		for cmd in self.prologue:
 			cmd = string.split(cmd, maxsplit = 1)
 			if len(cmd) == 1:
 				cmd.append("")
@@ -163,6 +167,13 @@ available options:
 
 		env.make_source()
 		env.parse()
+
+		for cmd in self.epilogue:
+			cmd = string.split(cmd, maxsplit = 1)
+			if len(cmd) == 1:
+				cmd.append("")
+			env.command(cmd[0], cmd[1], {'file': 'command line'})
+
 		ret = env.final.make()
 
 		if ret == 0:
@@ -179,7 +190,7 @@ available options:
 		# Clean the intermediate files
 
 		if self.clean:
-			env.clean()
+			env.clean(1)
 			os.unlink(src)
 		return 0
 

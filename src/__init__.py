@@ -788,7 +788,7 @@ class Environment (Depend):
 			return self.final.make()
 		return 0
 
-	def clean (self):
+	def clean (self, all=0):
 		"""
 		Remove all files that are produced by comiplation.
 		"""
@@ -803,8 +803,10 @@ class Environment (Depend):
 
 		for dep in self.sources.values():
 			dep.clean()
-		for mod in self.modules.objects.values():
-			mod.clean()
+
+		if all:
+			for mod in self.modules.objects.values():
+				mod.clean()
 
 	###  complete process
 

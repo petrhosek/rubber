@@ -22,7 +22,7 @@ import rubber
 from rubber import _
 from rubber.util import *
 
-class Module (rubber.Module, Depend):
+class Module (Depend, rubber.Module):
 	def __init__ (self, env, dict):
 
 		# register as the post-processor

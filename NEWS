@@ -1,4 +1,4 @@
-Version CVS
+Version 0.99.7 (CVS)
 
   Features:
     - Support for VTeX.
@@ -11,6 +11,7 @@ Version CVS
     - Support for Literate Haskell code (with lhs2TeX).
     - Error messages are now issued in the style of GNU compilers.
     - Compilation by pdfTeX into DVI.
+    - Gzipping of the final document, command-line option "-z".
 
   Bugfixes:
     - Error-like messages from pdfTeX are now correctly handled.

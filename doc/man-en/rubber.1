@@ -57,14 +57,26 @@ will not delete foo.ps, while saying
 will.
 .TP
 .BI -c,\ --command \ <command>
-Execute the specified command (or directive). See section "Directives" for
-details.
+Execute the specified command (or directive)
+.I before
+parsing the input files. See section "Directives" for details.
+.TP
+.BI -e,\ --epilogue \ <command>
+Execute the specified command (or directive)
+.I after
+parsing the input files. See section "Directives" for details.
 .TP
 .B -f, --force
 Force at least one compilation of the source. This may be useful, for
 instance, if some unusual dependency was modified (e.g. a package in a system
 directory). This option is irrelevant in
 .BR rubber-pipe .
+.TP
+.B -z, --gzip
+Compress the final document (in
+.I gzip
+format). This option is a synonym for
+.IR -e\ module\ gz .
 .TP
 .B -h, --help
 Display the list of all available options and exit nicely.
@@ -92,15 +104,14 @@ the package options in LaTeX.
 .B -d, --pdf
 Use pdfLaTeX instead of LaTeX in order to produce PDF output instead of DVI.
 This option is a synonym for
-.IR --module\ pdftex .
+.IR -e\ module\ pdftex .
 .TP
 .B -p, --ps
 Process the DVI produced by the process
 through
 .BR dvips (1)
-to produce a PostScript document. This option is a
-synonym for
-.IR --module\ dvips ,
+to produce a PostScript document. This option is a synonym for
+.IR -e\ module\ dvips ,
 it is naturally incompatible with
 .IR --pdf .
 .TP
@@ -239,6 +250,10 @@ and local classes and packages by their source. If the main file is
 then then expanded file will be named
 .IR foo-final.tex .
 See the info documentation for details.
+.TP
+.B gz
+Produce a version of the final file compressed with
+.BR gzip (1).
 .PP
 
 .SS Compiler choice

@@ -11,7 +11,7 @@ import rubber
 from rubber import _
 from rubber.util import *
 
-class Module (rubber.Module, Depend):
+class Module (Depend, rubber.Module):
 	def __init__ (self, env, dict):
 		self.env = env
 		self.msg = env.msg
@@ -33,9 +33,6 @@ class Module (rubber.Module, Depend):
 			self.env.msg(0, _("the operation failed"))
 			return 1
 		return 0
-
-	def clean (self):
-		self.env.remove_suffixes([".ps"])
 
 	def command (self, cmd, arg):
 		if cmd == "options":

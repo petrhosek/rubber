@@ -95,13 +95,15 @@ This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
       --clean              remove produced files instead of compiling
-  -c, --command=CMD        run the directive CMD (see man page for details)
+  -c, --command=CMD        run the directive CMD before parsing (see man page)
+  -e, --epilogue=CMD       run the directive CMD after parsing
   -f, --force              force at least one compilation
+  -z, --gzip               compress the final document
   -h, --help               display this help
   -l, --landscape          change paper orientation (if relevant)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
-  -d, --pdf                compile with pdftex (synonym for -m pdftex)
-  -p, --ps                 process through dvips (synonym for -m dvips)
+  -d, --pdf                compile with pdftex
+  -p, --ps                 process through dvips
   -q, --quiet              suppress messages
   -r, --read=FILE          read additional directives from FILE
   -s, --short              display errors in a compact form
@@ -113,10 +115,10 @@ available options:
 	def parse_opts (self, cmdline):
 		try:
 			opts, args = getopt(
-				cmdline, "I:c:dfhlm:pqr:sv",
-				["clean", "command=", "force", "help", "landcape", "module=",
-				 "pdf", "ps", "quiet", "read=", "short", "texpath=",
-				 "verbose", "version"])
+				cmdline, "I:c:de:fhlm:pqr:svz",
+				["clean", "command=", "epilogue=", "force", "gzip", "help",
+				 "landcape", "module=", "pdf", "ps", "quiet", "read=",
+				 "short", "texpath=", "verbose", "version"])
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -125,29 +127,33 @@ available options:
 			if opt == "--clean":
 				self.clean = 1
 			elif opt in ("-c", "--command"):
-				self.commands.append(arg)
+				self.prologue.append(arg)
+			elif opt in ("-e", "--epilogue"):
+				self.prologue.append(arg)
 			elif opt in ("-f", "--force"):
 				self.force = 1
+			elif opt in ("-z", "--gzip"):
+				self.epilogue.append("module gz")
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
 			elif opt in ("-l", "--landscape"):
-				self.commands.append("paper landscape")
+				self.prologue.append("paper landscape")
 			elif opt in ("-m", "--module"):
-				self.commands.append("module " +
+				self.prologue.append("module " +
 					string.replace(arg, ":", " ", 1))
 			elif opt in ("-d", "--pdf"):
-				self.commands.append("module pdftex")
+				self.epilogue.append("module pdftex")
 			elif opt in ("-p", "--ps"):
-				self.commands.append("module dvips")
+				self.epilogue.append("module dvips")
 			elif opt in ("-q", "--quiet"):
 				self.msg.level = -1
 			elif opt in ("-r" ,"--read"):
-				self.commands.append("read " + arg)
+				self.prologue.append("read " + arg)
 			elif opt in ("-s", "--short"):
 				self.msg.short = 1
 			elif opt in ("-I", "--texpath"):
-				self.commands.append("path " + arg)
+				self.prologue.append("path " + arg)
 			elif opt in ("-v", "--verbose"):
 				self.msg.level = self.msg.level + 1
 			elif opt == "--version":
@@ -164,7 +170,8 @@ available options:
 		happens while making one of the documents, the whole process stops.
 		The method returns the program's exit code.
 		"""
-		self.commands = []
+		self.prologue = []
+		self.epilogue = []
 		self.clean = 0
 		self.force = 0
 		args = self.parse_opts(cmdline)
@@ -177,7 +184,8 @@ available options:
 	
 			if env.set_source(src):
 				sys.exit(1)
-			for cmd in self.commands:
+
+			for cmd in self.prologue:
 				cmd = string.split(cmd, maxsplit = 1)
 				if len(cmd) == 1:
 					cmd.append("")
@@ -186,25 +194,38 @@ available options:
 			if self.clean:
 				if not os.path.exists(env.source()):
 					self.msg(1, _("there is no LaTeX source"))
-				else:
-					env.parse()
-					env.clean()
-				continue
+					continue
 
 			env.make_source()
 			env.parse()
 
+			for cmd in self.epilogue:
+				cmd = string.split(cmd, maxsplit = 1)
+				if len(cmd) == 1:
+					cmd.append("")
+				env.command(cmd[0], cmd[1], {'file': 'command line'})
+
 			# Compile the document
 
-			ret = env.final.make(self.force)
-			if ret == 1:
-				self.msg(0, _("nothing to be done for %s") % env.source())
-			elif ret == 0:
-				if not self.msg.short:
-					self.msg(-1, _("There were errors compiling %s.")
-						% env.source())
-				env.log.show_errors()
-				return 1
+			if self.clean:
+				env.parse()
+				env.clean(1)
+			else:
+				if self.force:
+					ret = env.make(1)
+					if ret != 0:
+						ret = env.final.make()
+				else:
+					ret = env.final.make(self.force)
+
+				if ret == 1:
+					self.msg(0, _("nothing to be done for %s") % env.source())
+				elif ret == 0:
+					if not self.msg.short:
+						self.msg(-1, _("There were errors compiling %s.")
+							% env.source())
+					env.log.show_errors()
+					return 1
 
 		return 0
 

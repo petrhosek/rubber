@@ -1,3 +1,13 @@
+2004-02-16  Emmanuel Beffara  <manu@beffara.org>
+
+	* doc/...: Documentation updates.
+
+	* src/cmdline.py, src/cmd_pipe.py: Added options "-e" and "-z".
+
+	* src/__init__.py, src/modules/...: Bugfix for cleaning.
+
+	* src/modules/gz.py: Added module "gz" for gzipping the document.
+
 2004-02-14  Emmanuel Beffara  <manu@beffara.org>
 
 	* src/modules/multibib.py: Added hooks for local \bibliography and
