@@ -1040,6 +1040,14 @@ class Environment (Depend):
 		if env != {}:
 			self.msg(2, _("  with environment: %r") % env)
 
+		# We first look for the program to run so we can fail properly if the
+		# executable is not found.
+
+		progname = prog_available(prog[0])
+		if not progname:
+			self.msg(-1, _("%s not found") % prog[0])
+			return 1
+
 		penv = posix.environ.copy()
 		for (key,val) in env.items():
 			penv[key] = val
@@ -1066,7 +1074,7 @@ class Environment (Depend):
 			os.dup2(f_err_w, sys.__stderr__.fileno())
 			if pwd:
 				os.chdir(pwd)
-			os.execvpe(prog[0], prog, penv)
+			os.execve(progname, prog, penv)
 
 		# The main process reads whatever is sent to the error stream and
 		# parses it for Kpathsea messages.

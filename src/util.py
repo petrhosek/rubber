@@ -111,19 +111,20 @@ checked_progs = {}
 
 def prog_available (prog):
 	"""
-	Test whether the specified program is available in the current path.
+	Test whether the specified program is available in the current path, and
+	return its actual path if it is found, or None.
 	"""
 	if checked_progs.has_key(prog):
 		return checked_progs[prog]
 	for path in os.getenv("PATH").split(":"):
 		file = os.path.join(path, prog)
-		if (os.path.exists(file)):
+		if os.path.exists(file):
 			st = os.stat(file)
-			if stat.S_ISREG(st.st_mode):
-				checked_progs[prog] = 1
-				return 1
-	checked_progs[prog] = 0
-	return 0
+			if stat.S_ISREG(st.st_mode) and st.st_mode & 0111:
+				checked_progs[prog] = file
+				return file
+	checked_progs[prog] = None
+	return None
 
 
 #-- Plugin management
