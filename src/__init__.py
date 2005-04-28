@@ -34,7 +34,7 @@ class Message (object):
 		self.write = write
 		self.short = 0
 		self.path = ""
-		self.cwd = join(curdir, "")
+		self.cwd = "./"
 
 	def __call__ (self, level, text):
 		"""
@@ -335,7 +335,9 @@ class Converter (object):
 		cp = ConfigParser()
 		cp.read(filename)
 		for name in cp.sections():
-			rule = dict(cp.items(name))
+			rule = {}
+			for key in cp.options(name):
+				rule[key] = cp.get(name, key)
 			rule["cost"] = cost = cp.getint(name, "cost")
 			expr = re.compile(rule["target"] + "$")
 			self.rules[name] = (expr, cost, rule)
