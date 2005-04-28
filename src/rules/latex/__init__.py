@@ -442,6 +442,8 @@ class LaTeXDep (Depend):
 
 		# description of the building process:
 
+		self.aux_md5 = {}
+		self.aux_old = {}
 		self.watched_files = {}
 		self.onchange_md5 = {}
 		self.onchange_cmd = {}
@@ -758,7 +760,13 @@ class LaTeXDep (Depend):
 		if file:
 			if file[-4:] == ".tex":
 				file = file[:-4]
-			self.removed_files.append(basename(file) + ".aux")
+			aux = basename(file) + ".aux"
+			self.removed_files.append(aux)
+			self.aux_old[aux] = None
+			if exists(aux):
+				self.aux_md5[aux] = md5_file(aux)
+			else:
+				self.aux_md5[aux] = None
 
 	def h_includeonly (self, dict):
 		"""
@@ -868,8 +876,9 @@ class LaTeXDep (Depend):
 			return 1
 		if self.log.errors():
 			return 1
-		self.aux_md5_old = self.aux_md5
-		self.aux_md5 = md5_file(self.src_base + ".aux")
+		for aux, md5 in self.aux_md5.items():
+			self.aux_old[aux] = md5
+			self.aux_md5[aux] = md5_file(aux)
 		return 0
 
 	def pre_compile (self):
@@ -879,11 +888,12 @@ class LaTeXDep (Depend):
 		`must_compile' to 1 if we already know that a compilation is needed,
 		because it may avoid some unnecessary preprocessing (e.g. BibTeXing).
 		"""
-		if os.path.exists(self.src_base + ".aux"):
-			self.aux_md5 = md5_file(self.src_base + ".aux")
+		aux = self.src_base + ".aux"
+		if os.path.exists(aux):
+			self.aux_md5[aux] = md5_file(aux)
 		else:
-			self.aux_md5 = None
-		self.aux_md5_old = None
+			self.aux_md5[aux] = None
+		self.aux_old[aux] = None
 
 		self.log.read(self.src_base + ".log")
 
@@ -1022,8 +1032,13 @@ class LaTeXDep (Depend):
 			return 1
 		if self.log.run_needed():
 			msg.debug(_("LaTeX asks to run again"))
-			if self.aux_md5 and self.aux_md5 == self.aux_md5_old:
-				msg.debug(_("but the aux file is unchanged"))
+			aux_changed = 0
+			for aux, md5 in self.aux_md5.items():
+				if md5 is not None and md5 != self.aux_old[aux]:
+					aux_changed = 1
+					break
+			if not aux_changed:
+				msg.debug(_("but the aux files are unchanged"))
 				return 0
 			return 1
 		msg.debug(_("no new compilation is needed"))

@@ -9,6 +9,7 @@ Version 0.99.9 (CVS)
     - Modules "index" and "verbatim" fixed.
     - Fixed path searching in Metapost.
     - Fixed paper size handling (in dvips, dvipdfm, ps2pdf).
+    - Better handling of aux files from \include'd sources.
 
 Version 0.99.8 (2004-08-27)
 
