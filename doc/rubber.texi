@@ -264,7 +264,7 @@ available types are:
 @item boxes
 overfull and underfull boxes,
 @item refs
-undefined references,
+undefined or multiply defined references,
 @item misc
 other warnings,
 @item all
@@ -307,8 +307,8 @@ compilation.
 Display the list of all available options and exit nicely.
 
 @item --refs
-Show a list of undefined references (i.e. the @code{\ref}'s that are not
-defined by any @code{\label}).
+Report the list of undefined or multiply defined references (i.e. the
+@code{\ref}'s that are not defined by one @code{\label}).
 
 @item --rules
 Analyse the source files and produce a list of dependency rules. One rule is

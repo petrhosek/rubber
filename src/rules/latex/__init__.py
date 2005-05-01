@@ -118,6 +118,7 @@ re_atline = re.compile(
 "( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
 re_reference = re.compile("LaTeX Warning: Reference `(?P<ref>.*)' \
 on page (?P<page>[0-9]*) undefined on input line (?P<line>[0-9]*)\\.$")
+re_label = re.compile("LaTeX Warning: (?P<msg>Label .*)$")
 re_warning = re.compile(
 "(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<msg>.*)$")
 re_online = re.compile("(; reported)? on input line (?P<line>[0-9]*)")
@@ -301,7 +302,7 @@ class LogCheck (object):
 
 	def show_references (self):
 		"""
-		Display all undefined references.
+		Display all undefined or multiply defined references.
 		"""
 		pos = ["(no file)"]
 		something = 0
@@ -311,6 +312,10 @@ class LogCheck (object):
 				msg.warn(_("Reference `%s' undefined.") % m.group("ref"),
 					file=pos[-1], **m.groupdict())
 				something = 1
+				continue
+			m = re_label.match(line)
+			if m:
+				msg.warn(m.group("msg"), file=pos[-1])
 			else:
 				self.update_file(line, pos)
 		return something
