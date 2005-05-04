@@ -38,13 +38,15 @@ make install prefix=$RPM_BUILD_ROOT%{_prefix}
 
 %files
 %defattr(-, root, root)
-%doc ChangeLog COPYING NEWS README
+%doc COPYING NEWS README
 %{_bindir}/rubber
 %{_bindir}/rubber-pipe
 %{_bindir}/rubber-info
 %{_datadir}/rubber
 %doc %{_mandir}/fr/man1/rubber-info.1*
+%doc %{_mandir}/fr/man1/rubber-pipe.1*
 %doc %{_mandir}/fr/man1/rubber.1*
 %doc %{_mandir}/man1/rubber-info.1*
+%doc %{_mandir}/man1/rubber-pipe.1*
 %doc %{_mandir}/man1/rubber.1*
 %doc %{_infodir}/rubber.info.gz

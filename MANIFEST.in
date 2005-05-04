@@ -5,7 +5,7 @@ include configure
 include README
 include NEWS
 include COPYING
-include ChangeLog
 include doc/Makefile
 include doc/rubber.texi
 recursive-include doc *.1
+recursive-include data *

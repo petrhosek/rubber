@@ -131,7 +131,7 @@ Metapost compilation).\
 		package_dir = {"rubber": "src"},
 		scripts = ["rubber", "rubber-info", "rubber-pipe"],
 		data_files =
-		[(moddir + "/modules", glob.glob("modules/*.rub")),
+		[(moddir + "/modules", glob.glob("data/modules/*.rub")),
 		 (moddir, ["data/rules.ini"]),
 		 (mandir + "/man1",
 			["doc/man-en/rubber.1", "doc/man-en/rubber-info.1", "doc/man-en/rubber-pipe.1"]),
