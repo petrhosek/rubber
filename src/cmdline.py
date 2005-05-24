@@ -61,7 +61,7 @@ available options:
   -n, --maxerr=NUM         display at most NUM errors (default: 10)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
   -o, --post=MOD[:OPTS]    postprocess with module MOD (with options OPTS)
-  -d, --pdf                compile with pdftex (synonym for -m pdftex)
+  -d, --pdf                produce a pdf (synonym for -m pdftex or -o ps2pdf)
   -p, --ps                 process through dvips (synonym for -o dvips)
   -q, --quiet              suppress messages
   -r, --read=FILE          read additional directives from FILE
@@ -85,6 +85,7 @@ available options:
 			sys.exit(1)
 
 		extra = []
+		using_dvips = 0
 
 		for (opt,arg) in opts:
 			if opt == "--clean":
@@ -117,9 +118,13 @@ available options:
 				self.epilogue.append("module " +
 					string.replace(arg, ":", " ", 1))
 			elif opt in ("-d", "--pdf"):
-				self.prologue.append("module pdftex")
+				if using_dvips:
+					self.epilogue.append("module ps2pdf")
+				else:
+					self.prologue.append("module pdftex")
 			elif opt in ("-p", "--ps"):
 				self.epilogue.append("module dvips")
+				using_dvips = 1
 			elif opt in ("-q", "--quiet"):
 				msg.level = msg.level - 1
 			elif opt in ("-r" ,"--read"):

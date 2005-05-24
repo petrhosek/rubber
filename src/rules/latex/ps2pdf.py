@@ -10,7 +10,7 @@ import rubber
 from rubber import _
 from rubber import *
 
-class Module (DependShell, rubber.rules.latex.Module):
+class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		env = doc.env
 		if env.final.prods[0][-3:] != ".ps":
@@ -22,6 +22,5 @@ class Module (DependShell, rubber.rules.latex.Module):
 		for opt in doc.vars["paper"].split():
 			cmd.append("-sPAPERSIZE=" + opt)
 		cmd.extend([ps, pdf])
-		DependShell.__init__(self, doc.env, cmd,
-				prods=[pdf], sources={ ps: env.final })
-		env.final = self
+		dep = DependShell(doc.env, cmd, prods=[pdf], sources={ ps: env.final })
+		env.final = dep

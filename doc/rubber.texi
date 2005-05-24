@@ -222,14 +222,15 @@ document.
 
 @item -d
 @itemx --pdf
-Use pdfLaTeX instead of LaTeX in order to produce PDF output
-instead of DVI. This option is a synonym for @option{-e module pdftex}.
+Produce PDF output. When this option comes after @option{--ps} (for instance
+in the form @option{-pd}) it is  a  synonym  for @option{-o ps2pdf}, otherwise
+it acts as @option{-m pdftex}, in order to use pdfLaTeX instead of LaTeX.
 
 @item -p
 @itemx --ps
 Process the DVI produced by the process through @command{dvips} to produce a
 PostScript document. This option is a synonym for @option{-e module dvips}, it
-is naturally incompatible with @option{--pdf}.
+cannot come after @option{--pdf}.
 
 @item -q
 @itemx --quiet

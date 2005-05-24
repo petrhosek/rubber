@@ -125,16 +125,22 @@ options except that the module is loaded
 parsing the document.
 .TP
 .B \-d, \-\-pdf
-Use pdfLaTeX instead of LaTeX in order to produce PDF output instead of DVI.
-This option is a synonym for
-.IR \-m\ pdftex .
+Produce PDF output. When this option comes after
+.I \-\-ps
+(for instance in the form
+.IR \-pd )
+it is a synonym for
+.IR \-o\ ps2pdf ,
+otherwise it acts as
+.IR \-m\ pdftex ,
+in order to use pdfLaTeX instead of LaTeX.
 .TP
 .B \-p, \-\-ps
 Process the DVI produced by the process through
 .BR dvips (1)
 to produce a PostScript document. This option is a synonym for
 .IR \-o\ dvips ,
-it is naturally incompatible with
+it cannot come after
 .IR \-\-pdf .
 .TP
 .B \-q, \-\-quiet
