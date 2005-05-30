@@ -95,7 +95,7 @@ class Dep (Depend):
 
 		# This creates a log file that has the same aspect as TeX logs.
 
-		self.log = MPLogCheck(self.env)
+		self.log = MPLogCheck()
 		if self.log.read(self.base + ".log"):
 			msg.error(_(
 				"I can't read MetaPost's log file, this is wrong."))

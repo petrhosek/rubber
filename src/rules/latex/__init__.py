@@ -131,9 +131,7 @@ class LogCheck (object):
 	"""
 	#-- Initialization {{{2
 
-	def __init__ (self, doc):
-		self.doc = doc
-		self.env = doc.env
+	def __init__ (self):
 		self.lines = None
 
 	def read (self, name):
@@ -415,7 +413,7 @@ class LaTeXDep (Depend):
 		"""
 		Depend.__init__(self, env)
 
-		self.log = LogCheck(self)
+		self.log = LogCheck()
 		self.modules = Modules(self)
 
 		self.vars = {
