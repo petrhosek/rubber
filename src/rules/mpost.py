@@ -8,7 +8,7 @@ Metapost's log files after the process. Is it enough?
 """
 
 import os, os.path
-import re
+import re, string
 
 from rubber import _
 from rubber import *
@@ -61,8 +61,10 @@ class Dep (Depend):
 		if env.path == [""]:
 			self.penv = {}
 		else:
-			self.penv = { "MPINPUTS":
-				"%s:%s" % (self.env.path, os.getenv("MPINPUTS", "")) }
+			path = string.join(self.env.path, ":")
+			self.penv = {
+				"TEXINPUTS": "%s:%s" % (path, os.getenv("TEXINPUTS", "")),
+				"MPINPUTS": "%s:%s" % (path, os.getenv("MPINPUTS", "")) }
 		self.log = None
 
 	def include (self, source, list):
