@@ -59,16 +59,17 @@ class Message (object):
 		if code and not self.short:
 			self(0, self.format_pos(where, _("leading text: ") + code))
 
-	def abort (self, what, why):
+	def abort (self, what, why, **where):
 		"""
 		This method is called when the compilation was aborted, for instance
 		due to lack of input. The arguments are the nature of the error and
 		the cause of the interruption.
 		"""
 		if self.short:
-			self(0, _("compilation aborted ") + why)
+			msg = _("compilation aborted ") + why
 		else:
-			self(0, _("compilation aborted: %s %s") % (what, why))
+			msg = _("compilation aborted: %s %s") % (what, why)
+		self(0, self.format_pos(where, msg))
 
 	def warn (self, what, **where):
 		self(0, self.format_pos(where, what)) 
@@ -103,6 +104,8 @@ class Message (object):
 			#_("(nowhere)")
 		if where.has_key("page"):
 			text = "%s (page %d)" % (text, int(where["page"]))
+		if where.has_key("pkg"):
+			text = "[%s] %s" % (where["pkg"], text)
 		return "%s: %s" % (pos, text)
 
 msg = Message()

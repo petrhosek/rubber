@@ -199,18 +199,23 @@ class LogCheck (object):
 		update the list `stack'. Newly opened files are at the end, therefore
 		stack[1] is the main source while stack[-1] is the current one. The
 		first element, stack[0], contains the string \"(no file)\" for errors
-		that may happen outside the source.
+		that may happen outside the source. Return the last file from which
+		text was read (the new stack top, or the one before the last closing
+		parenthesis).
 		"""
 		m = re_file.search(line)
 		if not m:
-			return
+			return stack[-1]
 		while m:
 			if line[m.start()] == '(':
-				stack.append(m.group("file"))
+				last = m.group("file")
+				stack.append(last)
 			else:
+				last = stack[-1]
 				del stack[-1]
 			line = line[m.end():]
 			m = re_file.search(line)
+		return last
 
 	def show_errors (self):
 		"""
@@ -220,8 +225,8 @@ class LogCheck (object):
 		"""
 		if not self.lines:
 			return 1
-		pos = ["(no file)"]
-		last_file = None
+		last_file = "(no file)"
+		pos = [last_file]
 		parsing = 0    # 1 if we are parsing an error's text
 		skipping = 0   # 1 if we are skipping text until an empty line
 		something = 0  # 1 if some error was found
@@ -244,12 +249,22 @@ class LogCheck (object):
 					skipping = 1
 					msg.error(error, code=m.group("text"),
 						file=pos[-1], line=m.group("line"))
+				elif line[0] == "!":
+					error = line[2:]
 				elif line[0:3] == "***":
 					parsing = 0
 					skipping = 1
-					msg.abort(error, line[4:])
+					msg.abort(error, line[4:], file=last_file)
+				elif line[0:15] == "Type X to quit ":
+					parsing = 0
+					skipping = 0
+					msg.error(error, file=pos[-1])
 			elif line[0] == "!":
 				error = line[2:]
+				parsing = 1
+				something = 1
+			elif line == "Runaway argument?":
+				error = line
 				parsing = 1
 				something = 1
 			else:
@@ -265,7 +280,7 @@ class LogCheck (object):
 				if m:
 					skipping = 1
 				else:
-					self.update_file(line, pos)
+					last_file = self.update_file(line, pos)
 
 		return something
 
@@ -658,7 +673,7 @@ class LaTeXDep (Depend):
 			if hasattr(self, "do_" + cmd):
 				try:
 					getattr(self, "do_" + cmd)(*args)
-				except:
+				except TypeError:
 					msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
 			else:
 				msg.warn(_("unknown directive '%s'") % cmd, **pos)

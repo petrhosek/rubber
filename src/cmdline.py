@@ -256,7 +256,7 @@ available options:
 				return 1
 
 			if ret == 1:
-				msg.info(_("nothing to be done for %s") % src)
+				msg(1, _("nothing to be done for %s") % src)
 
 			if self.warn:
 				log = env.main.log
