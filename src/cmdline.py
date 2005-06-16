@@ -238,7 +238,7 @@ available options:
 
 			if self.force:
 				ret = env.main.make(1)
-				if ret != 0:
+				if ret != 0 and env.final is not env.main:
 					ret = env.final.make()
 				else:
 					# This is a hack for the call to show_errors() below

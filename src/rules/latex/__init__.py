@@ -466,6 +466,7 @@ class LaTeXDep (Depend):
 		self.onchange_md5 = {}
 		self.onchange_cmd = {}
 		self.removed_files = []
+		self.not_included = []  # dependencies that don't trigger latex
 
 		# state of the builder:
 
@@ -889,6 +890,8 @@ class LaTeXDep (Depend):
 			env = {"TEXINPUTS": inputs}
 		
 		self.env.execute(cmd, env)
+		self.something_done = 1
+
 		if self.log.read(self.src_base + ".log"):
 			msg.error(_("Could not run %s.") % cmd[0])
 			return 1
@@ -899,7 +902,7 @@ class LaTeXDep (Depend):
 			self.aux_md5[aux] = md5_file(aux)
 		return 0
 
-	def pre_compile (self):
+	def pre_compile (self, force):
 		"""
 		Prepare the source for compilation using package-specific functions.
 		This function must return true on failure. This function sets
@@ -915,7 +918,7 @@ class LaTeXDep (Depend):
 
 		self.log.read(self.src_base + ".log")
 
-		self.must_compile = 0
+		self.must_compile = force
 		self.must_compile = self.compile_needed()
 
 		msg.log(_("building additional files..."))
@@ -979,10 +982,9 @@ class LaTeXDep (Depend):
 		This method supposes that the inputs were parsed to register packages
 		and that the LaTeX source is ready. If the second (optional) argument
 		is true, then at least one compilation is done. As specified by the
-		class Depend, the method returns 0 on failure, 1 if nothing was done
-		and 2 if something was done without failure.
+		class Depend, the method returns 0 on success and 1 on failure.
 		"""
-		if self.pre_compile():
+		if self.pre_compile(force):
 			return 1
 
 		# If an error occurs after this point, it will be while LaTeXing.
@@ -1003,7 +1005,6 @@ class LaTeXDep (Depend):
 
 		if self.something_done:
 			self.date = int(time.time())
-			return 1
 		return 0
 
 	def compile_needed (self):
@@ -1067,8 +1068,8 @@ class LaTeXDep (Depend):
 		Returns true if any of the dependencies is younger than the specified
 		date.
 		"""
-		for dep in self.sources.values():
-			if dep.date > date:
+		for name, dep in self.sources.items():
+			if name not in self.not_included and dep.date > date:
 				return 1
 		return 0
 

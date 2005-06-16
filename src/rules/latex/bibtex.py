@@ -81,6 +81,8 @@ class Module (rubber.rules.latex.Module):
 			bib = join(dir, name + ".bib")
 			if exists(bib):
 				self.db.append(bib)
+				self.doc.sources[bib] = DependLeaf(self.env, bib)
+				self.doc.not_included.append(bib)
 				return
 
 	def set_style (self, style):
@@ -137,18 +139,29 @@ class Module (rubber.rules.latex.Module):
 		"""
 		The condition is only on the database files' modification dates, but
 		it would be more clever to check if the results have changed.
-		BibTeXing is also needed in the very particular case when the style
-		has changed since last compilation.
+		BibTeXing is also needed when the last run of BibTeX failed, and in
+		the very particular case when the style has changed since last
+		compilation.
 		"""
 		if not exists(self.base + ".aux"):
 			return 0
 		if not exists(self.base + ".blg"):
 			return 1
+
 		dtime = getmtime(self.base + ".blg")
 		for db in self.db:
 			if getmtime(db) > dtime:
 				msg.log(_("bibliography database %s was modified") % db)
 				return 1
+
+		blg = open(self.base + ".blg")
+		for line in blg.readlines():
+			if re_error.search(line):
+				blg.close()
+				msg.log(_("last BibTeXing failed"))
+				return 1
+		blg.close()
+
 		if self.style_changed():
 			return 1
 		if self.bst_file and getmtime(self.bst_file) > dtime:
