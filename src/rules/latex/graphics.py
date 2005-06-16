@@ -128,7 +128,7 @@ class Module (rubber.rules.latex.Module):
 				check=check, pos=dict["pos"])
 
 		if d:
-			msg.log(_("graphics `%s' found") % name)
+			msg.log(_("graphics `%s' found") % name, pkg="graphics")
 			for file in d.prods:
 				self.doc.sources[file] = d;
 			self.files.append(d)
@@ -194,7 +194,8 @@ class Module (rubber.rules.latex.Module):
 			return
 		self.suffixes.insert(0, read)
 		msg.log("*** FIXME ***  rule %s -> %s [%s]" % (
-			string.strip(dict["arg"]), m.group("read"), m.group("type")))
+			string.strip(dict["arg"]), m.group("read"), m.group("type")),
+			pkg="graphics")
 
 	#  auxiliary method
 

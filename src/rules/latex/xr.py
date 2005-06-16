@@ -23,7 +23,7 @@ class Module (rubber.rules.latex.Module):
 		if aux:
 			self.doc.sources[aux] = DependLeaf(self.env, aux)
 			msg.log( _(
-				"dependency %s added for external references") % aux)
+				"dependency %s added for external references") % aux, pkg="xr")
 		else:
 			msg.log(_(
-				"file %s is required by xr package but not found") % aux)
+				"file %s is required by xr package but not found") % aux, pkg="xr")

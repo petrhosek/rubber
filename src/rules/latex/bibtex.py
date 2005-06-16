@@ -151,21 +151,21 @@ class Module (rubber.rules.latex.Module):
 		dtime = getmtime(self.base + ".blg")
 		for db in self.db:
 			if getmtime(db) > dtime:
-				msg.log(_("bibliography database %s was modified") % db)
+				msg.log(_("bibliography database %s was modified") % db, pkg="bibtex")
 				return 1
 
 		blg = open(self.base + ".blg")
 		for line in blg.readlines():
 			if re_error.search(line):
 				blg.close()
-				msg.log(_("last BibTeXing failed"))
+				msg.log(_("last BibTeXing failed"), pkg="bibtex")
 				return 1
 		blg.close()
 
 		if self.style_changed():
 			return 1
 		if self.bst_file and getmtime(self.bst_file) > dtime:
-			msg.log(_("the bibliography style file was modified"))
+			msg.log(_("the bibliography style file was modified"), pkg="bibtex")
 			return 1
 		return 0
 
@@ -210,7 +210,7 @@ class Module (rubber.rules.latex.Module):
 		was run, then force a new LaTeX compilation.
 		"""
 		if not self.bibtex_needed():
-			msg.log(_("no BibTeXing needed"))
+			msg.log(_("no BibTeXing needed"), pkg="bibtex")
 			return 0
 		return self.run()
 
@@ -240,7 +240,7 @@ class Module (rubber.rules.latex.Module):
 		"""
 		if self.run_needed:
 			return 1
-		msg.log(_("checking if BibTeX must be run..."))
+		msg.log(_("checking if BibTeX must be run..."), pkg="bibtex")
 
 		# If there was a list of used citations, we check if it has
 		# changed. If it has, we have to rerun.
@@ -248,7 +248,7 @@ class Module (rubber.rules.latex.Module):
 		new = self.list_cites()
 		if self.used_cites:
 			if new != self.used_cites:
-				msg.log(_("the list of citations changed"))
+				msg.log(_("the list of citations changed"), pkg="bibtex")
 				self.used_cites = new
 				self.undef_cites = self.list_undefs()
 				return 1
@@ -260,14 +260,14 @@ class Module (rubber.rules.latex.Module):
 		if self.undef_cites:
 			new = self.list_undefs()
 			if new == []:
-				msg.log(_("no more undefined citations"))
+				msg.log(_("no more undefined citations"), pkg="bibtex")
 				self.undef_cites = new
 			elif self.undef_cites != new:
-				msg.log(_("the list of undefined citations changed"))
+				msg.log(_("the list of undefined citations changed"), pkg="bibtex")
 				self.undef_cites = new
 				return 1
 			else:
-				msg.log(_("the undefined citations are the same"))
+				msg.log(_("the undefined citations are the same"), pkg="bibtex")
 				return 0
 		else:
 			self.undef_cites = self.list_undefs()
@@ -278,19 +278,19 @@ class Module (rubber.rules.latex.Module):
 
 		blg = self.base + ".blg"
 		if not exists(blg):
-			msg.log(_("no BibTeX log file"))
+			msg.log(_("no BibTeX log file"), pkg="bibtex")
 			return 1
 
 		# Here, BibTeX has been run before but we don't know if undefined
 		# citations changed.
 
 		if self.undef_cites == []:
-			msg.log(_("no undefined citations"))
+			msg.log(_("no undefined citations"), pkg="bibtex")
 			return 0
 
 		log = self.doc.src_base + ".log"
 		if getmtime(blg) < getmtime(log):
-			msg.log(_("BibTeX's log is older than the main log"))
+			msg.log(_("BibTeX's log is older than the main log"), pkg="bibtex")
 			return 1
 
 		return 0
@@ -316,7 +316,7 @@ class Module (rubber.rules.latex.Module):
 		while line != "":
 			if line[:16] == "The style file: ":
 				if line.rstrip()[16:-4] != self.style:
-					msg.log(_("the bibliography style was changed"))
+					msg.log(_("the bibliography style was changed"), pkg="bibtex")
 					log.close()
 					return 1
 			line = log.readline()

@@ -44,7 +44,7 @@ class Module (rubber.rules.latex.Module):
 		"""
 		bib = dict["arg"]
 		self.bibs[bib] = Biblio(self.doc, bib)
-		msg.log(_("bibliography %s registered") % bib)
+		msg.log(_("bibliography %s registered") % bib, pkg="multibib")
 
 	def pre_compile (self):
 		for bib in self.bibs.values():
@@ -61,5 +61,5 @@ class Module (rubber.rules.latex.Module):
 			for suffix in ".aux", ".bbl", ".blg":
 				file = bib + suffix
 				if exists(file):
-					msg.log(_("removing %s") % file)
+					msg.log(_("removing %s") % file, pkg="multibib")
 					os.unlink(file)

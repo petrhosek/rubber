@@ -99,14 +99,14 @@ class Message (object):
 				if where.has_key("last"):
 					if where["last"] != where["line"]:
 						pos = "%s-%d" % (pos, int(where["last"]))
+			pos = pos + ": "
 		else:
-			pos = "%r" % where
-			#_("(nowhere)")
+			pos = ""
 		if where.has_key("page"):
 			text = "%s (page %d)" % (text, int(where["page"]))
 		if where.has_key("pkg"):
 			text = "[%s] %s" % (where["pkg"], text)
-		return "%s: %s" % (pos, text)
+		return pos + text
 
 msg = Message()
 from rubber.util import *

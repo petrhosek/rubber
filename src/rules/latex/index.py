@@ -84,7 +84,7 @@ class Index:
 		Run makeindex if needed, with appropriate options and environment.
 		"""
 		if not os.path.exists(self.source):
-			msg.log(_("strange, there is no %s") % self.source)
+			msg.log(_("strange, there is no %s") % self.source, pkg="index")
 			return 0
 		if not self.run_needed():
 			return 0
@@ -116,14 +116,14 @@ class Index:
 			return 1
 		if not self.md5:
 			self.md5 = md5_file(self.source)
-			msg.log(_("the index file %s is new") % self.source)
+			msg.log(_("the index file %s is new") % self.source, pkg="index")
 			return 1
 		new = md5_file(self.source)
 		if self.md5 == new:
-			msg.log(_("the index %s did not change") % self.source)
+			msg.log(_("the index %s did not change") % self.source, pkg="index")
 			return 0
 		self.md5 = new
-		msg.log(_("the index %s has changed") % self.source)
+		msg.log(_("the index %s has changed") % self.source, pkg="index")
 		return 1
 
 	def clean (self):
@@ -132,7 +132,7 @@ class Index:
 		"""
 		for file in self.source, self.target, self.pbase + ".ilg":
 			if exists(file):
-				msg.log(_("removing %s") % file)
+				msg.log(_("removing %s") % file, pkg="index")
 				os.unlink(file)
 
 re_newindex = re.compile(" *{(?P<idx>[^{}]*)} *{(?P<ind>[^{}]*)}")
@@ -164,7 +164,7 @@ class Module (rubber.rules.latex.Module):
 		index = dict["arg"]
 		d = m.groupdict()
 		self.indices[index] = Index(self.doc, d["idx"], d["ind"])
-		msg.log(_("index %s registered") % index)
+		msg.log(_("index %s registered") % index, pkg="index")
 
 	def command (self, cmd, args):
 		indices = self.indices

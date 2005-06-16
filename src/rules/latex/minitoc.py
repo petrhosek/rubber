@@ -32,5 +32,5 @@ class Module (rubber.rules.latex.Module):
 				ext = file[ln:]
 				m = re_tocext.match(ext)
 				if m and ext[m.end():] == "":
-					msg.log(_("removing %s") % file)
+					msg.log(_("removing %s") % file, pkg="minitoc")
 					os.unlink(file)
