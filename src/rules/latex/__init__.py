@@ -797,7 +797,9 @@ class LaTeXDep (Depend):
 			return
 		self.include_only = {}
 		for name in dict["arg"].split(","):
-			self.include_only[name] = None
+			name = name.strip()
+			if name != "":
+				self.include_only[name] = None
 
 	def h_documentclass (self, dict):
 		"""
@@ -822,6 +824,7 @@ class LaTeXDep (Depend):
 		"""
 		if not dict["arg"]: return
 		for name in string.split(dict["arg"], ","):
+			name = name.strip()
 			file = self.env.find_file(name + ".sty")
 			if file and not exists(name + ".py"):
 				self.process(file)
@@ -844,7 +847,7 @@ class LaTeXDep (Depend):
 		if dict["arg"]:
 			self.modules.register("bibtex", dict)
 			for db in dict["arg"].split(","):
-				self.modules["bibtex"].add_db(db)
+				self.modules["bibtex"].add_db(db.strip())
 
 	def h_bibliographystyle (self, dict):
 		"""

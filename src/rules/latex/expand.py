@@ -140,7 +140,7 @@ class Module (Depend, rubber.rules.latex.Module):
 		# Dump the contents of local packages.
 
 		for name in string.split(dict["arg"], ","):
-			file = self.env.find_file(name + ".sty")
+			file = self.env.find_file(name.strip() + ".sty")
 			if file and not exists(name + ".py"):
 
 				# switch to package mode if needed

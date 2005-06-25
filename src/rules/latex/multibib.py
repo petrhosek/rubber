@@ -27,7 +27,7 @@ class Biblio (rubber.rules.latex.bibtex.Module):
 
 	def biblio (self, dict):
 		for bib in string.split(dict["arg"], ","):
-			self.add_db(bib)
+			self.add_db(bib.strip())
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
