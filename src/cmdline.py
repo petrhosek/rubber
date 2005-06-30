@@ -24,6 +24,7 @@ class MoreErrors:
 class Main (object):
 	def __init__ (self):
 		self.max_errors = 10
+		self.include_only = None
 		msg.write = self.stderr_write
 
 	def stderr_write (self, text, level=0):
@@ -60,6 +61,7 @@ available options:
   -l, --landscape          change paper orientation (if relevant)
   -n, --maxerr=NUM         display at most NUM errors (default: 10)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
+      --only=SOURCES       only include the specified SOURCES
   -o, --post=MOD[:OPTS]    postprocess with module MOD (with options OPTS)
   -d, --pdf                produce a pdf (synonym for -m pdftex or -o ps2pdf)
   -p, --ps                 process through dvips (synonym for -o dvips)
@@ -78,8 +80,8 @@ available options:
 				cmdline, "I:c:de:fhklm:n:o:pqr:svW:z" + short,
 				["clean", "command=", "epilogue=", "force", "gzip", "help",
 				 "inplace", "into=", "keep", "landcape", "maxerr=", "module=",
-				 "post=", "pdf", "ps", "quiet", "read=", "short", "texpath=",
-				 "verbose", "version", "warn="] + long)
+				 "only=", "post=", "pdf", "ps", "quiet", "read=", "short",
+				 "texpath=", "verbose", "version", "warn="] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -114,6 +116,8 @@ available options:
 			elif opt in ("-m", "--module"):
 				self.prologue.append("module " +
 					string.replace(arg, ":", " ", 1))
+			elif opt == "--only":
+				self.include_only = arg.split(",")
 			elif opt in ("-o", "--post"):
 				self.epilogue.append("module " +
 					string.replace(arg, ":", " ", 1))
@@ -210,6 +214,9 @@ available options:
 			if env.set_source(src):
 				msg.error(_("cannot find %s") % src)
 				return 1
+
+			if self.include_only is not None:
+				env.main.includeonly(self.include_only)
 
 			if self.clean:
 				if env.main.prods == []:

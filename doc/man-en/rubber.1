@@ -117,7 +117,12 @@ the package options in LaTeX. The module is loaded
 .I before
 parsing the document's sources.
 .TP
-.B \-o,\ \-\-post \ <module> [: <args> ]
+.BI \-\-only \ <sources>
+Compile the document partially, including only the specified sources. This
+works by inserting a call to \\includeonly on the command line. The argument
+is a comma-separated list of file names.
+.TP
+.BR \-o,\ \-\-post \ <module> [: <args> ]
 Use the specified module as a post-processor. This is similar to the
 .I \-m
 options except that the module is loaded

@@ -58,6 +58,7 @@ available options:
   -k, --keep               keep the temporary files after compiling
   -l, --landscape          change paper orientation (if relevant)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
+      --only=SOURCES       only include the specified SOURCES
   -o, --post=MOD[:OPTS]    postprocess with module MOD (with options OPTS)
   -d, --pdf                compile with pdftex (synonym for -m pdftex)
   -p, --ps                 process through dvips (synonym for -m dvips)
@@ -117,6 +118,9 @@ available options:
 		if env.set_source(src):
 			msg.error(_("cannot open the temporary %s") % src)
 			return 1
+
+		if self.include_only is not None:
+			env.main.includeonly(self.include_only)
 
 		env.make_source()
 

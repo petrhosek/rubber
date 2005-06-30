@@ -77,6 +77,9 @@ Compresse le document final (au format
 Cette option est synonyme de
 .IR \-o\ gz .
 .TP
+.B \-h, \-\-help
+Affiche la liste de toutes les options disponibles et quitte.
+.TP
 .B \-\-inplace
 Va dans le répertoire du fichier source avant la compilation, de sorte que les
 fichiers produits arrivent au même endroit que les sources.
@@ -85,9 +88,6 @@ fichiers produits arrivent au même endroit que les sources.
 Va dans le répertoire spécifié avant la compilation, de sorte que les
 résultats de compilation y soient produits, au lieu d'être placés dans le
 répertoire courant.
-.TP
-.B \-h, \-\-help
-Affiche la liste de toutes les options disponibles et quitte.
 .TP
 .B \-k, \-\-keep
 Cette option est utile dans
@@ -115,6 +115,12 @@ peuvent être passés au module en les ajoutant après un signe deux-points, ils
 correspondent aux options du package dans LaTeX. Le module est chargé
 .I avant
 l'annalyse du document.
+.TP
+.BI \-\-only \ <sources>
+Compile le document partiellement, en n'incluant que les sources spécifiés. Le
+fonctionnement consiste à ajouter un appel à \\includeonly sur la ligne de
+commande. L'argument est une liste de noms de fichiers séparés par des
+virgules.
 .TP
 .BI \-o,\ \-\-post \ <module> [: <args> ]
 Utilise le module spécifié en tant que post-processeur. Cette option est

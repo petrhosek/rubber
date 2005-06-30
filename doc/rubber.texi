@@ -214,6 +214,11 @@ can be passed to the package by adding them after a colon, they correspond to
 the package options in LaTeX. The module is loaded @emph{before} parsing the
 document's sources.
 
+@item --only <sources>
+Compile the document partially, including only the specified sources. This
+works by inserting a call to @command{\includeonly} on the command line. The
+argument is a comma-separated list of file names.
+
 @item -o <module>[:<args>]
 @itemx --post <module>[:<args>]
 Used the specified module as a post-processor. This is similar to the

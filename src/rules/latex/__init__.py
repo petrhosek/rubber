@@ -435,7 +435,7 @@ class LaTeXDep (Depend):
 			"program": "latex",
 			"engine": "TeX",
 			"paper": "" }
-		self.cmdline = ["\\nonstopmode\\input{%s}"]
+		self.cmdline = ["\\nonstopmode", "\\input{%s}"]
 
 		# the initial hooks:
 
@@ -500,6 +500,21 @@ class LaTeXDep (Depend):
 		self.vars['job'] = self.src_base
 		self.vars['base'] = self.src_pbase
 		return 0
+
+	def includeonly (self, files):
+		"""
+		Use partial compilation, by appending a call to \\inlcudeonly on the
+		command line on compilation.
+		"""
+		if self.vars["engine"] == "VTeX":
+			msg.error(_("I don't know how to do partial compilation on VTeX."))
+			return
+		if self.cmdline[-2][:13] == "\\includeonly{":
+			self.cmdline[-2] = "\\includeonly{" + ",".join(files) + "}"
+		else:
+			self.cmdline.insert(-1, "\\includeonly{" + ",".join(files) + "}")
+		for f in files:
+			self.include_only[f] = None
 
 	def source (self):
 		"""
