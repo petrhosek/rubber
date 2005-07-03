@@ -1,3 +1,13 @@
+rubber (1.0-1) unstable; urgency=low
+
+  * New release.
+  * Various bugfixes (closes: #278453).
+  * New system for detecting graphics conversion rules (closes: #283448).
+  * Fixed the command line for some external tools (closes: #284530, #316548).
+  * Some new command-line switches (closes: #190554).
+
+ -- Emmanuel Beffara <manu@beffara.org>  Sun, 03 Jul 2005 23:17:28 +0200
+
 rubber (0.99.8-1) unstable; urgency=low
 
   * New release.

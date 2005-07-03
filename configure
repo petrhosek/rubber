@@ -4,7 +4,7 @@
 # (c) Emmanuel Beffara, 2002--2004
 
 # this is the only place where there is version number:
-version=0.99.8
+version=1.0
 release=1
 
 python=""

@@ -3,7 +3,7 @@ Section: tex
 Priority: optional
 Maintainer: Emmanuel Beffara <manu@beffara.org>
 Uploaders: Baruch Even <baruch@debian.org>
-Build-Depends-Indep: debhelper (>> 4.1.67), python-dev (>= 2.3), texinfo
+Build-Depends-Indep: debhelper (>> 4.1.67), python-dev (>= 2.2), texinfo
 Standards-Version: 3.6.1
 
 Package: rubber
@@ -17,7 +17,7 @@ Description: an automated system for building LaTeX documents
  intervention, as well as pre- and post-processing of the document. The
  standard modules currently provide support for bibtex, dvips, dvipdfm,
  pdftex, makeindex. A good number of standard packages are supported,
- including graphics/graphicx (with automatic conversion between various
- formats and Metapost compilation).
+ including graphics/graphicx with automatic conversion between various
+ graphics formats and Metapost compilation.
  .
- Homepage: http://rubber.sourceforge.net/
+ Homepage: http://www.pps.jussieu.fr/~beffara/soft/rubber/

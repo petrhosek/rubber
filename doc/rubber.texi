@@ -1,7 +1,7 @@
 \input texinfo
 @c %**start of header
 @setfilename rubber.info
-@settitle Rubber Manual 0.99.8
+@settitle Rubber Manual 1.0
 @c %**end of header
 
 @copying
@@ -29,7 +29,7 @@ Copyright @copyright{} 2003 Emmanuel Beffara.
 
 @titlepage
 @title Rubber
-@subtitle Documentation for version 0.99.8
+@subtitle Documentation for version 1.0
 @author Emmanuel Beffara
 @page
 @vskip 0pt plus 1fill
