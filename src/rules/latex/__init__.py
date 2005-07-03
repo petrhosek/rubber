@@ -710,9 +710,6 @@ class LaTeXDep (Depend):
 			else:
 				msg.warn(_("dependency '%s' not found") % arg, **pos)
 
-	def do_latex (self, arg):
-		self.vars["program"] = arg
-
 	def do_module (self, mod, opt=None):
 		dict = { 'arg': mod, 'opt': opt }
 		self.modules.register(mod, dict)
@@ -742,6 +739,9 @@ class LaTeXDep (Depend):
 			file.close()
 		except IOError:
 			msg.warn(_("cannot read option file %s") % name) #, **pos)
+
+	def do_set (self, name, val):
+		self.vars[name] = val
 
 	def do_watch (self, *args):
 		for arg in args:

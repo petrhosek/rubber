@@ -415,6 +415,10 @@ name of the directory is everything that follows the spaces after
 Read the specified file of directives. The file must contain one directive per
 line. Empty lines and lines that begin with @samp{%} are ignored.
 
+@item set <name> <value>
+Set the value of a variable. For details on the existing variables and their
+meaning, see @ref{Variables}.
+
 @item watch <file>
 Watch the specified file for changes. If the contents of this file has
 changed after a compilation, then another compilation is triggered. This is
@@ -715,6 +719,10 @@ their contents.
 The following modules are used to change the LaTeX compiler:
 
 @vtable @command
+@item aleph
+Use the Aleph compiler instead of TeX, i.e. compile with @command{lamed}
+instead of @command{latex}.
+
 @item etex
 Instructs Rubber to use @command{elatex} instead of @command{latex}.
 

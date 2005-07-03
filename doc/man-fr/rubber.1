@@ -332,6 +332,12 @@ convertit ce document en PDF avec
 .SS Choix du compilateur
 Les modules suivants servent à changer de compilateur LaTeX:
 .TP
+.B aleph
+Utilise Aleph au lieu de TeX, c'est-à-dire compile le document avec
+.BR lamed (1)
+au lieu de
+.BR latex .
+.TP
 .B etex
 Indique à Rubber d'utiliser
 .BR elatex (1)
@@ -437,6 +443,14 @@ nom du répertoire est tout le texte qui suit les espaces après "path".
 .BI read \ <fichier> 
 Lit le fichier de directives spécifié. Le fichier doit comporter une commande
 par ligne. Les lignes vides ou commençant par un "%" sont ignorées.
+.TP
+.BI set \ <nom>\ <valeur>
+Définit la variable
+.I nom
+avec la
+.I valeur
+spécifiée. Pour plus d'informations sur les variables, voir la documentation
+en info.
 .TP
 .BI watch \ <fichier> 
 Surveille les modifications sur le fichier spécifié. Si le contenu de ce

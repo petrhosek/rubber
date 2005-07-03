@@ -325,6 +325,12 @@ convert this document to PDF using
 .SS Compiler choice
 The following modules are used to change the LaTeX compiler:
 .TP
+.B aleph
+Use the Aleph compiler instead of TeX, i.e. compiles the document using
+.BR lamed (1)
+instead of
+.BR latex .
+.TP
 .B etex
 Instructs Rubber to use
 .BR elatex (1)
@@ -424,6 +430,10 @@ of the directory is everything that follows the spaces after "path".
 Read the specified file of directives. The file
 must contain one directive per line. Empty lines and lines that begin with
 "%" are ignored.
+.TP
+.BI set \ <name>\ <value>
+Set the value of a variable. For details on the existing variables and their
+meaning, see the info documentataion.
 .TP
 .BI watch \ <file>
 Watch the specified file for changes. If the contents of this file has changed
