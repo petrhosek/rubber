@@ -59,14 +59,10 @@ makeindex, Metapost, etc. to produce appropriate data files.
 
 @menu
 * Introduction::  Introduction.
-
 * Invoking::      Syntax of the command lines.
 * Directives::    Directives in LaTeX comments.
 * Modules::       List of standard modules.
 * Graphics::      Support for graphics conversion.
-
-* Programming::   Writing modules and embedding Rubber.
-
 * Index::         Directive and modules index.
 @end menu
 
@@ -822,7 +818,7 @@ extra parameter @code{command}, specified in the rule file, that defines a
 shell command-line. This is used for simple conversion rules, using
 @command{convert} (from ImageMagick), @command{epstopdf}, @command{jpeg2ps}.
 
-@node rules.ini, Programming, Standard rules, Graphics
+@node rules.ini, Index, Standard rules, Graphics
 @section Syntax of @command{rules.ini}
 
 The rules file has a format in the style of Wind*ws INI files. The lines that
@@ -864,95 +860,9 @@ The cost of the rule, as an integer. In the default file, this ranges between
 0 and 12.
 @end table
 
-@c ---  Programming with Rubber  ---
-
-@node Programming, Program structure, rules.ini, Top
-@chapter Programming with Rubber
-
-Rubber is written in the Python language. Its structure makes it possible to
-use the compilation system from any Pyhton program. The module system is
-based on Python's ability to load modules at run time.
-
-This chapter is widely incomplete.
-
-@menu
-* Program structure::  The classes and interfaces in Rubber.
-* Writing modules::    How to write modules to support packages and programs.
-* Embedding Rubber::   How to use the compilation system in a program.
-@end menu
-
-@node Program structure, Writing modules, Programming, Programming
-@section The structure of Rubber
-
-The core of the program is contained in a Python package named @code{rubber},
-which resides in an installation-dependent directory like
-@file{/usr/share/rubber}. The classes defined in this module are the
-following:
-
-@table @code
-@item Environment
-This is the core of Rubber. An object in this class contains information about
-a given document, including a dependency graph between source files, a set of
-loaded modules, and settings about how the document is built.
-@item Message
-All messages, including progress and error reports, are issued using an
-instance of a class that implements the interface Message.
-@end table
-
-@node Writing modules, Embedding Rubber, Program structure, Programming
-@section Writing Rubber modules
-
-The modules that handle packages, pre- and post-processing and compiler change
-are the Python modules in the package @code{rubber.modules}. Each module must
-define a class @code{Module} that derives from @code{rubber.Module}. An object
-of this class is created for each document that uses the module.
-
-The @code{__init__} method takes the building environment as its first
-argument and a dictionary as its second argument. This dictionary describes
-the command that caused the module to be loaded, its keys are the
-following:
-
-@table @code
-@item name
-the macro's name (i.e. @samp{usepackage} or @samp{RequirePackage}, or
-undefined if the module is loaded from the command line)
-@item arg
-the module's name (i.e. the argument of the macro)
-@item opt
-the module's options or @code{None} (either @code{\usepackage}'s optional
-argument or the module options on the command line)
-@end table
-
-@noindent
-The @code{__init__} function is supposed to register the macros supported by
-the module using the following method of the environment:
-
-@table @code
-@item add_hook(name, fun)
-The function @code{fun} will be called when the macro of the given name is
-found. This function recieves as argument a dictionary that describes the
-macro call with the following keys:
-@table @code
-@item name
-the name of the macro
-@item opt
-the optional argument or @code{None}
-@item arg
-the first argument (if it doesn't contain any brace) or @code{None}
-@item line
-the rest of the line where the macro occurs
-@end table
-@end table
-
-@node Embedding Rubber, Index, Writing modules, Programming
-@section Embedding Rubber
-
-This section will describe how to use Rubber directly from your program.
-
-
 @c ---  Indices  ---
 
-@node Index, Directive index, Embedding Rubber, Top
+@node Index, Directive index, rules.ini, Top
 @chapter Index
 
 @menu

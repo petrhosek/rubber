@@ -10,6 +10,7 @@ _rubber_arguments () {
       {-l,--landscape}'[change paper orientation (if relevant)]' \
       {-n,--maxerr}'=[display at most NUM errors]:num' \
       \*{-m,--module}'=[use module]:module' \
+      '--only=[only include the specified SOURCES]:sources' \
       \*{-o,--post}'=[postprocess with module]:postprocessor:(dvipdfm dvips expand gz ppower4 ps2pdf)' \
       {-d,--pdf}'[produce PDF output instead of DVI]' \
       {-p,--ps}'[produce a PostScript document]' \

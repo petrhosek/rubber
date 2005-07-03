@@ -1,19 +1,24 @@
 This is Rubber.
 
 Rubber is a building system for LaTeX documents. It is based on a routine that
-runs (hopefully) just as many compilations as necessary. The module system
-provides a great flexibility that virtually allows support for any package
-with no user intervention, as well as pre- and post-processing of the
-document. The associated tool "rubber-info" extracts information, such as
-dependency relations or post-compilation diagnostics, in a useful way.
+runs just as many compilations as necessary and runs companion programs like
+BibTeX and Makeindex when needed. The module system provides a great
+flexibility that virtually allows support for any package with no user
+intervention, as well as pre- and post-processing of the document. A good
+number of standard packages are supported, including graphics/graphicx with
+automatic conversion between various graphics formats and Metapost
+compilation. The associated tool "rubber-info" extracts information, such as
+dependency relations or post-compilation diagnostics.
 
 
 * Installation
 
-Compiling and running Rubber requires Python version 2.1, and nothing more.
-For compilation, you will need the Python Distutils, which are usually
-included in developpement packages (in Debian, this is the python-dev package).
-However, it won't be of much use without a working LaTeX environment...
+Compiling and running Rubber just requires Python version 2.2 or newer. For
+compilation, you will need the Python Distutils, which are usually included in
+developpement packages (in Debian, this is the python-dev package). Of course
+It won't be of much use without a working LaTeX environment (Rubber is known
+to work on teTeX and VTeX on various flavours of Unix including Darwin and
+Cygwin, any feedback is welcome about other systems).
 
 To compile and install Rubber, just follow the usual procedure:
 
@@ -27,8 +32,9 @@ The options for configuration can be shown using ./configure --help.
 * Usage
 
 As civility requires, saying `rubber --help' and `rubber-info --help' provides
-a short description of the command line's syntax. The included manual page
-(available in English and French) contains more precise usage information.
+a short description of the command line's syntax. The included manual pages
+(available in English and French) and Texinfo documentation contain more
+precise usage information.
 
 
 * Author
@@ -36,8 +42,7 @@ a short description of the command line's syntax. The included manual page
 Rubber is written and maintained by Emmanuel Beffara <emmanuel@beffara.org>.
 
 Thanks to all those who provided testing, comments and suggestions, and
-re-thanks to Vincent Beffara, Emmanuel Jeandel and Denis Oddoux for patches
-and bugfixes.
+re-thanks to those who wrote patches and bugfixes.
 
 Any kind of feedback is appreciated, in order to make this program as useful,
 robust and powerful as possible...

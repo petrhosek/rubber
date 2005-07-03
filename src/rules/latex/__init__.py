@@ -367,10 +367,11 @@ class LogCheck (object):
 					dict = m.groupdict()
 					dict["file"] = pos[-1]
 					dict["page"] = page
-					if dict["pkg"] is not None:
-						prefix = ("(%s)" % dict["pkg"])
-					else:
+					if dict["pkg"] is None:
+						del dict["pkg"]
 						prefix = ""
+					else:
+						prefix = ("(%s)" % dict["pkg"])
 					prefix = prefix.ljust(m.start("msg"))
 					text = [dict["msg"]]
 			else:

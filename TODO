@@ -20,9 +20,6 @@ Improvements:
 
 Long-term ideas:
 
-- clean the idea of the Converter (as an inference system for building rules)
-  and make it the central object, with latex as just one particular rule
-
 - use the clean class structuration (possibly cleaning it a bit more) to
   provide other front-ends, e.g. a clever X11 interface
 
