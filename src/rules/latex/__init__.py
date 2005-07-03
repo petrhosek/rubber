@@ -792,9 +792,7 @@ class LaTeXDep (Depend):
 			return
 		file, _ = self.input_file(dict["arg"], dict)
 		if file:
-			if file[-4:] == ".tex":
-				file = file[:-4]
-			aux = basename(file) + ".aux"
+			aux = dict["arg"] + ".aux"
 			self.removed_files.append(aux)
 			self.aux_old[aux] = None
 			if exists(aux):
