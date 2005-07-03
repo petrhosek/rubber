@@ -151,7 +151,7 @@ a non-zero exit code.
 
 The options are the following:
 
-@table @option
+@table @command
 @item --clean
 Remove all files produced by the compilation, instead of building the
 document. This option is present in rubber only. It applies to the compilation
@@ -189,6 +189,14 @@ synonym for @option{-e module gz}.
 @item -h
 @itemx --help
 Display the list of all available options and exit nicely.
+
+@item --inplace
+Go to the directory of the source files before compiling, so that compilation
+results are in the same place as their sources.
+
+@item --into <directory>
+Go to the specified directory before compiling, so that all files are produced
+there and not in the current directory.
 
 @item -k
 @itemx --keep
@@ -287,11 +295,13 @@ The command-line syntax for @command{rubber-info} is the following:
 rubber-info [options] [action] source
 @end example
 
-The @option{action} specified what kind of information has to be extracted. At
+The options are all those accepted by @command{rubber} and
+@command{rubber-pipe}, as described in @ref{rubber command line}. The
+@option{action} specified what kind of information has to be extracted. At
 most one such argument must be present on the command line, @option{--check}
 is assumed if none is present. The possible actions are:
 
-@table @option
+@table @command
 @item --boxes
 Extracts from the log file the places in the source where bad boxes appeared
 (these are the famous overfull and underfull @code{\hbox} and @code{\vbox}).
@@ -329,25 +339,6 @@ Stupidly enumerate all LaTeX warnings, i.e. all the lines in the log file that
 contain the string "Warning".
 @end table
 
-@noindent
-In addition to these actions, the following options may be specified:
-
-@table @option
-@item -m <module>[:<args>]
-@itemx --module <module>[:<args>]
-Use the specified module in addition to the document's packages. Arguments
-can be passed to the package by adding them after a colon, they correspond to
-the package options in LaTeX.
-
-@item -s
-@itemx --short
-Display LaTeX's error messages in a compact form (one error per line).
-
-@item -v
-@itemx --verbose
-Increase the verbosity level. The default level is 0, levels up to 3 exist.
-@end table
-
 
 @c ---  Directives  ---
 
@@ -367,6 +358,11 @@ The line must begin with a @samp{%}, then any sequence of @samp{%} signs and
 spaces, then the text @samp{rubber:} followed by zero or more spaces and a
 directive name, possibly followed by spaces and arguments.
 
+The argument in the directive line are separated by spaces, single and double
+quotes allow escaping of spaces (and quotes). The directive can contain
+variable references with the syntax @samp{$VAR} or @samp{$@{VAR@}}. For
+details on the use of variables, see @ref{Variables}.
+
 If a directive name has the form @samp{foo.bar}, it is considered a command
 @command{bar} for the module @command{foo}. If this module is not registered
 when the directive is found, then the directive is silently ignored. See the
@@ -374,12 +370,21 @@ individual documentation for modules for module-specific directives.
 
 @menu
 * General directives::
+* Variables::
 @end menu
 
-@node General directives, Modules, Directives, Directives
+@node General directives, Variables, Directives, Directives
 @section General directives
 
 @ftable @command
+@item alias <name1> <name2>
+Pretend that the LaTeX macro @samp{name1} is equivalent to @samp{name2}. This
+can be useful when defining wrappers around supported macros, like:
+@example
+% rubber: alias ig includegraphics
+\newcommand\ig[1]@{\includegraphics[scale=.5]@{#1@}@}
+@end example
+
 @item clean <file>
 Indicates that the specified file should be removed when cleaning using
 @option{--clean}.
@@ -416,10 +421,45 @@ changed after a compilation, then another compilation is triggered. This is
 useful in the case of tables of contents, for instance.
 @end ftable
 
+@node Variables, Modules, General directives, Directives
+@section Variables
+
+The following variables are defined by Rubber (or its modules) and used by
+various modules to influence compilation.
+
+@table @command
+@item base
+The base name of the main source file, including its path but without the
+extension.
+
+@item engine
+The name of the TeX engine used. By default this is @samp{TeX}, this can be
+changed to @samp{VTeX}, @samp{pdfTeX}, @samp{Omega} or others by the modules
+that change the compiler, see @ref{Compiler choice}.
+
+@item file
+The name of the current file (this is set during parsing).
+
+@item job
+The job name of the document, with no path indication.
+
+@item latex
+Specify which program should be used for compiling. By default this is
+@command{latex}, various modules can change it in order to use a different
+compiler instead, see @ref{Compiler choice}.
+
+@item line
+The current line number in the current file (this is set during parsing).
+
+@item paper
+The paper size to use when compiling. This is used by post-processors like
+@command{dvips} or @command{dvipdfm}.
+@end table
+
 
 @c ---  Modules  ---
 
-@node Modules, Packages, General directives, Top
+@node Modules, Packages, Variables, Top
 @chapter Modules
 
 @menu
@@ -747,25 +787,18 @@ for the @command{\DeclareGraphicsExtensions} and
 @node Standard rules, rules.ini, Graphics, Graphics
 @section Standard conversion rules
 
-The following programs may be used when available:
+The following built-in rules are available:
 
 @table @command
-@item convert
-This is the image conversion program from the ImageMagick program. It can
-convert between a lot of different formats, just refer to ImageMagick's
-documentation for details.
-
-@item epstopdf
-This program is used to convert EPS graphics for use in PDF documents.
+@item eps_gz
+This rule is used to extract a bounding box from a gzipped EPS file, in order
+to be able to compile a document while keeping large figure files compressed.
 
 @item fig2dev
 This is the exporting program that goes with XFig. It is used to convert files
 in @file{.fig} format into EPS, PDF or PNG. Rubber also supports the use of
-combined EPS/LaTeX, it is detected when an @command{\input} macro refers to a
-filename that ends in @file{.eps_t} or @file{.pstex_t}.
-
-@item jpeg2ps
-This tool is used to convert JPEG images into efficient EPS files.
+combined EPS/LaTeX of PDF/LaTeX, it is detected when an @command{\input} macro
+refers to a filename that ends in @file{.eps_t} or @file{.pstex_t}.
 
 @item mpost
 MetaPost has extra support in Rubber. If a graphics is included with a
@@ -775,6 +808,11 @@ analysis is performed between MetaPost sources, so that recompilation always
 occurs when needed. If the compilation of a MetaPost source fails, the errors
 are reported as it would be done for LaTeX errors.
 @end table
+
+Other programs can be used using the @command{shell} rule. This rule takes an
+extra parameter @code{command}, specified in the rule file, that defines a
+shell command-line. This is used for simple conversion rules, using
+@command{convert} (from ImageMagick), @command{epstopdf}, @command{jpeg2ps}.
 
 @node rules.ini, Programming, Standard rules, Graphics
 @section Syntax of @command{rules.ini}

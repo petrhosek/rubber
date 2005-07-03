@@ -694,6 +694,11 @@ class LaTeXDep (Depend):
 			else:
 				msg.warn(_("unknown directive '%s'") % cmd, **pos)
 
+	def do_alias (self, name, val):
+		if self.hooks.has_key(val):
+			self.hooks[name] = self.hooks[val]
+			self.update_seq()
+
 	def do_clean (self, *args):
 		self.removed_files.extend(args)
 
@@ -721,11 +726,6 @@ class LaTeXDep (Depend):
 
 	def do_paper (self, arg):
 		self.vars["paper"] = arg
-
-	def do_alias (self,name,val):
-	    if self.hooks.has_key(val):
-		self.hooks[name] = self.hooks[val]
-		self.update_seq()
 	    
 	def do_path (self, name):
 		self.env.path.append(expanduser(name))

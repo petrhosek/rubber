@@ -3,6 +3,8 @@ Version 0.99.9 (CVS)
   Features:
     - More intelligent graphics conversion rules.
     - New command-line options "--inplace" and "--into".
+    - New command-line option "-W" to report warnings.
+    - New command-line option "--only" for partial compilation.
     - A completion function for Zsh.
 
   Bugfixes:

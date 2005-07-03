@@ -393,6 +393,14 @@ d'espaces, puis le texte "rubber:" suivi d'espaces et d'un nom de commande,
 les suivantes:
 .SS Directives générales
 .TP
+.BI alias \ <nom1>\ <nom2>
+Déclare la macro LaTeX
+.I nom1
+comme équivalente à
+.IR nom2 .
+Ceci peut être utile quand on définit une macro personnelle autour d'une macro
+connue de Rubber.
+.TP
 .BI clean \ <fichier> 
 Indique que le fichier spécifié doit être effacé lors du nettoyage par
 .IR \-\-clean .

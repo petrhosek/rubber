@@ -382,6 +382,13 @@ possibly followed by spaces and arguments.
 
 .SS General directives
 .TP
+.BI alias \ <name1>\ <name2>
+Pretend that the LaTeX macro
+.I name1
+is equivalent to
+.IR name2 .
+This can be useful when defining wrappers around supported macros.
+.TP
 .BI clean \ <file>
 Indicates that the specified file should be removed when cleaning using
 .IR \-\-clean .
