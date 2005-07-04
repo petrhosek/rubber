@@ -773,6 +773,12 @@ is the expected rule when the @command{.fig} file exists. On the other hand,
 the rule from @command{.eps} to @command{.jpeg} has cost 11 because this
 conversion is possible though usually not wanted.
 
+As an extra precaution, a file will never be overwritten if the source could
+have been produced by some conversion rule. The purpose is to be secure in
+cases when it cannot be detected which is the source and which is the target,
+for instance if @file{foo.eps} and @file{foo.pdf} both exist in the same
+place.
+
 The list of standard rules is defined in the file @command{rules.ini} in the
 data directory. The syntax of this file is described in @ref{rules.ini}. The
 standard rules are described in @ref{Standard rules}.

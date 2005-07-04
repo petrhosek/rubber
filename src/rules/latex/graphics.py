@@ -114,9 +114,12 @@ class Module (rubber.rules.latex.Module):
 		if name.find("\\") >= 0 or name.find("#") >= 0:
 			return
 
-		# We only accept conversions from file types we don't know.
+		# We only accept conversions from file types we don't know and cannot
+		# produce.
 
 		def check (source, target, suffixes=suffixes):
+			if self.env.may_produce(source):
+				return 0
 			if suffixes == [""]:
 				return 1
 			for suffix in suffixes:
