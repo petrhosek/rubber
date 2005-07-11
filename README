@@ -16,7 +16,7 @@ dependency relations or post-compilation diagnostics.
 Compiling and running Rubber just requires Python version 2.2 or newer. For
 compilation, you will need the Python Distutils, which are usually included in
 developpement packages (in Debian, this is the python-dev package). Of course
-It won't be of much use without a working LaTeX environment (Rubber is known
+it won't be of much use without a working LaTeX environment (Rubber is known
 to work on teTeX and VTeX on various flavours of Unix including Darwin and
 Cygwin, any feedback is welcome about other systems).
 

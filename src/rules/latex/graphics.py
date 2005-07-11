@@ -118,7 +118,7 @@ class Module (rubber.rules.latex.Module):
 		# produce.
 
 		def check (source, target, suffixes=suffixes):
-			if self.env.may_produce(source):
+			if exists(target) and self.env.may_produce(source):
 				return 0
 			if suffixes == [""]:
 				return 1
