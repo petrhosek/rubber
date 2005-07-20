@@ -193,6 +193,166 @@ class LogCheck (object):
 
 	#-- Information extraction {{{2
 
+	def parse (self, errors=0, boxes=0, refs=0, warnings=0):
+		"""
+		Parse the log file for relevant information. The named arguments are
+		booleans that indicate which information should be extracted:
+		- errors: all errors
+		- boxes: bad boxes
+		- refs: warnings about references
+		- warnings: all other warnings
+		The function returns 0 if there was nothing to report. If not log file
+		was produced (that can happen if LaTeX could not be run), nothing is
+		reported and the function returns 1.
+		"""
+		if not self.lines:
+			return 1
+		last_file = "(no file)"
+		pos = [last_file]
+		page = 1
+		parsing = 0    # 1 if we are parsing an error's text
+		skipping = 0   # 1 if we are skipping text until an empty line
+		something = 0  # 1 if some error was found
+		prefix = None  # the prefix for warning messages from packages
+		for line in self.lines:
+			line = line.rstrip()
+
+			# Text that should be skipped (from bad box messages)
+
+			if line == "":
+				skipping = 0
+				continue
+
+			if skipping:
+				continue
+
+			# Errors (including aborted compilation)
+
+			if parsing:
+				if error == "Undefined control sequence.":
+					# This is a special case in order to report which control
+					# sequence is undefined.
+					m = re_cseq.match(line)
+					if m:
+						error = "Undefined control sequence %s." % m.group("seq")
+				m = re_line.match(line)
+				if m:
+					parsing = 0
+					skipping = 1
+					if errors:
+						msg.error(error, code=m.group("text"),
+							file=pos[-1], line=m.group("line"))
+						something = 1
+				elif line[0] == "!":
+					error = line[2:]
+				elif line[0:3] == "***":
+					parsing = 0
+					skipping = 1
+					if errors:
+						msg.abort(error, line[4:], file=last_file)
+						something = 1
+				elif line[0:15] == "Type X to quit ":
+					parsing = 0
+					skipping = 0
+					if errors:
+						msg.error(error, file=pos[-1])
+						something = 1
+				continue
+
+			if line[0] == "!":
+				error = line[2:]
+				parsing = 1
+				continue
+
+			if line == "Runaway argument?":
+				error = line
+				parsing = 1
+				continue
+
+			# Long warnings
+
+			if prefix is not None:
+				if line[:len(prefix)] == prefix:
+					text.append(string.strip(line[len(prefix):]))
+				else:
+					text = " ".join(text)
+					m = re_online.search(text)
+					if m:
+						dict["line"] = m.group("line")
+						text = text[:m.start()] + text[m.end():]
+					if warnings:
+						msg.warn(text, **dict)
+						something = 1
+					prefix = None
+				continue
+
+			# Undefined references
+
+			m = re_reference.match(line)
+			if m:
+				if refs:
+					msg.warn(_("Reference `%s' undefined.") % m.group("ref"),
+						file=pos[-1], **m.groupdict())
+					something = 1
+				continue
+
+			m = re_label.match(line)
+			if m:
+				if refs:
+					msg.warn(m.group("msg"), file=pos[-1])
+					something = 1
+				continue
+
+			# Other warnings
+
+			if line.find("Warning") != -1:
+				m = re_warning.match(line)
+				if m:
+					dict = m.groupdict()
+					dict["file"] = pos[-1]
+					dict["page"] = page
+					if dict["pkg"] is None:
+						del dict["pkg"]
+						prefix = ""
+					else:
+						prefix = ("(%s)" % dict["pkg"])
+					prefix = prefix.ljust(m.start("msg"))
+					text = [dict["msg"]]
+				continue
+
+			# Bad box messages
+
+			m = re_badbox.match(line)
+			if m:
+				if boxes:
+					mpos = { "file": pos[-1], "page": page }
+					m = re_atline.search(line)
+					if m:
+						md = m.groupdict()
+						for key in "line", "last":
+							if md[key]: mpos[key] = md[key]
+						line = line[:m.start()]
+					msg.warn(line, **mpos)
+					something = 1
+				skipping = 1
+				continue
+
+			# If there is no message, track source names and page numbers.
+
+			last_file = self.update_file(line, pos)
+			page = self.update_page(line, page)
+
+		return something
+
+	def show_errors (self):
+		return self.parse(errors=1)
+	def show_boxes (self):
+		return self.parse(boxes=1)
+	def show_references (self):
+		return self.parse(refs=1)
+	def show_warnings (self):
+		self.parse(warnings=1)
+
 	def update_file (self, line, stack):
 		"""
 		Parse the given line of log file for file openings and closings and
@@ -216,168 +376,6 @@ class LogCheck (object):
 			line = line[m.end():]
 			m = re_file.search(line)
 		return last
-
-	def show_errors (self):
-		"""
-		Display all errors that occured during compilation. Return 0 if there
-		was no error. If not log file was produced (that can happen if LaTeX
-		could not be run), report nothing and return 1.
-		"""
-		if not self.lines:
-			return 1
-		last_file = "(no file)"
-		pos = [last_file]
-		parsing = 0    # 1 if we are parsing an error's text
-		skipping = 0   # 1 if we are skipping text until an empty line
-		something = 0  # 1 if some error was found
-		for line in self.lines:
-			line = line.rstrip()
-			if line == "":
-				skipping = 0
-			elif skipping:
-				pass
-			elif parsing:
-				if error == "Undefined control sequence.":
-					# This is a special case in order to report which control
-					# sequence is undefined.
-					m = re_cseq.match(line)
-					if m:
-						error = "Undefined control sequence %s." % m.group("seq")
-				m = re_line.match(line)
-				if m:
-					parsing = 0
-					skipping = 1
-					msg.error(error, code=m.group("text"),
-						file=pos[-1], line=m.group("line"))
-				elif line[0] == "!":
-					error = line[2:]
-				elif line[0:3] == "***":
-					parsing = 0
-					skipping = 1
-					msg.abort(error, line[4:], file=last_file)
-				elif line[0:15] == "Type X to quit ":
-					parsing = 0
-					skipping = 0
-					msg.error(error, file=pos[-1])
-			elif line[0] == "!":
-				error = line[2:]
-				parsing = 1
-				something = 1
-			elif line == "Runaway argument?":
-				error = line
-				parsing = 1
-				something = 1
-			else:
-				# Here there is no error to show, so we use the text of the
-				# line to track the source file name. However, there might be
-				# confusing text in the log file, in particular when there is
-				# an overfull/underfull box message (the text following this
-				# is extracted from the source, and the extract may contain
-				# unbalanced parentheses). Therefore we take care of this
-				# specifically.
-
-				m = re_badbox.match(line)
-				if m:
-					skipping = 1
-				else:
-					last_file = self.update_file(line, pos)
-
-		return something
-
-	def show_boxes (self):
-		"""
-		Display all messages related so underfull and overfull boxes. Return 0
-		if there is nothing to display.
-		"""
-		pos = ["(no file)"]
-		page = 1
-		something = 0
-		skip = 0
-		for line in self.lines:
-			line = line.rstrip()
-			if skip:
-				if line == "": skip = 0
-			elif re_badbox.match(line):
-				mpos = { "file": pos[-1], "page": page }
-				m = re_atline.search(line)
-				if m:
-					md = m.groupdict()
-					for key in "line", "last":
-						if md[key]: mpos[key] = md[key]
-					line = line[:m.start()]
-				msg.warn(line, **mpos)
-				something = 1
-				skip = 1
-			else:
-				self.update_file(line, pos)
-				page = self.update_page(line, page)
-		return something
-
-	def show_references (self):
-		"""
-		Display all undefined or multiply defined references.
-		"""
-		pos = ["(no file)"]
-		something = 0
-		for line in self.lines:
-			m = re_reference.match(line)
-			if m:
-				msg.warn(_("Reference `%s' undefined.") % m.group("ref"),
-					file=pos[-1], **m.groupdict())
-				something = 1
-				continue
-			m = re_label.match(line)
-			if m:
-				msg.warn(m.group("msg"), file=pos[-1])
-			else:
-				self.update_file(line, pos)
-		return something
-
-	def show_warnings (self):
-		"""
-		Display all warnings. This function parses LaTeX style warnings
-		(possibly on several lines) and extracts the location in the sources,
-		as well as the responsible package if there is one.
-		"""
-		pos = ["(no file)"]
-		page = 1
-		something = 0
-		skip = 0
-		prefix = None
-		for line in self.lines:
-			if skip:
-				if line == "": skip = 0
-			elif prefix is not None:
-				if line[:len(prefix)] == prefix:
-					text.append(string.strip(line[len(prefix):]))
-				else:
-					text = " ".join(text)
-					m = re_online.search(text)
-					if m:
-						dict["line"] = m.group("line")
-						text = text[:m.start()] + text[m.end():]
-					msg.warn(text, **dict)
-					prefix = None
-					something = 1
-			elif re_badbox.match(line):
-				skip = 1
-			elif line.find("Warning") != -1:
-				m = re_warning.match(line)
-				if m:
-					dict = m.groupdict()
-					dict["file"] = pos[-1]
-					dict["page"] = page
-					if dict["pkg"] is None:
-						del dict["pkg"]
-						prefix = ""
-					else:
-						prefix = ("(%s)" % dict["pkg"])
-					prefix = prefix.ljust(m.start("msg"))
-					text = [dict["msg"]]
-			else:
-				self.update_file(line, pos)
-				page = self.update_page(line, page)
-		return something
 
 	def update_page (self, line, before):
 		"""
