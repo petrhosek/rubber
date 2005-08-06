@@ -17,12 +17,17 @@ from rubber.rules.latex import LogCheck
 re_input = re.compile("input\\s+(?P<file>[^\\s;]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 re_mpext = re.compile("[0-9]+|mpx|log")
+re_mpxerr = re.compile("% line (?P<line>[0-9]+) (?P<file>.*)$")
 
 class MPLogCheck (LogCheck):
 	"""
 	This class adapats the LogCheck class from the main program to the case of
 	MetaPost log files, which are very similar to TeX log files.
 	"""
+	def __init__ (self, pwd):
+		LogCheck.__init__(self)
+		self.pwd = pwd
+
 	def read (self, name):
 		"""
 		The read() method in LogCheck checks that the log is produced by TeX,
@@ -39,6 +44,60 @@ class MPLogCheck (LogCheck):
 		self.lines = file.readlines()
 		file.close()
 		return 0
+
+	def get_errors (self):
+		"""
+		Parse the Metapost log file for errors. The file has the same form as
+		a TeX log file, so the parser for TeX logs is used. The special case
+		is that of TeX errors in Metapost labels, which requires parsing
+		another TeX log file.
+		"""
+		for err in LogCheck.get_errors(self):
+			if (err["kind"] != "error"
+				or err["text"] != "Unable to make mpx file."):
+				yield err
+				continue
+
+			# a TeX error was found: parse mpxerr.log
+
+			log = LogCheck()
+			if log.read(os.path.join(self.pwd, "mpxerr.log")):
+				yield err
+				continue
+
+			# read mpxerr.tex to read line unmbers from it
+
+			tex_file = open(os.path.join(self.pwd, "mpxerr.tex"))
+			tex = tex_file.readlines()
+			tex_file.close()
+
+			# get the name of the mpxNNN.tex source
+
+			for line in log.lines:
+				if line[:2] == "**":
+					tex_src = os.path.join(".", line[2:].strip())
+					break
+
+			for err in log.get_errors():
+				if tex_src != err["file"]:
+					# the error is not in a Metapost source
+					yield err
+					continue
+
+				line = int(err["line"])
+				for shift in range(1, line + 1):
+					tex_line = tex[line - shift].rstrip()
+					m = re_mpxerr.search(tex_line)
+					if m:
+						err["line"] = int(m.group("line")) + shift - 2
+						err["file"] = os.path.join(self.pwd, m.group("file"))
+						err["pkg"] = "TeX"
+						yield err
+						break
+
+				if shift == line:
+					# the error is in some verbatimtex
+					yield err
 
 
 class Dep (Depend):
@@ -97,7 +156,7 @@ class Dep (Depend):
 
 		# This creates a log file that has the same aspect as TeX logs.
 
-		self.log = MPLogCheck()
+		self.log = MPLogCheck(self.cmd_pwd)
 		if self.log.read(self.base + ".log"):
 			msg.error(_(
 				"I can't read MetaPost's log file, this is wrong."))
