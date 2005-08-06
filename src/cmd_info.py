@@ -15,10 +15,18 @@ from rubber.version import *
 import rubber.cmdline
 
 class Main (rubber.cmdline.Main):
+	def __init__ (self):
+		rubber.cmdline.Main.__init__(self)
+		msg.write = self.stdout_write
+
+	def stdout_write (self, text, level=0):
+		sys.stdout.write(text + "\n")
+
 	def short_help (self):
-		msg(0, _("""\
+		sys.stderr.write(_("""\
 usage: rubber-info [options] source
-For more information, try `rubber-info --help'."""))
+For more information, try `rubber-info --help'.
+"""))
 
 	def help (self):
 		msg(0, _("""\
@@ -70,7 +78,7 @@ actions:
 				sys.exit(0)
 			else:
 				if self.act:
-					msg.error(_("You must specify only one action."))
+					sys.stderr.write(_("You must specify only one action.\n"))
 					sys.exit(1)
 				self.act = opt[2:]
 		return args
@@ -88,14 +96,14 @@ actions:
 			"This is Rubber's information extractor version %s.") % version)
 
 		if len(args) != 1:
-			msg.error(_("You must specify one source file."))
+			sys.stderr.write(_("You must specify one source file.\n"))
 			sys.exit(1)
 		if exists(args[0] + ".tex"):
 			src = args[0]
 		elif exists(args[0]):
 			src, ext = splitext(args[0])
 		else:
-			msg.error(_("I cannot find %s.") % args[0])
+			sys.stderr.write(_("I cannot find %s.\n") % args[0])
 			sys.exit(1)
 
 		if self.act == "deps":
@@ -187,8 +195,8 @@ actions:
 			if not msg.display_all(log.get_warnings()):
 				msg.info(_("There is no warning."))
 		else:
-			msg.error(_("\
-I don't know the action `%s'. This should not happen.") % act)
+			sys.stderr.write(_("\
+I don't know the action `%s'. This should not happen.\n") % act)
 			return 1
 		return 0
 
