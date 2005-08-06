@@ -446,9 +446,9 @@ class Environment:
 		expressions and the hook dictionary.
 		"""
 		self.kpse_msg = {
-			"mktextfm" : _("making font metrics for \\g<arg>..."),
-			"mktexmf" : _("making font \\g<arg>..."),
-			"mktexpk" : _("making bitmap for font \\g<arg>...")
+			"mktextfm" : _("making font metrics for \\g<arg>"),
+			"mktexmf" : _("making font \\g<arg>"),
+			"mktexpk" : _("making bitmap for font \\g<arg>")
 			}
 
 		self.vars = {}
@@ -652,7 +652,7 @@ class Environment:
 			if m:
 				cmd = m.group("cmd")
 				if self.kpse_msg.has_key(cmd):
-					msg.info(m.expand(self.kpse_msg[cmd]))
+					msg.progress(m.expand(self.kpse_msg[cmd]))
 				else:
 					msg.progress(_("kpathsea running %s") % cmd)
 
