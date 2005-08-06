@@ -166,23 +166,25 @@ actions:
 			return 1
 
 		if act == "boxes":
-			if not log.show_boxes():
+			if not msg.display_all(log.get_boxes()):
 				msg.info(_("There is no bad box."))
 		elif act == "check":
-			if log.show_errors(): return 0
+			if msg.display_all(log.get_errors()): return 0
 			msg.info(_("There was no error."))
-			if log.show_references(): return 0
+			if msg.display_all(log.get_references()): return 0
 			msg.info(_("There is no undefined reference."))
-			if not log.show_warnings():	msg.info(_("There is no warning."))
-			if not log.show_boxes(): msg.info(_("There is no bad box."))
+			if not msg.display_all(log.get_warnings()):
+				msg.info(_("There is no warning."))
+			if not msg.display_all(log.get_boxes()):
+				msg.info(_("There is no bad box."))
 		elif act == "errors":
-			if not log.show_errors():
+			if not msg.display_all(log.get_errors()):
 				msg.info(_("There was no error."))
 		elif act == "refs":
-			if not log.show_references():
+			if not msg.display_all(log.get_references()):
 				msg.info(_("There is no undefined reference."))
 		elif act == "warnings":
-			if not log.show_warnings():
+			if not msg.display_all(log.get_warnings()):
 				msg.info(_("There is no warning."))
 		else:
 			msg.error(_("\

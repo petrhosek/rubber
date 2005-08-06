@@ -14,13 +14,6 @@ from rubber import *
 from rubber.version import *
 from rubber.util import parse_line
 
-class MoreErrors:
-	"""
-	This exception is raised when the maximum number of displayed errors is
-	reached.
-	"""
-	pass
-
 class Main (object):
 	def __init__ (self):
 		self.max_errors = 10
@@ -28,10 +21,6 @@ class Main (object):
 		msg.write = self.stderr_write
 
 	def stderr_write (self, text, level=0):
-		if level <= 0:
-			self.max_errors = self.max_errors - 1
-			if self.max_errors == -1:
-				raise MoreErrors()
 		sys.stderr.write(text + "\n")
 
 	def short_help (self):
@@ -248,18 +237,21 @@ available options:
 				if ret != 0 and env.final is not env.main:
 					ret = env.final.make()
 				else:
-					# This is a hack for the call to show_errors() below
+					# This is a hack for the call to get_errors() below
 					# to work when compiling failed when using -f.
-					env.final.failed_dep = env.main
+					env.final.failed_dep = env.main.failed_dep
 			else:
 				ret = env.final.make(self.force)
 
 			if ret == 0:
 				msg.info(_("There were errors compiling %s.") % src)
-				try:
-					env.final.failed().show_errors()
-				except MoreErrors:
-					msg.info(_("More errors."))
+				number = self.max_errors
+				for err in env.final.failed().get_errors():
+					if number == 0:
+						msg.info(_("More errors."))
+						break
+					msg.display(**err)
+					number -= 1
 				return 1
 
 			if ret == 1:
@@ -267,16 +259,11 @@ available options:
 
 			if self.warn:
 				log = env.main.log
-				self.max_errors = -1
 				if log.read(env.main.src_base + ".log"):
 					msg.error(_("cannot read the log file"))
 					return 1
-				if self.warn_boxes:
-					log.show_boxes()
-				if self.warn_refs:
-					log.show_references()
-				if self.warn_misc:
-					log.show_warnings()
+				msg.display_all(log.parse(boxes=self.warn_boxes,
+					refs=self.warn_refs, warnings=self.warn_misc))
 
 		return 0
 

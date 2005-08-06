@@ -104,12 +104,11 @@ class Dep (Depend):
 			return 1
 		return self.log.errors()
 
-	def show_errors (self):
+	def get_errors (self):
 		"""
 		Report the errors from the last compilation.
 		"""
-		msg.info(_("There were errors in Metapost code:"))
-		self.log.show_errors()
+		return self.log.get_errors()
 
 	def clean (self):
 		"""

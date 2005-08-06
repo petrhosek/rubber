@@ -45,42 +45,43 @@ class Message (object):
 		if self.write and level <= self.level:
 			self.write(text, level=level)
 
-	def error (self, text, code=None, **where):
+	def display (self, kind, text, **info):
 		"""
-		This method is called when reporting an error (that causes a failure
-		to build the document). The argument is the error text, any further
-		labelled argument further describes the error, possibly providing a
-		'file', 'line' or 'page' argument. An argument named 'code' provides
-		the text of the offending code (up to the error).
+		Print an error or warning message. The argument 'kind' indicates the
+		kind of message, among "error", "warning", "abort", the argument
+		'text' is the main text of the message, the other arguments provide
+		additional information, including the location of the error.
 		"""
-		if text[0:13] == "LaTeX Error: ":
-			text = text[13:]
-		self(0, self.format_pos(where, text))
-		if code and not self.short:
-			self(0, self.format_pos(where, _("leading text: ") + code))
+		if kind == "error":
+			if text[0:13] == "LaTeX Error: ":
+				text = text[13:]
+			self(0, self.format_pos(info, text))
+			if info.has_key("code") and info["code"] and not self.short:
+				self(0, self.format_pos(info,
+					_("leading text: ") + info["code"]))
 
-	def abort (self, what, why, **where):
-		"""
-		This method is called when the compilation was aborted, for instance
-		due to lack of input. The arguments are the nature of the error and
-		the cause of the interruption.
-		"""
-		if self.short:
-			msg = _("compilation aborted ") + why
-		else:
-			msg = _("compilation aborted: %s %s") % (what, why)
-		self(0, self.format_pos(where, msg))
+		elif kind == "abort":
+			if self.short:
+				msg = _("compilation aborted ") + info["why"]
+			else:
+				msg = _("compilation aborted: %s %s") % (text, info["why"])
+			self(0, self.format_pos(info, msg))
 
+		elif kind == "warning":
+			self(0, self.format_pos(info, text))
+
+	def error (self, **info):
+		self.format(kind="error", **info)
 	def warn (self, what, **where):
-		self(0, self.format_pos(where, what)) 
+		self(0, self.format_pos(where, what))
 	def progress (self, what, **where):
-		self(1, self.format_pos(where, what + "...")) 
+		self(1, self.format_pos(where, what + "..."))
 	def info (self, what, **where):
-		self(2, self.format_pos(where, what)) 
+		self(2, self.format_pos(where, what))
 	def log (self, what, **where):
-		self(3, self.format_pos(where, what)) 
+		self(3, self.format_pos(where, what))
 	def debug (self, what, **where):
-		self(4, self.format_pos(where, what)) 
+		self(4, self.format_pos(where, what))
 
 	def format_pos (self, where, text):
 		"""
@@ -107,6 +108,13 @@ class Message (object):
 		if where.has_key("pkg"):
 			text = "[%s] %s" % (where["pkg"], text)
 		return pos + text
+
+	def display_all (self, generator):
+		something = 0
+		for msg in generator:
+			self.display(**msg)
+			something = 1
+		return something
 
 msg = Message()
 from rubber.util import *
@@ -237,11 +245,12 @@ class Depend (object): #{{{2
 		"""
 		return self.failed_dep
 
-	def show_errors (self):
+	def get_errors (self):
 		"""
 		Report the errors that caused the failure of the last call to run.
 		"""
-		pass
+		if None:
+			yield None
 
 	def clean (self):
 		"""

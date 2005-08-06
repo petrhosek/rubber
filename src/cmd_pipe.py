@@ -140,10 +140,13 @@ available options:
 
 		if ret == 0:
 			msg.info(_("There were errors."))
-			try:
-				env.final.failed().show_errors()
-			except rubber.cmdline.MoreErrors:
-				msg.info(_("More errors."))
+			number = self.max_errors
+			for err in env.final.failed().get_errors():
+				if number == 0:
+					msg.info(_("More errors."))
+					break
+				msg.display(**err)
+				number -= 1
 			return 1
 
 

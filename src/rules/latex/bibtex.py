@@ -323,13 +323,13 @@ class Module (rubber.rules.latex.Module):
 		log.close()
 		return 0
 
-	def show_errors (self):
+	def get_errors (self):
 		"""
 		Read the log file, identify error messages and report them.
 		"""
 		blg = self.base + ".blg"
 		if not exists(blg):
-			return 1
+			return
 		log = open(blg)
 		last_line = ""
 		line = log.readline()
@@ -343,8 +343,8 @@ class Module (rubber.rules.latex.Module):
 					text = string.strip(line[:m.start()])
 				line = m.group("line")
 				if line: line = int(line)
-				msg.error(text, file=m.group("file"), line=line)
+				yield dict(kind="error", text=text, **m.groupdict())
 			last_line = line
 			line = log.readline()
 		log.close()
-		return 0
+		return

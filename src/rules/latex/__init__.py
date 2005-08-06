@@ -111,16 +111,16 @@ re_loghead = re.compile("This is [0-9a-zA-Z-]*(TeX|Omega)")
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
-re_line = re.compile(r"l\.(?P<line>[0-9]+)( (?P<text>.*))?$")
+re_line = re.compile(r"l\.(?P<line>[0-9]+)( (?P<code>.*))?$")
 re_cseq = re.compile(r".*(?P<seq>\\[^ ]*)$")
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_atline = re.compile(
 "( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
 re_reference = re.compile("LaTeX Warning: Reference `(?P<ref>.*)' \
 on page (?P<page>[0-9]*) undefined on input line (?P<line>[0-9]*)\\.$")
-re_label = re.compile("LaTeX Warning: (?P<msg>Label .*)$")
+re_label = re.compile("LaTeX Warning: (?P<text>Label .*)$")
 re_warning = re.compile(
-"(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<msg>.*)$")
+"(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
 re_online = re.compile("(; reported)? on input line (?P<line>[0-9]*)")
 
 class LogCheck (object):
@@ -201,12 +201,15 @@ class LogCheck (object):
 		- boxes: bad boxes
 		- refs: warnings about references
 		- warnings: all other warnings
-		The function returns 0 if there was nothing to report. If not log file
-		was produced (that can happen if LaTeX could not be run), nothing is
-		reported and the function returns 1.
+		The function returns a generator. Each generated item is a dictionary
+		that contains (some of) the following entries:
+		- kind: the kind of information ("error", "box", "ref", "warning")
+		- text: the text of the error or warning
+		- code: the piece of code that caused an error
+		- file, line, last, pkg: as used by Message.format_pos.
 		"""
 		if not self.lines:
-			return 1
+			return
 		last_file = "(no file)"
 		pos = [last_file]
 		page = 1
@@ -240,23 +243,21 @@ class LogCheck (object):
 					parsing = 0
 					skipping = 1
 					if errors:
-						msg.error(error, code=m.group("text"),
-							file=pos[-1], line=m.group("line"))
-						something = 1
+						yield dict(kind="error", text=error,
+							file=pos[-1], **m.groupdict())
 				elif line[0] == "!":
 					error = line[2:]
 				elif line[0:3] == "***":
 					parsing = 0
 					skipping = 1
 					if errors:
-						msg.abort(error, line[4:], file=last_file)
-						something = 1
+						yield dict(kind="abort", text="error",
+							why=line[4:], file=last_file)
 				elif line[0:15] == "Type X to quit ":
 					parsing = 0
 					skipping = 0
 					if errors:
-						msg.error(error, file=pos[-1])
-						something = 1
+						yield dict(kind="error", text=error, file=pos[-1])
 				continue
 
 			if line[0] == "!":
@@ -278,11 +279,11 @@ class LogCheck (object):
 					text = " ".join(text)
 					m = re_online.search(text)
 					if m:
-						dict["line"] = m.group("line")
+						info["line"] = m.group("line")
 						text = text[:m.start()] + text[m.end():]
 					if warnings:
-						msg.warn(text, **dict)
-						something = 1
+						info["text"] = text
+						yield dict(kind="warning", **info)
 					prefix = None
 				continue
 
@@ -291,16 +292,15 @@ class LogCheck (object):
 			m = re_reference.match(line)
 			if m:
 				if refs:
-					msg.warn(_("Reference `%s' undefined.") % m.group("ref"),
+					yield dict(kind="warning",
+						text=_("Reference `%s' undefined.") % m.group("ref"),
 						file=pos[-1], **m.groupdict())
-					something = 1
 				continue
 
 			m = re_label.match(line)
 			if m:
 				if refs:
-					msg.warn(m.group("msg"), file=pos[-1])
-					something = 1
+					yield dict(kind="warning", file=pos[-1], **m.groupdict())
 				continue
 
 			# Other warnings
@@ -308,16 +308,16 @@ class LogCheck (object):
 			if line.find("Warning") != -1:
 				m = re_warning.match(line)
 				if m:
-					dict = m.groupdict()
-					dict["file"] = pos[-1]
-					dict["page"] = page
-					if dict["pkg"] is None:
-						del dict["pkg"]
+					info = m.groupdict()
+					info["file"] = pos[-1]
+					info["page"] = page
+					if info["pkg"] is None:
+						del info["pkg"]
 						prefix = ""
 					else:
-						prefix = ("(%s)" % dict["pkg"])
-					prefix = prefix.ljust(m.start("msg"))
-					text = [dict["msg"]]
+						prefix = ("(%s)" % info["pkg"])
+					prefix = prefix.ljust(m.start("text"))
+					text = [info["text"]]
 				continue
 
 			# Bad box messages
@@ -332,8 +332,7 @@ class LogCheck (object):
 						for key in "line", "last":
 							if md[key]: mpos[key] = md[key]
 						line = line[:m.start()]
-					msg.warn(line, **mpos)
-					something = 1
+					yield dict(kind="warning", text=line, **mpos)
 				skipping = 1
 				continue
 
@@ -342,16 +341,14 @@ class LogCheck (object):
 			last_file = self.update_file(line, pos)
 			page = self.update_page(line, page)
 
-		return something
-
-	def show_errors (self):
+	def get_errors (self):
 		return self.parse(errors=1)
-	def show_boxes (self):
+	def get_boxes (self):
 		return self.parse(boxes=1)
-	def show_references (self):
+	def get_references (self):
 		return self.parse(refs=1)
-	def show_warnings (self):
-		self.parse(warnings=1)
+	def get_warnings (self):
+		return self.parse(warnings=1)
 
 	def update_file (self, line, stack):
 		"""
@@ -1090,11 +1087,11 @@ class LaTeXDep (Depend):
 
 	#--  Utility methods  {{{2
 
-	def show_errors (self):
+	def get_errors (self):
 		if self.failed_module is None:
-			self.log.show_errors()
+			return self.log.get_errors()
 		else:
-			self.failed_module.show_errors()
+			return self.failed_module.get_errors()
 
 	def watch_file (self, file):
 		"""
@@ -1182,11 +1179,14 @@ class Module (object):
 			except TypeError:
 				msg.warn(_("wrong syntax for %s") % cmd)
 
-	def show_errors (self):
+	def get_errors (self):
 		"""
 		This is called if something has failed during an operation performed
-		by this module.
+		by this module. The method returns a generator with items of the same
+		form as in LaTeXDep.get_errors.
 		"""
+		if None:
+			yield None
 
 class ScriptModule (Module):
 	"""
