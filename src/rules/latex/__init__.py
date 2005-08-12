@@ -246,21 +246,34 @@ class LogCheck (object):
 					parsing = 0
 					skipping = 1
 					if errors:
-						yield dict(kind="error", text=error,
-							file=pos[-1], **m.groupdict())
+						d =	{
+							"kind": "error",
+							"text": error,
+							"file": pos[-1]
+							}
+						d.update( m.groupdict() )
+						yield d
 				elif line[0] == "!":
 					error = line[2:]
 				elif line[0:3] == "***":
 					parsing = 0
 					skipping = 1
 					if errors:
-						yield dict(kind="abort", text="error",
-							why=line[4:], file=last_file)
+						yield	{
+							"kind": "abort",
+							"text": "error",
+							"why" : line[4:],
+							"file": last_file
+							}
 				elif line[0:15] == "Type X to quit ":
 					parsing = 0
 					skipping = 0
 					if errors:
-						yield dict(kind="error", text=error, file=pos[-1])
+						yield	{
+							"kind": "error",
+							"text": error,
+							"file": pos[-1]
+							}
 				continue
 
 			if line[0] == "!":
@@ -286,7 +299,9 @@ class LogCheck (object):
 						text = text[:m.start()] + text[m.end():]
 					if warnings:
 						info["text"] = text
-						yield dict(kind="warning", **info)
+						d = { "kind": "warning" }
+						d.update( info )
+						yield d
 					prefix = None
 				continue
 
@@ -295,15 +310,24 @@ class LogCheck (object):
 			m = re_reference.match(line)
 			if m:
 				if refs:
-					yield dict(kind="warning",
-						text=_("Reference `%s' undefined.") % m.group("ref"),
-						file=pos[-1], **m.groupdict())
+					d =	{
+						"kind": "warning",
+						"text": _("Reference `%s' undefined.") % m.group("ref"),
+						"file": pos[-1]
+						}
+					d.update( m.groupdict() )
+					yield d
 				continue
 
 			m = re_label.match(line)
 			if m:
 				if refs:
-					yield dict(kind="warning", file=pos[-1], **m.groupdict())
+					d =	{
+						"kind": "warning",
+						"file": pos[-1]
+						}
+					d.update( m.groupdict() )
+					yield d
 				continue
 
 			# Other warnings
@@ -335,7 +359,12 @@ class LogCheck (object):
 						for key in "line", "last":
 							if md[key]: mpos[key] = md[key]
 						line = line[:m.start()]
-					yield dict(kind="warning", text=line, **mpos)
+					d =	{
+						"kind": "warning",
+						"text": line
+						}
+					d.update( mpos )
+					yield d
 				skipping = 1
 				continue
 

@@ -346,7 +346,12 @@ class Module (rubber.rules.latex.Module):
 					text = string.strip(line[:m.start()])
 				line = m.group("line")
 				if line: line = int(line)
-				yield dict(kind="error", text=text, **m.groupdict())
+				d =	{
+					"kind": "error",
+					"text": text
+					}
+				d.update( m.groupdict() )
+				yield d
 			last_line = line
 			line = log.readline()
 		log.close()
