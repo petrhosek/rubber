@@ -34,4 +34,4 @@ class Module (Index, rubber.rules.latex.Module):
 		"""
 		Initialize the module, checking if there is already an index.
 		"""
-		Index.__init__(self, doc, "idx", "ind")
+		Index.__init__(self, doc, "idx", "ind", "ilg")
