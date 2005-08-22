@@ -27,7 +27,7 @@ class Dep (Depend):
 			cmd.extend(["-p", opt])
 		cmd.extend(self.options + ["-o", self.target, self.source])
 		if self.env.execute(cmd):
-			msg.error(0, _("dvipdfm failed on %s") % self.source)
+			msg.error(_("dvipdfm failed on %s") % self.source)
 			return 1
 		return 0
 

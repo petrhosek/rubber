@@ -166,5 +166,5 @@ available options:
 		try:
 			return self.main(cmdline)
 		except KeyboardInterrupt:
-			msg.error(_("*** interrupted"))
+			msg(0, _("*** interrupted"))
 			return 2

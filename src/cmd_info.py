@@ -207,5 +207,5 @@ I don't know the action `%s'. This should not happen.\n") % act)
 		try:
 			self.main(cmdline)
 		except KeyboardInterrupt:
-			msg.error(_("*** interrupted"))
+			msg(0, _("*** interrupted"))
 			return 2

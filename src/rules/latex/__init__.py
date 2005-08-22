@@ -114,7 +114,7 @@ re_loghead = re.compile("This is [0-9a-zA-Z-]*(TeX|Omega)")
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
-re_line = re.compile(r"l\.(?P<line>[0-9]+)( (?P<code>.*))?$")
+re_line = re.compile(r"(l\.(?P<line>[0-9]+)( (?P<code>.*))?$|<\*>)")
 re_cseq = re.compile(r".*(?P<seq>\\[^ ]*)$")
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_atline = re.compile(
@@ -125,6 +125,7 @@ re_label = re.compile("LaTeX Warning: (?P<text>Label .*)$")
 re_warning = re.compile(
 "(LaTeX|Package)( (?P<pkg>.*))? Warning: (?P<text>.*)$")
 re_online = re.compile("(; reported)? on input line (?P<line>[0-9]*)")
+re_ignored = re.compile("; all text was ignored after line (?P<line>[0-9]*).$")
 
 class LogCheck (object):
 	"""
@@ -213,15 +214,25 @@ class LogCheck (object):
 		"""
 		if not self.lines:
 			return
-		last_file = "(no file)"
+		last_file = None
 		pos = [last_file]
 		page = 1
 		parsing = 0    # 1 if we are parsing an error's text
 		skipping = 0   # 1 if we are skipping text until an empty line
 		something = 0  # 1 if some error was found
 		prefix = None  # the prefix for warning messages from packages
+		accu = ""      # accumulated text from the previous line
 		for line in self.lines:
-			line = line.rstrip()
+			line = line[:-1]  # remove the line feed
+
+			# TeX breaks messages at 79 characters, just to make parsing
+			# trickier...
+
+			if len(line) == 79:
+				accu += line
+				continue
+			line = accu + line
+			accu = ""
 
 			# Text that should be skipped (from bad box messages)
 
@@ -249,9 +260,18 @@ class LogCheck (object):
 						d =	{
 							"kind": "error",
 							"text": error,
-							"file": pos[-1]
 							}
 						d.update( m.groupdict() )
+						m = re_ignored.search(error)
+						if m:
+							d["file"] = last_file
+							if d.has_key("code"):
+								del d["code"]
+							d.update( m.groupdict() )
+						elif pos[-1] is None:
+							d["file"] = last_file
+						else:
+							d["file"] = pos[-1]
 						yield d
 				elif line[0] == "!":
 					error = line[2:]
@@ -261,7 +281,7 @@ class LogCheck (object):
 					if errors:
 						yield	{
 							"kind": "abort",
-							"text": "error",
+							"text": error,
 							"why" : line[4:],
 							"file": last_file
 							}
@@ -370,7 +390,7 @@ class LogCheck (object):
 
 			# If there is no message, track source names and page numbers.
 
-			last_file = self.update_file(line, pos)
+			last_file = self.update_file(line, pos, last_file)
 			page = self.update_page(line, page)
 
 	def get_errors (self):
@@ -382,19 +402,17 @@ class LogCheck (object):
 	def get_warnings (self):
 		return self.parse(warnings=1)
 
-	def update_file (self, line, stack):
+	def update_file (self, line, stack, last):
 		"""
 		Parse the given line of log file for file openings and closings and
 		update the list `stack'. Newly opened files are at the end, therefore
 		stack[1] is the main source while stack[-1] is the current one. The
-		first element, stack[0], contains the string \"(no file)\" for errors
-		that may happen outside the source. Return the last file from which
-		text was read (the new stack top, or the one before the last closing
+		first element, stack[0], contains the value None for errors that may
+		happen outside the source. Return the last file from which text was
+		read (the new stack top, or the one before the last closing
 		parenthesis).
 		"""
 		m = re_file.search(line)
-		if not m:
-			return stack[-1]
 		while m:
 			if line[m.start()] == '(':
 				last = m.group("file")

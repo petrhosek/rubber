@@ -73,8 +73,8 @@ class Message (object):
 		elif kind == "warning":
 			self(0, self.format_pos(info, text))
 
-	def error (self, **info):
-		self.format(kind="error", **info)
+	def error (self, text, **info):
+		self.display(kind="error", text=text, **info)
 	def warn (self, what, **where):
 		self(0, self.format_pos(where, what))
 	def progress (self, what, **where):
@@ -94,7 +94,7 @@ class Message (object):
 		"""
 		if where is None or where == {}:
 			return text
-		if where.has_key("file"):
+		if where.has_key("file") and where["file"] is not None:
 			pos = normpath(join(self.path, where["file"]))
 			if pos[:len(self.cwd)] == self.cwd:
 				pos = pos[len(self.cwd):]

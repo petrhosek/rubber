@@ -34,7 +34,7 @@ class Dep (Depend):
 			cmd.extend(["-t", opt])
 		cmd.extend(self.options + ["-o", self.target, self.source])
 		if self.env.execute(cmd):
-			msg.error(0, _("%s failed on %s") % (cmd[0], self.source))
+			msg.error(_("%s failed on %s") % (cmd[0], self.source))
 			return 1
 		return 0
 
