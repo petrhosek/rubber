@@ -95,9 +95,7 @@ class Message (object):
 		if where is None or where == {}:
 			return text
 		if where.has_key("file") and where["file"] is not None:
-			pos = normpath(join(self.path, where["file"]))
-			if pos[:len(self.cwd)] == self.cwd:
-				pos = pos[len(self.cwd):]
+			pos = self.simplify(where["file"])
 			if where.has_key("line") and where["line"]:
 				pos = "%s:%d" % (pos, int(where["line"]))
 				if where.has_key("last"):
@@ -111,6 +109,16 @@ class Message (object):
 		if where.has_key("pkg"):
 			text = "[%s] %s" % (where["pkg"], text)
 		return pos + text
+
+	def simplify (self, name):
+		"""
+		Simplify an path name by removing the current directory if the
+		specified path is in a subdirectory.
+		"""
+		path = normpath(join(self.path, name))
+		if path[:len(self.cwd)] == self.cwd:
+			return path[len(self.cwd):]
+		return path
 
 	def display_all (self, generator):
 		something = 0
@@ -444,9 +452,7 @@ class Environment:
 	"""
 	def __init__ (self):
 		"""
-		Initialize the environment. This prepares the processing steps for the
-		given file (all steps are initialized empty) and sets the regular
-		expressions and the hook dictionary.
+		Initialize the environment.
 		"""
 		self.kpse_msg = {
 			"mktextfm" : _("making font metrics for \\g<arg>"),
@@ -454,7 +460,7 @@ class Environment:
 			"mktexpk" : _("making bitmap for font \\g<arg>")
 			}
 
-		self.vars = {}
+		self.vars = { "cwd": os.getcwd() }
 		self.path = [""]
 		self.plugins = Plugins(rubber.rules.__path__)
 		self.pkg_rules = Converter(self.plugins)
@@ -462,8 +468,6 @@ class Environment:
 		
 		self.main = None
 		self.final = None
-		self.must_compile = 0
-		self.something_done = 0
 
 	def find_file (self, name, suffix=None):
 		"""
@@ -668,5 +672,4 @@ class Environment:
 		f_err.close()
 		msg.log(_("process %d (%s) returned %d") % (pid, prog[0], ret))
 
-		self.something_done = 1
 		return ret

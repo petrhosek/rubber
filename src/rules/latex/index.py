@@ -76,7 +76,7 @@ class Index:
 				_("unknown option '%s' for 'makeidx.order'") % opt)
 
 	def do_path (self, path):
-		self.path.append(expanduser(path))
+		self.path.append(self.doc.abspath(path))
 
 	def do_style (self, style):
 		self.style = style

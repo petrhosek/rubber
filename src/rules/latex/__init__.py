@@ -477,10 +477,13 @@ class LaTeXDep (Depend):
 		self.log = LogCheck()
 		self.modules = Modules(self)
 
-		self.vars = {
+		self.vars = env.vars.copy()
+		self.vars.update({
 			"program": "latex",
 			"engine": "TeX",
-			"paper": "" }
+			"paper": "" })
+		self.vars_stack = []
+
 		self.cmdline = ["\\nonstopmode", "\\input{%s}"]
 
 		# the initial hooks:
@@ -568,20 +571,57 @@ class LaTeXDep (Depend):
 		"""
 		return self.src_pbase + self.src_ext
 
+	#--  Variable handling  {{{2
+
+	def push_vars (self, **dict):
+		"""
+		For each named argument "key=val", save the value of variable "key"
+		and assign it the value "val".
+		"""
+		saved = {}
+		for (key, val) in dict.items():
+			saved[key] = self.vars[key]
+			self.vars[key] = val
+		self.vars_stack.append(saved)
+
+	def pop_vars (self):
+		"""
+		Restore the last set of variables saved using "push_vars".
+		"""
+		self.vars.update(self.vars_stack[-1])
+		del self.vars_stack[-1]
+
+	def abspath (self, name, ref=None):
+		"""
+		Return the absolute path of a given filename. Relative paths are
+		considered relative to the file currently process, the optional
+		argument "ref" can be used to override the reference file name.
+		"""
+		path = self.vars["cwd"]
+		if ref is None and self.vars.has_key("file"):
+			ref = self.vars["file"]
+		if ref is not None:
+			path = join(path, dirname(ref))
+		return abspath(join(path, expanduser(name)))
+
 	#--  LaTeX source parsing  {{{2
 
 	def parse (self):
 		"""
 		Parse the source for packages and supported macros.
 		"""
+		self.vars["file"] = None
+		self.vars["line"] = None
 		try:
 			self.process(self.source())
 		except EndDocument:
 			pass
+		del self.vars["file"]
+		del self.vars["line"]
 		self.set_date()
 		msg.log(_("dependencies: %r") % self.sources.keys())
 
-	def do_process (self, file, path, dump=None):
+	def parse_file (self, file, dump=None):
 		"""
 		Process a LaTeX source. The file must be open, it is read to the end
 		calling the handlers for the macro calls. This recursively processes
@@ -593,7 +633,6 @@ class LaTeXDep (Depend):
 		lines = file.readlines()
 		lineno = 0
 		vars = self.vars
-		vars['file'] = path
 
 		# If a line ends with braces open, we read on until we get a correctly
 		# braced text. We also stop accumulating on paragraph breaks, the way
@@ -651,7 +690,7 @@ class LaTeXDep (Depend):
 				if dump: dump.write(line[:match.start()])
 				dict["match"] = line[match.start():match.end()]
 				dict["line"] = line[match.end():]
-				dict["pos"] = { 'file': path, 'line': lineno }
+				dict["pos"] = { 'file': self.vars["file"], 'line': lineno }
 				dict["dump"] = dump
 				self.hooks[name](dict)
 				line = dict["line"]
@@ -669,17 +708,19 @@ class LaTeXDep (Depend):
 			return
 		self.processed_sources[path] = None
 		msg.log(_("parsing %s") % path)
-		file = open(path)
+		self.push_vars(file=path, line=None)
 		if not self.sources.has_key(path):
 			self.sources[path] = DependLeaf(self.env, path, loc=loc)
 		try:
+			file = open(path)
 			try:
-				self.do_process(file, path)
+				self.parse_file(file)
 			finally:
 				file.close()
-				msg.debug(_("end of %s") % path)
 		except EndInput:
 			pass
+		self.pop_vars()
+		msg.debug(_("end of %s") % path)
 
 	def input_file (self, name, loc={}):
 		"""
@@ -718,7 +759,7 @@ class LaTeXDep (Depend):
 
 	#--  Directives  {{{2
 
-	def command (self, cmd, args, pos={}):
+	def command (self, cmd, args, pos=None):
 		"""
 		Execute the rubber command 'cmd' with arguments 'args'. This is called
 		when a command is found in the source file or in a configuration file.
@@ -726,6 +767,8 @@ class LaTeXDep (Depend):
 		'bar' for module 'foo'. The argument 'pos' describes the position
 		(file and line) where the command occurs.
 		"""
+		if pos is None:
+			pos = self.vars
 		# Calls to this method are actually translated into calls to "do_*"
 		# methods, except for calls to module directives.
 		lst = string.split(cmd, ".", 1)
@@ -746,7 +789,8 @@ class LaTeXDep (Depend):
 			self.update_seq()
 
 	def do_clean (self, *args):
-		self.removed_files.extend(args)
+		for file in args:
+			self.removed_files.append(self.abspath(file))
 
 	def do_depend (self, *args):
 		for arg in args:
@@ -761,6 +805,7 @@ class LaTeXDep (Depend):
 		self.modules.register(mod, dict)
 
 	def do_onchange (self, file, cmd):
+		file = self.abspath(file)
 		self.onchange_cmd[file] = cmd
 		if exists(file):
 			self.onchange_md5[file] = md5_file(file)
@@ -771,27 +816,33 @@ class LaTeXDep (Depend):
 		self.vars["paper"] = arg
 	    
 	def do_path (self, name):
-		self.env.path.append(expanduser(name))
+		self.env.path.append(self.abspath(name))
 
 	def do_read (self, name):
+		path = self.abspath(name)
+		self.push_vars(file=path, line=None)
 		try:
-			file = open(name)
+			file = open(path)
+			lineno = 0
 			for line in file.readlines():
+				lineno += 1
 				line = line.strip()
 				if line == "" or line[0] == "%":
 					continue
-				lst = parse_line(line, pos)
+				self.vars["line"] = lineno
+				lst = parse_line(line, self.vars)
 				self.command(lst[0], lst[1:])
 			file.close()
 		except IOError:
-			msg.warn(_("cannot read option file %s") % name) #, **pos)
+			msg.warn(_("cannot read option file %s") % name, **self.vars)
+		self.pop_vars()
 
 	def do_set (self, name, val):
 		self.vars[name] = val
 
 	def do_watch (self, *args):
 		for arg in args:
-			self.watch_file(arg)
+			self.watch_file(self.abspath(arg))
 
 
 	#--  Macro handling  {{{2
@@ -939,7 +990,7 @@ class LaTeXDep (Depend):
 		Run one LaTeX compilation on the source. Return true if errors
 		occured, and false if compilaiton succeeded.
 		"""
-		msg.progress(_("compiling %s") % self.source())
+		msg.progress(_("compiling %s") % msg.simplify(self.source()))
 		
 		file = self.source()
 		cmd = [self.vars["program"]]

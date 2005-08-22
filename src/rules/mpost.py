@@ -153,7 +153,8 @@ class Dep (Depend):
 		Run Metapost from the source file's directory, so that figures are put
 		next to their source file.
 		"""
-		msg.progress(_("running Metapost on %s.mp") % self.base)
+		msg.progress(_("running Metapost on %s") %
+				msg.simplify(self.base + ".mp"))
 		if self.env.execute(self.cmd, self.penv, pwd=self.cmd_pwd) == 0:
 			return 0
 

@@ -94,10 +94,10 @@ available options:
 
 		# Put the standard input in a file
 
+		initial_dir = os.getcwd()
+
 		if self.place is not None and self.place != ".":
-			dir = os.getcwd()
-			self.path = map(os.path.abspath, self.path)
-			self.path.insert(0, dir)
+			self.path.insert(0, initial_dir)
 			os.chdir(self.place)
 
 		src = make_name() + ".tex"
@@ -114,6 +114,7 @@ available options:
 		# Make the document
 
 		env = Environment()
+		env.vars["cwd"] = initial_dir
 
 		if env.set_source(src):
 			msg.error(_("cannot open the temporary %s") % src)

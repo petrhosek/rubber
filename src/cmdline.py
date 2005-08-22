@@ -174,23 +174,21 @@ available options:
 
 		args = self.parse_opts(cmdline)
 
-		if self.place != ".":
-			initial_dir = os.getcwd()
-			msg.cwd = join(initial_dir, "")
-			if self.place is not None:
-				msg.path = self.place
-				self.place = os.path.abspath(self.place)
-			self.path = map(os.path.abspath, self.path)
+		initial_dir = os.getcwd()
+		msg.cwd = join(initial_dir, "")
+
+		if self.place != "." and self.place is not None:
+			msg.path = self.place
+			self.place = os.path.abspath(self.place)
 
 		msg.log(_("This is Rubber version %s.") % version)
 
-		for src in args:
-			env = Environment()
+		for srcname in args:
+			src = os.path.abspath(os.path.join(initial_dir, srcname))
 
 			# Go to the appropriate directory
 
 			if self.place != ".":
-				src = os.path.abspath(os.path.join(initial_dir, src))
 				if self.place is None:
 					msg.path = os.path.dirname(src)
 					os.chdir(os.path.dirname(src))
@@ -200,6 +198,8 @@ available options:
 
 			# Check the source and prepare it for processing
 	
+			env = Environment()
+
 			if env.set_source(src):
 				msg.error(_("cannot find %s") % src)
 				return 1
@@ -209,22 +209,26 @@ available options:
 
 			if self.clean:
 				if env.main.prods == []:
-					msg.warn(_("there is no LaTeX source for %s") % src)
+					msg.warn(_("there is no LaTeX source for %s") % srcname)
 					continue
 			else:
 				env.make_source()
 
+			env.main.push_vars(cwd = initial_dir)
 			for dir in self.path:
 				env.main.do_path(dir)
 			for cmd in self.prologue:
-				cmd = parse_line(cmd, {})
+				cmd = parse_line(cmd, env.main.vars)
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
+			env.main.pop_vars()
 
 			env.main.parse()
 
+			env.main.push_vars(cwd = initial_dir)
 			for cmd in self.epilogue:
-				cmd = parse_line(cmd, {})
+				cmd = parse_line(cmd, env.main.vars)
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
+			env.main.pop_vars()
 
 			# Compile the document
 
@@ -244,7 +248,7 @@ available options:
 				ret = env.final.make(self.force)
 
 			if ret == 0:
-				msg.info(_("There were errors compiling %s.") % src)
+				msg.info(_("There were errors compiling %s.") % srcname)
 				number = self.max_errors
 				for err in env.final.failed().get_errors():
 					if number == 0:
@@ -255,7 +259,7 @@ available options:
 				return 1
 
 			if ret == 1:
-				msg(1, _("nothing to be done for %s") % src)
+				msg(1, _("nothing to be done for %s") % srcname)
 
 			if self.warn:
 				log = env.main.log

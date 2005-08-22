@@ -71,10 +71,10 @@ class Module (rubber.rules.latex.Module):
 	#
 
 	def do_path (self, path):
-		self.bib_path.append(expanduser(path))
+		self.bib_path.append(self.doc.abspath(path))
 
 	def do_stylepath (self, path):
-		self.bst_path.append(expanduser(path))
+		self.bst_path.append(self.doc.abspath(path))
 
 	def add_db (self, name):
 		"""
