@@ -485,12 +485,18 @@ class LaTeXDep (Depend):
 		self.log = LogCheck()
 		self.modules = Modules(self)
 
+		if env.caching:
+			if not env.cache.has_key("latex"):
+				env.cache["latex"] = {}
+
 		self.vars = env.vars.copy()
 		self.vars.update({
 			"program": "latex",
 			"engine": "TeX",
 			"paper": "" })
 		self.vars_stack = []
+
+		self.cache_list = []
 
 		self.cmdline = ["\\nonstopmode", "\\input{%s}"]
 
@@ -660,6 +666,10 @@ class LaTeXDep (Depend):
 				if m.group("cmd"):
 					vars['line'] = lineno
 					args = parse_line(m.group("arg"), vars)
+
+					if self.env.caching:
+						self.cache_list.append(("cmd", m.group("cmd"), args, vars))
+
 					self.command(m.group("cmd"), args, vars)
 				continue
 
@@ -700,6 +710,10 @@ class LaTeXDep (Depend):
 				dict["line"] = line[match.end():]
 				dict["pos"] = { 'file': self.vars["file"], 'line': lineno }
 				dict["dump"] = dump
+
+				if self.env.caching:
+					self.cache_list.append(("hook", name, dict))
+
 				self.hooks[name](dict)
 				line = dict["line"]
 				match = self.seq.search(line)
@@ -715,20 +729,53 @@ class LaTeXDep (Depend):
 			msg.debug(_("%s already parsed") % path)
 			return
 		self.processed_sources[path] = None
-		msg.log(_("parsing %s") % path)
-		self.push_vars(file=path, line=None)
 		if not self.sources.has_key(path):
 			self.sources[path] = DependLeaf(self.env, path, loc=loc)
+
+		if self.env.caching:
+			if self.env.cache["latex"].has_key(path):
+				(date, list) = self.env.cache["latex"][path]
+				fdate = getmtime(path)
+
+				if fdate <= date:
+					msg.log(_("using cache for %s") % path)
+					for elem in list:
+						if elem[0] == "hook":
+							try:
+								self.hooks[elem[1]](elem[2])
+							except EndInput:
+								pass
+						elif elem[0] == "cmd":
+							self.command(*elem[1:])
+					return
+
+				else:
+					msg.log(_("cache for %s is obsolete") % path)
+
+			saved_cache = self.cache_list
+			self.cache_list = []
+
 		try:
-			file = open(path)
 			try:
-				self.parse_file(file)
+				msg.log(_("parsing %s") % path)
+				self.push_vars(file=path, line=None)
+				file = open(path)
+				try:
+					self.parse_file(file)
+				finally:
+					file.close()
+
 			finally:
-				file.close()
+				self.pop_vars()
+				msg.debug(_("end of %s") % path)
+
+				if self.env.caching:
+					self.env.cache["latex"][path] = (
+						getmtime(path), self.cache_list)
+					self.cache_list = saved_cache
+
 		except EndInput:
 			pass
-		self.pop_vars()
-		msg.debug(_("end of %s") % path)
 
 	def input_file (self, name, loc={}):
 		"""

@@ -482,6 +482,7 @@ class Environment:
 		
 		self.main = None
 		self.final = None
+		self.caching = 0
 
 	def find_file (self, name, suffix=None):
 		"""
@@ -690,3 +691,29 @@ class Environment:
 		msg.log(_("process %d (%s) returned %d") % (pid, prog[0], ret))
 
 		return ret
+
+	#--  A cache system  {{{2
+
+	def cache_activate (self):
+		path = join(self.vars["cwd"], "rubber.cache")
+		try:
+			file = open(path, "rb")
+			msg.log(_("loading cache file %s") % msg.simplify(path))
+			import marshal
+			self.cache = marshal.load(file)
+			file.close()
+		except IOError:
+			msg.log(_("no cache file found"))
+			self.cache = {}
+		except EOFError:
+			msg.log(_("invalid cache file"))
+			self.cache = {}
+		self.caching = 1
+
+	def cache_dump (self):
+		path = join(self.vars["cwd"], "rubber.cache")
+		msg.log(_("saving cache file %s") % msg.simplify(path))
+		file = open(path, "wb")
+		import marshal
+		marshal.dump(self.cache, file)
+		file.close()

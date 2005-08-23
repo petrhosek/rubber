@@ -40,6 +40,7 @@ For more information, try `rubber --help'."""))
 This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
+      --cache              use the (experimental) caching mechanism
       --clean              remove produced files instead of compiling
   -c, --command=CMD        run the directive CMD before parsing (see man page)
   -e, --epilogue=CMD       run the directive CMD after parsing
@@ -68,10 +69,10 @@ available options:
 		try:
 			opts, args = getopt(
 				cmdline, "I:c:de:fhklm:n:o:pqr:svW:z" + short,
-				["clean", "command=", "epilogue=", "force", "gzip", "help",
-				 "inplace", "into=", "keep", "landcape", "maxerr=", "module=",
-				 "only=", "post=", "pdf", "ps", "quiet", "read=", "short",
-				 "texpath=", "verbose", "version", "warn="] + long)
+				["cache", "clean", "command=", "epilogue=", "force", "gzip",
+				 "help", "inplace", "into=", "keep", "landcape", "maxerr=",
+				 "module=", "only=", "post=", "pdf", "ps", "quiet", "read=",
+				 "short", "texpath=", "verbose", "version", "warn="] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -80,7 +81,9 @@ available options:
 		using_dvips = 0
 
 		for (opt,arg) in opts:
-			if opt == "--clean":
+			if opt == "--cache":
+				self.cache = 1
+			elif opt == "--clean":
 				self.clean = 1
 			elif opt in ("-c", "--command"):
 				self.prologue.append(arg)
@@ -162,6 +165,7 @@ available options:
 		"""
 		self.prologue = []
 		self.epilogue = []
+		self.cache = 0
 		self.clean = 0
 		self.force = 0
 
@@ -199,6 +203,8 @@ available options:
 			# Check the source and prepare it for processing
 	
 			env = Environment()
+			if self.cache:
+				env.cache_activate()
 
 			if env.set_source(src):
 				msg.error(_("cannot find %s") % src)
@@ -229,6 +235,9 @@ available options:
 				cmd = parse_line(cmd, env.main.vars)
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 			env.main.pop_vars()
+
+			if self.cache:
+				env.cache_dump()
 
 			# Compile the document
 
