@@ -53,16 +53,17 @@ class Module (rubber.rules.latex.Module):
 		else:
 			self.base = base
 
-		self.bib_path = [""]
-		if doc.src_path != "" and doc.src_path != ".":
+		cwd = self.env.vars["cwd"]
+		self.bib_path = [cwd]
+		if doc.src_path != cwd:
 			self.bib_path.append(doc.src_path)
-		self.bst_path = [""]
+		self.bst_path = [cwd]
 
 		self.undef_cites = None
 		self.used_cites = None
 		self.style = None
 		self.set_style("plain")
-		self.db = []
+		self.db = {}
 		self.run_needed = 0
 
 	#
@@ -83,7 +84,7 @@ class Module (rubber.rules.latex.Module):
 		for dir in self.bib_path:
 			bib = join(dir, name + ".bib")
 			if exists(bib):
-				self.db.append(bib)
+				self.db[name] = bib
 				self.doc.sources[bib] = DependLeaf(self.env, bib)
 				self.doc.not_included.append(bib)
 				return
@@ -152,7 +153,7 @@ class Module (rubber.rules.latex.Module):
 			return 1
 
 		dtime = getmtime(self.base + ".blg")
-		for db in self.db:
+		for db in self.db.values():
 			if getmtime(db) > dtime:
 				msg.log(_("bibliography database %s was modified") % db, pkg="bibtex")
 				return 1
@@ -351,6 +352,16 @@ class Module (rubber.rules.latex.Module):
 					"text": text
 					}
 				d.update( m.groupdict() )
+
+				# BibTeX does not report the path of the database in its log.
+
+				file = d["file"]
+				if file[-4:] == ".bib":
+					file = file[:-4]
+				if self.db.has_key(file):
+					d["file"] = self.db[file]
+				elif self.db.has_key(file + ".bib"):
+					d["file"] = self.db[file + ".bib"]
 				yield d
 			last_line = line
 			line = log.readline()
