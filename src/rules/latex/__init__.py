@@ -798,7 +798,7 @@ class LaTeXDep (Depend):
 			if file:
 				self.sources[file] = DependLeaf(self.env, file)
 			else:
-				msg.warn(_("dependency '%s' not found") % arg, **pos)
+				msg.warn(_("dependency '%s' not found") % arg, **self.vars)
 
 	def do_module (self, mod, opt=None):
 		dict = { 'arg': mod, 'opt': opt }
