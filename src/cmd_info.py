@@ -149,6 +149,8 @@ actions:
 		if not parse:
 			return
 
+		for dir in self.path:
+			env.main.do_path(dir)
 		for cmd in self.prologue:
 			cmd = parse_line(cmd, {})
 			env.main.command(cmd[0], cmd[1:], {'file': 'command line'})

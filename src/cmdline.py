@@ -18,6 +18,7 @@ class Main (object):
 	def __init__ (self):
 		self.max_errors = 10
 		self.include_only = None
+		self.path = []
 		msg.write = self.stderr_write
 
 	def stderr_write (self, text, level=0):
@@ -170,7 +171,6 @@ available options:
 		self.warn_refs = 0
 
 		self.place = "."
-		self.path = []
 
 		args = self.parse_opts(cmdline)
 
