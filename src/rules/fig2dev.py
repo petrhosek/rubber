@@ -81,11 +81,19 @@ class PSTDep (Depend):
 		if self.env.execute(self.cmd_t): return 1
 		return self.env.execute(self.cmd_p)
 
-def convert (source, target, env, vars, loc={}):
+def check (vars, env):
 	if not prog_available("fig2dev"):
 		return None
+	target = vars["target"]
 	i = target.rfind(".")
 	if i > 0 and target[i+1:] in ["eps_t", "pstex_t", "pdf_t", "pdftex_t"]:
-		return PSTDep(env, target, source, vars, loc=loc)
+		vars["mode"] = "pstex"
 	else:
-		return Dep(env, target, source)
+		vars["mode"] = "normal"
+	return vars
+
+def convert (vars, env):
+	if vars["mode"] == "pstex":
+		return PSTDep(env, vars["target"], vars["source"], vars)
+	else:
+		return Dep(env, vars["target"], vars["source"])

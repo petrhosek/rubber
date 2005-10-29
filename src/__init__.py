@@ -391,8 +391,9 @@ class Converter (object):
 		Search for an applicable rule for the given target with the least
 		cost. The return value is a pair:
 		- (None, None): no rule and no existing file was found
-		- (None, d): no rule was found, d is a leaf node for an existing file
-		- (c, d): a rule with cost w was found, the result node is d
+		- (None, d): no rule was found, d is the name of an existing file
+		- (r, d): a rule r was found, the rule can be applied to the arguments
+		    in dictionary d
 		Optional arguments are:
 		- check: a function that takes source and target as arguments can
 			return false if the rule is refused
@@ -428,15 +429,25 @@ class Converter (object):
 		conv.sort()
 		for (cost, source, target, rule) in conv:
 			dict = rule.copy()
-			for key, val in args.items():
-				dict[key] = val
-			dep = self.plugins[rule["rule"]].convert(source, target, env, dict)
-			if dep:
-				return (cost, dep)
+			dict["source"] = source
+			dict["target"] = target
+			dict.update(args)
+			name = rule["rule"]
+			answer = self.plugins[name].check(dict, env)
+			if answer:
+				return (name, answer)
 
 		if existing:
-			return (None, DependLeaf(env, existing))
+			return (None, existing)
 		return (None, None)
+
+	def convert (self, rule, vars, env):
+		"""
+		Apply a rule with the variables given in the dictionary passed as
+		argument, and return a dependency node for the result. The dictionary
+		argument should be obtained by the '__call__' method.
+		"""
+		return self.plugins[rule].convert(vars, env)
 
 
 #----  Building environments  ----{{{1
@@ -543,14 +554,17 @@ class Environment:
 		the name when searching for the file. Other keyword arguments are
 		passed to the converters.
 		"""
-		dep = None
+		name = None
 		for conv in self.user_rules, self.pkg_rules, rubber.rules.std_rules:
-			(w, d) = conv(target, self, **args)
-			if w is not None:
-				return d
-			elif dep is None:
-				dep = d
-		return dep
+			(rule, val) = conv(target, self, **args)
+			if rule is not None:
+				return conv.convert(rule, val, self)
+			elif name is None:
+				name = val
+		if name is None:
+			return None
+		else:
+			return DependLeaf(self, name)
 
 	def may_produce (self, name):
 		"""

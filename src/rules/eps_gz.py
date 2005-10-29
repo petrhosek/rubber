@@ -41,5 +41,7 @@ class Dep (Depend):
 		msg.error(_("no bounding box was found in %s!") % self.source)
 		return 1
 
-def convert (source, target, env, vars):
-	return Dep(env, target, source)
+def check (vars, env):
+	return vars
+def convert (vars, env):
+	return Dep(env, vars["target"], vars["source"])

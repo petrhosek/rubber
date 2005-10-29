@@ -204,13 +204,17 @@ class Dep (Depend):
 
 files = {}
 
-def convert (source, target, env, vars):
+def check (vars, env):
 	if not prog_available("mpost"):
 		return None
+	return vars
+
+def convert (vars, env):
+	source = vars["source"]
 	if files.has_key(source):
 		dep = files[source]
-		dep.prods.append(target)
+		dep.prods.append(vars["target"])
 	else:
-		dep = Dep(env, target, source)
+		dep = Dep(env, vars["target"], source)
 		files[source] = dep
 	return dep

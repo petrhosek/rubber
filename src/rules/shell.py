@@ -36,8 +36,11 @@ class Dep (Depend):
 			return 1
 		return 0
 
-def convert (source, target, env, vars):
+def check (vars, env):
 	check = vars["command"].split()[0]
 	if not prog_available(check):
 		return None
-	return Dep(env, target, source, vars)
+	return vars
+
+def convert (vars, env):
+	return Dep(env, vars["target"], vars["source"], vars)

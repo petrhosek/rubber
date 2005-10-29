@@ -34,5 +34,7 @@ class LHSDep (Depend):
 		out.close()
 		return 0
 
-def convert (source, target, env, vars):
-	return LHSDep(env, target, source)
+def check (vars, env):
+	return vars
+def convert (vars, env):
+	return LHSDep(env, vars["target"], vars["source"])
