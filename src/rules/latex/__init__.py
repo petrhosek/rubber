@@ -115,7 +115,7 @@ re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
 re_line = re.compile(r"(l\.(?P<line>[0-9]+)( (?P<code>.*))?$|<\*>)")
-re_cseq = re.compile(r".*(?P<seq>\\[^ ]*)$")
+re_cseq = re.compile(r".*(?P<seq>\\[^ ]*) ?$")
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_atline = re.compile(
 "( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
@@ -236,7 +236,7 @@ class LogCheck (object):
 
 			# Text that should be skipped (from bad box messages)
 
-			if line == "":
+			if prefix is None and line == "":
 				skipping = 0
 				continue
 
@@ -296,7 +296,7 @@ class LogCheck (object):
 							}
 				continue
 
-			if line[0] == "!":
+			if len(line) > 0 and line[0] == "!":
 				error = line[2:]
 				parsing = 1
 				continue

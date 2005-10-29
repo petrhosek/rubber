@@ -471,8 +471,9 @@ class Environment:
 			"mktexpk" : _("making bitmap for font \\g<arg>")
 			}
 
-		self.vars = { "cwd": os.getcwd() }
-		self.path = [""]
+		cwd = os.getcwd()
+		self.vars = { "cwd": cwd }
+		self.path = [cwd]
 		self.plugins = Plugins(rubber.rules.__path__)
 		self.pkg_rules = Converter(self.plugins)
 		self.user_rules = Converter(self.plugins)
