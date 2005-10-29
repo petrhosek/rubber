@@ -447,6 +447,7 @@ class Converter (object):
 		argument, and return a dependency node for the result. The dictionary
 		argument should be obtained by the '__call__' method.
 		"""
+		self.plugins.register(rule)
 		return self.plugins[rule].convert(vars, env)
 
 
@@ -558,16 +559,30 @@ class Environment:
 		the name when searching for the file. Other keyword arguments are
 		passed to the converters.
 		"""
+		if self.caching:
+			if self.cache.has_key("_conv"):
+				c = self.cache["_conv"]
+				if c.has_key(target):
+					(rule, val) = c[target]
+					if rule is None:
+						return DependLeaf(self, val)
+					else:
+						return rubber.rules.std_rules.convert(rule, val, self)
+			else:
+				c = self.cache["_conv"] = {}
+
 		name = None
 		for conv in self.user_rules, self.pkg_rules, rubber.rules.std_rules:
 			(rule, val) = conv(target, self, **args)
 			if rule is not None:
+				if self.caching: c[target] = (rule, val)
 				return conv.convert(rule, val, self)
 			elif name is None:
 				name = val
 		if name is None:
 			return None
 		else:
+			if self.caching: c[target] = (None, name)
 			return DependLeaf(self, name)
 
 	def may_produce (self, name):
