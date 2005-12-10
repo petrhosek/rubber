@@ -256,10 +256,18 @@ class LogCheck (object):
 				if m:
 					parsing = 0
 					skipping = 1
-					if errors:
-						d =	{
-							"kind": "error",
-							"text": error,
+					pdfTeX = string.find(line, "pdfTeX warning") == -1
+					if (pdfTeX and warnings) or (errors and not pdfTeX):
+						if pdfTeX:
+							d = {
+								"kind": "warning",
+								"pkg": "pdfTeX",
+								"text": error[error.find(":")+2:]
+							}
+						else:
+							d =	{
+								"kind": "error",
+								"text": error
 							}
 						d.update( m.groupdict() )
 						m = re_ignored.search(error)
