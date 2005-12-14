@@ -256,7 +256,7 @@ class LogCheck (object):
 				if m:
 					parsing = 0
 					skipping = 1
-					pdfTeX = string.find(line, "pdfTeX warning") == -1
+					pdfTeX = string.find(line, "pdfTeX warning") != -1
 					if (pdfTeX and warnings) or (errors and not pdfTeX):
 						if pdfTeX:
 							d = {
