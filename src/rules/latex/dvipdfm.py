@@ -26,7 +26,7 @@ class Dep (Depend):
 		for opt in self.doc.vars["paper"].split():
 			cmd.extend(["-p", opt])
 		cmd.extend(self.options + ["-o", self.target, self.source])
-		if self.env.execute(cmd):
+		if self.env.execute(cmd, kpse=1):
 			msg.error(_("dvipdfm failed on %s") % self.source)
 			return 1
 		return 0

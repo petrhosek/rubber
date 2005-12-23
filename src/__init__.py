@@ -597,15 +597,16 @@ class Environment:
 
 	#--  Executing external programs  {{{2
 
-	def execute (self, prog, env={}, pwd=None, out=None):
+	def execute (self, prog, env={}, pwd=None, out=None, kpse=0):
 		"""
 		Silently execute an external program. The `prog' argument is the list
 		of arguments for the program, `prog[0]' is the program name. The `env'
 		argument is a dictionary with definitions that should be added to the
 		environment when running the program. The standard output is passed
-		line by line to the `out' function (or discarded by default). The
-		error output is parsed and messages from Kpathsea are processed (to
-		indicate e.g. font compilation).
+		line by line to the `out' function (or discarded by default). In the
+		optional argument `kpse' is true, the error output is parsed and
+		messages from Kpathsea are processed (to indicate e.g. font
+		compilation), otherwise the rror output is kept untouched.
 		"""
 		msg.log(_("executing: %s") % string.join(prog))
 		if pwd:
@@ -634,7 +635,7 @@ class Environment:
 		# ourselves.
 
 		(f_out_r, f_out_w) = os.pipe()
-		(f_err_r, f_err_w) = os.pipe()
+		if kpse: (f_err_r, f_err_w) = os.pipe()
 		pid = os.fork()
 
 		# The forked process simply closes the appropriate pipes and execvp's
@@ -642,9 +643,9 @@ class Environment:
 
 		if pid == 0:
 			os.close(f_out_r)
-			os.close(f_err_r)
+			if kpse: os.close(f_err_r)
 			os.dup2(f_out_w, sys.__stdout__.fileno())
-			os.dup2(f_err_w, sys.__stderr__.fileno())
+			if kpse: os.dup2(f_err_w, sys.__stderr__.fileno())
 			if pwd:
 				os.chdir(pwd)
 			os.execve(progname, prog, penv)
@@ -653,9 +654,10 @@ class Environment:
 		# parses it for Kpathsea messages.
 
 		os.close(f_out_w)
-		os.close(f_err_w)
 		f_out = os.fdopen(f_out_r)
-		f_err = os.fdopen(f_err_r)
+		if kpse:
+			os.close(f_err_w)
+			f_err = os.fdopen(f_err_r)
 
 		# If the external program writes a lot of data on both its standard
 		# output and standard error streams, we might fall into a deadlock,
@@ -684,7 +686,7 @@ class Environment:
 		# At this point, all we have to do is read lines from the error stream
 		# and parse them for relevant messages.
 
-		while 1:
+		while kpse:
 			line = f_err.readline()
 			if line == "": break
 			line = line.rstrip()
@@ -702,7 +704,7 @@ class Environment:
 
 		(p, ret) = os.waitpid(pid, 0)
 		os.waitpid(pid2, 0)
-		f_err.close()
+		if kpse: f_err.close()
 		msg.log(_("process %d (%s) returned %d") % (pid, prog[0], ret))
 
 		return ret

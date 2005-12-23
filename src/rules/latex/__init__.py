@@ -1057,7 +1057,7 @@ class LaTeXDep (Depend):
 			inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
 			env = {"TEXINPUTS": inputs}
 		
-		self.env.execute(cmd, env)
+		self.env.execute(cmd, env, kpse=1)
 		self.something_done = 1
 
 		if self.log.read(self.src_base + ".log"):

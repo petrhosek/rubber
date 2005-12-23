@@ -155,7 +155,7 @@ class Dep (Depend):
 		"""
 		msg.progress(_("running Metapost on %s") %
 				msg.simplify(self.base + ".mp"))
-		if self.env.execute(self.cmd, self.penv, pwd=self.cmd_pwd) == 0:
+		if self.env.execute(self.cmd, self.penv, pwd=self.cmd_pwd, kpse=1) == 0:
 			return 0
 
 		# This creates a log file that has the same aspect as TeX logs.
