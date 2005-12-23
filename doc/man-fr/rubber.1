@@ -485,14 +485,34 @@ Passe les options de ligne de commande spécifiées à
 Passe les options de ligne de commande spécifiées à
 .BR dvips .
 .TP
-.BI index.order \ (index)\ <options> 
-Modifie les options de tri de l'index. L'argument
+.BI index.tool \ (index)\ <name>
+Spécifie l'outil à utiliser pour traiter l'index. Les choix possibles sont
+actuellement
+.BR makeindex (1)
+(valeur par défaut) et
+.BR xindy (1).
+L'argument
 .I index
-est optionnel, il peut être utilisé pour spécifier la liste des index
-auxquels s'applique la commande (s'il est présent, il doit être placé entre
-parenthèses; la liste est séparée par des virgules). Le reste de l'argument
-est une liste de mots (séparés par des espaces) parmi "standard", "german",
-"letter".
+est optionnel, il peut être utilisé pour spécifier la liste des index auxquels
+s'applique la commande. S'il est présent, il doit être placé entre parenthèses
+et la liste est séparée par des virgules. Si l'argument est absent, la
+commande s'applique à tous les index.
+.TP
+.BI index.language \ (index)\ <langues>
+Sélectionne la langue à utiliser pour trier l'index. Ceci ne s'applique que si
+l'outil utilisé est
+.BR xindy (1).
+L'argument optionnel a la même signification qu'au-dessus.
+.TP
+.BI index.modules \ (index)\ <module>...
+Spécifie quels modules utiliser lors du traitement de l'index par
+.BR xindy (1).
+L'argument optionnel a la même signification qu'au-dessus.
+.TP
+.BI index.order \ (index)\ <options> 
+Modifie les options de tri de l'index. Les arguments dont des mots (séparés
+par des espaces) parmi "standard", "german", "letter". L'argument optionnel a
+la même signification qu'au-dessus.
 .TP
 .BI index.path \ (index)\ <répertoire> 
 Ajoute le répertoire spécifié au chemin de recherche de styles d'index

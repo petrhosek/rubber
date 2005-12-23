@@ -509,7 +509,7 @@ Handle the extra files that this package produces in some cases.
 @item index
 @itemx makeidx
 Process the document's indexes with @command{makeindex} when needed. For
-details, see @ref{Makeindex}.
+details, see @ref{Indexing}.
 
 @item minitoc
 @itemx minitoc-hyper
@@ -535,11 +535,11 @@ changed.
 @end vtable
 
 @menu
-* BibTeX::       Details on BibTeX support.
-* Makeindex::    Details on Makeindex support.
+* BibTeX::      Details on BibTeX support.
+* Indexing::    Details on Makeindex support.
 @end menu
 
-@node BibTeX, Makeindex, Packages, Packages
+@node BibTeX, Indexing, Packages, Packages
 @subsection BibTeX support
 
 If the document contains a call to @code{\bibliography} or
@@ -558,18 +558,31 @@ Add the specified directory  to  the  search  path  for  BibTeX style files
 (@file{.bst} files).
 @end ftable
 
-@node Makeindex, Pre-processing, BibTeX, Packages
-@subsection Makeindex support
+@node Indexing, Pre-processing, BibTeX, Packages
+@subsection Index generation
 
-The use of the packages @command{index} and @command{makeidx} triggers the use
-of @command{makeindex} when necessary to process the document's indexes. The
-following directives may be used to control how @command{makeindex} is called:
+The use of the packages @command{index} and @command{makeidx} triggers the
+generation of an index (or several of them). Currently Rubber can use either
+the standard Makeindex or the more sophisticated Xindy. The following
+directives may be used to control how indices are generated:
 
 @ftable @command
+@item index.tool <name>
+Specifies which tool is to be used to process the index. The currently
+supported tools are @command{makeindex} (the default choice) and
+@command{xindy}.
+
+@item index.language <language>
+Selects the language used for sorting the index. This only applies when
+using @command{xindy} as the indexing tool.
+
+@item index.modules <module>...
+Specify which modules to use when processing an index with @command{xindy}.
+
 @item index.order <options>
 Modifies the sorting options for the index. The argument must be a
 space-separated list of words among @samp{standard}, @samp{german} and
-@samp{letter}.
+@samp{letter}. his only applies when using @command{makeindex}.
 
 @item index.path <directory>
 Adds the specified directory to the search path for index style files
@@ -581,13 +594,14 @@ Specifies the index style to be used.
 
 Each of these directives may be used with an optional first arument of the
 form @samp{(foo,bar,quux)} in order to specify that the directive only applies
-to the indexes named @samp{foo}, @samp{bar} and @samp{quux}.
+to the indexes named @samp{foo}, @samp{bar} and @samp{quux}. By default,
+directives are applied to all indices.
 
 When using the package @command{makeidx} instead of  @command{index}, the
 directives must of course be prefixed by @samp{makeidx.} instead of
 @samp{index.}, and the optional first argument is not accepted.
 
-@node Pre-processing, Post-processing, Makeindex, Modules
+@node Pre-processing, Post-processing, Indexing, Modules
 @section Pre-processors
 
 The following modules are provided for using programs that generate a LaTeX

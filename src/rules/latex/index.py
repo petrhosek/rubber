@@ -3,20 +3,25 @@
 """
 Indexing support with package 'index'.
 
-|This package allows several bibliographies in one document. Each occurence of
-|the \\newcites macro creates a new bibliography with its associated commands,
-|using a new aux file. This modules behaves like the default BibTeX module for
-|each of those files.
-
-This module handles the processing of the document's indices using makeindex.
-It stores an MD5 sum of the source (.idx) file between two runs, in order to
-detect modifications.
+This module handles the processing of the document's indices using a tool like
+makeindex or xindy. It stores an MD5 sum of the source (.idx) file between two
+runs, in order to detect modifications.
 
 The following directives are provided to specify options for makeindex:
 
+  tool <tool> =
+    Choose which indexing tool should be used. Currently this can be either
+	"makeindex" (by default) or "xindy".
+
+  language <lang> =
+    Choose the language used for sorting the index (xindy only).
+
+  modules <mod> <mod> ... =
+  	Specify which modules xindy should use for the index.
+
   order <ordering> =
-    Modify the ordering to be used. The argument must be a space separated
-    list of:
+    Modify the ordering to be used (makeindex only, supported by xindy with
+	warnings). The argument must be a space separated list of:
     - standard = use default ordering (no options, this is the default)
     - german = use German ordering (option "-g")
     - letter = use letter instead of word ordering (option "-l")
@@ -41,7 +46,7 @@ import rubber
 from rubber import _, msg
 from rubber.util import *
 
-class Index:
+class Index (rubber.rules.latex.Module):
 	"""
 	This class represents a single index.
 	"""
@@ -61,11 +66,19 @@ class Index:
 		else:
 			self.md5 = None
 
-		self.path = [""]
-		if doc.src_path != "" and doc.src_path != ".":
-			self.path.append(doc.src_path)
-		self.style = None
+		self.tool = "makeindex"
+		self.lang = None   # only for xindy
+		self.modules = []  # only for xindy
 		self.opts = []
+		self.path = []
+		self.style = None  # only for makeindex
+
+
+	def do_language (self, lang):
+		self.lang = lang
+
+	def do_modules (self, *args):
+		self.modules.extend(args)
 
 	def do_order (self, *args):
 		for opt in args:
@@ -81,6 +94,12 @@ class Index:
 	def do_style (self, style):
 		self.style = style
 
+	def do_tool (self, tool):
+		if tool not in ("makeindex", "xindy"):
+			msg.error(_("unknown indexing tool '%s'") % tool)
+		self.tool = tool
+
+
 	def post_compile (self):
 		"""
 		Run makeindex if needed, with appropriate options and environment.
@@ -92,18 +111,44 @@ class Index:
 			return 0
 
 		msg.progress(_("processing index %s") % self.source)
-		cmd = ["makeindex", "-o", self.target] + self.opts
-		cmd.extend(["-t", self.transcript])
-		if self.style:
-			cmd.extend(["-s", self.style])
-		cmd.append(self.pbase)
-		if self.path != [""]:
-			env = { 'INDEXSTYLE':
-				string.join(self.path + [os.getenv("INDEXSTYLE", "")], ":") }
+
+		if self.tool == "makeindex":
+			cmd = ["makeindex", "-o", self.target] + self.opts
+			cmd.extend(["-t", self.transcript])
+			if self.style:
+				cmd.extend(["-s", self.style])
+			cmd.append(self.pbase)
+			path_var = "INDEXSTYLE"
+
+		elif self.tool == "xindy":
+			cmd = ["texindy", "--quiet"]
+			for opt in self.opts:
+				if opt == "-g":
+					if self.lang != "":
+						msg.warn(_("'language' overrides 'order german'"),
+							pkg="index")
+					else:
+						self.lang = "german-din"
+				elif opt == "-l":
+					self.modules.append("letter-ordering")
+					msg.warn(_("use 'module letter-ordering' instead of 'order letter'"),
+						pkg="index")
+				else:
+					msg.error("unknown option to xindy: %s" % opt, pkg="index")
+			for mod in self.modules:
+				cmd.extend(["--module", mod])
+			if self.lang:
+				cmd.extend(["--language", self.lang])
+			cmd.append(self.source)
+			path_var = "XINDY_SEARCHPATH"
+
+		if self.path != []:
+			env = { path_var:
+				string.join(self.path + [os.getenv(path_var, "")], ":") }
 		else:
 			env = {}
 		if self.doc.env.execute(cmd, env):
-			msg.error(_("makeindex failed on %s") % self.source)
+			msg.error(_("could not make index %s") % self.target)
 			return 1
 
 		self.doc.must_compile = 1
@@ -148,14 +193,27 @@ class Module (rubber.rules.latex.Module):
 		"""
 		self.doc = doc
 		self.indices = {}
+		self.defaults = []
+		self.commands = {}
 		doc.add_hook("makeindex", self.makeindex)
 		doc.add_hook("newindex", self.newindex)
+
+	def register (self, name, idx, ind, ilg):
+		"""
+		Register a new index.
+		"""
+		index = self.indices[name] = Index(self.doc, idx, ind, ilg)
+		for cmd in self.defaults:
+			index.command(*cmd)
+		if self.commands.has_key(name):
+			for cmd in self.commands[name]:
+				index.command(*cmd)
 
 	def makeindex (self, dict):
 		"""
 		Register the standard index.
 		"""
-		self.indices["default"] = Index(self.doc, "idx", "ind", "ilg")
+		self.register("default", "idx", "ind", "ilg")
 
 	def newindex (self, dict):
 		"""
@@ -166,20 +224,27 @@ class Module (rubber.rules.latex.Module):
 			return
 		index = dict["arg"]
 		d = m.groupdict()
-		self.indices[index] = Index(self.doc, d["idx"], d["ind"], "ilg")
+		self.register(index, d["idx"], d["ind"], "ilg")
 		msg.log(_("index %s registered") % index, pkg="index")
 
 	def command (self, cmd, args):
 		indices = self.indices
+		names = None
 		if len(args) > 0:
 			m = re_optarg.match(args[0])
 			if m:
-				for index in m.group("list").split(","):
-					if indices.has_key(index):
-						indices[index].command(cmd, args[1:])
-		else:
-			for index in indices.values():
-				index.command(cmd, args)
+				names = m.group("list").split(",")
+				args = args[1:]
+		if names is None:
+			self.defaults.append([cmd, args])
+			names = indices.keys()
+		for index in names:
+			if indices.has_key(index):
+				indices[index].command(cmd, args[1:])
+			elif self.commands.has_key(index):
+				self.commands[index].append([cmd, args])
+			else:
+				self.commands[index] = [[cmd, args]]
 
 	def post_compile (self):
 		for index in self.indices.values():

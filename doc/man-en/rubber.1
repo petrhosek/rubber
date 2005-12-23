@@ -468,14 +468,40 @@ Pass the specified command-line switches to
 Pass the specified command-line switches to
 .BR dvips .
 .TP
-.BI index.order \ (index)\ <options>
-Modifies the sorting options for the indexes. The argument
+.BI index.tool \ (index)\ <name>
+Specifies which tool is to be used to process the index. The currently
+supported tools are
+.BR makeindex (1)
+(the default choice) and
+.BR xindy (1).
+The argument
 .I index
 is optional, it may be used to specify the list of indexes the command applies
-to (when present, it must be enclosed in parentheses; the list is
-comma-separated).
-The rest of the argument must be a space-separated list of words among
-"standard", "german" and "letter".
+to. When present, it must be enclosed in parentheses; the list is
+comma-separated. When the argument is not present, the command applies to all
+indices.
+.TP
+.BI index.language \ (index)\ <language>
+Selects the language used for sorting the index. This only applies when using
+.BR xindy (1)
+as the indexing tool.
+The optional argument has the same semantics as above.
+.TP
+.BI index.modules \ (index)\ <module>...
+Specify which modules to use when processing an index with
+.BR xindy (1).
+The optional argument has the same semantics as above.
+.TP
+.BI index.order \ (index)\ <options>
+Modifies the sorting options for the indexes. The arguments are words
+(separated by spaces) among
+.IR standard ,
+.I german
+and
+.IR letter .
+This only applies when using
+.BR makeindex (1).
+The optional argument has the same semantics as above.
 .TP
 .BI index.path \ (index)\ <directory>
 Adds the specified directory to the search path for index styles (.ist files).
@@ -485,7 +511,7 @@ The optional argument has the same semantics as above.
 Specifies the index style to be used.
 The optional argument has the same semantics as above.
 .TP
-.B makeidx.order, makeidx.path, makeidx.style
+.B makeidx.language, .modules, .order, .path, .style, .tool
 These directives are the same as for the
 .B index
 module, except that they don't accept the optional argument.
