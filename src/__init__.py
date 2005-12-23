@@ -1,24 +1,24 @@
 # This file is part of Rubber and thus covered by the GPL
 # (c) Emmanuel Beffara, 2002--2005
 """
-LaTeX document building system for Rubber.
-
-This module contains all the code in Rubber that actually does the job of
-building a LaTeX document from start to finish.
+This is the main module of rubber. It includes all code related to dependency
+handling (the Depend class and derived ones), guessing of conversion rules
+(the Converter class) and formatted message output (the Message class and msg
+object). Environment is the main class containing all information about a
+given building process.
 """
 
 # Stop python 2.2 from calling "yield" statements syntax errors.
 from __future__ import generators
 
-import os, sys, posix
-from os.path import *
-import re
-import string
+import os, os.path, sys, posix
+import re, string
 
 # The function `_' is defined here to prepare for internationalization.
 def _ (txt): return txt
 
-from rubber.version import moddir
+from rubber.version import version
+__version__ = version
 
 #----  Message writers  ----{{{1
 
@@ -115,7 +115,7 @@ class Message (object):
 		Simplify an path name by removing the current directory if the
 		specified path is in a subdirectory.
 		"""
-		path = normpath(join(self.path, name))
+		path = os.path.normpath(os.path.join(self.path, name))
 		if path[:len(self.cwd)] == self.cwd:
 			return path[len(self.cwd):]
 		return path
@@ -170,7 +170,7 @@ class Depend (object): #{{{2
 				# We set the node's date to that of the most recently modified
 				# product file, assuming all other files were up to date then
 				# (though not necessarily modified).
-				self.date = max(map(getmtime, self.prods))
+				self.date = max(map(os.path.getmtime, self.prods))
 			except OSError:
 				# If some product file does not exist, set the last
 				# modification date to None.
@@ -269,7 +269,7 @@ class Depend (object): #{{{2
 		dependencies.
 		"""
 		for file in self.prods:
-			if exists(file):
+			if os.path.exists(file):
 				msg.log(_("removing %s") % file)
 				os.unlink(file)
 		for src in self.sources.values():
@@ -407,7 +407,7 @@ class Converter (object):
 
 		for expr, cost, rule in self.rules.values():
 			for target in [p + name + s for p in prefixes for s in suffixes]:
-				if existing is None and exists(target):
+				if existing is None and os.path.exists(target):
 					existing = target
 				m = expr.match(target)
 				if not m:
@@ -417,7 +417,7 @@ class Converter (object):
 					source = m.expand(tmpl)
 					if source == target:
 						continue
-					if not exists(source):
+					if not os.path.exists(source):
 						continue
 					if check and not check(source, target):
 						continue
@@ -461,9 +461,11 @@ class Environment:
 	This class contains all state information related to the building process
 	for a whole document, the dependency graph and conversion rules.
 	"""
-	def __init__ (self):
+	def __init__ (self, cwd=None):
 		"""
-		Initialize the environment.
+		Initialize the environment. The optional argument is the path to the
+		reference directory for compilation, by default it is the current
+		working directory.
 		"""
 		self.kpse_msg = {
 			"mktextfm" : _("making font metrics for \\g<arg>"),
@@ -471,7 +473,7 @@ class Environment:
 			"mktexpk" : _("making bitmap for font \\g<arg>")
 			}
 
-		cwd = os.getcwd()
+		if cwd is None: cwd = os.getcwd()
 		self.vars = { "cwd": cwd }
 		self.path = [cwd]
 		self.plugins = Plugins(rubber.rules.__path__)
@@ -488,10 +490,10 @@ class Environment:
 		The optional argument is a suffix that may be added to the name.
 		"""
 		for path in self.path:
-			test = join(path, name)
-			if suffix and exists(test + suffix) and isfile(test + suffix):
+			test = os.path.join(path, name)
+			if suffix and os.path.exists(test + suffix) and os.path.isfile(test + suffix):
 				return test + suffix
-			elif exists(test) and isfile(test):
+			elif os.path.exists(test) and os.path.isfile(test):
 				return test
 		return None
 
@@ -526,7 +528,7 @@ class Environment:
 
 		import rubber.rules.latex
 		self.main = rubber.rules.latex.LaTeXDep(self)
-		if exists(src):
+		if os.path.exists(src):
 			self.main.set_source(src)
 			if self.src_node:
 				self.main.sources[src] = self.src_node

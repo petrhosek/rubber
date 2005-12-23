@@ -6,10 +6,8 @@ by the modules for various tasks.
 """
 
 import md5
-import os, stat
-from os.path import *
+import os, stat, time
 import imp
-import time
 import re, string
 from string import whitespace
 

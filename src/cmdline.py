@@ -175,7 +175,7 @@ available options:
 		args = self.parse_opts(cmdline)
 
 		initial_dir = os.getcwd()
-		msg.cwd = join(initial_dir, "")
+		msg.cwd = os.path.join(initial_dir, "")
 
 		if self.place != "." and self.place is not None:
 			msg.path = self.place
