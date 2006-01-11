@@ -712,7 +712,7 @@ class Environment:
 	#--  A cache system  {{{2
 
 	def cache_activate (self):
-		path = join(self.vars["cwd"], "rubber.cache")
+		path = os.path.join(self.vars["cwd"], "rubber.cache")
 		try:
 			file = open(path, "rb")
 			msg.log(_("loading cache file %s") % msg.simplify(path))
@@ -728,7 +728,7 @@ class Environment:
 		self.caching = 1
 
 	def cache_dump (self):
-		path = join(self.vars["cwd"], "rubber.cache")
+		path = os.path.join(self.vars["cwd"], "rubber.cache")
 		msg.log(_("saving cache file %s") % msg.simplify(path))
 		file = open(path, "wb")
 		import marshal

@@ -136,9 +136,9 @@ class Dep (Depend):
 		parses it to find recursively included files.
 		"""
 		file = os.path.normpath(os.path.join(self.cmd_pwd, source))
-		if exists(file + ".mp"):
+		if os.path.exists(file + ".mp"):
 			file = file + ".mp"
-		elif not exists(file):
+		elif not os.path.exists(file):
 			return
 		list.append(file)
 		fd = open(file)
