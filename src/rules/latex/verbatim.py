@@ -1,7 +1,7 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003--2005
+# (c) Emmanuel Beffara, 2003--2006
 """
-Dependency analysis for package 'verbatim' in Rubber.
+Dependency analysis and environment parsing for package 'verbatim' in Rubber.
 """
 
 from os.path import basename
@@ -13,6 +13,8 @@ class Module (rubber.rules.latex.Module):
 		self.doc = doc
 		self.env = doc.env
 		doc.add_hook("verbatiminput", self.input)
+		doc.add_hook("begin{comment}",
+			lambda d: doc.h_begin_verbatim(d, end="end{comment}"))
 
 	def input (self, dict):
 		if not dict["arg"]:

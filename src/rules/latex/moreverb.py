@@ -1,7 +1,7 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003--2005
+# (c) Emmanuel Beffara, 2003--2006
 """
-Dependency analysis for package 'moreverb' in Rubber.
+Dependency analysis and environment parsing for package 'moreverb' in Rubber.
 """
 
 from os.path import basename
@@ -14,6 +14,12 @@ class Module (rubber.rules.latex.Module):
 		self.env = doc.env
 		doc.add_hook("verbatimtabinput", self.input)
 		doc.add_hook("listinginput", self.listinginput)
+		for env in [
+			"verbatimtab", "verbatimwrite", "boxedverbatim", "comment",
+			"listing", "listing*", "listingcont", "listingcont*"]:
+			doc.add_hook("begin{" + env + "}",
+				lambda d, end="end{" + env + "}":
+					doc.h_begin_verbatim(d, end=end))
 
 	def input (self, dict):
 		if not dict["arg"]:

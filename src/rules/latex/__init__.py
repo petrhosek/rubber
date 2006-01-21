@@ -502,6 +502,8 @@ class LaTeXDep (Depend):
 
 		# the initial hooks:
 
+		self.comment_mark = "%"
+
 		self.hooks = {
 			"input" : self.h_input,
 			"include" : self.h_include,
@@ -514,6 +516,9 @@ class LaTeXDep (Depend):
 			"listoftables" : self.h_listoftables,
 			"bibliography" : self.h_bibliography,
 			"bibliographystyle" : self.h_bibliographystyle,
+			"begin{verbatim}" : self.h_begin_verbatim,
+			"begin{verbatim*}" :
+				lambda d: self.h_begin_verbatim(d, end="end{verbatim*}"),
 			"endinput" : self.h_endinput,
 			"end{document}" : self.h_end_document
 		}
@@ -661,7 +666,7 @@ class LaTeXDep (Depend):
 			# Lines that start with a comment are the ones where directives
 			# may be found.
 
-			if line[0] == "%":
+			if line[0] == self.comment_mark:
 				m = re_command.match(string.rstrip(line))
 				if m.group("cmd"):
 					vars['line'] = lineno
@@ -908,11 +913,12 @@ class LaTeXDep (Depend):
 		in the `hook' dictionary. We don't match all control sequences for
 		obvious efficiency reasons.
 		"""
+		clean = map(lambda x: x.replace("*", "\\*"), self.hooks.keys())
 		self.seq = re.compile("\
 \\\\(?P<name>%s)\*?\
  *(\\[(?P<opt>[^\\]]*)\\])?\
  *({(?P<arg>[^{}]*)}|(?=[^A-Za-z]))"
- 			% string.join(self.hooks.keys(), "|"))
+ 			% string.join(clean, "|"))
 
 	def add_hook (self, name, fun):
 		"""
@@ -1023,6 +1029,21 @@ class LaTeXDep (Depend):
 		if dict["arg"]:
 			self.modules.register("bibtex", dict)
 			self.modules["bibtex"].set_style(dict["arg"])
+
+	def h_begin_verbatim (self, dict, end="end{verbatim}"):
+		"""
+		Called when \\begin{verbatim} is found. This disables all macro
+		handling and comment parsing until the end of the environment. The
+		optional argument 'end' specifies the end marker, by default it is
+		"\\end{verbatim}".
+		"""
+		def end_verbatim (dict, self=self, hooks=self.hooks):
+			self.hooks = hooks
+			self.comment_mark = "%"
+			self.update_seq()
+		self.hooks = { end : end_verbatim }
+		self.update_seq()
+		self.comment_mark = None
 
 	def h_endinput (self, dict):
 		"""
