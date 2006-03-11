@@ -48,6 +48,16 @@ class MPLogCheck (LogCheck):
 		file.close()
 		return 0
 
+	def continued (self, line):
+		"""
+		Messages in Metapost logs are broken at 79 characters per line, except
+		in some cases where there are lines of this length that are not
+		continued...
+		"""
+		if len(line) != 79:
+			return 0
+		return line[-3:] != "..."
+
 	def get_errors (self):
 		"""
 		Parse the Metapost log file for errors. The file has the same form as

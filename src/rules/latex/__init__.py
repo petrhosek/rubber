@@ -197,6 +197,14 @@ class LogCheck (object):
 
 	#-- Information extraction {{{2
 
+	def continued (self, line):
+		"""
+		Check if a line in the log is continued on the next line. This is
+		needed because TeX breaks messages at 79 characters per line. We make
+		this into a method because the test is slightly different in Metapost.
+		"""
+		return len(line) == 79
+
 	def parse (self, errors=0, boxes=0, refs=0, warnings=0):
 		"""
 		Parse the log file for relevant information. The named arguments are
@@ -228,7 +236,7 @@ class LogCheck (object):
 			# TeX breaks messages at 79 characters, just to make parsing
 			# trickier...
 
-			if len(line) == 79:
+			if self.continued(line):
 				accu += line
 				continue
 			line = accu + line
