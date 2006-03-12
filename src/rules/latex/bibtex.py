@@ -175,21 +175,22 @@ class Module (rubber.rules.latex.Module):
 
 	def list_cites (self):
 		"""
-		Return the list of all defined citations (from the aux file, which is
-		supposed to exist).
+		Return the list of all defined citations (from the aux files, which
+		are supposed to exist).
 		"""
 		list = []
-		aux = open(self.base + ".aux")
-		for line in aux.readlines():
-			match = re_citation.match(line)
-			if match:
-				cite = match.group("cite")
-				pos = bisect_left(list, cite)
-				if pos == len(list):
-					list.append(cite)
-				elif list[pos] != cite:
-					list.insert(pos, cite)
-		aux.close()
+		for auxname in self.doc.aux_md5.keys():
+			aux = open(auxname)
+			for line in aux.readlines():
+				match = re_citation.match(line)
+				if match:
+					cite = match.group("cite")
+					pos = bisect_left(list, cite)
+					if pos == len(list):
+						list.append(cite)
+					elif list[pos] != cite:
+						list.insert(pos, cite)
+			aux.close()
 		return list
 
 	def list_undefs (self):
