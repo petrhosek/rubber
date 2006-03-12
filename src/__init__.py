@@ -385,46 +385,34 @@ class Converter (object):
 				return 1
 		return 0
 
-	def __call__ (self, name, env, check=None,
-			suffixes=[""], prefixes=[""], **args):
+	def __call__ (self, target, env, check=None, **args):
 		"""
 		Search for an applicable rule for the given target with the least
-		cost. The return value is a pair:
-		- (None, None): no rule and no existing file was found
-		- (None, d): no rule was found, d is the name of an existing file
-		- (r, d): a rule r was found, the rule can be applied to the arguments
-		    in dictionary d
-		Optional arguments are:
-		- check: a function that takes source and target as arguments can
-			return false if the rule is refused
-		- suffixes: a list of suffixes to be added after the name when
-			searching
-		- prefixes: similar
-		Other keyword arguments are passed to the converters.
+		cost. The return value is a dictionary that describes the best rule
+		found, or None if no rule is applicable. The optional argument 'check'
+		is a function that takes source and target as arguments can return
+		false if the rule is refused. Other keyword arguments are passed to
+		the converters.
 		"""
 		conv = []
-		existing = None
 
 		for expr, cost, rule in self.rules.values():
-			for target in [p + name + s for p in prefixes for s in suffixes]:
-				if existing is None and os.path.exists(target):
-					existing = target
-				m = expr.match(target)
-				if not m:
+			m = expr.match(target)
+			if not m:
+				continue
+			templates, _ = expand_cases(rule["source"], {})
+			for tmpl in templates:
+				source = m.expand(tmpl)
+				if source == target:
 					continue
-				templates, _ = expand_cases(rule["source"], {})
-				for tmpl in templates:
-					source = m.expand(tmpl)
-					if source == target:
-						continue
-					if not os.path.exists(source):
-						continue
-					if check and not check(source, target):
-						continue
-					mod = rule["rule"]
-					if not self.plugins.register(mod):
-						continue
-					conv.append((cost, source, target, rule))
+				if not os.path.exists(source):
+					continue
+				if check and not check(source, target):
+					continue
+				mod = rule["rule"]
+				if not self.plugins.register(mod):
+					continue
+				conv.append((cost, source, target, rule))
 
 		conv.sort()
 		for (cost, source, target, rule) in conv:
@@ -435,11 +423,9 @@ class Converter (object):
 			name = rule["rule"]
 			answer = self.plugins[name].check(dict, env)
 			if answer:
-				return (name, answer)
+				return answer
 
-		if existing:
-			return (None, existing)
-		return (None, None)
+		return None
 
 	def convert (self, rule, vars, env):
 		"""
@@ -550,14 +536,16 @@ class Environment:
 			self.main.sources[src] = self.src_node
 		return 0
 
-	def convert (self, target, **args):
+	def convert (self, target, prefixes=[""], suffixes=[""], **args):
 		"""
 		Use conversion rules to make a dependency tree for a given target
 		file, and return the final node, or None if the file does not exist
 		and cannot be built. The optional arguments 'prefixes' and 'suffixes'
 		are lists of strings that can be added at the beginning and the end of
-		the name when searching for the file. Other keyword arguments are
-		passed to the converters.
+		the name when searching for the file. The optional argument 'check' is
+		a function used to check if some rules are applicable, as in
+		'Converter.__call__'. Other keyword arguments are passed to the
+		converters.
 		"""
 		if self.caching:
 			if self.cache.has_key("_conv"):
@@ -571,19 +559,23 @@ class Environment:
 			else:
 				c = self.cache["_conv"] = {}
 
-		name = None
-		for conv in self.user_rules, self.pkg_rules, rubber.rules.std_rules:
-			(rule, val) = conv(target, self, **args)
-			if rule is not None:
-				if self.caching: c[target] = (rule, val)
-				return conv.convert(rule, val, self)
-			elif name is None:
-				name = val
-		if name is None:
+		last = None
+		for t in [p + target + s for s in suffixes for p in prefixes]:
+			for conv in self.user_rules, self.pkg_rules, rubber.rules.std_rules:
+				ans = conv(t, self, **args)
+				if ans is not None:
+					if last is None or ans["cost"] < last["cost"]:
+						last = ans
+			if os.path.exists(t):
+				if last is not None and last["cost"] <= 0:
+					break
+				if self.caching: c[target] = (None, t)
+				return DependLeaf(self, t)
+
+		if last is None:
 			return None
-		else:
-			if self.caching: c[target] = (None, name)
-			return DependLeaf(self, name)
+		if self.caching: c[target] = (last["rule"], last)
+		return conv.convert(last["rule"], last, self)
 
 	def may_produce (self, name):
 		"""
