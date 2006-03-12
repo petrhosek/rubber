@@ -98,12 +98,10 @@ actions:
 		if len(args) != 1:
 			sys.stderr.write(_("You must specify one source file.\n"))
 			sys.exit(1)
-		if exists(args[0] + ".tex"):
-			src = args[0]
-		elif exists(args[0]):
-			src, ext = splitext(args[0])
-		else:
-			sys.stderr.write(_("I cannot find %s.\n") % args[0])
+
+		src = args[0]
+		if self.env.set_source(src):
+			sys.stderr.write(_("I cannot find %s.\n") % src)
 			sys.exit(1)
 
 		if self.act == "deps":
@@ -131,7 +129,7 @@ actions:
 				next.extend(node.sources.values())
 		else:
 			self.prepare(src, parse=0)
-			return self.info_log(src, self.act)
+			return self.info_log(self.act)
 
 		return 0
 
@@ -141,8 +139,6 @@ actions:
 		"""
 		env = self.env
 
-		if env.set_source(src):
-			sys.exit(1)
 		if env.make_source():
 			sys.exit(1)
 
@@ -161,13 +157,13 @@ actions:
 			cmd = parse_line(cmd, {})
 			env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 
-	def info_log (self, src, act):
+	def info_log (self, act):
 		"""
 		Check for a log file and extract information from it if it exists,
 		accroding to the argument's value.
 		"""
 		log = self.env.main.log
-		ret = log.read(src + ".log")
+		ret = log.read(self.env.main.src_base + ".log")
 		if ret == 1:
 			msg.error(_("The log file is invalid."))
 			return 1
