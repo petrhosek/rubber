@@ -905,6 +905,13 @@ class LaTeXDep (Depend):
 			msg.warn(_("cannot read option file %s") % name, **self.vars)
 		self.pop_vars()
 
+	def do_rules (self, file):
+		name = self.env.find_file(file)
+		if name is None:
+			msg.warn(_("cannot read rule file %s") % file, **self.vars)
+		else:
+			self.env.user_rules.read_ini(name)
+
 	def do_set (self, name, val):
 		self.vars[name] = val
 

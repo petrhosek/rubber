@@ -13,6 +13,7 @@ from __future__ import generators
 
 import os, os.path, sys, posix
 import re, string
+from ConfigParser import *
 
 # The function `_' is defined here to prepare for internationalization.
 def _ (txt): return txt
@@ -354,15 +355,29 @@ class Converter (object):
 		Read a set of rules from a file. See the texinfo documentation for the
 		expected format of this file.
 		"""
-		from ConfigParser import ConfigParser
 		cp = ConfigParser()
-		cp.read(filename)
+		try:
+			cp.read(filename)
+		except ParsingError:
+			msg.error(_("parse error, ignoring this file"), file=filename)
+			return
 		for name in cp.sections():
 			rule = {}
 			for key in cp.options(name):
 				rule[key] = cp.get(name, key)
-			rule["cost"] = cost = cp.getint(name, "cost")
-			expr = re.compile(rule["target"] + "$")
+			try:
+				rule["cost"] = cost = cp.getint(name, "cost")
+			except NoOptionError:
+				msg.warn(_("ignoring rule `%s' (no cost found)") % name, file=filename)
+				continue
+			except ValueError:
+				msg.warn(_("ignoring rule `%s' (invalid cost)") % name, file=filename)
+				continue
+			try:
+				expr = re.compile(rule["target"] + "$")
+			except NoOptionError:
+				msg.warn(_("ignoring rule `%s' (no target found)") % name, file=filename)
+				continue
 			self.rules[name] = (expr, cost, rule)
 
 	def add_rule (self, rule_name, **rule):

@@ -411,6 +411,10 @@ name of the directory is everything that follows the spaces after
 Read the specified file of directives. The file must contain one directive per
 line. Empty lines and lines that begin with @samp{%} are ignored.
 
+@item rules <file>
+Read extra conversion rules from the specified file. The format of this file
+is the same as that of @file{rules.ini}, see @ref{rules.ini}.
+
 @item set <name> <value>
 Set the value of a variable. For details on the existing variables and their
 meaning, see @ref{Variables}.
