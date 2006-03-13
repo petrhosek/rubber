@@ -29,7 +29,7 @@ For more information, try `rubber-info --help'.
 """))
 
 	def help (self):
-		msg(0, _("""\
+		print _("""\
 This is Rubber's information extractor version %s.
 usage: rubber-info [options] source
 available options:
@@ -44,7 +44,7 @@ actions:
   --rules     print the dependency rules including intermediate results
   --version   print the program's version and exit
   --warnings  show all LaTeX warnings\
-""") % version)
+""") % version
 
 	def parse_opts (self, cmdline):
 		try:

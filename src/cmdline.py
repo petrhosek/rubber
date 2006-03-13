@@ -36,7 +36,7 @@ For more information, try `rubber --help'."""))
 		"""
 		Display the description of all the options and exit.
 		"""
-		msg(0, _("""\
+		print _("""\
 This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
@@ -63,7 +63,7 @@ available options:
   -v, --verbose            increase verbosity
       --version            print version information and exit
   -W, --warn=TYPE          report warnings of the given TYPE (see man page)\
-""") % version)
+""") % version
 
 	def parse_opts (self, cmdline, short="", long=[]):
 		try:
