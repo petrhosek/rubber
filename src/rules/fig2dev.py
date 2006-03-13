@@ -72,7 +72,8 @@ class PSTDep (Depend):
 
 		Depend.__init__(self, env, prods=[tex, eps], sources={fig: leaf}, loc=loc)
 		self.fig = fig
-		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p", epsname, fig, tex ]
+		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p",
+			os.path.basename(epsname), fig, tex ]
 		self.cmd_p = ["fig2dev", "-L", lang, fig, eps ]
 
 	def run (self):
