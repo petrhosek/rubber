@@ -57,10 +57,11 @@ available options:
       --into=DIR           go to directory DIR before compiling
   -k, --keep               keep the temporary files after compiling
   -l, --landscape          change paper orientation (if relevant)
+  -n, --maxerr=NUM         display at most NUM errors (default: 10)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
       --only=SOURCES       only include the specified SOURCES
   -o, --post=MOD[:OPTS]    postprocess with module MOD (with options OPTS)
-  -d, --pdf                compile with pdftex (synonym for -m pdftex)
+  -d, --pdf                produce a pdf (synonym for -m pdftex or -o ps2pdf)
   -p, --ps                 process through dvips (synonym for -m dvips)
   -q, --quiet              suppress messages
   -r, --read=FILE          read additional directives from FILE

@@ -621,7 +621,7 @@ class LaTeXDep (Depend):
 	def abspath (self, name, ref=None):
 		"""
 		Return the absolute path of a given filename. Relative paths are
-		considered relative to the file currently process, the optional
+		considered relative to the file currently processed, the optional
 		argument "ref" can be used to override the reference file name.
 		"""
 		path = self.vars["cwd"]

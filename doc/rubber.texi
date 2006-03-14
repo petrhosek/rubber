@@ -776,7 +776,7 @@ compiler used is @command{vlatexp} and the result is a PostScript file.
 
 @c ---  Graphics conversion  ---
 
-@node Graphics, Standard rules, Compiler choice, Top
+@node Graphics, Conversion algorithm, Compiler choice, Top
 @chapter Graphics conversion
 
 Rubber includes a system for automatic conversion of graphics (and other
@@ -790,27 +790,63 @@ found in a LaTeX source, Rubber looks for the corresponding file or a way to
 generate it. If the call to the macro does not specify a file extension, then
 the list of possible suffixes is tried (according to the current compiler and
 the options passed to the graphics package). For each possible file name,
-Rubber tries to find a good way to convert this file from a source, and then
-looks for the file itself. This way, the source file will be considered as the
-actual dependency.
+Rubber tries to find a good way to convert this file from a source, and looks
+for the file itself. The precise method is described in
+@ref{Conversion algorithm}.
 
-In order to find a good way to convert files, a @emph{cost} is attributed to
-each conversion rule. This cost is an integer that indicates how likely the
-conversion is, for instance the rule form @command{.fig} to @command{.eps}
-files (for XFig support) has cost zero because it is almost certain that this
-is the expected rule when the @command{.fig} file exists. On the other hand,
-the rule from @command{.eps} to @command{.jpeg} has cost 11 because this
-conversion is possible though usually not wanted.
+@menu
+* Conversion algorithm::  How conversion rules are guessed.
+* Standard rules::        List of standard conversion rules.
+* rules.ini::             Syntax of rules.ini.
+@end menu
 
-As an extra precaution, a file will never be overwritten if the source could
-have been produced by some conversion rule. The purpose is to be secure in
-cases when it cannot be detected which is the source and which is the target,
-for instance if @file{foo.eps} and @file{foo.pdf} both exist in the same
-place.
+@node Conversion algorithm, Standard rules, Graphics, Graphics
+@section Conversion algorithm
+
+Files are converted using conversion rules, as described in
+@ref{Standard rules}, and each rule can take a number of formats as input and
+produce a number of formats as output.
+
+Assume you are using @command{pdflatex} to compile a document that contains a
+macro call @command{\includegraphics@{foo@}}. Since @command{pdftex} only
+accepts figures in @file{png}, @file{pdf} and @file{jpg} format, one
+of @file{foo.png}, @file{foo.pdf} and @file{foo.jpg} must be available. If the
+only available file around happens to be @file{foo.gif}, it has to be
+translated into one of these formats. There are tools to convert @file{gif}
+files into just about any other format, so we have to choose the proper
+conversion to perform.
+
+Hence all rules have a @emph{cost}, an integer that represents how unlikely a
+given conversion is. For instance the rule form @command{.fig} to
+@command{.eps} files (for XFig support) has cost zero because it is almost
+certain that this is the expected rule when the @command{.fig} file exists. On
+the other hand, the rule from @command{.eps} to @command{.jpeg} has cost 11
+because this conversion is possible though usually not wanted.
+
+Now assume that a directory contains a LaTeX source that contains
+@command{\includegraphics@{foo@}} and that both @file{foo.eps} and
+@file{foo.pdf} are present, because we want to compile the document both to
+PostScript and to PDF format. How can Rubber decide which figure is the source
+file and which is converted from the other? By default, in this situation, no
+conversion will ever be performed, since there is no way to decide. Generally,
+a file will never be overwritten if the source could have been produced by
+some conversion rule. This behaviour can be overridden using the
+@command{make} directive, see @ref{General directives}.
+
+To sum up, for each requested file, the detection algorithm works as follows.
+If relevant, take all possible suffixes (i.e. all accepted file formats, if no
+format is specified in the source), and take all possible directories where
+the file will be searched for by LaTeX. In each case, you get a file name
+@file{foo}. If there is an applicable rule with cost at most 0 to produce
+@file{foo}, use that rule. Otherwise, if the file @file{foo} exists, use it
+without conversion. Otherwise use the applicable rule with the least cost. If
+all fails, proceed to the next file name.
 
 The list of standard rules is defined in the file @command{rules.ini} in the
-data directory. The syntax of this file is described in @ref{rules.ini}. The
-standard rules are described in @ref{Standard rules}.
+data directory. The syntax of this file is described in @ref{rules.ini}, the
+standard rules are described in @ref{Standard rules}. Additional rules can be
+defined in a file with the same format and declared using the directive
+@command{rules}.
 
 The path searched for graphics files is the same as that for LaTeX inputs by
 default. If the macro @command{\graphicspath} is used, the specified paths are
@@ -818,12 +854,7 @@ also searched, the same way as LaTeX does. Limited support is also provided
 for the @command{\DeclareGraphicsExtensions} and
 @command{\DeclareGraphicsRule} macros.
 
-@menu
-* Standard rules::  List of standard conversion rules.
-* rules.ini::       Syntax of rules.ini.
-@end menu
-
-@node Standard rules, rules.ini, Graphics, Graphics
+@node Standard rules, rules.ini, Conversion algorithm, Graphics
 @section Standard conversion rules
 
 The following built-in rules are available:
@@ -846,12 +877,14 @@ it is considered to be generated from @file{foo.mp} if it exists. Dependency
 analysis is performed between MetaPost sources, so that recompilation always
 occurs when needed. If the compilation of a MetaPost source fails, the errors
 are reported as it would be done for LaTeX errors.
-@end table
 
+@item shell
 Other programs can be used using the @command{shell} rule. This rule takes an
 extra parameter @code{command}, specified in the rule file, that defines a
-shell command-line. This is used for simple conversion rules, using
-@command{convert} (from ImageMagick), @command{epstopdf}, @command{jpeg2ps}.
+shell command-line. This is used for simple conversion rules using
+command-line tools like @command{convert} (from ImageMagick),
+@command{epstopdf}, @command{jpeg2ps}.
+@end table
 
 @node rules.ini, Index, Standard rules, Graphics
 @section Syntax of @command{rules.ini}
