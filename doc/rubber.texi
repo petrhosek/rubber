@@ -389,6 +389,17 @@ Indicates that the specified file should be removed when cleaning using
 Consider the specified file as a dependency, so that its modification time
 will be checked.
 
+@item make <file> [<options>]
+Declare that the specified file has to be generated. Options can specify the
+way it should be produced, the available options are @command{from <file>} to
+specify the source and @command{with <rule>} to specify the conversion rule.
+For instance, saying
+@example
+% rubber: make foo.pdf from foo.eps
+@end example
+indicates that @file{foo.pdf} should be produced from @file{foo.eps}, with any
+conversion rule that can do it.
+
 @item module <module> [<options>]
 Loads the specified module, possibly with options. This is equivalent to
 the command-line option @command{--module}.

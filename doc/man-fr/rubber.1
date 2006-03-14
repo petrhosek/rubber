@@ -415,6 +415,21 @@ Indique que le fichier spécifié doit être effacé lors du nettoyage par
 Considère le fichier spécifié comme une dépendance à la compilation, sa date
 de modification sera vérifiée.
 .TP
+.BI make \ <fichier> \ [ <options> ]
+Déclare que le fichier spécifié doit être produit. Les options permettent de
+spécifier la façon de le produire:
+.BI from \ <fichier>
+indique le nom du fichier source,
+.BI with \ <règle>
+indique la règle de conversion à employer. Par exemple,
+"make toto.pdf from toto.eps"
+indique que
+.I toto.pdf
+doit être produit à partir de
+.IR toto.eps ,
+avec n'importe quelle règle susceptible de le faire. Voir la documentation
+info pour plus de détails sur la conversion de fichiers.
+.TP
 .BI module \ <module> \ [ <options> ]
 Charge le module spécifié, éventuellement avec des options. Cette directive
 est équivalente à l'option de ligne de commande

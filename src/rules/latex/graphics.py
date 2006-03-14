@@ -117,8 +117,9 @@ class Module (rubber.rules.latex.Module):
 		# We only accept conversions from file types we don't know and cannot
 		# produce.
 
-		def check (source, target, suffixes=suffixes):
-			if exists(target) and self.env.may_produce(source):
+		def check (vars, suffixes=suffixes):
+			source = vars["source"]
+			if exists(vars["target"]) and self.env.may_produce(source):
 				return 0
 			if suffixes == [""]:
 				return 1

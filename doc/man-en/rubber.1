@@ -403,6 +403,21 @@ Indicates that the specified file should be removed when cleaning using
 Consider the specified file as a dependency, so that its modification time
 will be checked.
 .TP
+.BI make \ <file> \ [ <options> ]
+Declare that the specified file has to be generated. Options can specify the
+way it should be produced, the available options are
+.BI from \ <file>
+to specify the source and
+.BI with \ <rule>
+to specify the conversion rule. For instance, saying
+"make foo.pdf from foo.eps"
+indicates that
+.I foo.pdf
+should be produced from
+.IR foo.eps ,
+with any conversion rule that can do it. See the info documentation for
+details on file conversion.
+.TP
 .BI module \ <module> \ [ <options> ]
 Loads the specified module, possibly with options. This is equivalent to the
 command-line option

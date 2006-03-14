@@ -362,7 +362,7 @@ class Converter (object):
 			msg.error(_("parse error, ignoring this file"), file=filename)
 			return
 		for name in cp.sections():
-			rule = {}
+			rule = { "name": name }
 			for key in cp.options(name):
 				rule[key] = cp.get(name, key)
 			try:
@@ -405,9 +405,10 @@ class Converter (object):
 		Search for an applicable rule for the given target with the least
 		cost. The return value is a dictionary that describes the best rule
 		found, or None if no rule is applicable. The optional argument 'check'
-		is a function that takes source and target as arguments can return
-		false if the rule is refused. Other keyword arguments are passed to
-		the converters.
+		is a function that takes the rule parameters as arguments (as a
+		dictionary that contains at least 'source' and 'target') and can
+		return false if the rule is refused. Other keyword arguments are
+		passed to the converters.
 		"""
 		conv = []
 
@@ -422,8 +423,6 @@ class Converter (object):
 					continue
 				if not os.path.exists(source):
 					continue
-				if check and not check(source, target):
-					continue
 				mod = rule["rule"]
 				if not self.plugins.register(mod):
 					continue
@@ -436,6 +435,8 @@ class Converter (object):
 			dict["target"] = target
 			dict.update(args)
 			name = rule["rule"]
+			if check and not check(dict):
+				continue
 			answer = self.plugins[name].check(dict, env)
 			if answer:
 				return answer
@@ -481,6 +482,7 @@ class Environment:
 		self.plugins = Plugins(rubber.rules.__path__)
 		self.pkg_rules = Converter(self.plugins)
 		self.user_rules = Converter(self.plugins)
+		self.conv_prefs = {}
 		
 		self.main = None
 		self.final = None
@@ -551,7 +553,15 @@ class Environment:
 			self.main.sources[src] = self.src_node
 		return 0
 
-	def convert (self, target, prefixes=[""], suffixes=[""], **args):
+	def conv_set (self, file, vars):
+		"""
+		Define preferences for the generation of a given file. The argument
+		'file' is the name of the target and the argument 'vars' is a
+		dictionary that contains imposed values for some variables.
+		"""
+		self.conv_prefs[file] = vars
+
+	def convert (self, target, prefixes=[""], suffixes=[""], check=None, **args):
 		"""
 		Use conversion rules to make a dependency tree for a given target
 		file, and return the final node, or None if the file does not exist
@@ -562,6 +572,8 @@ class Environment:
 		'Converter.__call__'. Other keyword arguments are passed to the
 		converters.
 		"""
+		# Check if the request is in the cache.
+
 		if self.caching:
 			if self.cache.has_key("_conv"):
 				c = self.cache["_conv"]
@@ -574,22 +586,47 @@ class Environment:
 			else:
 				c = self.cache["_conv"] = {}
 
+		# Try all suffixes and prefixes until something is found.
+
 		last = None
 		for t in [p + target + s for s in suffixes for p in prefixes]:
+
+			# Define a check function, according to preferences.
+
+			if self.conv_prefs.has_key(t):
+				prefs = self.conv_prefs[t]
+				def do_check (vars, prefs=prefs):
+					if prefs is not None:
+						for key, val in prefs.items():
+							if not (vars.has_key(key) and vars[key] == val):
+								return 0
+					return 1
+			else:
+				prefs = None
+				do_check = check
+
+			# Try each converter.
+
 			for conv in self.user_rules, self.pkg_rules, rubber.rules.std_rules:
-				ans = conv(t, self, **args)
+				ans = conv(t, self, check=do_check, **args)
 				if ans is not None:
 					if last is None or ans["cost"] < last["cost"]:
 						last = ans
-			if os.path.exists(t):
+
+			# Check if the target exists.
+
+			if prefs is None and os.path.exists(t):
 				if last is not None and last["cost"] <= 0:
 					break
 				if self.caching: c[target] = (None, t)
+				msg.log(_("`%s' is `%s', no rule applied") % (target, t))
 				return DependLeaf(self, t)
 
 		if last is None:
 			return None
 		if self.caching: c[target] = (last["rule"], last)
+		msg.log(_("`%s' is `%s', made from `%s' by rule `%s'") %
+				(target, last["target"], last["source"], last["name"]))
 		return conv.convert(last["rule"], last, self)
 
 	def may_produce (self, name):

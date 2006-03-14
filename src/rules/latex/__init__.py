@@ -868,6 +868,22 @@ class LaTeXDep (Depend):
 			else:
 				msg.warn(_("dependency '%s' not found") % arg, **self.vars)
 
+	def do_make (self, file, *args):
+		file = self.abspath(file)
+		vars = { "target": file }
+		while len(args) > 1:
+			if args[0] == "from":
+				vars["source"] = self.abspath(args[1])
+			elif args[0] == "with":
+				vars["name"] = args[1]
+			else:
+				break
+			args = args[2:]
+		if len(args) != 0:
+			msg.error(_("invalid syntax for 'make'"), **self.vars)
+			return
+		self.env.conv_set(file, vars)
+
 	def do_module (self, mod, opt=None):
 		dict = { 'arg': mod, 'opt': opt }
 		self.modules.register(mod, dict)
