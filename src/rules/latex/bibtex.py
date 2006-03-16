@@ -14,7 +14,6 @@ The module provides the following commands:
 # Stop python 2.2 from calling "yield" statements syntax errors.
 from __future__ import generators
 
-from bisect import bisect_left
 import os, sys
 from os.path import *
 import re, string
@@ -64,6 +63,7 @@ class Module (rubber.rules.latex.Module):
 		self.style = None
 		self.set_style("plain")
 		self.db = {}
+		self.sorted = 1
 		self.run_needed = 0
 
 	#
@@ -76,6 +76,9 @@ class Module (rubber.rules.latex.Module):
 
 	def do_stylepath (self, path):
 		self.bst_path.append(self.doc.abspath(path))
+
+	def do_sorted (self, mode):
+		self.sorted = mode in ("true", "yes", "1")
 
 	def add_db (self, name):
 		"""
@@ -178,35 +181,39 @@ class Module (rubber.rules.latex.Module):
 		Return the list of all defined citations (from the aux files, which
 		are supposed to exist).
 		"""
-		list = []
+		last = 0
+		cites = {}
 		for auxname in self.doc.aux_md5.keys():
 			aux = open(auxname)
 			for line in aux.readlines():
 				match = re_citation.match(line)
 				if match:
 					cite = match.group("cite")
-					pos = bisect_left(list, cite)
-					if pos == len(list):
-						list.append(cite)
-					elif list[pos] != cite:
-						list.insert(pos, cite)
+					if not cites.has_key(cite):
+						last = last + 1
+						cites[cite] = last
 			aux.close()
-		return list
+
+		if self.sorted:
+			list = cites.keys()
+			list.sort()
+			return list
+		else:
+			list = [(n,c) for (c,n) in cites.items()]
+			list.sort()
+			return [c for (n,c) in list]
 
 	def list_undefs (self):
 		"""
 		Return the list of all undefined citations.
 		"""
-		list = []
+		cites = {}
 		for line in self.doc.log.lines:
 			match = re_undef.match(line)
 			if match:
-				cite = match.group("cite")
-				pos = bisect_left(list, cite)
-				if pos == len(list):
-					list.append(cite)
-				elif list[pos] != cite:
-					list.insert(pos, cite)
+				cites[match.group("cite")] = None
+		list = cites.keys()
+		list.sort()
 		return list
 
 	def post_compile (self):

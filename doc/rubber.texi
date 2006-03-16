@@ -568,6 +568,12 @@ directives may be used to control BibTeX's behaviour:
 Add the specified directory to the seach path for BibTeX database files
 (@file{.bib} files).
 
+@item bibtex.sorted <boolean>
+If the argument is @samp{true}, @samp{yes} or @samp{1}, declare that the
+bibliography is sorted (this is the default), otherwise declare that the
+citations appear in the same order as in the text. This may require additional
+calls to @command{bibtex}.
+
 @item bibtex.stylepath <directory>
 Add the specified directory  to  the  search  path  for  BibTeX style files
 (@file{.bst} files).

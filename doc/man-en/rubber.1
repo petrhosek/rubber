@@ -477,6 +477,17 @@ following:
 Adds the specified directory to the search path for BibTeX databases (.bib
 files).
 .TP
+.BI bibtex.sorted \ <boolean>
+If the argument is
+.IR true ,
+.I yes
+or
+.IR 1 ,
+declare that the bibliography is sorted (this is the default), otherwise
+declare that the citations appear in the same order as in the text. This may
+require additional calls to
+.BR bibtex .
+.TP
 .BI bibtex.stylepath \ <directory>
 Adds the specified directory to the search path for BibTeX styles (.bst
 files).
