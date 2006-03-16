@@ -90,6 +90,8 @@ class Module (rubber.rules.latex.Module):
 			if drv_suffixes.has_key(opt):
 				self.suffixes = drv_suffixes[opt]
 
+		doc.vars["graphics"] = self.suffixes
+
 	#  supported macros
 
 	def includegraphics (self, dict):

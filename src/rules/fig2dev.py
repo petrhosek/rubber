@@ -51,11 +51,11 @@ class PSTDep (Depend):
 	XFig. They produce both a LaTeX source that contains an \\includegraphics
 	and an EPS file.
 	"""
-	def __init__ (self, env, tex, fig, vars, module=None, loc={}):
+	def __init__ (self, env, tex, fig, vars, loc={}):
 		"""
-		The arguments of the constructor are, respectively, the figure's
-		source, the LaTeX source produced, the EPS figure produced, the name
-		to use for it (probably the same one), and the environment.
+		The arguments of the constructor are, respectively, the compilation
+		environment, the LaTeX source produced, the source file name, and the
+		parameters of the conversion rule..
 		"""
 		leaf = DependLeaf(env, fig, loc=loc)
 		self.env = env
@@ -63,18 +63,25 @@ class PSTDep (Depend):
 		m = re_pstname.match(tex)
 		base = m.group("base")
 		type = m.group("type")
-		eps = base + "." + type
-		if module is not None and "." + type in module.suffixes:
-			epsname = base
-		else:
-			epsname = eps
+
+		figref = None
+		doc_vars = vars["doc"].vars
+		if type in ("eps", "pdf") and doc_vars.has_key("graphics"):
+			suffixes = doc_vars["graphics"]
+			for suff in ("eps", "pdf"):
+				if "." + suff in suffixes:
+					figref = base
+					type = suff
+					break
+		figname = base + "." + type
+		if figref is None:
+			figref = figname
 		lang, self.langname = pst_lang[type]
 
-		Depend.__init__(self, env, prods=[tex, eps], sources={fig: leaf}, loc=loc)
+		Depend.__init__(self, env, prods=[tex, figname], sources={fig: leaf}, loc=loc)
 		self.fig = fig
-		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p",
-			os.path.basename(epsname), fig, tex ]
-		self.cmd_p = ["fig2dev", "-L", lang, fig, eps ]
+		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p", figref, fig, tex ]
+		self.cmd_p = ["fig2dev", "-L", lang, fig, figname ]
 
 	def run (self):
 		msg.progress(_("converting %s into %s/LaTeX") %

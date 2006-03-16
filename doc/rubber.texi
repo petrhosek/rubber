@@ -874,7 +874,9 @@ to be able to compile a document while keeping large figure files compressed.
 This is the exporting program that goes with XFig. It is used to convert files
 in @file{.fig} format into EPS, PDF or PNG. Rubber also supports the use of
 combined EPS/LaTeX of PDF/LaTeX, it is detected when an @command{\input} macro
-refers to a filename that ends in @file{.eps_t} or @file{.pstex_t}.
+refers to a filename that ends in @file{.eps_t} or @file{.pstex_t}. When the
+suffix is @file{.eps_t} or @file{.pdf_t}, the same document will compile both
+in PostScript and PDF.
 
 @item mpost
 MetaPost has extra support in Rubber. If a graphics is included with a

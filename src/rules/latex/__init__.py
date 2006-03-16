@@ -1261,7 +1261,7 @@ class LaTeXDep (Depend):
 			msg.debug(_("last compilation failed"))
 			self.update_watches()
 			return 1
-		if self.deps_modified(getmtime(self.src_base + ".log")):
+		if self.deps_modified(getmtime(self.prods[0])):
 			msg.debug(_("dependencies were modified"))
 			self.update_watches()
 			return 1
