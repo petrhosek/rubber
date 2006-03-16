@@ -39,6 +39,12 @@ class Message (object):
 		self.short = 0
 		self.path = ""
 		self.cwd = "./"
+		self.pos = []
+
+	def push_pos (self, pos):
+		self.pos.append(pos)
+	def pop_pos (self):
+		del self.pos[-1]
 
 	def __call__ (self, level, text):
 		"""
@@ -93,8 +99,12 @@ class Message (object):
 		information in the standard format. Position information is taken from
 		the dictionary given as first argument.
 		"""
-		if where is None or where == {}:
+		if len(self.pos) > 0:
+			if where is None or not where.has_key("file"):
+				where = self.pos[-1]
+		elif where is None or where == {}:
 			return text
+
 		if where.has_key("file") and where["file"] is not None:
 			pos = self.simplify(where["file"])
 			if where.has_key("line") and where["line"]:

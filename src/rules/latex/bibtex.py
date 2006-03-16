@@ -380,6 +380,7 @@ class Module (rubber.rules.latex.Module):
 				line = m.group("line")
 				if line: line = int(line)
 				d =	{
+					"pkg": "bibtex",
 					"kind": "error",
 					"text": text
 					}

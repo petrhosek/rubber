@@ -80,8 +80,15 @@ class Modules (Plugins):
 		# Run any delayed commands.
 
 		if self.commands.has_key(name):
-			for (cmd,args) in self.commands[name]:
-				mod.command(cmd, args)
+			for (cmd, args, vars) in self.commands[name]:
+				msg.push_pos(vars)
+				try:
+					mod.command(cmd, args)
+				except AttributeError:
+					msg.warn(_("unknown directive '%s.%s'") % (name, cmd))
+				except TypeError:
+					msg.warn(_("wrong syntax for '%s.%s'") % (name, cmd))
+				msg.pop_pos()
 			del self.commands[name]
 
 		self.objects[name] = mod
@@ -105,7 +112,7 @@ class Modules (Plugins):
 		else:
 			if not self.commands.has_key(mod):
 				self.commands[mod] = []
-			self.commands[mod].append((cmd,args))
+			self.commands[mod].append((cmd, args, self.env.vars.copy()))
 
 
 #----  Log parser  ----{{{1
@@ -840,16 +847,15 @@ class LaTeXDep (Depend):
 		# Calls to this method are actually translated into calls to "do_*"
 		# methods, except for calls to module directives.
 		lst = string.split(cmd, ".", 1)
-		if len(lst) > 1:
-			self.modules.command(lst[0], lst[1], args)
-		else:
-			if hasattr(self, "do_" + cmd):
-				try:
-					getattr(self, "do_" + cmd)(*args)
-				except TypeError:
-					msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
+		try:
+			if len(lst) > 1:
+				self.modules.command(lst[0], lst[1], args)
 			else:
-				msg.warn(_("unknown directive '%s'") % cmd, **pos)
+				getattr(self, "do_" + cmd)(*args)
+		except AttributeError:
+			msg.warn(_("unknown directive '%s'") % cmd, **pos)
+		except TypeError:
+			msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
 
 	def do_alias (self, name, val):
 		if self.hooks.has_key(val):
@@ -1378,14 +1384,12 @@ class Module (object):
 	def command (self, cmd, args):
 		"""
 		This is called when a directive for the module is found in the source.
-		By default, when called with argument "foo" it calls the method
-		"do_foo" if it exists, and fails otherwise.
+		The method can raise 'AttributeError' when the directive does not
+		exist and 'TypeError' if the syntax is wrong. By default, when called
+		with argument "foo" it calls the method "do_foo" if it exists, and
+		fails otherwise.
 		"""
-		if hasattr(self, "do_" + cmd):
-			try:
-				getattr(self, "do_" + cmd)(*args)
-			except TypeError:
-				msg.warn(_("wrong syntax for %s") % cmd)
+		getattr(self, "do_" + cmd)(*args)
 
 	def get_errors (self):
 		"""
