@@ -21,6 +21,7 @@ import re, string
 from rubber import _
 from rubber import *
 
+re_bibdata = re.compile(r"\\bibdata{(?P<data>.*)}")
 re_citation = re.compile(r"\\citation{(?P<cite>.*)}")
 re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 
@@ -124,7 +125,9 @@ class Module (rubber.rules.latex.Module):
 		tells the system that it should recompile the document.
 		"""
 		if exists(self.doc.src_base + ".aux"):
-			self.used_cites = self.list_cites()
+			self.used_cites, self.prev_dbs = self.parse_aux()
+		else:
+			self.prev_dbs = None
 		if self.doc.log.lines:
 			self.undef_cites = self.list_undefs()
 
@@ -176,13 +179,14 @@ class Module (rubber.rules.latex.Module):
 			return 1
 		return 0
 
-	def list_cites (self):
+	def parse_aux (self):
 		"""
-		Return the list of all defined citations (from the aux files, which
-		are supposed to exist).
+		Parse the aux files and return the list of all defined citations and
+		the list of databases used.
 		"""
 		last = 0
 		cites = {}
+		dbs = []
 		for auxname in self.doc.aux_md5.keys():
 			aux = open(auxname)
 			for line in aux.readlines():
@@ -192,16 +196,21 @@ class Module (rubber.rules.latex.Module):
 					if not cites.has_key(cite):
 						last = last + 1
 						cites[cite] = last
+					continue
+				match = re_bibdata.match(line)
+				if match:
+					dbs.extend(match.group("data").split(","))
 			aux.close()
+		dbs.sort()
 
 		if self.sorted:
 			list = cites.keys()
 			list.sort()
-			return list
+			return list, dbs
 		else:
 			list = [(n,c) for (c,n) in cites.items()]
 			list.sort()
-			return [c for (n,c) in list]
+			return [c for (n,c) in list], dbs
 
 	def list_undefs (self):
 		"""
@@ -254,10 +263,22 @@ class Module (rubber.rules.latex.Module):
 			return 1
 		msg.log(_("checking if BibTeX must be run..."), pkg="bibtex")
 
+		new, dbs = self.parse_aux()
+
 		# If there was a list of used citations, we check if it has
 		# changed. If it has, we have to rerun.
 
-		new = self.list_cites()
+		if self.prev_dbs is not None and self.prev_dbs != dbs:
+			msg.log(_("the set of databases changed"), pkg="bibtex")
+			self.prev_dbs = dbs
+			self.used_cites = new
+			self.undef_cites = self.list_undefs()
+			return 1
+		self.prev_dbs = dbs
+
+		# If there was a list of used citations, we check if it has
+		# changed. If it has, we have to rerun.
+
 		if self.used_cites:
 			if new != self.used_cites:
 				msg.log(_("the list of citations changed"), pkg="bibtex")
@@ -274,12 +295,15 @@ class Module (rubber.rules.latex.Module):
 			if new == []:
 				msg.log(_("no more undefined citations"), pkg="bibtex")
 				self.undef_cites = new
-			elif self.undef_cites != new:
-				msg.log(_("the list of undefined citations changed"), pkg="bibtex")
-				self.undef_cites = new
-				return 1
 			else:
-				msg.log(_("the undefined citations are the same"), pkg="bibtex")
+				for cite in new:
+					if cite in self.undef_cites:
+						continue
+					msg.log(_("there are new undefined citations"), pkg="bibtex")
+					self.undef_cites = new
+					return 1
+				msg.log(_("there is no new undefined citation"), pkg="bibtex")
+				self.undef_cites = new
 				return 0
 		else:
 			self.undef_cites = self.list_undefs()
