@@ -1,5 +1,5 @@
 # This file is covered by the GPL as part of Rubber.
-# (c) Emmanuel Beffara, 2002--2005
+# (c) Emmanuel Beffara, 2002--2006
 """
 Metapost support for Rubber.
 

@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2003--2005
+# (c) Emmanuel Beffara, 2003--2006
 """
 This module is used to produce a final self-contained version of the source of
 a document, as may be required when preparing a manuscript for an editor. It

@@ -1,3 +1,22 @@
+rubber (1.1-1) unstable; urgency=low
+
+  * New release.
+  * Various bugfixes (closes: #247316, #328599, #334886, #345953).
+  * Improved log file parser (closes: #329786, #336185).
+  * Improved algorithm for file conversion (closes: #242202, #328995, #345982).
+  * Support for user rules (closes: #324759, #329009).
+  * More control on the application of rules (closes: #328785).
+  * Support for unsorted bibliographies (closes: #215676).
+  * Track changes in the list of BibTeX databases (closes: #343681).
+  * Support for xindy (closes: #344193).
+  * Support for sam2p (closes: #328994).
+  * Improved fig2dev support (closes: #331149, #345954).
+  * Minimal support for ntheorem (closes: #336184).
+  * Simpler meaning for -z command-line option (closes: #239661).
+  * Changed dependencies to support TeXLive (closes: #354555).
+
+ -- Emmanuel Beffara <manu@beffara.org>  Fri, 17 Mar 2006 15:11:12 +0100
+
 rubber (1.0-1) unstable; urgency=low
 
   * New release.

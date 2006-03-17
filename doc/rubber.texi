@@ -1,7 +1,7 @@
 \input texinfo
 @c %**start of header
 @setfilename rubber.info
-@settitle Rubber Manual 1.0
+@settitle Rubber Manual 1.1
 @c %**end of header
 
 @copying
@@ -24,12 +24,12 @@ under the above conditions for modified versions,
 except that this permission notice may be stated in a
 translation approved by the Free Software Foundation.
 
-Copyright @copyright{} 2003 Emmanuel Beffara.
+Copyright @copyright{} 2002--2006 Emmanuel Beffara.
 @end copying
 
 @titlepage
 @title Rubber
-@subtitle Documentation for version 1.0
+@subtitle Documentation for version 1.1
 @author Emmanuel Beffara
 @page
 @vskip 0pt plus 1fill
@@ -148,6 +148,11 @@ a non-zero exit code.
 The options are the following:
 
 @table @command
+@item --cache
+Use the experimental cache system. This uses a file @file{rubber.cache} in the
+current directory to store the results of parsing and dependency analysis, so
+that subsequent compilations are faster.
+
 @item --clean
 Remove all files produced by the compilation, instead of building the
 document. This option is present in rubber only. It applies to the compilation

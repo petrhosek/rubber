@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2004--2005
+# (c) Emmanuel Beffara, 2004--2006
 """
 Indexing support with package 'index'.
 

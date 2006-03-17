@@ -46,6 +46,12 @@ and
 .BR rubber-pipe .
 Options are parsed using GNU Getopt conventions.
 .TP
+.B \-\-cache
+Use the experimental cache system. This uses a file
+.I rubber.cache
+in the current directory to store the results of parsing and dependency
+analysis, so that subsequent compilations are faster.
+.TP
 .B \-\-clean
 Remove all files produced by the compilation, instead
 of building the document. This option is present in \fBrubber\fR only. It
@@ -553,7 +559,7 @@ module, except that they don't accept the optional argument.
 .SH BUGS
 There are surely a some...
 
-This page documents Rubber version 1.0. The program and this man-page are
+This page documents Rubber version 1.1. The program and this man-page are
 maintained by Emmanuel Beffara <manu@beffara.org>.
 The homepage for Rubber can be found at
 http://www.pps.jussieu.fr/~beffara/soft/rubber/.

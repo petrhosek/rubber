@@ -48,6 +48,12 @@ et
 .BR rubber-pipe .
 Les options sont lues selon les conventions à la GNU Getopt.
 .TP
+.B \-\-cache
+Utiliser le système (expérimental) de cache. Cette fonction utilise un fichier
+.I rubber.cache
+dans le répertoire courant pour stocker le résultat de l'analyse des sources,
+de sorte que les compilations suivantes sont accélérées.
+.TP
 .B \-\-clean
 Efface tous les fichiers produits par la compilation
 au lieu de construire le document. Cette option n'est présente que dans
@@ -564,7 +570,7 @@ sauf qu'elles n'acceptent pas l'argument optionnel.
 .SH BUGS
 Il y en a surement quelques uns...
 
-Cette page se rapporte à la version 1.0 de Rubber. Le programme et cette
+Cette page se rapporte à la version 1.1 de Rubber. Le programme et cette
 documentation sont maintenus par Emmanuel Beffara <manu@beffara.org>.
 La page web du programme se trouve à l'adresse
 http://www.pps.jussieu.fr/~beffara/soft/rubber/.

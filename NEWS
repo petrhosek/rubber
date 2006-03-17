@@ -1,3 +1,17 @@
+Version 1.1 (2006-03-17)
+
+  Features:
+    - Support for user-defined conversion rules.
+    - Support for xindy and sam2p.
+    - Improved fig2dev support.
+    - Experimental cache system.
+
+  Bugfixes:
+    - Better parsing of log files.
+    - Improved error reporting (including for BibTeX and Metapost).
+    - Better handling of verbatim environments.
+    - Many other fixes.
+
 Version 1.0 (2005-07-11)
 
   Features:

@@ -4,7 +4,7 @@
 # configuration script a la autoconf and as a setup script a la Distutils.
 #
 # As the rest of Rubber, this script is covered by the GPL (see COPYING).
-# (c) Emmanuel Beffara, 2002--2005
+# (c) Emmanuel Beffara, 2002--2006
 
 import re
 import string

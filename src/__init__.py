@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2005
+# (c) Emmanuel Beffara, 2002--2006
 """
 This is the main module of rubber. It includes all code related to dependency
 handling (the Depend class and derived ones), guessing of conversion rules

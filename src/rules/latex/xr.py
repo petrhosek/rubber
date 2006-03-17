@@ -1,5 +1,5 @@
 # This file is part of Rubber and thus covered by the GPL
-# (c) Emmanuel Beffara, 2002--2005
+# (c) Emmanuel Beffara, 2002--2006
 """
 Dependency analysis for the xr package.
 
