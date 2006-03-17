@@ -79,6 +79,7 @@ available options:
 
 		extra = []
 		using_dvips = 0
+		gzip_final = 0
 
 		for (opt,arg) in opts:
 			if opt == "--cache":
@@ -92,7 +93,7 @@ available options:
 			elif opt in ("-f", "--force"):
 				self.force = 1
 			elif opt in ("-z", "--gzip"):
-				self.epilogue.append("module gz")
+				gzip_final = 1
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
@@ -154,6 +155,8 @@ available options:
 			else:
 				extra.extend([arg, opt])
 
+		if gzip_final:
+			self.epilogue.append("module gz")
 		return extra + args
 
 	def main (self, cmdline):

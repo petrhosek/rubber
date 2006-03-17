@@ -179,8 +179,8 @@ directory). This option is irrelevant in rubber-pipe.
 
 @item -z
 @itemx --gzip
-Compress the final document (in @command{gzip} format). This option is a
-synonym for @option{-e module gz}.
+Compress the final document (in @command{gzip} format). This option is
+equivalent to saying @option{-o gz} after all other options.
 
 @item -h
 @itemx --help
