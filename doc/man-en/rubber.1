@@ -1,61 +1,66 @@
 .TH RUBBER 1
 .SH NAME
 rubber \- a building system for LaTeX documents
-
+.
 .SH SYNOPSIS
 .B rubber
 .RI [ options ]
 .I sources ...
 .br
-.B rubber-pipe
+.B rubber\-pipe
 .RI [ options ]
-
+.
 .SH DESCRIPTION
-Rubber is a wrapper for LaTeX and companion programs. Its purpose is, given a
-LaTeX source to process, to compile it enough times to resolve all references,
-possibly running satellite programs such as BibTeX, makeindex, Metapost, etc.
-to produce appropriate data files.
-
+Rubber is a wrapper for LaTeX and companion programs.
+Its purpose is, given a LaTeX source to process, to compile it enough times to
+resolve all references, possibly running satellite programs such as BibTeX,
+makeindex, Metapost, etc. to produce appropriate data files.
+.PP
 The command
 .B rubber
-builds the specified documents completely. The source files may be either
-LaTeX sources (in which case the suffix .tex may be omitted) or documents in a
-format Rubber knows how to translate into LaTeX (this currently means CWEB or
-Literate Haskell documents). If one compilation fails, the whole process
-stops, including the compilation of the next documents on the command line,
-and
+builds the specified documents completely.
+The source files may be either LaTeX sources (in which case the suffix .tex may
+be omitted) or documents in a format Rubber knows how to translate into LaTeX
+(this currently means CWEB or Literate Haskell documents).
+If one compilation fails, the whole process stops, including the compilation of
+the next documents on the command line, and
 .B rubber
 returns a non-zero exit code.
-
+.PP
 The command
-.B rubber-pipe
+.B rubber\-pipe
 does the same for one document but it reads the LaTeX source from standard
 input and dumps the compiled document on standard output.
-
-Some information cannot be extracted from the LaTeX sources. This is the case,
-for instance, with the search paths (which can be specified in environment
-variables like TEXINPUTS), or the style to be used with Makeindex. To address
-this problem, one can add information for Rubber in the comments of the LaTeX
-sources, see section Directives.
-
+.P
+Some information cannot be extracted from the LaTeX sources.
+This is the case, for instance, with the search paths (which can be specified
+in environment variables like TEXINPUTS), or the style to be used with
+Makeindex.
+To address this problem, one can add information for Rubber in the comments of
+the LaTeX sources, see section
+.BR DIRECTIVES .
+.
 .SH OPTIONS
 The options are used either to choose the action to be performed or to
-configure the building process. They are mostly the same in
+configure the building process.
+They are mostly the same in
 .B rubber
 and
-.BR rubber-pipe .
+.BR rubber\-pipe .
 Options are parsed using GNU Getopt conventions.
 .TP
 .B \-\-cache
-Use the experimental cache system. This uses a file
+Use the experimental cache system.
+This uses a file named
 .I rubber.cache
 in the current directory to store the results of parsing and dependency
 analysis, so that subsequent compilations are faster.
 .TP
 .B \-\-clean
 Remove all files produced by the compilation, instead
-of building the document. This option is present in \fBrubber\fR only. It
-applies to the compilation as it would be done with the other options of the
+of building the document.
+This option is present in \fBrubber\fR only.
+It applies to the compilation as it would be done with the other options of the
 command line, i.e. saying
 "rubber \-\-clean foo"
 will not delete foo.ps, while saying
@@ -65,23 +70,31 @@ will.
 .BI \-c,\ \-\-command \ <command>
 Execute the specified command (or directive)
 .I before
-parsing the input files. See section "Directives" for details.
+parsing the input files.
+See section
+.B DIRECTIVES
+for details.
 .TP
 .BI \-e,\ \-\-epilogue \ <command>
 Execute the specified command (or directive)
 .I after
-parsing the input files. See section "Directives" for details.
+parsing the input files.
+See section
+.B DIRECTIVES
+for details.
 .TP
 .B \-f, \-\-force
-Force at least one compilation of the source. This may be useful, for
-instance, if some unusual dependency was modified (e.g. a package in a system
-directory). This option is irrelevant in
-.BR rubber-pipe .
+Force at least one compilation of the source.
+This may be useful, for instance, if some unusual dependency was modified (e.g.
+a package in a system directory).
+This option is irrelevant in
+.BR rubber\-pipe .
 .TP
 .B \-z, \-\-gzip
 Compress the final document (in
 .I gzip
-format). This is equivalent to saying
+format).
+This is equivalent to saying
 .I \-o gz
 after all other options.
 .TP
@@ -98,46 +111,50 @@ there and not in the current directory.
 .TP
 .B \-k, \-\-keep
 This option is used in
-.B rubber-pipe
-only. With this option, the temporary files will not be removed after
-compiling the document and dumping the results on standard output. The
-temporary document is named rubtmpX.tex, where X is a number such that no file
-of that name exists initially.
+.B rubber\-pipe
+only.
+With this option, the temporary files will not be removed after compiling the
+document and dumping the results on standard output.
+The temporary document is named rubtmpX.tex, where X is a number such that no
+file of that name exists initially.
 .TP
 .B \-l, \-\-landscape
-Specify that the final document should
-use landscape orientation. This is relevant only when using
+Specify that the final document should use landscape orientation.
+This is relevant only when using
 .B dvips
 or
 .BR dvipdfm .
 .TP
 .BI \-n,\ \-\-maxerr \ <num>
-Set the maximum number of displayed errors. By default, up to 10 errors are
-reported, saying
-.I \-n -1
+Set the maximum number of displayed errors.
+By default, up to 10 errors are reported, saying
+.I \-n \-1
 displays all errors.
 .TP
 .BI \-m,\ \-\-module \ <module> [: <args> ]
-Use the specified module in addition to the document's packages. Arguments
-can be passed to the package by adding them after a colon, they correspond to
-the package options in LaTeX. The module is loaded
+Use the specified module in addition to the document's packages.
+Arguments can be passed to the package by adding them after a colon, they
+correspond to the package options in LaTeX.
+The module is loaded
 .I before
 parsing the document's sources.
 .TP
 .BI \-\-only \ <sources>
-Compile the document partially, including only the specified sources. This
-works by inserting a call to \\includeonly on the command line. The argument
-is a comma-separated list of file names.
+Compile the document partially, including only the specified sources.
+This works by inserting a call to \\includeonly on the command line.
+The argument is a comma-separated list of file names.
 .TP
 .BR \-o,\ \-\-post \ <module> [: <args> ]
-Use the specified module as a post-processor. This is similar to the
+Use the specified module as a post-processor.
+This is similar to the
 .I \-m
 options except that the module is loaded
 .I after
 parsing the document.
 .TP
 .B \-d, \-\-pdf
-Produce PDF output. When this option comes after
+Produce PDF output.
+When this option comes after
 .I \-\-ps
 (for instance in the form
 .IR \-pd )
@@ -150,17 +167,19 @@ in order to use pdfLaTeX instead of LaTeX.
 .B \-p, \-\-ps
 Process the DVI produced by the process through
 .BR dvips (1)
-to produce a PostScript document. This option is a synonym for
+to produce a PostScript document.
+This option is a synonym for
 .IR \-o\ dvips ,
 it cannot come after
 .IR \-\-pdf .
 .TP
 .B \-q, \-\-quiet
-Decrease the verbosity level. This is the reverse of
+Decrease the verbosity level.
+This is the reverse of
 .IR \-v .
 .TP
 .BI \-r,\ \-\-read \ <file>
-Read additional directives form the specified file (see also the directive
+Read additional directives from the specified file (see also the directive
 "read").
 .TP
 .B \-s, \-\-short
@@ -170,11 +189,11 @@ Display LaTeX's error messages in a compact form (one error per line).
 Add the specified directory to TeX's search path.
 .TP
 .B \-v, \-\-verbose
-Increase the verbosity level. Levels between 0 and 4 exist, the default level
-is 1 for
+Increase the verbosity level.
+Levels between 0 and 4 exist, the default level is 1 for
 .B rubber
 and 0 for
-.BR rubber-pipe .
+.BR rubber\-pipe .
 Beware, saying
 .I \-vvv
 makes Rubber speak a lot.
@@ -194,17 +213,18 @@ The available types are:
 .B all
 to report all warnings.
 .PP
-
+.
 .SH MODULES
-Rubber's action is influenced by modules. Modules take care of the particular
-features of packages and external programs.
-
+Rubber's action is influenced by modules.
+Modules take care of the particular features of packages and external programs.
+.
 .SS Packages
 For every package that a document uses, Rubber looks for a module of the same
 name to perform the tasks that this package my require apart from the
-compilation by LaTeX. Modules can be added to the ones provided by default to
-include new features (this is the point of the module system). The standard
-modules are the following:
+compilation by LaTeX.
+Modules can be added to the ones provided by default to include new features
+(this is the point of the module system).
+The standard modules are the following:
 .TP
 .B beamer
 This module handles Beamer's extra files the same way as other tables of
@@ -213,7 +233,9 @@ contents.
 .B bibtex
 Takes care of processing the document's bibliography with BibTeX when needed.
 This module is automatically loaded if the document contains the macro
-\\bibliography (see also in "Directives" for options).
+\\bibliography (see also in
+.B DIRECTIVES
+for options).
 .TP
 .B combine
 The combine package is used to gather several LaTeX documents into a single
@@ -221,13 +243,14 @@ one, and this module handles the dependencies in this case.
 .TP
 .B epsfig
 This modules handles graphics inclusion for the documents that use the old
-style \\psfig macro. It is actually an interface for the graphics module, see
-this one for details.
+style \\psfig macro.
+It is actually an interface for the graphics module, see this one for details.
 .TP
 .B graphics, graphicx
 These modules identify the graphics included in the document and consider them
-as dependencies for compilation. They also use standard rules to build these
-files with external programs. See the info documentation for details.
+as dependencies for compilation.
+They also use standard rules to build these files with external programs.
+See the info documentation for details.
 .TP
 .B hyperref
 Handle the extra files that this package produces in some cases.
@@ -235,7 +258,9 @@ Handle the extra files that this package produces in some cases.
 .B index, makeidx
 Process the document's index (or indexes) with
 .BR makeindex (1)
-when needed (see section "Directives" for options).
+when needed (see section
+.B DIRECTIVES
+for options).
 .TP
 .B minitoc, minitoc-hyper
 On cleaning, remove additional files that produced to make partial tables of
@@ -257,7 +282,7 @@ Add additional .aux files used for external references to the list of
 dependencies, so recompiling is automatic when referenced document are
 changed.
 .PP
-
+.
 .SS Pre-processing
 The following modules are provided for using programs that generate a LaTeX
 source from a different file format:
@@ -265,23 +290,25 @@ source from a different file format:
 .B cweb
 This module's purpose is to run
 .BR cweave (1)
-if needed before the compiling process to produce the LaTeX source. This
-module is automatically loaded if the file specified on the command line has
+if needed before the compiling process to produce the LaTeX source.
+This module is automatically loaded if the file specified on the command line
+has
 .B .w
 as its suffix.
 .TP
 .B lhs2TeX
 This module uses the
 .B lhs2TeX
-preprocessor to generate the LaTeX source from a Literate Haskell program. It
-is automatically triggered if the input file's name ends with
+preprocessor to generate the LaTeX source from a Literate Haskell program.
+It is automatically triggered if the input file's name ends with
 .BR .lhs .
 .PP
-
+.
 .SS Post-processing
 The following modules are provided to support different kinds of
-post-processings. Note that the order matters when using these modules: if you
-want to use a processing chain like
+post-processings.
+Note that the order matters when using these modules: if you want to use a
+processing chain like
 .RS
 foo.tex \-> foo.dvi \-> foo.ps \-> foo.pdf \-> foo.pdf.gz
 .RE
@@ -303,18 +330,19 @@ at the end of compilation to produce a PDF document.
 .B dvips
 Runs
 .BR dvips (1)
-at the end of compilation to produce a PostScript document. This module is
-also loaded by the command line option
+at the end of compilation to produce a PostScript document.
+This module is also loaded by the command line option
 .IR \-\-ps .
 .TP
 .B expand
 Produce an expanded LaTeX source by replacing \\input macros by included
 files, bibliography macros by the bibliography produced by
 .BR bibtex (1),
-and local classes and packages by their source. If the main file is
+and local classes and packages by their source.
+If the main file is
 .I foo.tex
 then then expanded file will be named
-.IR foo-final.tex .
+.IR foo\-final.tex .
 See the info documentation for details.
 .TP
 .B gz
@@ -328,7 +356,7 @@ using module
 convert this document to PDF using
 .BR ps2pdf (1).
 .PP
-
+.
 .SS Compiler choice
 The following modules are used to change the LaTeX compiler:
 .TP
@@ -353,8 +381,9 @@ If the module
 .B dvips
 is used too, it will use
 .BR odvips (1)
-to translate the DVI file. Note that this module is triggered automatically
-when the document uses the package
+to translate the DVI file.
+Note that this module is triggered automatically when the document uses the
+package
 .BR omega .
 .TP
 .B pdftex
@@ -373,26 +402,30 @@ This module is also loaded by the command line option
 .IR \-\-pdf .
 .TP
 .B vtex
-Instructs Rubber to use the VTeX compiler. By default this uses
+Instructs Rubber to use the VTeX compiler.
+By default this uses
 .B vlatex
-as the compiler to produce PDF output. With the option
+as the compiler to produce PDF output.
+With the option
 .B ps
 (e.g. when saying "rubber \-m vtex:ps foo.tex") the compiler used is
 .B vlatexp
 and the result is a PostScript file.
 .PP
-
+.
 .SH DIRECTIVES
 The automatic behavior of Rubber is based on searching for macros in the LaTeX
-sources. When this is not enough, directives can be added in the comments of
-the sources. A directive is a line like
+sources.
+When this is not enough, directives can be added in the comments of the
+sources.
+A directive is a line like
 .RS
 % rubber: cmd args
 .RE
 The line must begin with a "%", then any sequence of "%" signs and
 spaces, then the text "rubber:" followed by spaces and a command name,
 possibly followed by spaces and arguments.
-
+.
 .SS General directives
 .TP
 .BI alias \ <name1>\ <name2>
@@ -411,31 +444,32 @@ Consider the specified file as a dependency, so that its modification time
 will be checked.
 .TP
 .BI make \ <file> \ [ <options> ]
-Declare that the specified file has to be generated. Options can specify the
-way it should be produced, the available options are
+Declare that the specified file has to be generated.
+Options can specify the way it should be produced, the available options are
 .BI from \ <file>
 to specify the source and
 .BI with \ <rule>
-to specify the conversion rule. For instance, saying
-"make foo.pdf from foo.eps"
-indicates that
+to specify the conversion rule.
+For instance, saying "make foo.pdf from foo.eps" indicates that
 .I foo.pdf
 should be produced from
 .IR foo.eps ,
-with any conversion rule that can do it. See the info documentation for
-details on file conversion.
+with any conversion rule that can do it.
+See the info documentation for details on file conversion.
 .TP
 .BI module \ <module> \ [ <options> ]
-Loads the specified module, possibly with options. This is equivalent to the
-command-line option
+Loads the specified module, possibly with options.
+This is equivalent to the command-line option
 .IR \-\-module .
 .TP
 .BI onchange \ <file>\ <command>
 Execute the specified shell command after compiling if the contents of the
-specified file have changed. The file name ends at the first space.
+specified file have changed.
+The file name ends at the first space.
 .TP
 .BI paper \ <options>
-Specify options related to paper size. Currently they are used to give
+Specify options related to paper size.
+Currently they are used to give
 .I \-t
 options to
 .B dvips
@@ -445,30 +479,32 @@ options to
 .BR dvipdfm .
 .TP
 .BI path \ <directory>
-Adds the specified directory to the search path for TeX (and Rubber). The name
-of the directory is everything that follows the spaces after "path".
+Adds the specified directory to the search path for TeX (and Rubber).
+The name of the directory is everything that follows the spaces after "path".
 .TP
 .BI read \ <file>
-Read the specified file of directives. The file
-must contain one directive per line. Empty lines and lines that begin with
-"%" are ignored.
+Read the specified file of directives.
+The file must contain one directive per line.
+Empty lines and lines that begin with "%" are ignored.
 .TP
 .BI rules \ <file>
-Read extra conversion rules from the specified file. The format of this file
-is the same as that of
+Read extra conversion rules from the specified file.
+The format of this file is the same as that of
 .IR rules.ini ,
 see the info documentation for details.
 .TP
 .BI set \ <name>\ <value>
-Set the value of a variable. For details on the existing variables and their
-meaning, see the info documentataion.
+Set the value of a variable.
+For details on the existing variables and their meaning, see the info
+documentataion.
 .TP
 .BI watch \ <file>
-Watch the specified file for changes. If the contents of this file has changed
-after a compilation, then another compilation is triggered. This is useful in
-the case of tables of contents, for instance.
+Watch the specified file for changes.
+If the contents of this file has changed after a compilation, then another
+compilation is triggered.
+This is useful in the case of tables of contents, for instance.
 .PP
-
+.
 .SS Module-specific directives
 If a command has the form
 .IR foo.bar ,
@@ -477,8 +513,8 @@ it is considered a command
 for the module
 .IR foo .
 If this module is not registered when the directive is found, then the command
-is silently ignored. For the standard modules, the directives are the
-following:
+is silently ignored.
+For the standard modules, the directives are the following:
 .TP
 .BI bibtex.path \ <directory>
 Adds the specified directory to the search path for BibTeX databases (.bib
@@ -491,8 +527,8 @@ If the argument is
 or
 .IR 1 ,
 declare that the bibliography is sorted (this is the default), otherwise
-declare that the citations appear in the same order as in the text. This may
-require additional calls to
+declare that the citations appear in the same order as in the text.
+This may require additional calls to
 .BR bibtex .
 .TP
 .BI bibtex.stylepath \ <directory>
@@ -508,20 +544,21 @@ Pass the specified command-line switches to
 .BR dvips .
 .TP
 .BI index.tool \ (index)\ <name>
-Specifies which tool is to be used to process the index. The currently
-supported tools are
+Specifies which tool is to be used to process the index.
+The currently supported tools are
 .BR makeindex (1)
 (the default choice) and
 .BR xindy (1).
 The argument
 .I index
 is optional, it may be used to specify the list of indexes the command applies
-to. When present, it must be enclosed in parentheses; the list is
-comma-separated. When the argument is not present, the command applies to all
-indices.
+to.
+When present, it must be enclosed in parentheses; the list is comma-separated.
+When the argument is not present, the command applies to all indices.
 .TP
 .BI index.language \ (index)\ <language>
-Selects the language used for sorting the index. This only applies when using
+Selects the language used for sorting the index.
+This only applies when using
 .BR xindy (1)
 as the indexing tool.
 The optional argument has the same semantics as above.
@@ -532,8 +569,8 @@ Specify which modules to use when processing an index with
 The optional argument has the same semantics as above.
 .TP
 .BI index.order \ (index)\ <options>
-Modifies the sorting options for the indexes. The arguments are words
-(separated by spaces) among
+Modifies the sorting options for the indexes.
+The arguments are words (separated by spaces) among
 .IR standard ,
 .I german
 and
@@ -555,15 +592,16 @@ These directives are the same as for the
 .B index
 module, except that they don't accept the optional argument.
 .PP
-
+.
 .SH BUGS
 There are surely a some...
-
-This page documents Rubber version 1.1. The program and this man-page are
-maintained by Emmanuel Beffara <manu@beffara.org>.
+.PP
+This page documents Rubber version 1.1.
+The program and this man-page are maintained by Emmanuel Beffara
+<manu@beffara.org>.
 The homepage for Rubber can be found at
 http://www.pps.jussieu.fr/~beffara/soft/rubber/.
-
+.
 .SH SEE ALSO
 The full documentation for
 .B rubber
