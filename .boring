@@ -17,3 +17,5 @@
 ^settings\.py$
 ^src/version\.py$
 ^rubber\.spec$
+^dist$
+^MANIFEST$

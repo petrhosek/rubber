@@ -3,8 +3,8 @@ Section: tex
 Priority: optional
 Maintainer: Emmanuel Beffara <manu@beffara.org>
 Uploaders: Baruch Even <baruch@debian.org>
-Build-Depends-Indep: debhelper (>> 4.1.67), python-dev (>= 2.2), texinfo
-Standards-Version: 3.6.1
+Build-Depends-Indep: debhelper (>> 5.0.0), python-dev (>= 2.2), texinfo
+Standards-Version: 3.6.2
 
 Package: rubber
 Architecture: all
