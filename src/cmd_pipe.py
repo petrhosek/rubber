@@ -50,6 +50,7 @@ class Main (rubber.cmdline.Main):
 This is Rubber version %s.
 usage: rubber-pipe [options]
 available options:
+  -b, --bzip2              compress the final document with bzip2
   -c, --command=CMD        run the directive CMD before parsing (see man page)
   -e, --epilogue=CMD       run the directive CMD after parsing
   -z, --gzip               compress the final document

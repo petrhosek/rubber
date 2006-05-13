@@ -40,6 +40,7 @@ For more information, try `rubber --help'."""))
 This is Rubber version %s.
 usage: rubber [options] sources...
 available options:
+  -b, --bzip2              compress the final document with bzip2
       --cache              use the (experimental) caching mechanism
       --clean              remove produced files instead of compiling
   -c, --command=CMD        run the directive CMD before parsing (see man page)
@@ -68,8 +69,8 @@ available options:
 	def parse_opts (self, cmdline, short="", long=[]):
 		try:
 			opts, args = getopt(
-				cmdline, "I:c:de:fhklm:n:o:pqr:svW:z" + short,
-				["cache", "clean", "command=", "epilogue=", "force", "gzip",
+				cmdline, "I:bc:de:fhklm:n:o:pqr:svW:z" + short,
+				["bzip2", "cache", "clean", "command=", "epilogue=", "force", "gzip",
 				 "help", "inplace", "into=", "keep", "landcape", "maxerr=",
 				 "module=", "only=", "post=", "pdf", "ps", "quiet", "read=",
 				 "short", "texpath=", "verbose", "version", "warn="] + long)
@@ -79,10 +80,15 @@ available options:
 
 		extra = []
 		using_dvips = 0
-		gzip_final = 0
+		final = None
 
 		for (opt,arg) in opts:
-			if opt == "--cache":
+			if opt in ("-b", "--bzip2"):
+				if final is not None and final != "bzip2":
+					msg.warn(_("warning: ignoring option %s") % opt)
+				else:
+					final = "bzip2"
+			elif opt == "--cache":
 				self.cache = 1
 			elif opt == "--clean":
 				self.clean = 1
@@ -93,7 +99,10 @@ available options:
 			elif opt in ("-f", "--force"):
 				self.force = 1
 			elif opt in ("-z", "--gzip"):
-				gzip_final = 1
+				if final is not None and final != "gz":
+					msg.warn(_("warning: ignoring option %s") % opt)
+				else:
+					final = "gz"
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
@@ -155,8 +164,8 @@ available options:
 			else:
 				extra.extend([arg, opt])
 
-		if gzip_final:
-			self.epilogue.append("module gz")
+		if final is not None:
+			self.epilogue.append("module " + final)
 		return extra + args
 
 	def main (self, cmdline):

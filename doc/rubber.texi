@@ -148,6 +148,12 @@ a non-zero exit code.
 The options are the following:
 
 @table @command
+@item -b
+@itemx --bzip2
+Compress the final document (in @command{bzip2} format). This option is
+equivalent to saying @option{-o bzip2} after all other options. It is
+incompatible with the option @command{--gzip}.
+
 @item --cache
 Use the experimental cache system. This uses a file @file{rubber.cache} in the
 current directory to store the results of parsing and dependency analysis, so
@@ -185,7 +191,8 @@ directory). This option is irrelevant in rubber-pipe.
 @item -z
 @itemx --gzip
 Compress the final document (in @command{gzip} format). This option is
-equivalent to saying @option{-o gz} after all other options.
+equivalent to saying @option{-o gz} after all other options. It is
+incompatible with the option @command{--bzip2}.
 
 @item -h
 @itemx --help
@@ -665,6 +672,9 @@ rubber -p -o ps2pdf -z foo.tex
 @end example
 
 @vtable @command
+@item bzip2
+Produce a version of the final document compressed with @command{bzip2}.
+
 @item dvipdfm
 Runs @command{dvipdfm} at the end of compilation to produce a PDF document.
 
@@ -678,7 +688,7 @@ files, bibliography macros by the bibliography produced by @command{bibtex},
 and local classes and packages by their source. For details, see @ref{Expand}.
 
 @item gz
-Produce a verion of the final document compressed with @command{gzip}.
+Produce a version of the final document compressed with @command{gzip}.
 
 @item ps2pdf
 Assuming that the compilation produces a PostScript document (for instance

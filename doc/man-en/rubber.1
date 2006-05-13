@@ -49,6 +49,14 @@ and
 .BR rubber\-pipe .
 Options are parsed using GNU Getopt conventions.
 .TP
+.B \-b, \-\-bzip2
+Compress the final document (in
+.I bzip2
+format).
+This is equivalent to saying
+.I \-o bzip2
+after all other options.
+.TP
 .B \-\-cache
 Use the experimental cache system.
 This uses a file named
@@ -321,6 +329,10 @@ in that order, for instance using the command line
 .RS
 rubber \-p \-o ps2pdf \-z foo.tex
 .RE
+.TP
+.B bzip2
+Produce a version of the final file compressed with
+.BR bzip2 (1).
 .TP
 .B dvipdfm
 Runs

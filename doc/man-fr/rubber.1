@@ -52,6 +52,13 @@ et
 .BR rubber\-pipe .
 Les options sont lues selon les conventions à la GNU Getopt.
 .TP
+.B \-b, \-\-bzip2
+Compresse le document final (au format
+.IR bzip2 ).
+Cette option équivaut à écrire
+.I \-o bzip2
+après toutes les autres options.
+.TP
 .B \-\-cache
 Utiliser le système (expérimental) de cache.
 Cette fonction utilise un fichier
@@ -328,6 +335,10 @@ dans cet ordre, par exemple avec la ligne de commande
 .RS
 rubber \-p \-o ps2pdf \-z toto.tex
 .RE
+.TP
+.B bzip2
+Produit une version du document final compressée avec
+.BR bzip2 (1).
 .TP
 .B dvipdfm
 Lance
