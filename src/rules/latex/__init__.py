@@ -621,9 +621,8 @@ class LaTeXDep (Depend):
 		For each named argument "key=val", save the value of variable "key"
 		and assign it the value "val".
 		"""
-		saved = {}
+		saved = self.vars.copy()
 		for (key, val) in dict.items():
-			saved[key] = self.vars[key]
 			self.vars[key] = val
 		self.vars_stack.append(saved)
 
@@ -631,7 +630,7 @@ class LaTeXDep (Depend):
 		"""
 		Restore the last set of variables saved using "push_vars".
 		"""
-		self.vars.update(self.vars_stack[-1])
+		self.vars = self.vars_stack[-1]
 		del self.vars_stack[-1]
 
 	def abspath (self, name, ref=None):
