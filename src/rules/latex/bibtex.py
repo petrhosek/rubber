@@ -66,11 +66,15 @@ class Module (rubber.rules.latex.Module):
 		self.db = {}
 		self.sorted = 1
 		self.run_needed = 0
+		self.crossrefs = None
 
 	#
 	# The following method are used to specify the various datafiles that
 	# BibTeX uses.
 	#
+
+	def do_crossrefs (self, number):
+		self.crossrefs = number
 
 	def do_path (self, path):
 		self.bib_path.append(self.doc.abspath(path))
@@ -248,7 +252,11 @@ class Module (rubber.rules.latex.Module):
 		if len(self.bst_path) != 1:
 			doc["BSTINPUTS"] = string.join(self.bst_path +
 				[os.getenv("BSTINPUTS", "")], ":")
-		if self.env.execute(["bibtex", self.base], doc):
+		if self.crossrefs is None:
+			cmd = ["bibtex", self.base]
+		else:
+			cmd = ["bibtex", "-min-crossrefs=" + self.crossrefs, self.base]
+		if self.env.execute(cmd, doc):
 			msg.info(_("There were errors making the bibliography."))
 			return 1
 		self.run_needed = 0

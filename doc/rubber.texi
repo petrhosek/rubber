@@ -576,6 +576,11 @@ bibliographies are changed, and in other appropriate cases. The following
 directives may be used to control BibTeX's behaviour:
 
 @ftable @command
+@item bibtex.crossrefs <number>
+Set the minimum number of @command{crossref} required for automatic inclusion
+of the referenced entry in the citation list. This sets the option
+@command{-min-crossrefs} when calling @command{bibtex}.
+
 @item bibtex.path <directory>
 Add the specified directory to the seach path for BibTeX database files
 (@file{.bib} files).

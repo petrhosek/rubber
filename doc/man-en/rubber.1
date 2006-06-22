@@ -528,6 +528,15 @@ If this module is not registered when the directive is found, then the command
 is silently ignored.
 For the standard modules, the directives are the following:
 .TP
+.BI bibtex.crossrefs \ <number>
+Set the minimum number of
+.I crossref
+required for automatic inclusion of the referenced entry in the citation list.
+This sets the option
+.I -min-crossrefs
+when calling
+.BR bibtex (1).
+.TP
 .BI bibtex.path \ <directory>
 Adds the specified directory to the search path for BibTeX databases (.bib
 files).

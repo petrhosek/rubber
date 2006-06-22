@@ -542,6 +542,15 @@ Si ce module n'est pas encore enregistré lorsque la directive est rencontrée,
 la commande est simplement ignorée.
 Pour les modules standard, les directives sont les suivantes:
 .TP
+.BI bibtex.crossrefs \ <nombre>
+Spécifie le nombre minimum de
+.I crossref
+requis pour l'inclusion automatique de l'entrée référencée dans la liste de
+citations. Définit l'option
+.I -min-crossrefs
+lors de l'appel à
+.BR bibtex (1).
+.TP
 .BI bibtex.path \ <répertoire> 
 Ajoute le répertoire spécifié au chemin de recherche de bases de données
 BibTeX (fichiers .bib).
