@@ -1,3 +1,11 @@
+rubber (1.1-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Update to new python policy, using python-support.
+  * Move debhelper from B-D-I to B-D.
+
+ -- Julien Cristau <julien.cristau@ens-lyon.org>  Thu, 29 Jun 2006 18:32:04 +0200
+
 rubber (1.1-1) unstable; urgency=low
 
   * New release.
