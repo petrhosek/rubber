@@ -57,7 +57,6 @@ class Index (rubber.rules.latex.Module):
 		(e.g. .ilg) file.  Transcript is used by glosstex.py.
 		"""
 		self.doc = doc
-		self.pbase = doc.src_base
 		self.source = doc.src_base + "." + source
 		self.target = doc.src_base + "." + target
 		self.transcript = doc.src_base + "." + transcript
@@ -113,11 +112,11 @@ class Index (rubber.rules.latex.Module):
 		msg.progress(_("processing index %s") % self.source)
 
 		if self.tool == "makeindex":
-			cmd = ["makeindex", "-o", self.target] + self.opts
+			cmd = ["makeindex", "-q", "-o", self.target] + self.opts
 			cmd.extend(["-t", self.transcript])
 			if self.style:
 				cmd.extend(["-s", self.style])
-			cmd.append(self.pbase)
+			cmd.append(self.source)
 			path_var = "INDEXSTYLE"
 
 		elif self.tool == "xindy":
