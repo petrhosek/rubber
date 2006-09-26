@@ -59,6 +59,7 @@ available options:
   -p, --ps                 process through dvips (synonym for -o dvips)
   -q, --quiet              suppress messages
   -r, --read=FILE          read additional directives from FILE
+  -S, --src-specials       enable insertion of source specials
   -s, --short              display errors in a compact form
   -I, --texpath=DIR        add DIR to the search path for LaTeX
   -v, --verbose            increase verbosity
@@ -69,11 +70,11 @@ available options:
 	def parse_opts (self, cmdline, short="", long=[]):
 		try:
 			opts, args = getopt(
-				cmdline, "I:bc:de:fhklm:n:o:pqr:svW:z" + short,
+				cmdline, "I:bc:de:fhklm:n:o:pqr:SsvW:z" + short,
 				["bzip2", "cache", "clean", "command=", "epilogue=", "force", "gzip",
 				 "help", "inplace", "into=", "keep", "landcape", "maxerr=",
 				 "module=", "only=", "post=", "pdf", "ps", "quiet", "read=",
-				 "short", "texpath=", "verbose", "version", "warn="] + long)
+				 "src-sepcials", "short", "texpath=", "verbose", "version", "warn="] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -136,6 +137,8 @@ available options:
 				msg.level = msg.level - 1
 			elif opt in ("-r" ,"--read"):
 				self.prologue.append("read " + arg)
+			elif opt in ("-S", "--src-specials"):
+				self.prologue.append("set src-specials yes")
 			elif opt in ("-s", "--short"):
 				msg.short = 1
 			elif opt in ("-I", "--texpath"):

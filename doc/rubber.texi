@@ -262,6 +262,12 @@ Suppress all messages during the process.
 Read additional directives form the specified file (see also the directive
 @command{read}).
 
+@item -S
+@itemx --src-specials
+Enable generation of source @command{\special}s if the compiler supports it.
+This is equivalent to setting the variable @command{src-specials} to
+@samp{yes}.
+
 @item -s
 @itemx --short
 Display LaTeX's error messages in a compact form (one error per line).
@@ -481,6 +487,12 @@ The current line number in the current file (this is set during parsing).
 @item paper
 The paper size to use when compiling. This is used by post-processors like
 @command{dvips} or @command{dvipdfm}.
+
+@item src-specials
+The kind of source @command{\special}s that should be generated. When empty
+(which is the case by default), no @command{\special}s are generated. When set
+to @samp{yes}, the default set is generated, otherwise the variable is passed
+as the argument of the @command{-src-specials} switch of the compiler.
 @end table
 
 

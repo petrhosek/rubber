@@ -508,7 +508,8 @@ class LaTeXDep (Depend):
 		self.vars.update({
 			"program": "latex",
 			"engine": "TeX",
-			"paper": "" })
+			"paper": "",
+			"src-specials": "" })
 		self.vars_stack = []
 
 		self.cache_list = []
@@ -1107,6 +1108,18 @@ class LaTeXDep (Depend):
 		
 		file = self.source()
 		cmd = [self.vars["program"]]
+
+		specials = self.vars["src-specials"]
+		if specials != "":
+			if self.vars["engine"] == "VTeX":
+				msg.warn(_("I don't know how to mkae source specials with %s.")
+					% self.vars["engine"])
+				self.vars["src-specials"] = ""
+			elif specials == "yes":
+				cmd.append("-src-specials")
+			else:
+				cmd.append("-src-specials=" + specials)
+
 		cmd += map(lambda x: x.replace("%s",file), self.cmdline)
 		inputs = string.join(self.env.path, ":")
 		if inputs == "":

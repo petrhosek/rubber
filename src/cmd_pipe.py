@@ -66,6 +66,7 @@ available options:
   -p, --ps                 process through dvips (synonym for -m dvips)
   -q, --quiet              suppress messages
   -r, --read=FILE          read additional directives from FILE
+  -S, --src-specials       enable insertion of source specials
   -s, --short              display errors in a compact form
   -I, --texpath=DIR        add DIR to the search path for LaTeX
   -v, --verbose            increase verbosity
