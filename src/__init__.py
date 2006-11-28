@@ -67,6 +67,8 @@ class Message (object):
 				text = text[13:]
 			self(0, self.format_pos(info, text))
 			if info.has_key("code") and info["code"] and not self.short:
+				if info.has_key("macro"):
+					del info["macro"]
 				self(0, self.format_pos(info,
 					_("leading text: ") + info["code"]))
 
@@ -115,6 +117,8 @@ class Message (object):
 			pos = pos + ": "
 		else:
 			pos = ""
+		if where.has_key("macro"):
+			text = "%s (in macro %s)" % (text, where["macro"])
 		if where.has_key("page"):
 			text = "%s (page %d)" % (text, int(where["page"]))
 		if where.has_key("pkg"):

@@ -122,7 +122,8 @@ re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
 re_line = re.compile(r"(l\.(?P<line>[0-9]+)( (?P<code>.*))?$|<\*>)")
-re_cseq = re.compile(r".*(?P<seq>\\[^ ]*) ?$")
+re_cseq = re.compile(r".*(?P<seq>(\\|\.\.\.)[^ ]*) ?$")
+re_macro = re.compile(r"^(?P<macro>\\.*) ->")
 re_page = re.compile("\[(?P<num>[0-9]+)\]")
 re_atline = re.compile(
 "( detected| in paragraph)? at lines? (?P<line>[0-9]*)(--(?P<last>[0-9]*))?")
@@ -237,13 +238,14 @@ class LogCheck (object):
 		something = 0  # 1 if some error was found
 		prefix = None  # the prefix for warning messages from packages
 		accu = ""      # accumulated text from the previous line
+		macro = None   # the macro in which the error occurs
 		for line in self.lines:
 			line = line[:-1]  # remove the line feed
 
 			# TeX breaks messages at 79 characters, just to make parsing
 			# trickier...
 
-			if self.continued(line):
+			if not parsing and self.continued(line):
 				accu += line
 				continue
 			line = accu + line
@@ -267,6 +269,9 @@ class LogCheck (object):
 					m = re_cseq.match(line)
 					if m:
 						error = "Undefined control sequence %s." % m.group("seq")
+				m = re_macro.match(line)
+				if m:
+					macro = m.group("macro")
 				m = re_line.match(line)
 				if m:
 					parsing = 0
@@ -295,6 +300,9 @@ class LogCheck (object):
 							d["file"] = last_file
 						else:
 							d["file"] = pos[-1]
+						if macro is not None:
+							d["macro"] = macro
+							macro = None
 						yield d
 				elif line[0] == "!":
 					error = line[2:]
