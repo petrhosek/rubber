@@ -529,6 +529,7 @@ class Environment:
 			if ext in ["w", "lhs"]:
 				path = self.find_file(name)
 				if not path:
+					msg.error(_("cannot find %s") % name)
 					return 1
 				src = path[:-len(ext)] + "tex"
 				if ext == "w":
@@ -541,6 +542,7 @@ class Environment:
 		if src is None:
 			path = self.find_file(name, ".tex")
 			if not path:
+				msg.error(_("cannot find %s") % name)
 				return 1
 			src = path
 			self.src_node = None
@@ -548,7 +550,8 @@ class Environment:
 		import rubber.rules.latex
 		self.main = rubber.rules.latex.LaTeXDep(self)
 		if os.path.exists(src):
-			self.main.set_source(src)
+			if self.main.set_source(src):
+				return 1
 			if self.src_node:
 				self.main.sources[src] = self.src_node
 		self.final = self.main

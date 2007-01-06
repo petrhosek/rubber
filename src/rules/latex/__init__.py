@@ -576,6 +576,7 @@ class LaTeXDep (Depend):
 		"""
 		name = self.env.find_file(path, ".tex")
 		if not name:
+			msg.error(_("cannot find %s") % name)
 			return 1
 		self.sources = {}
 		(self.src_path, name) = split(name)
@@ -586,6 +587,20 @@ class LaTeXDep (Depend):
 		else:
 			self.env.path.append(self.src_path)
 			self.src_pbase = join(self.src_path, self.src_base)
+
+		source = self.source()
+		prefix = os.path.join(self.vars["cwd"], "")
+		if source[:len(prefix)] == prefix:
+			comp_name = source[len(prefix):]
+		else:
+			comp_name = source
+		if comp_name.find('"') >= 0:
+			msg.error(_("The filename contains \", latex cannot handle this."))
+			return 1
+		for c in " \n\t()":
+			if source.find(c) >= 0:
+				msg.warn(_("Source path uses special characters, error tracking might get confused."))
+				break
 
 		self.prods = [self.src_base + ".dvi"]
 
@@ -1115,6 +1130,13 @@ class LaTeXDep (Depend):
 		msg.progress(_("compiling %s") % msg.simplify(self.source()))
 		
 		file = self.source()
+
+		prefix = os.path.join(self.vars["cwd"], "")
+		if file[:len(prefix)] == prefix:
+			file = file[len(prefix):]
+		if file.find(" ") >= 0:
+			file = '"%s"' % file
+
 		cmd = [self.vars["program"]]
 
 		specials = self.vars["src-specials"]

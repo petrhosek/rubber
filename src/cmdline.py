@@ -222,7 +222,6 @@ available options:
 				env.cache_activate()
 
 			if env.set_source(src):
-				msg.error(_("cannot find %s") % src)
 				return 1
 
 			if self.include_only is not None:
