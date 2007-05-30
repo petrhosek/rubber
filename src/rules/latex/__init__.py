@@ -535,6 +535,8 @@ class LaTeXDep (Depend):
 			"usepackage" : self.h_usepackage,
 			"RequirePackage" : self.h_usepackage,
 			"documentclass" : self.h_documentclass,
+			"LoadClass" : self.h_documentclass,
+			"LoadClassWithOptions" : self.h_documentclass,
 			"tableofcontents" : self.h_tableofcontents,
 			"listoffigures" : self.h_listoffigures,
 			"listoftables" : self.h_listoftables,
