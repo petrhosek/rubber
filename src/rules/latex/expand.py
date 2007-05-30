@@ -32,7 +32,7 @@ class Module (Depend, rubber.rules.latex.Module):
 			sys.exit(2)
 
 		self.doc = doc
-		self.out = doc.src_base + "-final.tex"
+		self.out = doc.target + "-final.tex"
 
 		# FIXME: we make foo-final.tex depend on foo.dvi so that all auxiliary
 		#   files are built when expanding, this could be optimised...
@@ -125,7 +125,7 @@ class Module (Depend, rubber.rules.latex.Module):
 
 	def x_bibliographystyle (self, dict):
 		if not dict["arg"]: return
-		bbl = self.doc.src_base + ".bbl"
+		bbl = self.doc.target + ".bbl"
 		if exists(bbl):
 			self.expand_path(bbl)
 

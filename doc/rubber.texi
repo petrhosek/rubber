@@ -470,6 +470,9 @@ The name of the TeX engine used. By default this is @samp{TeX}, this can be
 changed to @samp{VTeX}, @samp{pdfTeX}, @samp{Omega} or others by the modules
 that change the compiler, see @ref{Compiler choice}.
 
+@item ext
+The extension of the main source file.
+
 @item file
 The name of the current file (this is set during parsing).
 
@@ -488,11 +491,18 @@ The current line number in the current file (this is set during parsing).
 The paper size to use when compiling. This is used by post-processors like
 @command{dvips} or @command{dvipdfm}.
 
+@item path
+The path name of the main output file.
+
 @item src-specials
 The kind of source @command{\special}s that should be generated. When empty
 (which is the case by default), no @command{\special}s are generated. When set
 to @samp{yes}, the default set is generated, otherwise the variable is passed
 as the argument of the @command{-src-specials} switch of the compiler.
+
+@item target
+The base name of the main output file, including its path but without the
+extension.
 @end table
 
 

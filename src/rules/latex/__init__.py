@@ -579,14 +579,16 @@ class LaTeXDep (Depend):
 			msg.error(_("cannot find %s") % name)
 			return 1
 		self.sources = {}
-		(self.src_path, name) = split(name)
-		(self.src_base, self.src_ext) = splitext(name)
-		if self.src_path == "":
-			self.src_path = "."
-			self.src_pbase = self.src_base
+		(src_path, name) = split(name)
+		self.vars['path'] = src_path
+		(job, self.vars['ext']) = splitext(name)
+		self.vars['job'] = job
+		if src_path == "":
+			src_path = "."
+			self.vars['base'] = job
 		else:
-			self.env.path.append(self.src_path)
-			self.src_pbase = join(self.src_path, self.src_base)
+			self.env.path.append(src_path)
+			self.vars['base'] = join(src_path, job)
 
 		source = self.source()
 		prefix = os.path.join(self.vars["cwd"], "")
@@ -602,10 +604,9 @@ class LaTeXDep (Depend):
 				msg.warn(_("Source path uses special characters, error tracking might get confused."))
 				break
 
-		self.prods = [self.src_base + ".dvi"]
+		self.vars['target'] = self.target = os.path.join(prefix, job)
+		self.prods = [self.target + ".dvi"]
 
-		self.vars['job'] = self.src_base
-		self.vars['base'] = self.src_pbase
 		return 0
 
 	def includeonly (self, files):
@@ -627,7 +628,7 @@ class LaTeXDep (Depend):
 		"""
 		Return the main source's complete filename.
 		"""
-		return self.src_pbase + self.src_ext
+		return self.vars['base'] + self.vars['ext']
 
 	#--  Variable handling  {{{2
 
@@ -1064,11 +1065,11 @@ class LaTeXDep (Depend):
 				self.modules.register(name, dict)
 
 	def h_tableofcontents (self, dict):
-		self.watch_file(self.src_base + ".toc")
+		self.watch_file(self.target + ".toc")
 	def h_listoffigures (self, dict):
-		self.watch_file(self.src_base + ".lof")
+		self.watch_file(self.target + ".lof")
 	def h_listoftables (self, dict):
-		self.watch_file(self.src_base + ".lot")
+		self.watch_file(self.target + ".lot")
 
 	def h_bibliography (self, dict):
 		"""
@@ -1161,7 +1162,7 @@ class LaTeXDep (Depend):
 		self.env.execute(cmd, env, kpse=1)
 		self.something_done = 1
 
-		if self.log.read(self.src_base + ".log"):
+		if self.log.read(self.target + ".log"):
 			msg.error(_("Could not run %s.") % cmd[0])
 			return 1
 		if self.log.errors():
@@ -1178,14 +1179,14 @@ class LaTeXDep (Depend):
 		`must_compile' to 1 if we already know that a compilation is needed,
 		because it may avoid some unnecessary preprocessing (e.g. BibTeXing).
 		"""
-		aux = self.src_base + ".aux"
+		aux = self.target + ".aux"
 		if os.path.exists(aux):
 			self.aux_md5[aux] = md5_file(aux)
 		else:
 			self.aux_md5[aux] = None
 		self.aux_old[aux] = None
 
-		self.log.read(self.src_base + ".log")
+		self.log.read(self.target + ".log")
 
 		self.must_compile = force
 		self.must_compile = self.compile_needed()
@@ -1287,13 +1288,13 @@ class LaTeXDep (Depend):
 		if not exists(self.prods[0]):
 			msg.debug(_("the output file doesn't exist"))
 			return 1
-		if not exists(self.src_base + ".log"):
+		if not exists(self.target + ".log"):
 			msg.debug(_("the log file does not exist"))
 			return 1
 		if getmtime(self.prods[0]) < getmtime(self.source()):
 			msg.debug(_("the source is younger than the output file"))
 			return 1
-		if self.log.read(self.src_base + ".log"):
+		if self.log.read(self.target + ".log"):
 			msg.debug(_("the log file is not produced by TeX"))
 			return 1
 		return self.recompile_needed()
@@ -1381,7 +1382,7 @@ class LaTeXDep (Depend):
 		specified suffixes.
 		"""
 		for suffix in list:
-			file = self.src_base + suffix
+			file = self.target + suffix
 			if exists(file):
 				msg.log(_("removing %s") % file)
 				os.unlink(file)

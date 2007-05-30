@@ -19,11 +19,11 @@ class Module (rubber.rules.latex.Module):
 				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
 			doc.vars["program"] = "vlatexp"
-			doc.prods = [doc.src_base + ".ps"]
+			doc.prods = [doc.target + ".ps"]
 		else:
 			if doc.env.final != doc and doc.prods[0][-4:] != ".pdf":
 				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
 			doc.vars["program"] = "vlatex"
-			doc.prods = [doc.src_base + ".pdf"]
+			doc.prods = [doc.target + ".pdf"]
 		doc.cmdline = ["-n1", "@latex", "%s"]

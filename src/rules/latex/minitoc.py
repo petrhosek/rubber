@@ -25,7 +25,7 @@ class Module (rubber.rules.latex.Module):
 
 	def clean (self):
 		self.doc.remove_suffixes([".bmt"])
-		base = self.doc.src_base + "."
+		base = self.doc.target + "."
 		ln = len(base)
 		for file in os.listdir("."):
 			if file[:ln] == base:

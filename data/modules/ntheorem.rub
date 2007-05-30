@@ -1,1 +1,1 @@
-clean $job.thm
+clean $target.thm

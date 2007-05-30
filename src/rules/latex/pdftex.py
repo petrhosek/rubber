@@ -25,4 +25,4 @@ class Module (rubber.rules.latex.Module):
 			if env.final != doc and doc.prods[0][-4:] != ".pdf":
 				msg.error(_("there is already a post-processor registered"))
 				sys.exit(2)
-			doc.prods = [doc.src_base + ".pdf"]
+			doc.prods = [doc.target + ".pdf"]

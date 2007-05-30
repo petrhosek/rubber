@@ -57,9 +57,9 @@ class Index (rubber.rules.latex.Module):
 		(e.g. .ilg) file.  Transcript is used by glosstex.py.
 		"""
 		self.doc = doc
-		self.source = doc.src_base + "." + source
-		self.target = doc.src_base + "." + target
-		self.transcript = doc.src_base + "." + transcript
+		self.source = doc.target + "." + source
+		self.target = doc.target + "." + target
+		self.transcript = doc.target + "." + transcript
 		if os.path.exists(self.source):
 			self.md5 = md5_file(self.source)
 		else:

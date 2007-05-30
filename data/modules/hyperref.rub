@@ -1,2 +1,2 @@
-watch $job.out
-clean $job.out $job.brf
+watch $target.out
+clean $target.out $target.brf

@@ -49,14 +49,14 @@ class Module (rubber.rules.latex.Module):
 		self.env = doc.env
 
 		if base is None:
-			self.base = doc.src_base
+			self.base = doc.target
 		else:
 			self.base = base
 
 		cwd = self.env.vars["cwd"]
 		self.bib_path = [cwd]
-		if doc.src_path != cwd:
-			self.bib_path.append(doc.src_path)
+		if doc.vars["path"] != cwd:
+			self.bib_path.append(doc.vars["path"])
 		self.bst_path = [cwd]
 
 		self.undef_cites = None
@@ -128,7 +128,7 @@ class Module (rubber.rules.latex.Module):
 		checks if BibTeX has been run by someone else, and in this case it
 		tells the system that it should recompile the document.
 		"""
-		if exists(self.doc.src_base + ".aux"):
+		if exists(self.doc.target + ".aux"):
 			self.used_cites, self.prev_dbs = self.parse_aux()
 		else:
 			self.prev_dbs = None
@@ -145,7 +145,7 @@ class Module (rubber.rules.latex.Module):
 
 		bbl = self.base + ".bbl"
 		if exists(bbl):
-			if getmtime(bbl) > getmtime(self.doc.src_base + ".log"):
+			if getmtime(bbl) > getmtime(self.doc.target + ".log"):
 				self.doc.must_compile = 1
 		return 0
 
@@ -244,7 +244,7 @@ class Module (rubber.rules.latex.Module):
 		This method actually runs BibTeX with the appropriate environment
 		variables set.
 		"""
-		msg.progress(_("running BibTeX on %s") % self.base)
+		msg.progress(_("running BibTeX on %s") % msg.simplify(self.base))
 		doc = {}
 		if len(self.bib_path) != 1:
 			doc["BIBINPUTS"] = string.join(self.bib_path +
@@ -332,7 +332,7 @@ class Module (rubber.rules.latex.Module):
 			msg.log(_("no undefined citations"), pkg="bibtex")
 			return 0
 
-		log = self.doc.src_base + ".log"
+		log = self.doc.target + ".log"
 		if getmtime(blg) < getmtime(log):
 			msg.log(_("BibTeX's log is older than the main log"), pkg="bibtex")
 			return 1
