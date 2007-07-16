@@ -7,11 +7,16 @@ This package allows several bibliographies in one document. Each occurence of
 the \\newcites macro creates a new bibliography with its associated commands,
 using a new aux file. This modules behaves like the default BibTeX module for
 each of those files.
+
+The directives are the same as those of the BibTeX module. They all accept an
+optional argument first, enclosed in parentheses as in "multibib.path
+(foo,bar) here/", to specify which bibliography they apply to. Without this
+argument, they apply to all bibliographies.
 """
 
 import os
 from os.path import *
-import string
+import re, string
 
 import rubber, rubber.rules.latex, rubber.rules.latex.bibtex
 from rubber import _, msg
@@ -29,6 +34,8 @@ class Biblio (rubber.rules.latex.bibtex.Module):
 		for bib in string.split(dict["arg"], ","):
 			self.add_db(bib.strip())
 
+re_optarg = re.compile("\((?P<list>[^()]*)\) *")
+
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		"""
@@ -36,15 +43,41 @@ class Module (rubber.rules.latex.Module):
 		"""
 		self.doc = doc
 		self.bibs = {}
+		self.defaults = []
+		self.commands = {}
 		doc.add_hook("newcites", self.newcites)
+
+	def command (self, cmd, args):
+		bibs = self.bibs
+		names = None
+		if len(args) > 0:
+			m = re_optarg.match(args[0])
+			if m:
+				names = m.group("list").split(",")
+				args = args[1:]
+		if names is None:
+			self.defaults.append([cmd, args])
+			names = bibs.keys()
+		for name in names:
+			if bibs.has_key(name):
+				bibs[name].command(cmd, args)
+			elif self.commands.has_key(name):
+				self.commands[name].append([cmd, args])
+			else:
+				self.commands[name] = [[cmd, args]]
 
 	def newcites (self, dict):
 		"""
 		Register a new bibliography.
 		"""
-		bib = dict["arg"]
-		self.bibs[bib] = Biblio(self.doc, bib)
-		msg.log(_("bibliography %s registered") % bib, pkg="multibib")
+		name = dict["arg"]
+		bib = self.bibs[name] = Biblio(self.doc, name)
+		for cmd in self.defaults:
+			bib.command(*cmd)
+		if self.commands.has_key(name):
+			for cmd in self.commands[name]:
+				bib.command(*cmd)
+		msg.log(_("bibliography %s registered") % name, pkg="multibib")
 
 	def pre_compile (self):
 		for bib in self.bibs.values():

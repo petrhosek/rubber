@@ -619,6 +619,18 @@ The optional argument has the same semantics as above.
 These directives are the same as for the
 .B index
 module, except that they don't accept the optional argument.
+.TP
+.B multibib.crossrefs, .path, .sorted, .stylepath
+These directives are the same as for the
+.B bibtex
+module but they apply to bibliographies managed by the
+.B multibib
+package.
+They take an optional first argument, with the same convention as for the
+directives of the
+.B index
+module, which may be used to specify the list of bibliographies the command
+applies to.
 .PP
 .
 .SH BUGS

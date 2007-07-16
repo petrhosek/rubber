@@ -533,9 +533,10 @@ This module handles Beamer's extra files the same way as other tables
 of contents.
 
 @item bibtex
-Takes care of processing the document's bibliography with BibTeX when needed.
-This module is automatically loaded if the document contains the macro
-@code{\bibliography}. For details, see @ref{BibTeX}.
+@itemx multibib
+Takes care of processing the document's bibliographies with BibTeX when
+needed. The @command{bibtex} module is automatically loaded if the document
+contains the macro @code{\bibliography}. For details, see @ref{BibTeX}.
 
 @item combine
 The combine package is used to gather several LaTeX documents into a single
@@ -569,10 +570,6 @@ contents.
 @itemx verbatim
 Adds the files included with @code{\verbatiminput} and similar macros to the
 list of dependencies.
-
-@item multibib
-Handles the extra bibliographies that this package creates, and removes the
-extra files on cleaning.
 
 @item natbib
 May cause an extra compilation to solve references.
@@ -617,6 +614,13 @@ calls to @command{bibtex}.
 Add the specified directory  to  the  search  path  for  BibTeX style files
 (@file{.bst} files).
 @end ftable
+
+Multiple bibliographies can be handled by the @command{multibib} package. The
+directives provided by the @command{multibib} module are the same as those of
+the @command{bibtex} module, and they may be used with an optional first
+arument of the form @samp{(foo,bar,quux)} in order to specify that the
+directive only applies to the bibliographies named @samp{foo}, @samp{bar} and
+@samp{quux}. By default, directives are applied to all bibliographies.
 
 @node Indexing, Pre-processing, BibTeX, Packages
 @subsection Index generation

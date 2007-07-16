@@ -1145,7 +1145,7 @@ class LaTeXDep (Depend):
 		specials = self.vars["src-specials"]
 		if specials != "":
 			if self.vars["engine"] == "VTeX":
-				msg.warn(_("I don't know how to mkae source specials with %s.")
+				msg.warn(_("I don't know how to make source specials with %s.")
 					% self.vars["engine"])
 				self.vars["src-specials"] = ""
 			elif specials == "yes":
