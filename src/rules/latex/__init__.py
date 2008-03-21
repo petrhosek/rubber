@@ -1175,7 +1175,23 @@ class LaTeXDep (Depend):
 		cmd += self.vars["arguments"]
 
 		cmd += [x.replace("%s",file) for x in self.cmdline]
-		inputs = string.join(self.env.path, ":")
+
+		# Remove the CWD from elements inthe path, to avoid potential problems
+		# with special characters if there are any (except that ':' in paths
+		# is not handled).
+
+		prefix = self.env.vars["cwd"]
+		prefix_ = os.path.join(prefix, "")
+		paths = []
+		for p in paths:
+			if p == prefix:
+				paths.append(".")
+			elif p[:len(prefix_)] == prefix_:
+				paths.append("." + p[len(prefix):])
+			else:
+				paths.append(p)
+		inputs = string.join(paths, ":")
+
 		if inputs == "":
 			env = {}
 		else:
