@@ -525,6 +525,7 @@ class LaTeXDep (Depend):
 			"program": "latex",
 			"engine": "TeX",
 			"paper": "",
+			"arguments" : [],
 			"src-specials": "" })
 		self.vars_stack = []
 
@@ -641,6 +642,11 @@ class LaTeXDep (Depend):
 		return self.vars['base'] + self.vars['ext']
 
 	#--  Variable handling  {{{2
+
+	# List of the names of variables that contain lists (the others contain a
+	# single string).
+
+	list_vars = ['arguments']
 
 	def push_vars (self, **dict):
 		"""
@@ -969,8 +975,13 @@ class LaTeXDep (Depend):
 		else:
 			self.env.user_rules.read_ini(name)
 
-	def do_set (self, name, val):
-		self.vars[name] = val
+	def do_set (self, name, *val):
+		if name in self.list_vars:
+			self.vars[name] = val
+		elif len(val) != 1:
+			raise TypeError()
+		else:
+			self.vars[name] = val[0]
 
 	def do_watch (self, *args):
 		for arg in args:
@@ -1161,7 +1172,9 @@ class LaTeXDep (Depend):
 			else:
 				cmd.append("-src-specials=" + specials)
 
-		cmd += map(lambda x: x.replace("%s",file), self.cmdline)
+		cmd += self.vars["arguments"]
+
+		cmd += [x.replace("%s",file) for x in self.cmdline]
 		inputs = string.join(self.env.path, ":")
 		if inputs == "":
 			env = {}

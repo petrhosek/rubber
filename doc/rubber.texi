@@ -461,6 +461,12 @@ The following variables are defined by Rubber (or its modules) and used by
 various modules to influence compilation.
 
 @table @command
+@item arguments
+Extra command-line arguments that are passed to the compiler. Note that this
+is potentially dangerous and has no reason to be portable across different
+compilers. This variable can contain a list of arguments, all the arguments to
+the @code{set} directive are kept when defining it.
+
 @item base
 The base name of the main source file, including its path but without the
 extension.
