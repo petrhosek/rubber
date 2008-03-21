@@ -17,8 +17,8 @@ import rubber
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		self.doc = doc
-		doc.add_hook("import", self.import_doc)
 		del doc.hooks["end{document}"]
+		doc.add_hook("import", self.import_doc)
 
 	def import_doc (self, dict):
 		if not dict["arg"]:
