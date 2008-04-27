@@ -248,6 +248,7 @@ class LogCheck (object):
 		prefix = None  # the prefix for warning messages from packages
 		accu = ""      # accumulated text from the previous line
 		macro = None   # the macro in which the error occurs
+		cseqs = {}     # undefined control sequences so far
 		for line in self.lines:
 			line = line[:-1]  # remove the line feed
 
@@ -277,7 +278,12 @@ class LogCheck (object):
 					# sequence is undefined.
 					m = re_cseq.match(line)
 					if m:
-						error = "Undefined control sequence %s." % m.group("seq")
+						seq = m.group("seq")
+						if cseqs.has_key(seq):
+							error = None
+						else:
+							cseqs[seq] = None
+							error = "Undefined control sequence %s." % m.group("seq")
 				m = re_macro.match(line)
 				if m:
 					macro = m.group("macro")
@@ -286,7 +292,7 @@ class LogCheck (object):
 					parsing = 0
 					skipping = 1
 					pdfTeX = string.find(line, "pdfTeX warning") != -1
-					if (pdfTeX and warnings) or (errors and not pdfTeX):
+					if error is not None and ((pdfTeX and warnings) or (errors and not pdfTeX)):
 						if pdfTeX:
 							d = {
 								"kind": "warning",
