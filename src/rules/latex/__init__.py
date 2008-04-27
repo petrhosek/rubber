@@ -538,6 +538,7 @@ class LaTeXDep (Depend):
 		self.comment_mark = "%"
 
 		self.hooks = {
+			"pdfoutput": self.h_pdfoutput,
 			"input" : self.h_input,
 			"include" : self.h_include,
 			"includeonly": self.h_includeonly,
@@ -1012,6 +1013,24 @@ class LaTeXDep (Depend):
 		self.update_seq()
 
 	# Now the macro handlers:
+
+	def h_pdfoutput (self, dict):
+		"""
+		Called when \\pdfoutput is found. Tries to guess if it is a definition
+		that asks for the output to be in PDF or DVI.
+		"""
+		if dict["arg"] is not None:
+			return
+		if dict["line"][:2] == "=0":
+			if self.modules.has_key("pdftex"):
+				self.modules["pdftex"].mode_dvi()
+			else:
+				self.modules.register("pdftex", {"opt": "dvi"})
+		elif dict["line"][:2] == "=1":
+			if self.modules.has_key("pdftex"):
+				self.modules["pdftex"].mode_pdf()
+			else:
+				self.modules.register("pdftex")
 
 	def h_input (self, dict):
 		"""
