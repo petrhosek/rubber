@@ -83,19 +83,20 @@ class Modules (Plugins):
 			for (cmd, args, vars) in self.commands[name]:
 				msg.push_pos(vars)
 				try:
-					# put the variables as they were when the directive was
-					# found
-					self.env.push_vars(**vars)
-					# call the command
-					mod.command(cmd, args)
+					try:
+						# put the variables as they were when the directive was
+						# found
+						self.env.push_vars(**vars)
+						# call the command
+						mod.command(cmd, args)
+					finally:
+						# restore the variables to their current state
+						self.env.pop_vars()
+						# FIXME: what if the directive changed some variables?
 				except AttributeError:
 					msg.warn(_("unknown directive '%s.%s'") % (name, cmd))
 				except TypeError:
 					msg.warn(_("wrong syntax for '%s.%s'") % (name, cmd))
-				finally:
-					# restore the variables to their current state
-					self.env.pop_vars()
-					# FIXME: what if the directive changed some variables?
 				msg.pop_pos()
 			del self.commands[name]
 
