@@ -50,6 +50,7 @@ available options:
   -h, --help               display this help
       --inplace            compile the documents from their source directory
       --into=DIR           go to directory DIR before compiling
+      --jobname=NAME       set the job name for the first target
   -l, --landscape          change paper orientation (if relevant)
   -n, --maxerr=NUM         display at most NUM errors (default: 10)
   -m, --module=MOD[:OPTS]  use module MOD (with options OPTS)
@@ -72,7 +73,7 @@ available options:
 			opts, args = getopt(
 				cmdline, "I:bc:de:fhklm:n:o:pqr:SsvW:z" + short,
 				["bzip2", "cache", "clean", "command=", "epilogue=", "force", "gzip",
-				 "help", "inplace", "into=", "keep", "landcape", "maxerr=",
+				 "help", "inplace", "into=", "jobname=", "keep", "landcape", "maxerr=",
 				 "module=", "only=", "post=", "pdf", "ps", "quiet", "read=",
 				 "src-sepcials", "short", "texpath=", "verbose", "version", "warn="] + long)
 		except GetoptError, e:
@@ -111,6 +112,8 @@ available options:
 				self.place = None
 			elif opt == "--into":
 				self.place = arg
+			elif opt == "--jobname":
+				self.jobname = arg
 			elif opt in ("-k", "--keep"):
 				self.clean = 0
 			elif opt in ("-l", "--landscape"):
@@ -178,6 +181,7 @@ available options:
 		happens while making one of the documents, the whole process stops.
 		The method returns the program's exit code.
 		"""
+		self.jobname = None
 		self.prologue = []
 		self.epilogue = []
 		self.cache = 0
@@ -221,8 +225,9 @@ available options:
 			if self.cache:
 				env.cache_activate()
 
-			if env.set_source(src):
+			if env.set_source(src, jobname=self.jobname):
 				return 1
+			self.jobname = None
 
 			if self.include_only is not None:
 				env.main.includeonly(self.include_only)

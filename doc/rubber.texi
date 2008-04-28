@@ -206,6 +206,10 @@ results are in the same place as their sources.
 Go to the specified directory before compiling, so that all files are produced
 there and not in the current directory.
 
+@item --jobname <name>
+Specify a job name different from the base file name.
+This changes the name of output files and only applies to the first target.
+
 @item -k
 @itemx --keep
 This option is for @command{rubber-pipe} only. With this option, the temporary
@@ -484,6 +488,9 @@ The name of the current file (this is set during parsing).
 
 @item job
 The job name of the document, with no path indication.
+Note that changing the value of this variable does not affect compilation; in
+order to actually change the job name, use the command line option
+@option{--jobname}.
 
 @item latex
 Specify which program should be used for compiling. By default this is

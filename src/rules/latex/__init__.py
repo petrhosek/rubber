@@ -587,20 +587,28 @@ class LaTeXDep (Depend):
 		self.something_done = 0
 		self.failed_module = None
 
-	def set_source (self, path):
+	def set_source (self, path, jobname=None):
 		"""
 		Specify the main source for the document. The exact path and file name
 		are determined, and the source building process is updated if needed,
-		according the the source file's extension.
+		according the the source file's extension. The optional argument
+		'jobname' can be used to specify the job name to something else that
+		the base of the file name.
 		"""
 		name = self.env.find_file(path, ".tex")
 		if not name:
 			msg.error(_("cannot find %s") % name)
 			return 1
 		self.sources = {}
+		self.vars['source'] = name
 		(src_path, name) = split(name)
 		self.vars['path'] = src_path
 		(job, self.vars['ext']) = splitext(name)
+		if jobname is None:
+			self.set_job = 0
+		else:
+			self.set_job = 1
+			job = jobname
 		self.vars['job'] = job
 		if src_path == "":
 			src_path = "."
@@ -647,7 +655,7 @@ class LaTeXDep (Depend):
 		"""
 		Return the main source's complete filename.
 		"""
-		return self.vars['base'] + self.vars['ext']
+		return self.vars['source']
 
 	#--  Variable handling  {{{2
 
@@ -1186,6 +1194,13 @@ class LaTeXDep (Depend):
 			file = '"%s"' % file
 
 		cmd = [self.vars["program"]]
+
+		if self.set_job:
+			if self.vars["engine"] == "VTeX":
+				msg.error(_("I don't know how set the job name with %s.")
+					% self.vars["engine"])
+			else:
+				cmd.append("-jobname=" + self.vars["job"])
 
 		specials = self.vars["src-specials"]
 		if specials != "":

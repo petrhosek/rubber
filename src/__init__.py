@@ -516,7 +516,7 @@ class Environment:
 				return test
 		return None
 
-	def set_source (self, name):
+	def set_source (self, name, jobname=None):
 		"""
 		Create a main dependency node from the given file name. If this name
 		has an extension that is known of a preprocessor, this preprocessor is
@@ -550,7 +550,7 @@ class Environment:
 		import rubber.rules.latex
 		self.main = rubber.rules.latex.LaTeXDep(self)
 		if os.path.exists(src):
-			if self.main.set_source(src):
+			if self.main.set_source(src, jobname):
 				return 1
 			if self.src_node:
 				self.main.sources[src] = self.src_node
