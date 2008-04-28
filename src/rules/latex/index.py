@@ -109,7 +109,7 @@ class Index (rubber.rules.latex.Module):
 		if not self.run_needed():
 			return 0
 
-		msg.progress(_("processing index %s") % self.source)
+		msg.progress(_("processing index %s") % msg.simplify(self.source))
 
 		if self.tool == "makeindex":
 			cmd = ["makeindex", "-q", "-o", self.target] + self.opts

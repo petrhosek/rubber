@@ -564,6 +564,7 @@ Handle the extra files that this package produces in some cases.
 
 @item index
 @itemx makeidx
+@itemx nomencl
 Process the document's indexes with @command{makeindex} when needed. For
 details, see @ref{Indexing}.
 
@@ -631,7 +632,8 @@ directive only applies to the bibliographies named @samp{foo}, @samp{bar} and
 @node Indexing, Pre-processing, BibTeX, Packages
 @subsection Index generation
 
-The use of the packages @command{index} and @command{makeidx} triggers the
+The use of the packages @command{index}, @command{makeidx} and
+@command{nomencl} triggers the
 generation of an index (or several of them). Currently Rubber can use either
 the standard Makeindex or the more sophisticated Xindy. The following
 directives may be used to control how indices are generated:
