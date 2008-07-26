@@ -9,16 +9,16 @@ an EPS figure file.
 """
 
 import rubber, rubber.util
-import rubber.rules.latex.graphics
+import rubber.rules.latex.modules.graphics
 
-class Module (rubber.rules.latex.graphics.Module):
+class Module (rubber.rules.latex.modules.graphics.Module):
 	def __init__ (self, doc, dict):
 		"""
 		This initialization method calls the one from module 'graphics', which
 		registers its specific macros. This is not wrong: the epsfig package
 		does that too.
 		"""
-		rubber.rules.latex.graphics.Module.__init__(self, doc, dict)
+		rubber.rules.latex.modules.graphics.Module.__init__(self, doc, dict)
 		doc.add_hook("epsfbox", self.includegraphics)
 		doc.add_hook("epsffile", self.includegraphics)
 		doc.add_hook("epsfig", self.epsfig)

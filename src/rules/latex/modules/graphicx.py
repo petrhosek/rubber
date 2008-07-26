@@ -8,7 +8,7 @@ form the module for `graphics'. We do this as an import, so it requires that
 `graphics' is installed as a package module (which it is in standard).
 """
 
-import rubber.rules.latex.graphics
+import rubber.rules.latex.modules.graphics
 
-class Module (rubber.rules.latex.graphics.Module):
+class Module (rubber.rules.latex.modules.graphics.Module):
 	pass

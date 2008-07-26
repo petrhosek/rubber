@@ -18,12 +18,12 @@ import os
 from os.path import *
 import re, string
 
-import rubber, rubber.rules.latex, rubber.rules.latex.bibtex
+import rubber, rubber.rules.latex, rubber.rules.latex.modules.bibtex
 from rubber import _, msg
 
-class Biblio (rubber.rules.latex.bibtex.Module):
+class Biblio (rubber.rules.latex.modules.bibtex.Module):
 	def __init__ (self, doc, name):
-		rubber.rules.latex.bibtex.Module.__init__(self, doc, {}, name)
+		rubber.rules.latex.modules.bibtex.Module.__init__(self, doc, {}, name)
 		doc.add_hook("bibliographystyle" + name, self.bibstyle)
 		doc.add_hook("bibliography" + name, self.biblio)
 

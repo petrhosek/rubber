@@ -27,7 +27,7 @@ import os
 
 import rubber
 from rubber import _, msg
-from rubber.rules.latex.index import Index
+from rubber.rules.latex.modules.index import Index
 
 class Module (Index, rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):

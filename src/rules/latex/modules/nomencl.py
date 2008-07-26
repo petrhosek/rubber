@@ -8,7 +8,7 @@ values for the 'nomencl' package.
 """
 
 import rubber
-from rubber.rules.latex.index import Index
+from rubber.rules.latex.modules.index import Index
 
 class Module (Index, rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):

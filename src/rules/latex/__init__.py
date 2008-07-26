@@ -18,6 +18,7 @@ import string
 from rubber import _
 from rubber import *
 from rubber.version import moddir
+import rubber.rules.latex.modules
 
 #----  Module handler  ----{{{1
 
@@ -29,7 +30,7 @@ class Modules (Plugins):
 	as a Python module in the package `rubber.latex'.
 	"""
 	def __init__ (self, env):
-		Plugins.__init__(self, rubber.rules.latex.__path__)
+		Plugins.__init__(self, rubber.rules.latex.modules.__path__)
 		self.env = env
 		self.objects = {}
 		self.commands = {}
