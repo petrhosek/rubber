@@ -777,8 +777,8 @@ class Environment:
 		try:
 			file = open(path, "rb")
 			msg.log(_("loading cache file %s") % msg.simplify(path))
-			import marshal
-			self.cache = marshal.load(file)
+			import pickle
+			self.cache = pickle.load(file)
 			file.close()
 		except IOError:
 			msg.log(_("no cache file found"))
@@ -792,6 +792,6 @@ class Environment:
 		path = os.path.join(self.vars["cwd"], "rubber.cache")
 		msg.log(_("saving cache file %s") % msg.simplify(path))
 		file = open(path, "wb")
-		import marshal
-		marshal.dump(self.cache, file)
+		import pickle
+		pickle.dump(self.cache, file, pickle.HIGHEST_PROTOCOL)
 		file.close()
