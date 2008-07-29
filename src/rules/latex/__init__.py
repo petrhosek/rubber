@@ -713,14 +713,11 @@ class LaTeXDep (Depend):
 		self.set_date()
 		msg.log(_("dependencies: %r") % self.sources.keys())
 
-	def parse_file (self, file, dump=None):
+	def parse_file (self, file):
 		"""
 		Process a LaTeX source. The file must be open, it is read to the end
 		calling the handlers for the macro calls. This recursively processes
 		the included sources.
-
-		If the optional argument 'dump' is not None, then it is considered as
-		a stream on which all text not matched as a macro is written.
 		"""
 		lines = file.readlines()
 		lineno = 0
@@ -783,11 +780,9 @@ class LaTeXDep (Depend):
 						match = match2
 						dict = match.groupdict()
 
-				if dump: dump.write(line[:match.start()])
 				dict["match"] = line[match.start():match.end()]
 				dict["line"] = line[match.end():]
 				dict["pos"] = { 'file': self.vars["file"], 'line': lineno }
-				dict["dump"] = dump
 
 				if self.env.caching:
 					self.cache_list.append(("hook", name, dict))
@@ -795,8 +790,6 @@ class LaTeXDep (Depend):
 				self.hooks[name](dict)
 				line = dict["line"]
 				match = self.seq.search(line)
-
-			if dump: dump.write(line)
 
 	def process (self, path, loc={}):
 		"""
