@@ -1241,6 +1241,10 @@ class LaTeXDep (Depend):
 			return 1
 		if self.log.errors():
 			return 1
+		if not os.access(self.prods[0], os.F_OK):
+			msg.error(_("Output file `%s' was not produced.") %
+				msg.simplify(self.prods[0]))
+			return 1
 		for aux, md5 in self.aux_md5.items():
 			self.aux_old[aux] = md5
 			self.aux_md5[aux] = md5_file(aux)
