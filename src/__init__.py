@@ -11,9 +11,10 @@ given building process.
 # Stop python 2.2 from calling "yield" statements syntax errors.
 from __future__ import generators
 
-import os, os.path, sys, posix
+import os, os.path, sys, subprocess, thread
 import re, string
 from ConfigParser import *
+from subprocess import Popen
 
 # The function `_' is defined here to prepare for internationalization.
 def _ (txt): return txt
@@ -667,7 +668,7 @@ class Environment:
 		line by line to the `out' function (or discarded by default). In the
 		optional argument `kpse' is true, the error output is parsed and
 		messages from Kpathsea are processed (to indicate e.g. font
-		compilation), otherwise the rror output is kept untouched.
+		compilation), otherwise the error output is kept untouched.
 		"""
 		msg.log(_("executing: %s") % string.join(prog))
 		if pwd:
@@ -675,99 +676,49 @@ class Environment:
 		if env != {}:
 			msg.log(_("  with environment: %r") % env)
 
-		# We first look for the program to run so we can fail properly if the
-		# executable is not found.
-
 		progname = prog_available(prog[0])
 		if not progname:
 			msg.error(_("%s not found") % prog[0])
 			return 1
 
-		penv = posix.environ.copy()
+		penv = os.environ.copy()
 		for (key,val) in env.items():
 			penv[key] = val
 
-		# Python provides the os.popen* functions for what we want to do, but
-		# it has two crucial limitations: it only allows the execution of
-		# shell commands, which is problematic because of shell expansion for
-		# instance, and it doesn't provide a way to get the program's return
-		# code, except using UNIX-only methods in the Popen[34] classes. So we
-		# decide to drop non-UNIX compatibility by doing the fork/exec stuff
-		# ourselves.
-
-		(f_out_r, f_out_w) = os.pipe()
-		if kpse: (f_err_r, f_err_w) = os.pipe()
-		pid = os.fork()
-
-		# The forked process simply closes the appropriate pipes and execvp's
-		# the specified program in the appropriate directory.
-
-		if pid == 0:
-			os.close(f_out_r)
-			if kpse: os.close(f_err_r)
-			os.dup2(f_out_w, sys.__stdout__.fileno())
-			if kpse: os.dup2(f_err_w, sys.__stderr__.fileno())
-			if pwd:
-				os.chdir(pwd)
-			os.execve(progname, prog, penv)
-
-		# The main process reads whatever is sent to the error stream and
-		# parses it for Kpathsea messages.
-
-		os.close(f_out_w)
-		f_out = os.fdopen(f_out_r)
 		if kpse:
-			os.close(f_err_w)
-			f_err = os.fdopen(f_err_r)
-
-		# If the external program writes a lot of data on both its standard
-		# output and standard error streams, we might fall into a deadlock,
-		# waiting for input on one while the program fills the other's
-		# buffer. To solve this, we add a thread to read on the program's
-		# standard output. The thread simply discards this output unless the
-		# optional argument is used.
-		#
-		# In fact, we fork a new process instead of using a thread, because it
-		# is more robust (Vim-Python hangs when using a thread).
-
-		pid2 = os.fork()
-		if pid2 == 0:
-			if out:
-				while 1:
-					line = f_out.readline()
-					if line == "": break
-					out(line)
-			else:
-				while f_out.readline() != "": pass
-			f_out.close()
-			os._exit(0)
+			stderr = subprocess.PIPE
 		else:
-			f_out.close()
+			stderr = None
 
-		# At this point, all we have to do is read lines from the error stream
-		# and parse them for relevant messages.
+		process = Popen(prog,
+			executable = progname,
+			env = penv,
+			cwd = pwd,
+			stdout = subprocess.PIPE,
+			stderr = stderr)
 
-		while kpse:
-			line = f_err.readline()
-			if line == "": break
-			line = line.rstrip()
-			m = re_kpse.match(line)
-			if m:
-				cmd = m.group("cmd")
-				if self.kpse_msg.has_key(cmd):
-					msg.progress(m.expand(self.kpse_msg[cmd]))
-				else:
-					msg.progress(_("kpathsea running %s") % cmd)
+		if kpse:
+			def parse_kpse ():
+				for line in process.stderr.readlines():
+					line = line.rstrip()
+					match = re_kpse.match(line)
+					if not match:
+						continue
+					cmd = match.group("cmd")
+					if self.kpse_msg.has_key(cmd):
+						msg.progress(match.expand(self.kpse_msg[cmd]))
+					else:
+						msg.progress(_("kpathsea running %s") % cmd)
+			thread.start_new_thread(parse_kpse, ())
 
-		# After the executed program is finished (which we now be seeing that
-		# its error stream was closed), we wait for it and return its exit
-		# code.
+		if out is not None:
+			for line in process.stdout.readlines():
+				out(line)
+		else:
+			process.stdout.readlines()
 
-		(p, ret) = os.waitpid(pid, 0)
-		os.waitpid(pid2, 0)
-		if kpse: f_err.close()
-		msg.log(_("process %d (%s) returned %d") % (pid, prog[0], ret))
-
+		ret = process.wait()
+		msg.log(_("process %d (%s) returned %d") % (process.pid, prog[0],ret))
 		return ret
 
 	#--  A cache system  {{{2
