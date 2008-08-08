@@ -12,21 +12,16 @@ class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		self.doc = doc
 		self.env = doc.env
-		doc.add_hook("lstinputlisting", self.input)
-		doc.add_hook("lstnewenvironment", self.newenvironment)
-		doc.add_hook("begin{lstlisting}",
-			lambda d: doc.h_begin_verbatim(d, end="end{lstlisting}"))
+		doc.hook_macro("lstinputlisting", "oa", self.input)
+		doc.hook_macro("lstnewenvironment", "a", self.newenvironment)
+		doc.hook_begin("lstlisting",
+			lambda loc: doc.h_begin_verbatim(loc, env="lstlisting"))
 
-	def input (self, dict):
-		if not dict["arg"]:
-			return
-		file = dict["arg"]
+	def input (self, loc, opt, file):
 		if file.find("\\") < 0 and file.find("#") < 0:
-			self.doc.sources[file] = DependLeaf(self.env, file, loc=dict["pos"])
+			self.doc.sources[file] = DependLeaf(self.env, file, loc=loc)
 
-	def newenvironment (self, dict):
-		if not dict["arg"]:
-			return
-		self.doc.add_hook("begin{" + dict["arg"] + "}",
-			lambda d, end="end{" + dict["arg"] + "}":
-				self.doc.h_begin_verbatim(d, end=end))
+	def newenvironment (self, loc, name):
+		def func (loc):
+			self.doc.h_begin_verbatim(loc, env=name)
+		self.doc.hook_begin(name, func)

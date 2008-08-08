@@ -20,6 +20,8 @@ from rubber import *
 from rubber.version import moddir
 import rubber.rules.latex.modules
 
+from rubber.rules.latex.io import Parser, EOF, OPEN, SPACE, END_LINE
+
 #----  Module handler  ----{{{1
 
 class Modules (Plugins):
@@ -484,9 +486,43 @@ class LogCheck (object):
 
 #----  Parsing and compiling  ----{{{1
 
-re_comment = re.compile(r"(?P<line>([^\\%]|\\%|\\)*)(%.*)?")
-re_command = re.compile("[% ]*(rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*))?.*")
-re_input = re.compile("\\\\input +(?P<arg>[^{} \n\\\\]+)")
+re_command = re.compile("%[% ]*rubber: *(?P<cmd>[^ ]*) *(?P<arg>.*).*")
+
+class SourceParser (Parser):
+	"""
+	Extends the general-purpose TeX parser to handle Rubber directives in the
+	comment lines.
+	"""
+	def __init__ (self, file, dep):
+		Parser.__init__(self, file)
+		self.latex_dep = dep
+
+	def read_line (self):
+		while Parser.read_line(self):
+			match = re_command.match(self.line.strip())
+			if match is None:
+				return True
+
+			vars = dict(self.latex_dep.vars.items())
+			vars['line'] = self.pos_line
+			args = parse_line(match.group("arg"), vars)
+
+			if self.latex_dep.env.caching:
+				self.latex_dep.env.cache_list.append(
+					("cmd", match.group("cmd"), args, vars))
+
+			self.latex_dep.command(match.group("cmd"), args, vars)
+		return False
+
+	def skip_until (self, expr):
+		regexp = re.compile(expr)
+		while Parser.read_line(self):
+			match = regexp.match(self.line)
+			if match is None:
+				continue
+			self.line = self.line[match.end():]
+			self.pos_char += match.end()
+			return
 
 class EndDocument:
 	""" This is the exception raised when \\end{document} is found. """
@@ -546,27 +582,32 @@ class LaTeXDep (Depend):
 		self.comment_mark = "%"
 
 		self.hooks = {
-			"pdfoutput": self.h_pdfoutput,
-			"input" : self.h_input,
-			"include" : self.h_include,
-			"includeonly": self.h_includeonly,
-			"usepackage" : self.h_usepackage,
-			"RequirePackage" : self.h_usepackage,
-			"documentclass" : self.h_documentclass,
-			"LoadClass" : self.h_documentclass,
-			"LoadClassWithOptions" : self.h_documentclass,
-			"tableofcontents" : self.h_tableofcontents,
-			"listoffigures" : self.h_listoffigures,
-			"listoftables" : self.h_listoftables,
-			"bibliography" : self.h_bibliography,
-			"bibliographystyle" : self.h_bibliographystyle,
-			"begin{verbatim}" : self.h_begin_verbatim,
-			"begin{verbatim*}" :
-				lambda d: self.h_begin_verbatim(d, end="end{verbatim*}"),
-			"endinput" : self.h_endinput,
-			"end{document}" : self.h_end_document
+			"begin": ("a", self.h_begin),
+			"end": ("a", self.h_end),
+			"pdfoutput": ("", self.h_pdfoutput),
+			"input" : ("", self.h_input),
+			"include" : ("a", self.h_include),
+			"includeonly": ("a", self.h_includeonly),
+			"usepackage" : ("oa", self.h_usepackage),
+			"RequirePackage" : ("oa", self.h_usepackage),
+			"documentclass" : ("oa", self.h_documentclass),
+			"LoadClass" : ("oa", self.h_documentclass),
+			"LoadClassWithOptions" : ("a", self.h_documentclass),
+			"tableofcontents" : ("", self.h_tableofcontents),
+			"listoffigures" : ("", self.h_listoffigures),
+			"listoftables" : ("", self.h_listoftables),
+			"bibliography" : ("a", self.h_bibliography),
+			"bibliographystyle" : ("a", self.h_bibliographystyle),
+			"endinput" : ("", self.h_endinput)
 		}
-		self.update_seq()
+		self.begin_hooks = {
+			"verbatim": self.h_begin_verbatim,
+			"verbatim*": lambda loc: self.h_begin_verbatim(loc, env="verbatim\\*")
+		}
+		self.end_hooks = {
+			"document": self.h_end_document
+		}
+		self.hooks_changed = True
 
 		self.include_only = {}
 
@@ -719,77 +760,26 @@ class LaTeXDep (Depend):
 		calling the handlers for the macro calls. This recursively processes
 		the included sources.
 		"""
-		lines = file.readlines()
-		lineno = 0
-		vars = self.vars
-
-		# If a line ends with braces open, we read on until we get a correctly
-		# braced text. We also stop accumulating on paragraph breaks, the way
-		# non-\long macros do in TeX.
-
-		brace_level = 0
-		accu = ""
-
-		for line in lines:
-			lineno = lineno + 1
-
-			# Lines that start with a comment are the ones where directives
-			# may be found.
-
-			if line[0] == self.comment_mark:
-				m = re_command.match(string.rstrip(line))
-				if m.group("cmd"):
-					vars['line'] = lineno
-					args = parse_line(m.group("arg"), vars)
-
-					if self.env.caching:
-						self.cache_list.append(("cmd", m.group("cmd"), args, vars))
-
-					self.command(m.group("cmd"), args, vars)
-				continue
-
-			# Otherwise we accumulate lines (with comments stripped) until
-			# bracing is correct.
-
-			line = re_comment.match(line).group("line")
-			if accu != "" and accu[-1] != '\n':
-				line = string.lstrip(line)
-			brace_level = brace_level + count_braces(line)
-
-			if brace_level <= 0 or string.strip(line) == "":
-				brace_level = 0
-				line = accu + line
-				accu = ""
-			else:
-				accu = accu + line
-				continue
-
-			# Then we check for supported macros in the text.
-
-			match = self.seq.search(line)
-			while match:
-				dict = match.groupdict()
-				name = dict["name"]
-				
-				# The case of \input is handled specifically, because of the
-				# TeX syntax with no braces
-
-				if name == "input" and not dict["arg"]:
-					match2 = re_input.search(line)
-					if match2:
-						match = match2
-						dict = match.groupdict()
-
-				dict["match"] = line[match.start():match.end()]
-				dict["line"] = line[match.end():]
-				dict["pos"] = { 'file': self.vars["file"], 'line': lineno }
-
-				if self.env.caching:
-					self.cache_list.append(("hook", name, dict))
-
-				self.hooks[name](dict)
-				line = dict["line"]
-				match = self.seq.search(line)
+		parser = SourceParser(file, self)
+		parser.set_hooks(self.hooks.keys())
+		self.hooks_changed = False
+		while True:
+			if self.hooks_changed:
+				parser.set_hooks(self.hooks.keys())
+				self.hooks_changed = False
+			token = parser.next_hook()
+			if token.cat == EOF:
+				break
+			format, function = self.hooks[token.val]
+			args = []
+			for arg in format:
+				if arg == 'a':
+					args.append(parser.get_argument_text())
+				elif arg == 'o':
+					args.append(parser.get_latex_optional_text())
+			self.parser = parser
+			self.vars['line'] = parser.pos_line
+			function(self.vars, *args)
 
 	def process (self, path, loc={}):
 		"""
@@ -911,7 +901,7 @@ class LaTeXDep (Depend):
 	def do_alias (self, name, val):
 		if self.hooks.has_key(val):
 			self.hooks[name] = self.hooks[val]
-			self.update_seq()
+			self.hooks_changed = True
 
 	def do_clean (self, *args):
 		for file in args:
@@ -955,7 +945,7 @@ class LaTeXDep (Depend):
 
 	def do_paper (self, arg):
 		self.vars["paper"] = arg
-	    
+
 	def do_path (self, name):
 		self.env.path.append(self.abspath(name))
 
@@ -1000,68 +990,87 @@ class LaTeXDep (Depend):
 
 	#--  Macro handling  {{{2
 
-	def update_seq (self):
-		"""
-		Update the regular expression used to match macro calls using the keys
-		in the `hook' dictionary. We don't match all control sequences for
-		obvious efficiency reasons.
-		"""
-		clean = map(lambda x: x.replace("*", "\\*"), self.hooks.keys())
-		self.seq = re.compile("\
-\\\\(?P<name>%s)\*?\
- *(\\[(?P<opt>[^\\]]*)\\])?\
- *({(?P<arg>[^{}]*)}|(?=[^A-Za-z])|$)"
- 			% string.join(clean, "|"))
+	def hook_macro (self, name, format, fun):
+		self.hooks[name] = (format, fun)
+		self.hooks_changed = True
 
-	def add_hook (self, name, fun):
-		"""
-		Register a given function to be called (with no arguments) when a
-		given macro is found.
-		"""
-		self.hooks[name] = fun
-		self.update_seq()
+	def hook_begin (self, name, fun):
+		self.begin_hooks[name] = fun
+
+	def hook_end (self, name, fun):
+		self.end_hooks[name] = fun
 
 	# Now the macro handlers:
 
-	def h_pdfoutput (self, dict):
+	def h_begin (self, loc, env):
+		if self.begin_hooks.has_key(env):
+			self.begin_hooks[env](loc)
+
+	def h_end (self, loc, env):
+		if self.end_hooks.has_key(env):
+			self.end_hooks[env](loc)
+
+	def h_pdfoutput (self, loc):
 		"""
 		Called when \\pdfoutput is found. Tries to guess if it is a definition
 		that asks for the output to be in PDF or DVI.
 		"""
-		if dict["arg"] is not None:
+		parser = self.parser
+		token = parser.get_token()
+		if token.raw == '=':
+			token2 = parser.get_token()
+			if token2.raw == '0':
+				mode = 0
+			elif token2.raw == '1':
+				mode = 1
+			else:
+				parser.put_token(token2)
+				return
+		elif token.raw == '0':
+			mode = 0
+		elif token.raw == '1':
+			mode = 1
+		else:
+			parser.put_token(token)
 			return
-		if dict["line"][:2] == "=0":
+
+		if mode == 0:
 			if self.modules.has_key("pdftex"):
 				self.modules["pdftex"].mode_dvi()
 			else:
 				self.modules.register("pdftex", {"opt": "dvi"})
-		elif dict["line"][:2] == "=1":
+		else:
 			if self.modules.has_key("pdftex"):
 				self.modules["pdftex"].mode_pdf()
 			else:
 				self.modules.register("pdftex")
 
-	def h_input (self, dict):
+	def h_input (self, loc):
 		"""
 		Called when an \\input macro is found. This calls the `process' method
 		if the included file is found.
 		"""
-		if dict["arg"]:
-			self.input_file(dict["arg"], dict)
+		token = self.parser.get_token()
+		if token.cat == OPEN:
+			file = self.parser.get_group_text()
+		else:
+			file = ""
+			while token.cat not in (EOF, SPACE, END_LINE):
+				file += token.raw
+				token = self.parser.get_token()
+		self.input_file(file, loc)
 
-	def h_include (self, dict):
+	def h_include (self, loc, filename):
 		"""
 		Called when an \\include macro is found. This includes files into the
 		source in a way very similar to \\input, except that LaTeX also
 		creates .aux files for them, so we have to notice this.
 		"""
-		if not dict["arg"]:
+		if self.include_only and not self.include_only.has_key(filename):
 			return
-		if self.include_only and not self.include_only.has_key(dict["arg"]):
-			return
-		file, _ = self.input_file(dict["arg"], dict)
+		file, _ = self.input_file(filename, loc)
 		if file:
-			aux = dict["arg"] + ".aux"
+			aux = filename + ".aux"
 			self.removed_files.append(aux)
 			self.aux_old[aux] = None
 			if exists(aux):
@@ -1069,92 +1078,82 @@ class LaTeXDep (Depend):
 			else:
 				self.aux_md5[aux] = None
 
-	def h_includeonly (self, dict):
+	def h_includeonly (self, loc, files):
 		"""
 		Called when the macro \\includeonly is found, indicates the
 		comma-separated list of files that should be included, so that the
 		othe \\include are ignored.
 		"""
-		if not dict["arg"]:
-			return
 		self.include_only = {}
-		for name in dict["arg"].split(","):
+		for name in files.split(","):
 			name = name.strip()
 			if name != "":
 				self.include_only[name] = None
 
-	def h_documentclass (self, dict):
+	def h_documentclass (self, loc, opt, name):
 		"""
 		Called when the macro \\documentclass is found. It almost has the same
 		effect as `usepackage': if the source's directory contains the class
 		file, in which case this file is treated as an input, otherwise a
 		module is searched for to support the class.
 		"""
-		if not dict["arg"]: return
-		file = self.env.find_file(dict["arg"] + ".cls")
+		file = self.env.find_file(name + ".cls")
 		if file:
 			self.process(file)
 		else:
-			self.modules.register(dict["arg"], dict)
+			dict = Variables(self.vars, { 'opt': opt })
+			self.modules.register(name, dict)
 
-	def h_usepackage (self, dict):
+	def h_usepackage (self, loc, opt, names):
 		"""
 		Called when a \\usepackage macro is found. If there is a package in the
 		directory of the source file, then it is treated as an include file
 		unless there is a supporting module in the current directory,
 		otherwise it is treated as a package.
 		"""
-		if not dict["arg"]: return
-		for name in string.split(dict["arg"], ","):
+		for name in string.split(names, ","):
 			name = name.strip()
 			file = self.env.find_file(name + ".sty")
 			if file and not exists(name + ".py"):
 				self.process(file)
 			else:
+				dict = Variables(self.vars, { 'opt': opt })
 				self.modules.register(name, dict)
 
-	def h_tableofcontents (self, dict):
+	def h_tableofcontents (self, loc):
 		self.watch_file(self.target + ".toc")
-	def h_listoffigures (self, dict):
+	def h_listoffigures (self, loc):
 		self.watch_file(self.target + ".lof")
-	def h_listoftables (self, dict):
+	def h_listoftables (self, loc):
 		self.watch_file(self.target + ".lot")
 
-	def h_bibliography (self, dict):
+	def h_bibliography (self, loc, names):
 		"""
 		Called when the macro \\bibliography is found. This method actually
 		registers the module bibtex (if not already done) and registers the
 		databases.
 		"""
-		if dict["arg"]:
-			self.modules.register("bibtex", dict)
-			for db in dict["arg"].split(","):
-				self.modules["bibtex"].add_db(db.strip())
+		self.modules.register("bibtex", dict)
+		for db in names.split(","):
+			self.modules["bibtex"].add_db(db.strip())
 
-	def h_bibliographystyle (self, dict):
+	def h_bibliographystyle (self, loc, name):
 		"""
 		Called when \\bibliographystyle is found. This registers the module
 		bibtex (if not already done) and calls the method set_style() of the
 		module.
 		"""
-		if dict["arg"]:
-			self.modules.register("bibtex", dict)
-			self.modules["bibtex"].set_style(dict["arg"])
+		self.modules.register("bibtex", dict)
+		self.modules["bibtex"].set_style(name)
 
-	def h_begin_verbatim (self, dict, end="end{verbatim}"):
+	def h_begin_verbatim (self, dict, env="verbatim"):
 		"""
 		Called when \\begin{verbatim} is found. This disables all macro
 		handling and comment parsing until the end of the environment. The
 		optional argument 'end' specifies the end marker, by default it is
 		"\\end{verbatim}".
 		"""
-		def end_verbatim (dict, self=self, hooks=self.hooks):
-			self.hooks = hooks
-			self.comment_mark = "%"
-			self.update_seq()
-		self.hooks = { end : end_verbatim }
-		self.update_seq()
-		self.comment_mark = None
+		self.parser.skip_until(r"[ \t]*\\end\{%s\}.*" % env)
 
 	def h_endinput (self, dict):
 		"""
@@ -1178,7 +1177,7 @@ class LaTeXDep (Depend):
 		occured, and false if compilaiton succeeded.
 		"""
 		msg.progress(_("compiling %s") % msg.simplify(self.source()))
-		
+
 		file = self.source()
 
 		prefix = os.path.join(self.vars["cwd"], "")
@@ -1232,7 +1231,7 @@ class LaTeXDep (Depend):
 		else:
 			inputs = inputs + ":" + os.getenv("TEXINPUTS", "")
 			env = {"TEXINPUTS": inputs}
-		
+
 		self.env.execute(cmd, env, kpse=1)
 		self.something_done = 1
 
@@ -1276,7 +1275,6 @@ class LaTeXDep (Depend):
 				self.failed_module = mod
 				return 1
 		return 0
-		
 
 	def post_compile (self):
 		"""

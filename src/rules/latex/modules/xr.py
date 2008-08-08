@@ -16,10 +16,10 @@ class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		self.doc = doc
 		self.env = doc.env
-		doc.add_hook("externaldocument", self.externaldocument)
+		doc.hook_macro("externaldocument", "oa", self.externaldocument)
 
-	def externaldocument (self, dict):
-		aux = self.env.find_file(dict["arg"] + ".aux")
+	def externaldocument (self, loc, opt, name):
+		aux = self.env.find_file(name + ".aux")
 		if aux:
 			self.doc.sources[aux] = DependLeaf(self.env, aux)
 			msg.log( _(

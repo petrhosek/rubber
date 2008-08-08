@@ -77,40 +77,6 @@ def match_brace (str):
 	return (str, "")
 
 
-#-- Brace counting --{{{1
-
-def count_braces (str):
-	"""
-	Count the number of opening and closing braces in a string and return the
-	difference, i.e. the number of levels open at the end.
-	"""
-	level = 0
-	for pos in range(0, len(str)):
-		if str[pos] == '{':
-			level = level + 1
-		elif str[pos] == '}':
-			level = level - 1
-	return level
-
-
-#-- Extra argument parsing --{{{1
-
-def get_next_arg (dict):
-	"""
-	Assumes `dict' is a dictionary passed as argument to a macro hook, and
-	extracts an argument from the current line, i.e. a balanced text in braces
-	possibly preceded by spaces. Returns None if no argument is found.
-	"""
-	line = dict["line"].lstrip()
-	if len(line) == 0 or line[0] != "{":
-		return None
-	arg, next = match_brace(line[1:])
-	if next == "":
-		return None
-	dict["line"] = next
-	return arg
-
-
 #-- Checking for program availability --{{{1
 
 checked_progs = {}

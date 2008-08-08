@@ -17,13 +17,21 @@ import rubber
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		self.doc = doc
-		del doc.hooks["end{document}"]
-		doc.add_hook("import", self.import_doc)
+		doc.hook_begin("document", self.begin)
+		doc.hook_end("document", self.end)
+		doc.hook_macro("import", "a", self.import_doc)
+		self.combine_level = 0
 
-	def import_doc (self, dict):
-		if not dict["arg"]:
-			return 0
-		file, _ = self.doc.input_file(dict["arg"] + ".tex")
+	def begin (self, loc):
+		self.combine_level += 1
+
+	def end (self, loc):
+		if self.combine_level == 1:
+			raise rubber.rules.latex.EndDocument
+		self.combine_level -= 1
+
+	def import_doc (self, loc, name):
+		file, _ = self.doc.input_file(name + ".tex")
 		if not file:
 			return 0
 		base = basename(file[:-4])

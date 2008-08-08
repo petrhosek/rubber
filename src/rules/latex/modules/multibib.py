@@ -24,14 +24,14 @@ from rubber import _, msg
 class Biblio (rubber.rules.latex.modules.bibtex.Module):
 	def __init__ (self, doc, name):
 		rubber.rules.latex.modules.bibtex.Module.__init__(self, doc, {}, name)
-		doc.add_hook("bibliographystyle" + name, self.bibstyle)
-		doc.add_hook("bibliography" + name, self.biblio)
+		doc.hook_macro("bibliographystyle" + name, "a", self.bibstyle)
+		doc.hook_macro("bibliography" + name, "a", self.biblio)
 
-	def bibstyle (self, dict):
-		self.set_style(dict["arg"])
+	def bibstyle (self, loc, style):
+		self.set_style(style)
 
-	def biblio (self, dict):
-		for bib in string.split(dict["arg"], ","):
+	def biblio (self, loc, bibs):
+		for bib in string.split(bibs, ","):
 			self.add_db(bib.strip())
 
 re_optarg = re.compile("\((?P<list>[^()]*)\) *")
@@ -45,7 +45,7 @@ class Module (rubber.rules.latex.Module):
 		self.bibs = {}
 		self.defaults = []
 		self.commands = {}
-		doc.add_hook("newcites", self.newcites)
+		doc.hook_macro("newcites", "a", self.newcites)
 
 	def command (self, cmd, args):
 		bibs = self.bibs
@@ -66,11 +66,10 @@ class Module (rubber.rules.latex.Module):
 			else:
 				self.commands[name] = [[cmd, args]]
 
-	def newcites (self, dict):
+	def newcites (self, loc, name):
 		"""
 		Register a new bibliography.
 		"""
-		name = dict["arg"]
 		bib = self.bibs[name] = Biblio(self.doc, name)
 		for cmd in self.defaults:
 			bib.command(*cmd)

@@ -12,27 +12,17 @@ class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		self.doc = doc
 		self.env = doc.env
-		doc.add_hook("verbatimtabinput", self.input)
-		doc.add_hook("listinginput", self.listinginput)
+		doc.hook_macro("verbatimtabinput", "oa", self.verbatimtabinput)
+		doc.hook_macro("listinginput", "oaa", self.listinginput)
 		for env in [
 			"verbatimtab", "verbatimwrite", "boxedverbatim", "comment",
 			"listing", "listing*", "listingcont", "listingcont*"]:
-			doc.add_hook("begin{" + env + "}",
-				lambda d, end="end{" + env + "}":
-					doc.h_begin_verbatim(d, end=end))
+			doc.hook_begin(env, lambda loc: doc.h_begin_verbatim(loc, env=env))
 
-	def input (self, dict):
-		if not dict["arg"]:
-			return 0
-		file = dict["arg"]
+	def verbatimtabinput (self, loc, tabwidth, file):
 		if file.find("\\") < 0 and file.find("#") < 0:
 			self.doc.sources[file] = DependLeaf(self.env, file, loc=dict["pos"])
 
-	def listinginput (self, dict):
-		if not dict["arg"]:
-			return 0
-		file = get_next_arg(dict)
-		if not file:
-			return 0
+	def listinginput (self, loc, interval, start, file):
 		if file.find("\\") < 0 and file.find("#") < 0:
 			self.doc.sources[file] = DependLeaf(self.env, file, loc=dict["pos"])

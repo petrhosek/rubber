@@ -24,6 +24,8 @@ from rubber import *
 from rubber.util import *
 import rubber.rules
 
+from rubber.rules.latex.io import Parser
+
 # default suffixes for each device driver (taken from the .def files)
 
 # For dvips and dvipdf we put the suffixes .bb instead of .gz because these
@@ -53,7 +55,6 @@ drv_suffixes = {
 # These regular expressions are used to parse path lists in \graphicspath and
 # arguments in \DeclareGraphicsRule respectively.
 
-re_gpath = re.compile("{(?P<prefix>[^{}]*)}")
 re_grule = re.compile("{(?P<type>[^{}]*)}\\s*\
 {(?P<read>[^{}]*)}\\s*{(?P<command>[^{}]*)}")
 
@@ -65,10 +66,10 @@ class Module (rubber.rules.latex.Module):
 		"""
 		self.doc = doc
 		self.env = doc.env
-		doc.add_hook("includegraphics", self.includegraphics)
-		doc.add_hook("graphicspath", self.graphicspath)
-		doc.add_hook("DeclareGraphicsExtensions", self.declareExtensions)
-		doc.add_hook("DeclareGraphicsRule", self.declareRule)
+		doc.hook_macro("includegraphics", "oa", self.includegraphics)
+		doc.hook_macro("graphicspath", "a", self.graphicspath)
+		doc.hook_macro("DeclareGraphicsExtensions", "a", self.declareExtensions)
+		doc.hook_macro("DeclareGraphicsRule", "aaaa", self.declareRule)
 
 		self.prefixes = map(lambda x: join(x, ""), doc.env.path)
 		self.files = []
@@ -94,19 +95,16 @@ class Module (rubber.rules.latex.Module):
 
 	#  supported macros
 
-	def includegraphics (self, dict):
+	def includegraphics (self, loc, opt, name):
 		"""
 		This method is triggered by the \\includegraphics macro, it looks for
 		the graphics file specified as argument and adds it either to the
 		dependencies or to the list of graphics not found.
 		"""
-		name = dict["arg"]
-		if not name:
-			return
 		suffixes = self.suffixes
 
-		if dict["opt"]:
-			opts = parse_keyval(dict["opt"])
+		if opt is not None:
+			opts = parse_keyval(opt)
 			if opts.has_key("ext"):
 				# no suffixes are tried when the extension is explicit
 				suffixes = [""]
@@ -131,7 +129,7 @@ class Module (rubber.rules.latex.Module):
 			return 1
 
 		d = self.env.convert(name, suffixes=suffixes, prefixes=self.prefixes,
-				check=check, pos=dict["pos"])
+				check=check, pos=loc)
 
 		if d:
 			msg.log(_("graphics `%s' found") % name, pkg="graphics")
@@ -139,68 +137,40 @@ class Module (rubber.rules.latex.Module):
 				self.doc.sources[file] = d;
 			self.files.append(d)
 		else:
-			msg.warn(_("graphics `%s' not found") % name, **dict["pos"])
+			msg.warn(_("graphics `%s' not found") % name, **loc)
 
-	def graphicspath (self, dict):
+	def graphicspath (self, loc, arg):
 		"""
 		This method is triggered by the \\graphicspath macro. The macro's
 		argument is a list of prefixes that can be added to the file names
 		(not only directory names).
 		"""
+		parser = parse_string(arg)
+		while True:
+			arg = parser.get_argument_text()
+			if arg is None:
+				break
+			self.prefixes.insert(0, arg)
 
-		# This argument has the form {{foo/}{bar/}}, therefore it cannot be
-		# parsed by the standard regular expression for control sequences
-		# (because of the braces). Thus we parse the remains of the line
-		# ourselves.
-
-		if dict["arg"]:
-			# The argument should be None...
-			return
-
-		line = dict["line"]
-		if line[0] != "{":
-			return
-		line = line[1:]
-		while line != "" and line[0] != "}":
-			m = re_gpath.match(line)
-			if m:
-				self.prefixes.insert(0, m.group("prefix"))
-				line = line[m.end():]
-			else:
-				# strange prefix, but we keep it anyway
-				self.prefixes.insert(0, line[0])
-				line = line[1:]
-
-		dict["line"] = line
-
-	def declareExtensions (self, dict):
+	def declareExtensions (self, loc, list):
 		"""
 		This method is triggered by the \\DeclareGraphicsExtensions macro. It
 		registers new suffixes for graphics inclusion.
 		"""
-		if not dict["arg"]:
-			return
-		for suffix in dict["arg"].split(","):
+		for suffix in list.split(","):
 			self.suffixes.insert(0, string.strip(suffix))
 
-	def declareRule (self, dict):
+	def declareRule (self, loc, ext, type, read, command):
 		"""
 		This method is triggered by the \\DeclareGraphicsRule macro. It
 		declares a rule to include a given graphics file type.
 		This implementation is preliminary, its correctness chould be checked.
 		"""
-		if not dict["arg"]:
-			return
-		m = re_grule.match(dict["line"])
-		if not m:
-			return
-		dict["line"] = dict["line"][m.end():]
-		read = m.group("read")
 		if read in self.suffixes:
 			return
 		self.suffixes.insert(0, read)
 		msg.log("*** FIXME ***  rule %s -> %s [%s]" % (
-			string.strip(dict["arg"]), m.group("read"), m.group("type")),
+			string.strip(ext), read, type),
 			pkg="graphics")
 
 	#  auxiliary method

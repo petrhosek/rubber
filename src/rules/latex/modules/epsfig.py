@@ -19,23 +19,17 @@ class Module (rubber.rules.latex.modules.graphics.Module):
 		does that too.
 		"""
 		rubber.rules.latex.modules.graphics.Module.__init__(self, doc, dict)
-		doc.add_hook("epsfbox", self.includegraphics)
-		doc.add_hook("epsffile", self.includegraphics)
-		doc.add_hook("epsfig", self.epsfig)
-		doc.add_hook("psfig", self.epsfig)
+		doc.hook_macro("epsfbox", "oa", self.includegraphics)
+		doc.hook_macro("epsffile", "oa", self.includegraphics)
+		doc.hook_macro("epsfig", "a", self.epsfig)
+		doc.hook_macro("psfig", "a", self.epsfig)
 
-	def epsfig (self, dict):
+	def epsfig (self, loc, arg):
 		"""
 		This macro is called when a \\psfig or \\epsfig macro is found. It
 		mainly translates it into a call to \\includegraphics.
 		"""
-		arg = dict["arg"]
-		if not arg:
-			return
 		opts = rubber.util.parse_keyval(arg)
 		if not opts.has_key("file"):
 			return
-		fake = dict.copy()
-		fake["arg"] = opts["file"]
-		fake["opt"] = arg
-		self.includegraphics(fake)
+		self.includegraphics(loc, arg, opts["file"])

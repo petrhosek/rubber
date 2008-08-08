@@ -194,8 +194,8 @@ class Module (rubber.rules.latex.Module):
 		self.indices = {}
 		self.defaults = []
 		self.commands = {}
-		doc.add_hook("makeindex", self.makeindex)
-		doc.add_hook("newindex", self.newindex)
+		doc.hook_macro("makeindex", "", self.makeindex)
+		doc.hook_macro("newindex", "aaa", self.newindex)
 
 	def register (self, name, idx, ind, ilg):
 		"""
@@ -208,22 +208,17 @@ class Module (rubber.rules.latex.Module):
 			for cmd in self.commands[name]:
 				index.command(*cmd)
 
-	def makeindex (self, dict):
+	def makeindex (self, loc):
 		"""
 		Register the standard index.
 		"""
 		self.register("default", "idx", "ind", "ilg")
 
-	def newindex (self, dict):
+	def newindex (self, loc, index, idx, ind):
 		"""
 		Register a new index.
 		"""
-		m = re_newindex.match(dict["line"])
-		if not m:
-			return
-		index = dict["arg"]
-		d = m.groupdict()
-		self.register(index, d["idx"], d["ind"], "ilg")
+		self.register(index, idx, ind, "ilg")
 		msg.log(_("index %s registered") % index, pkg="index")
 
 	def command (self, cmd, args):
