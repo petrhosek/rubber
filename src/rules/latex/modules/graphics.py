@@ -75,7 +75,7 @@ class Module (rubber.rules.latex.Module):
 		self.files = []
 
 		# I take dvips as the default, but it is not portable.
-		if doc.vars["engine"] == "pdfTeX" and doc.prods[0][-4:] == ".pdf":
+		if doc.vars["engine"] == "pdfTeX" and doc.products[0][-4:] == ".pdf":
 			self.suffixes = drv_suffixes["pdftex"]
 		elif doc.vars["engine"] == "VTeX":
 			self.suffixes = drv_suffixes["vtex"]
@@ -133,8 +133,8 @@ class Module (rubber.rules.latex.Module):
 
 		if d:
 			msg.log(_("graphics `%s' found") % name, pkg="graphics")
-			for file in d.prods:
-				self.doc.sources[file] = d;
+			for file in d.products:
+				self.doc.add_source(file)
 			self.files.append(d)
 		else:
 			msg.warn(_("graphics `%s' not found") % name, **loc)

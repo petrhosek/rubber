@@ -10,14 +10,13 @@ needed.
 import rubber
 from rubber import _
 from rubber import *
+from rubber.depend import Node
 
-class CWebDep (Depend):
+class CWebDep (Node):
 	def __init__ (self, env, target, source):
-		leaf = DependLeaf(env, source)
 		tg_base = target[:-4]
-		Depend.__init__(self, env,
-			prods=[target, tg_base + ".idx", tg_base + ".scn"],
-			sources={ source: leaf })
+		Node.__init__(self, env.depends,
+			[target, tg_base + ".idx", tg_base + ".scn"], [source])
 		self.env = env
 		self.source = source
 		self.target = target

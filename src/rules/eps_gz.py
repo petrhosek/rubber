@@ -6,16 +6,16 @@ Extraction of bounding box information from gzipped PostScript figures.
 
 from rubber import _, msg
 from rubber import *
+from rubber.depend import Node
 
 from gzip import GzipFile
 import re
 
 re_bbox = re.compile("%[%\w]*BoundingBox:")
 
-class Dep (Depend):
+class Dep (Node):
 	def __init__ (self, env, target, source):
-		leaf = DependLeaf(env, source)
-		Depend.__init__(self, env, [target], {source: leaf})
+		Node.__init__(self, env.depends, [target], [source])
 		self.env = env
 		self.source = source
 		self.target = target

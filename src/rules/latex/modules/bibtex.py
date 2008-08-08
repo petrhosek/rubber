@@ -93,7 +93,7 @@ class Module (rubber.rules.latex.Module):
 			bib = join(dir, name + ".bib")
 			if exists(bib):
 				self.db[name] = bib
-				self.doc.sources[bib] = DependLeaf(self.env, bib)
+				self.doc.add_source(bib)
 				self.doc.not_included.append(bib)
 				return
 
@@ -106,14 +106,14 @@ class Module (rubber.rules.latex.Module):
 		if self.style:
 			old_bst = self.style + ".bst"
 			if exists(old_bst) and self.doc.sources.has_key(old_bst):
-				del self.doc.sources[old_bst]
+				self.doc.remove_source(old_bst)
 
 		self.style = style
 		for dir in self.bst_path:
 			new_bst = join(dir, style + ".bst")
 			if exists(new_bst):
 				self.bst_file = new_bst
-				self.doc.sources[new_bst] = DependLeaf(self.env, new_bst)
+				self.doc.add_source(new_bst)
 				return
 		self.bst_file = None
 

@@ -21,7 +21,7 @@ class Module (rubber.rules.latex.Module):
 	def externaldocument (self, loc, opt, name):
 		aux = self.env.find_file(name + ".aux")
 		if aux:
-			self.doc.sources[aux] = DependLeaf(self.env, aux)
+			self.doc.add_source(aux)
 			msg.log( _(
 				"dependency %s added for external references") % aux, pkg="xr")
 		else:

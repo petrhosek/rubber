@@ -12,6 +12,7 @@ from getopt import *
 from rubber import _, msg
 from rubber import *
 from rubber.version import *
+from rubber.depend import ERROR, CHANGED, UNCHANGED
 from rubber.util import parse_line
 
 class Main (object):
@@ -233,7 +234,7 @@ available options:
 				env.main.includeonly(self.include_only)
 
 			if self.clean:
-				if env.main.prods == []:
+				if env.main.products == []:
 					msg.warn(_("there is no LaTeX source for %s") % srcname)
 					continue
 			else:
@@ -267,8 +268,8 @@ available options:
 				continue
 
 			if self.force:
-				ret = env.main.make(1)
-				if ret != 0 and env.final is not env.main:
+				ret = env.main.make(True)
+				if ret != ERROR and env.final is not env.main:
 					ret = env.final.make()
 				else:
 					# This is a hack for the call to get_errors() below
@@ -277,7 +278,7 @@ available options:
 			else:
 				ret = env.final.make(self.force)
 
-			if ret == 0:
+			if ret == ERROR:
 				msg.info(_("There were errors compiling %s.") % srcname)
 				number = self.max_errors
 				for err in env.final.failed().get_errors():
@@ -288,7 +289,7 @@ available options:
 					number -= 1
 				return 1
 
-			if ret == 1:
+			if ret == UNCHANGED:
 				msg(1, _("nothing to be done for %s") % srcname)
 
 			if self.warn:

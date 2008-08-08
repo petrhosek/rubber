@@ -15,6 +15,7 @@ import re, string
 
 from rubber import _
 from rubber import *
+from rubber.depend import Node
 from rubber.rules.latex import LogCheck
 
 re_input = re.compile("input\\s+(?P<file>[^\\s;]+)")
@@ -113,7 +114,7 @@ class MPLogCheck (LogCheck):
 					yield err
 
 
-class Dep (Depend):
+class Dep (Node):
 	"""
 	This class represents dependency nodes for MetaPost figures. The __init__
 	method simply creates one node for the figures and one leaf node for all
@@ -124,8 +125,7 @@ class Dep (Depend):
 		self.cmd_pwd = os.path.dirname(source)
 		self.include(os.path.basename(source), sources)
 		msg.log(_("%s is made from %r") % (target, sources))
-		self.leaf = DependLeaf(env, *sources)
-		Depend.__init__(self, env, prods=[target], sources={source: self.leaf})
+		Node.__init__(self, env.depends, [target], sources)
 		self.env = env
 		self.base = source[:-3]
 		self.cmd = ["mpost", "\\batchmode;input %s" %
@@ -166,7 +166,7 @@ class Dep (Depend):
 		msg.progress(_("running Metapost on %s") %
 				msg.simplify(self.base + ".mp"))
 		if self.env.execute(self.cmd, self.penv, pwd=self.cmd_pwd, kpse=1) == 0:
-			return 0
+			return True
 
 		# This creates a log file that has the same aspect as TeX logs.
 
@@ -174,8 +174,8 @@ class Dep (Depend):
 		if self.log.read(self.base + ".log"):
 			msg.error(_(
 				"I can't read MetaPost's log file, this is wrong."))
-			return 1
-		return self.log.errors()
+			return False
+		return not self.log.errors()
 
 	def get_errors (self):
 		"""
@@ -223,7 +223,7 @@ def convert (vars, env):
 	source = vars["source"]
 	if files.has_key(source):
 		dep = files[source]
-		dep.prods.append(vars["target"])
+		dep.add_product(vars["target"])
 	else:
 		dep = Dep(env, vars["target"], source)
 		files[source] = dep

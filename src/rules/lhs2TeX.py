@@ -10,12 +10,11 @@ pretty-print Haskell code in the source file when needed.
 import rubber
 from rubber import _
 from rubber import *
+from rubber.depend import Node
 
-class LHSDep (Depend):
+class LHSDep (Node):
 	def __init__ (self, env, target, source):
-		leaf = DependLeaf(env, source)
-		tg_base = target[:-4]
-		Depend.__init__(self, env, prods=[target], sources={ source: leaf })
+		Node.__init__(self, env.depends, [target], [source])
 		self.env = env
 		self.source = source
 		self.target = target

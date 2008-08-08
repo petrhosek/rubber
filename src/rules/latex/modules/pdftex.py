@@ -26,10 +26,10 @@ class Module (rubber.rules.latex.Module):
 	def mode_pdf (self):
 		if self.mode == "pdf":
 			return
-		if self.env.final != self.doc and self.doc.prods[0][-4:] != ".pdf":
+		if self.env.final != self.doc and self.doc.products[0][-4:] != ".pdf":
 			msg.error(_("there is already a post-processor registered"))
 			return
-		self.doc.prods = [self.doc.target + ".pdf"]
+		self.doc.reset_products([self.doc.target + ".pdf"])
 		self.doc.cmdline = [
 			opt for opt in self.doc.cmdline if opt != "\\pdfoutput=0"]
 		self.mode = "pdf"
@@ -37,9 +37,9 @@ class Module (rubber.rules.latex.Module):
 	def mode_dvi (self):
 		if self.mode == "dvi":
 			return
-		if self.env.final != self.doc and self.doc.prods[0][-4:] != ".dvi":
+		if self.env.final != self.doc and self.doc.products[0][-4:] != ".dvi":
 			msg.error(_("there is already a post-processor registered"))
 			return
-		self.doc.prods = [self.doc.target + ".dvi"]
+		self.doc.reset_products([self.doc.target + ".dvi"])
 		self.doc.cmdline.insert(0, "\\pdfoutput=0")
 		self.mode = "dvi"

@@ -17,6 +17,7 @@ import string
 
 from rubber import _
 from rubber import *
+from rubber.depend import Node
 from rubber.version import moddir
 import rubber.rules.latex.modules
 
@@ -532,7 +533,7 @@ class EndInput:
 	""" This is the exception raised when \\endinput is found. """
 	pass
 
-class LaTeXDep (Depend):
+class LaTeXDep (Node):
 	"""
 	This class represents dependency nodes for LaTeX compilation. It handles
 	the cyclic LaTeX compilation until a stable output, including actual
@@ -555,7 +556,8 @@ class LaTeXDep (Depend):
 		given file (all steps are initialized empty) and sets the regular
 		expressions and the hook dictionary.
 		"""
-		Depend.__init__(self, env)
+		Node.__init__(self, env.depends)
+		self.env = env
 
 		self.log = LogCheck()
 		self.modules = Modules(self)
@@ -647,7 +649,7 @@ class LaTeXDep (Depend):
 		if not name:
 			msg.error(_("cannot find %s") % name)
 			return 1
-		self.sources = {}
+		self.reset_sources()
 		self.vars['source'] = name
 		(src_path, name) = split(name)
 		self.vars['path'] = src_path
@@ -680,7 +682,7 @@ class LaTeXDep (Depend):
 				break
 
 		self.vars['target'] = self.target = os.path.join(prefix, job)
-		self.prods = [self.target + ".dvi"]
+		self.reset_products([self.target + ".dvi"])
 
 		return 0
 
@@ -729,7 +731,7 @@ class LaTeXDep (Depend):
 		except EndDocument:
 			pass
 		self.set_date()
-		msg.log(_("dependencies: %r") % self.sources.keys())
+		msg.log(_("dependencies: %r") % self.sources)
 
 	def parse_file (self, file):
 		"""
@@ -758,7 +760,7 @@ class LaTeXDep (Depend):
 			self.vars['line'] = parser.pos_line
 			function(self.vars, *args)
 
-	def process (self, path, loc={}):
+	def process (self, path):
 		"""
 		This method is called when an included file is processed. The argument
 		must be a valid file name.
@@ -767,8 +769,8 @@ class LaTeXDep (Depend):
 			msg.debug(_("%s already parsed") % path)
 			return
 		self.processed_sources[path] = None
-		if not self.sources.has_key(path):
-			self.sources[path] = DependLeaf(self.env, path, loc=loc)
+		if path not in self.sources:
+			self.add_source(path)
 
 		if self.env.caching:
 			if self.env.cache["latex"].has_key(path):
@@ -823,7 +825,7 @@ class LaTeXDep (Depend):
 		be the result of some conversion, then the conversion is performed,
 		otherwise the source is parsed. The returned value is a couple
 		(name,dep) where `name' is the actual LaTeX source and `dep' is
-		its dependency node. The return value is (None,None) is the source
+		its dependency node. The return value is (None,None) if the source
 		could neither be read nor built.
 		"""
 		if name.find("\\") >= 0 or name.find("#") >= 0:
@@ -833,20 +835,19 @@ class LaTeXDep (Depend):
 			pname = join(path, name)
 			dep = self.env.convert(pname, suffixes=[".tex",""], doc=self)
 			if dep:
-				dep.loc = loc
-				file = dep.prods[0]
-				self.sources[file] = dep
+				file = dep.products[0]
 			else:
 				file = self.env.find_file(name, ".tex")
 				if not file:
 					continue
 				dep = None
+			self.add_source(file)
 
-			if dep is None or isinstance(dep, DependLeaf):
-				self.process(file, loc)
+			if dep is None or dep.is_leaf():
+				self.process(file)
 
 			if dep is None:
-				return file, self.sources[file]
+				return file, self.set[file]
 			else:
 				return file, dep
 
@@ -870,10 +871,10 @@ class LaTeXDep (Depend):
 		try:
 			if len(lst) > 1:
 				self.modules.command(lst[0], lst[1], args)
+			elif not hasattr(self, "do_" + cmd):
+				msg.warn(_("unknown directive '%s'") % cmd, **pos)
 			else:
 				getattr(self, "do_" + cmd)(*args)
-		except AttributeError:
-			msg.warn(_("unknown directive '%s'") % cmd, **pos)
 		except TypeError:
 			msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
 
@@ -890,7 +891,7 @@ class LaTeXDep (Depend):
 		for arg in args:
 			file = self.env.find_file(arg)
 			if file:
-				self.sources[file] = DependLeaf(self.env, file)
+				self.add_source(file)
 			else:
 				msg.warn(_("dependency '%s' not found") % arg, **self.vars)
 
@@ -1152,8 +1153,8 @@ class LaTeXDep (Depend):
 
 	def compile (self):
 		"""
-		Run one LaTeX compilation on the source. Return true if errors
-		occured, and false if compilaiton succeeded.
+		Run one LaTeX compilation on the source. Return true on success or
+		false if errors occured.
 		"""
 		msg.progress(_("compiling %s") % msg.simplify(self.source()))
 
@@ -1216,24 +1217,25 @@ class LaTeXDep (Depend):
 
 		if self.log.read(self.target + ".log"):
 			msg.error(_("Could not run %s.") % cmd[0])
-			return 1
+			return False
 		if self.log.errors():
-			return 1
-		if not os.access(self.prods[0], os.F_OK):
+			return False
+		if not os.access(self.products[0], os.F_OK):
 			msg.error(_("Output file `%s' was not produced.") %
-				msg.simplify(self.prods[0]))
-			return 1
+				msg.simplify(self.products[0]))
+			return False
 		for aux, md5 in self.aux_md5.items():
 			self.aux_old[aux] = md5
 			self.aux_md5[aux] = md5_file(aux)
-		return 0
+		return True
 
 	def pre_compile (self, force):
 		"""
 		Prepare the source for compilation using package-specific functions.
-		This function must return true on failure. This function sets
-		`must_compile' to 1 if we already know that a compilation is needed,
-		because it may avoid some unnecessary preprocessing (e.g. BibTeXing).
+		This function must return False on failure. This function sets
+		`must_compile' to True if we already know that a compilation is
+		needed, because it may avoid some unnecessary preprocessing (e.g.
+		BibTeXing).
 		"""
 		aux = self.target + ".aux"
 		if os.path.exists(aux):
@@ -1252,13 +1254,14 @@ class LaTeXDep (Depend):
 		for mod in self.modules.objects.values():
 			if mod.pre_compile():
 				self.failed_module = mod
-				return 1
-		return 0
+				return False
+		return True
 
 	def post_compile (self):
 		"""
 		Run the package-specific operations that are to be performed after
-		each compilation of the main source. Returns true on failure.
+		each compilation of the main source. Returns true on success or false
+		on failure.
 		"""
 		msg.log(_("running post-compilation scripts..."))
 
@@ -1274,8 +1277,8 @@ class LaTeXDep (Depend):
 		for mod in self.modules.objects.values():
 			if mod.post_compile():
 				self.failed_module = mod
-				return 1
-		return 0
+				return False
+		return True
 
 	def clean (self, all=0):
 		"""
@@ -1283,14 +1286,14 @@ class LaTeXDep (Depend):
 		"""
 		self.remove_suffixes([".log", ".aux", ".toc", ".lof", ".lot"])
 
-		for file in self.prods + self.removed_files:
+		for file in self.products + self.removed_files:
 			if exists(file):
 				msg.log(_("removing %s") % file)
 				os.unlink(file)
 
 		msg.log(_("cleaning additional files..."))
 
-		for dep in self.sources.values():
+		for dep in self.source_nodes():
 			dep.clean()
 
 		for mod in self.modules.objects.values():
@@ -1299,38 +1302,43 @@ class LaTeXDep (Depend):
 	#--  Building routine  {{{2
 
 	def force_run (self):
-		return self.run(1)
+		return self.run(True)
 
-	def run (self, force=0):
+	def run (self, force=False):
 		"""
 		Run the building process until the last compilation, or stop on error.
 		This method supposes that the inputs were parsed to register packages
 		and that the LaTeX source is ready. If the second (optional) argument
 		is true, then at least one compilation is done. As specified by the
-		class Depend, the method returns 0 on success and 1 on failure.
+		class depend.Node, the method returns True on success and False on
+		failure.
 		"""
-		if self.pre_compile(force):
-			return 1
+		if not self.pre_compile(force):
+			return False
 
 		# If an error occurs after this point, it will be while LaTeXing.
 		self.failed_dep = self
 		self.failed_module = None
 
 		if force or self.compile_needed():
-			self.must_compile = 0
-			if self.compile(): return 1
-			if self.post_compile(): return 1
+			self.must_compile = False
+			if not self.compile():
+				return False
+			if not self.post_compile():
+				return False
 			while self.recompile_needed():
-				self.must_compile = 0
-				if self.compile(): return 1
-				if self.post_compile(): return 1
+				self.must_compile = False
+				if not self.compile():
+					return False
+				if not self.post_compile():
+					return False
 
 		# Finally there was no error.
 		self.failed_dep = None
 
 		if self.something_done:
 			self.date = int(time.time())
-		return 0
+		return True
 
 	def compile_needed (self):
 		"""
@@ -1340,13 +1348,13 @@ class LaTeXDep (Depend):
 		if self.must_compile:
 			return 1
 		msg.log(_("checking if compiling is necessary..."))
-		if not exists(self.prods[0]):
+		if not exists(self.products[0]):
 			msg.debug(_("the output file doesn't exist"))
 			return 1
 		if not exists(self.target + ".log"):
 			msg.debug(_("the log file does not exist"))
 			return 1
-		if getmtime(self.prods[0]) < getmtime(self.source()):
+		if getmtime(self.products[0]) < getmtime(self.source()):
 			msg.debug(_("the source is younger than the output file"))
 			return 1
 		if self.log.read(self.target + ".log"):
@@ -1366,7 +1374,7 @@ class LaTeXDep (Depend):
 			msg.debug(_("last compilation failed"))
 			self.update_watches()
 			return 1
-		if self.deps_modified(getmtime(self.prods[0])):
+		if self.deps_modified(getmtime(self.products[0])):
 			msg.debug(_("dependencies were modified"))
 			self.update_watches()
 			return 1
@@ -1393,10 +1401,13 @@ class LaTeXDep (Depend):
 		Returns true if any of the dependencies is younger than the specified
 		date.
 		"""
-		for name, dep in self.sources.items():
-			if name not in self.not_included and dep.date > date:
-				return 1
-		return 0
+		for name in self.sources:
+			if name in self.not_included:
+				continue
+			node = self.set[name]
+			if node.date > date:
+				return True
+		return False
 
 	#--  Utility methods  {{{2
 

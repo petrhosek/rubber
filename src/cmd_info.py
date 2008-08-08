@@ -107,7 +107,7 @@ actions:
 		if self.act == "deps":
 			self.prepare(src)
 			deps = {}
-			for dep in self.env.main.sources.values():
+			for dep in self.env.main.source_nodes():
 				for file in dep.leaves():
 					deps[file] = None
 			print string.join(deps.keys())
@@ -122,11 +122,11 @@ actions:
 				if seen.has_key(node):
 					continue
 				seen[node] = None
-				if len(node.sources.keys()) == 0:
+				if len(node.sources) == 0:
 					continue
-				print "\n%s:" % string.join(node.prods),
-				print string.join(node.sources.keys())
-				next.extend(node.sources.values())
+				print "\n%s:" % string.join(node.products),
+				print string.join(node.sources)
+				next.extend(node.source_nodes())
 		else:
 			self.prepare(src, parse=0)
 			return self.info_log(self.act)

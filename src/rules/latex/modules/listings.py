@@ -19,7 +19,7 @@ class Module (rubber.rules.latex.Module):
 
 	def input (self, loc, opt, file):
 		if file.find("\\") < 0 and file.find("#") < 0:
-			self.doc.sources[file] = DependLeaf(self.env, file, loc=loc)
+			self.doc.add_source(file)
 
 	def newenvironment (self, loc, name):
 		def func (loc):

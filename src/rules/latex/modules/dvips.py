@@ -14,14 +14,15 @@ from os.path import *
 import rubber
 from rubber import _
 from rubber import *
+from rubber.depend import Node
 
-class Dep (Depend):
-	def __init__ (self, doc, target, source, node):
+class Dep (Node):
+	def __init__ (self, doc, target, source):
+		Node.__init__(self, doc.env.depends, [target], [source])
 		self.doc = doc
 		self.env = doc.env
 		self.source = source
 		self.target = target
-		Depend.__init__(self, doc.env, prods=[target], sources={source: node})
 		self.options = []
 
 	def run (self):
@@ -41,12 +42,12 @@ class Dep (Depend):
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
 		self.doc = doc
-		if doc.env.final.prods[0][-4:] != ".dvi":
+		if doc.env.final.products[0][-4:] != ".dvi":
 			msg.error(_("I can't use dvips when not producing a DVI"))
 			sys.exit(2)
-		dvi = doc.env.final.prods[0]
+		dvi = doc.env.final.products[0]
 		ps = dvi[:-3] + "ps"
-		self.dep = Dep(doc, ps, dvi, doc.env.final)
+		self.dep = Dep(doc, ps, dvi)
 		doc.env.final = self.dep
 
 	def do_options (self, *args):

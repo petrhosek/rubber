@@ -9,25 +9,20 @@ from bz2 import BZ2File
 import rubber
 from rubber import _, msg
 from rubber import *
+from rubber.depend import Node
 
-class Dep (Depend):
-	def __init__ (self, env, target, source, node):
-		self.env = env
-		self.source = source
-		self.target = target
-		Depend.__init__(self, env, prods=[target], sources={source: node})
-
+class Dep (Node):
 	def run (self):
-		msg.progress(_("compressing %s") % self.source)
-		out = BZ2File(self.target, 'w')
-		file = open(self.source)
+		msg.progress(_("compressing %s") % self.sources[0])
+		out = BZ2File(self.products[0], 'w')
+		file = open(self.sources[0])
 		out.write(file.read())
 		file.close()
 		out.close()
-		return 0
+		return True
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
-		file = doc.env.final.prods[0]
-		bz2 = Dep(doc.env, file + ".bz2", file, doc.env.final)
+		file = doc.env.final.products[0]
+		bz2 = Dep(doc.env.depends, [file + ".bz2"], [file])
 		doc.env.final = bz2

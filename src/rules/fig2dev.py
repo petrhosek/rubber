@@ -6,17 +6,17 @@ Conversion of XFig graphics into various formats.
 
 from rubber import _, msg
 from rubber import *
+from rubber.depend import Node
 
 import string, re
 
-class Dep (Depend):
+class Dep (Node):
 	"""
 	This class represents dependency nodes from XFig files to standard
 	graphics formats (i.e. not combined ps/latex).
 	"""
 	def __init__ (self, env, target, source):
-		leaf = DependLeaf(env, source)
-		Depend.__init__(self, env, [target], {source: leaf})
+		Node.__init__(self, env.depends, [target], [source])
 		self.env = env
 		self.source = source
 
@@ -45,19 +45,18 @@ pst_lang = {
 	"pdf": ("pdftex", "PDF"), "pdftex": ("pdftex", "PDF")
 }
 
-class PSTDep (Depend):
+class PSTDep (Node):
 	"""
 	This class represents dependency nodes for combined EPS/LaTeX figures from
 	XFig. They produce both a LaTeX source that contains an \\includegraphics
 	and an EPS file.
 	"""
-	def __init__ (self, env, tex, fig, vars, loc={}):
+	def __init__ (self, env, tex, fig, vars):
 		"""
 		The arguments of the constructor are, respectively, the compilation
 		environment, the LaTeX source produced, the source file name, and the
-		parameters of the conversion rule..
+		parameters of the conversion rule.
 		"""
-		leaf = DependLeaf(env, fig, loc=loc)
 		self.env = env
 
 		m = re_pstname.match(tex)
@@ -78,7 +77,7 @@ class PSTDep (Depend):
 			figref = figname
 		lang, self.langname = pst_lang[type]
 
-		Depend.__init__(self, env, prods=[tex, figname], sources={fig: leaf}, loc=loc)
+		Node.__init__(self, env.depends, [tex, figname], [fig])
 		self.fig = fig
 		self.cmd_t = ["fig2dev", "-L", lang + "_t", "-p", figref, fig, tex ]
 		self.cmd_p = ["fig2dev", "-L", lang, fig, figname ]

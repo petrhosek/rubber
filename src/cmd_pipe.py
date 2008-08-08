@@ -13,6 +13,7 @@ from getopt import *
 from rubber import _
 from rubber import *
 from rubber.version import *
+from rubber.depend import ERROR, CHANGED, UNCHANGED
 import rubber.cmdline
 
 re_rubtmp = re.compile("rubtmp(?P<num>[0-9]+)\\.")
@@ -142,7 +143,7 @@ available options:
 
 		ret = env.final.make()
 
-		if ret == 0:
+		if ret == ERROR:
 			msg.info(_("There were errors."))
 			number = self.max_errors
 			for err in env.final.failed().get_errors():
@@ -156,7 +157,7 @@ available options:
 
 		# Dump the results on standard output
 
-		output = open(env.final.prods[0])
+		output = open(env.final.products[0])
 		dump_file(output, sys.stdout)
 
 		# Clean the intermediate files

@@ -9,13 +9,14 @@ from gzip import GzipFile
 import rubber
 from rubber import _, msg
 from rubber import *
+from rubber.depend import Node
 
-class Dep (Depend):
-	def __init__ (self, env, target, source, node):
+class Dep (Node):
+	def __init__ (self, env, target, source):
+		Node.__init__(self, env.depends, [target], [source])
 		self.env = env
 		self.source = source
 		self.target = target
-		Depend.__init__(self, env, prods=[target], sources={source: node})
 
 	def run (self):
 		msg.progress(_("compressing %s") % self.source)
@@ -28,6 +29,6 @@ class Dep (Depend):
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):
-		file = doc.env.final.prods[0]
-		gz = Dep(doc.env, file + ".gz", file, doc.env.final)
+		file = doc.env.final.products[0]
+		gz = Dep(doc.env, file + ".gz", file)
 		doc.env.final = gz

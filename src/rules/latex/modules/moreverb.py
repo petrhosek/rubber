@@ -21,8 +21,8 @@ class Module (rubber.rules.latex.Module):
 
 	def verbatimtabinput (self, loc, tabwidth, file):
 		if file.find("\\") < 0 and file.find("#") < 0:
-			self.doc.sources[file] = DependLeaf(self.env, file, loc=dict["pos"])
+			self.doc.add_source(file)
 
 	def listinginput (self, loc, interval, start, file):
 		if file.find("\\") < 0 and file.find("#") < 0:
-			self.doc.sources[file] = DependLeaf(self.env, file, loc=dict["pos"])
+			self.doc.add_source(file)
