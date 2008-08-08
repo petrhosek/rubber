@@ -446,11 +446,12 @@ class Converter (object):
 		conv.sort()
 		for (cost, source, target, rule) in conv:
 			dict = rule.copy()
+			dict.update(args)
 			dict["source"] = source
 			dict["target"] = target
-			dict.update(args)
+			vars = Variables(env.vars, dict)
 			name = rule["rule"]
-			if check and not check(dict):
+			if check and not check(vars):
 				continue
 			answer = self.plugins[name].check(dict, env)
 			if answer:
@@ -492,7 +493,7 @@ class Environment:
 			}
 
 		if cwd is None: cwd = os.getcwd()
-		self.vars = { "cwd": cwd }
+		self.vars = Variables(items = { "cwd": cwd })
 		self.path = [cwd]
 		self.plugins = Plugins(rubber.rules.__path__)
 		self.pkg_rules = Converter(self.plugins)

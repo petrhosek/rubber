@@ -91,7 +91,7 @@ class Module (rubber.rules.latex.Module):
 			if drv_suffixes.has_key(opt):
 				self.suffixes = drv_suffixes[opt]
 
-		doc.vars["graphics"] = self.suffixes
+		doc.vars["graphics_suffixes"] = self.suffixes
 
 	#  supported macros
 

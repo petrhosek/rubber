@@ -154,6 +154,79 @@ class Plugins (object):
 		self.modules.clear()
 
 
+#-- Variable handling --{{{1
+
+import UserDict
+from sets import Set
+
+class Variables (UserDict.DictMixin):
+	"""
+	This class represent an environment containing variables. It can be
+	accessed as a dictionary, except that every key must be declared using the
+	method 'new_key' before it can be accessed for reading or writing.
+
+	Environments are stacked, i.e. each environment can have a parent
+	environment that contains other variables. The variables declared in an
+	environment take precedence over parent environments, but changing the
+	value of a variable changes its value in the environment that actually
+	defines it.
+	"""
+
+	def __init__ (self, parent = None, items = {}):
+		"""
+		Create an environment, possibly with a parent environment, and initial
+		bindings.
+		"""
+		if parent is not None and not isinstance(parent, Variables):
+			raise ValueError()
+		self.parent = parent
+		self.dict = items
+
+	def __getitem__ (self, key):
+		"""
+		Get the value of a variable in the environment or its parents.
+		"""
+		object = self
+		while object is not None:
+			if object.dict.has_key(key):
+				return object.dict[key]
+			object = object.parent
+		raise KeyError
+
+	def __setitem__ (self, key, value):
+		"""
+		Set the value of a variable in the environment or its parents,
+		assuming it is defined somewhere. Raises 'KeyError' if the variable is
+		not declared.
+		"""
+		object = self
+		while object is not None:
+			if object.dict.has_key(key):
+				object.dict[key] = value
+				return
+			object = object.parent
+		raise KeyError
+
+	def keys (self):
+		"""
+		Return the set of keys defined in this environment and its parents.
+		"""
+		if self.parent is None:
+			return Set(self.dict.keys())
+		else:
+			return Set(self.parent.keys()) | Set(self.dict.keys())
+
+	def new_key (self, key, value):
+		"""
+		Declare a new variable with an initial value in the current
+		environment. If the variable already exists in this environment,
+		raises 'KeyError'. If the variable exists in a parent environment, it
+		is hidden by the new variable.
+		"""
+		if self.dict.has_key(key):
+			raise KeyError
+		self.dict[key] = value
+
 #-- Parsing commands --{{{1
 
 re_variable = re.compile("(?P<name>[a-zA-Z]+)")

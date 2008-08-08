@@ -66,8 +66,8 @@ class PSTDep (Depend):
 
 		figref = None
 		doc_vars = vars["doc"].vars
-		if type in ("eps", "pdf") and doc_vars.has_key("graphics"):
-			suffixes = doc_vars["graphics"]
+		if type in ("eps", "pdf"):
+			suffixes = doc_vars["graphics_suffixes"]
 			for suff in ("eps", "pdf"):
 				if "." + suff in suffixes:
 					figref = base

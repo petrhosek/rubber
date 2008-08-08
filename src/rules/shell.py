@@ -14,16 +14,14 @@ The action of this rule is defined by variables specified in the rule file:
 
 from rubber import _, msg
 from rubber import *
-from rubber.util import parse_line
+from rubber.util import parse_line, Variables
 
 class Dep (Depend):
 	def __init__ (self, env, target, source, vars):
 		leaf = DependLeaf(env, source)
 		Depend.__init__(self, env, prods=[target], sources={source: leaf})
 		self.env = env
-		vars["source"] = source
-		vars["target"] = target
-		self.vars = vars
+		self.vars = Variables(vars, { "source": source, "target": target })
 
 	def run (self):
 		cmd = parse_line(self.vars["command"], self.vars)

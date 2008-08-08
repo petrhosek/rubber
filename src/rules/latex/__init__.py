@@ -86,16 +86,16 @@ class Modules (Plugins):
 			for (cmd, args, vars) in self.commands[name]:
 				msg.push_pos(vars)
 				try:
+					# put the variables as they were when the directive was
+					# found
+					saved_vars = self.env.vars
+					self.env.vars = vars
 					try:
-						# put the variables as they were when the directive was
-						# found
-						self.env.push_vars(**vars)
 						# call the command
 						mod.command(cmd, args)
 					finally:
 						# restore the variables to their current state
-						self.env.pop_vars()
-						# FIXME: what if the directive changed some variables?
+						self.env.vars = saved_vars
 				except AttributeError:
 					msg.warn(_("unknown directive '%s.%s'") % (name, cmd))
 				except TypeError:
@@ -124,7 +124,7 @@ class Modules (Plugins):
 		else:
 			if not self.commands.has_key(mod):
 				self.commands[mod] = []
-			self.commands[mod].append((cmd, args, self.env.vars.copy()))
+			self.commands[mod].append((cmd, args, self.env.vars))
 
 
 #----  Log parser  ----{{{1
@@ -564,13 +564,19 @@ class LaTeXDep (Depend):
 			if not env.cache.has_key("latex"):
 				env.cache["latex"] = {}
 
-		self.vars = env.vars.copy()
-		self.vars.update({
+		self.vars = Variables(env.vars, {
 			"program": "latex",
 			"engine": "TeX",
 			"paper": "",
-			"arguments" : [],
-			"src-specials": "" })
+			"arguments": [],
+			"src-specials": "",
+			"source": None,
+			"target": None,
+			"path": None,
+			"base": None,
+			"ext": None,
+			"job": None,
+			"graphics_suffixes" : [] })
 		self.vars_stack = []
 
 		self.cache_list = []
@@ -699,31 +705,6 @@ class LaTeXDep (Depend):
 		"""
 		return self.vars['source']
 
-	#--  Variable handling  {{{2
-
-	# List of the names of variables that contain lists (the others contain a
-	# single string).
-
-	list_vars = ['arguments']
-
-	def push_vars (self, **dict):
-		"""
-		For each named argument "key=val", save the value of variable "key"
-		and assign it the value "val".
-		"""
-		saved = {}
-		for (key, val) in dict.items():
-			saved[key] = self.vars[key]
-			self.vars[key] = val
-		self.vars_stack.append(saved)
-
-	def pop_vars (self):
-		"""
-		Restore the last set of variables saved using "push_vars".
-		"""
-		self.vars.update(self.vars_stack[-1])
-		del self.vars_stack[-1]
-
 	def abspath (self, name, ref=None):
 		"""
 		Return the absolute path of a given filename. Relative paths are
@@ -743,14 +724,10 @@ class LaTeXDep (Depend):
 		"""
 		Parse the source for packages and supported macros.
 		"""
-		self.vars["file"] = None
-		self.vars["line"] = None
 		try:
 			self.process(self.source())
 		except EndDocument:
 			pass
-		del self.vars["file"]
-		del self.vars["line"]
 		self.set_date()
 		msg.log(_("dependencies: %r") % self.sources.keys())
 
@@ -817,9 +794,11 @@ class LaTeXDep (Depend):
 			self.cache_list = []
 
 		try:
+			saved_vars = self.vars
 			try:
 				msg.log(_("parsing %s") % path)
-				self.push_vars(file=path, line=None)
+				self.vars = Variables(saved_vars,
+					{ "file": path, "line": None })
 				file = open(path)
 				try:
 					self.parse_file(file)
@@ -827,7 +806,7 @@ class LaTeXDep (Depend):
 					file.close()
 
 			finally:
-				self.pop_vars()
+				self.vars = saved_vars
 				msg.debug(_("end of %s") % path)
 
 				if self.env.caching:
@@ -1217,7 +1196,7 @@ class LaTeXDep (Depend):
 		prefix = self.env.vars["cwd"]
 		prefix_ = os.path.join(prefix, "")
 		paths = []
-		for p in paths:
+		for p in self.env.path:
 			if p == prefix:
 				paths.append(".")
 			elif p[:len(prefix_)] == prefix_:
@@ -1525,8 +1504,9 @@ class ScriptModule (Module):
 	This class represents modules that are defined as Rubber scripts.
 	"""
 	def __init__ (self, env, filename):
-		vars = env.vars.copy()
-		vars['file'] = filename
+		vars = Variables(env.vars, {
+			'file': filename,
+			'line': None })
 		lineno = 0
 		file = open(filename)
 		for line in file.readlines():

@@ -239,21 +239,23 @@ available options:
 			else:
 				env.make_source()
 
-			env.main.push_vars(cwd = initial_dir)
+			saved_vars = env.main.vars
+			env.main.vars = Variables(saved_vars, { "cwd": initial_dir })
 			for dir in self.path:
 				env.main.do_path(dir)
 			for cmd in self.prologue:
 				cmd = parse_line(cmd, env.main.vars)
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
-			env.main.pop_vars()
+			env.main.vars = saved_vars
 
 			env.main.parse()
 
-			env.main.push_vars(cwd = initial_dir)
+			saved_vars = env.main.vars
+			env.main.vars = Variables(saved_vars, { "cwd": initial_dir })
 			for cmd in self.epilogue:
 				cmd = parse_line(cmd, env.main.vars)
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
-			env.main.pop_vars()
+			env.main.vars = saved_vars
 
 			if self.cache:
 				env.cache_dump()
