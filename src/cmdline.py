@@ -92,7 +92,7 @@ available options:
 				else:
 					final = "bzip2"
 			elif opt == "--cache":
-				self.cache = 1
+				print 'warning: cache is currently disabled'
 			elif opt == "--clean":
 				self.clean = 1
 			elif opt in ("-c", "--command"):
@@ -185,7 +185,6 @@ available options:
 		self.jobname = None
 		self.prologue = []
 		self.epilogue = []
-		self.cache = 0
 		self.clean = 0
 		self.force = 0
 
@@ -223,8 +222,6 @@ available options:
 			# Check the source and prepare it for processing
 	
 			env = Environment()
-			if self.cache:
-				env.cache_activate()
 
 			if env.set_source(src, jobname=self.jobname):
 				return 1
@@ -257,9 +254,6 @@ available options:
 				cmd = parse_line(cmd, env.main.vars)
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 			env.main.vars = saved_vars
-
-			if self.cache:
-				env.cache_dump()
 
 			# Compile the document
 

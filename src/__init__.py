@@ -307,7 +307,6 @@ class Environment:
 		
 		self.main = None
 		self.final = None
-		self.caching = 0
 
 	def find_file (self, name, suffix=None):
 		"""
@@ -393,20 +392,6 @@ class Environment:
 		'Converter.__call__'. Other keyword arguments are passed to the
 		converters.
 		"""
-		# Check if the request is in the cache.
-
-		if self.caching:
-			if self.cache.has_key("_conv"):
-				c = self.cache["_conv"]
-				if c.has_key(target):
-					(rule, val) = c[target]
-					if rule is None:
-						return rubber.depend.Leaf(self.depends, val)
-					else:
-						return rubber.rules.std_rules.convert(rule, val, self)
-			else:
-				c = self.cache["_conv"] = {}
-
 		# Try all suffixes and prefixes until something is found.
 
 		last = None
@@ -439,13 +424,11 @@ class Environment:
 			if prefs is None and os.path.exists(t):
 				if last is not None and last["cost"] <= 0:
 					break
-				if self.caching: c[target] = (None, t)
 				msg.log(_("`%s' is `%s', no rule applied") % (target, t))
 				return rubber.depend.Leaf(self.depends, t)
 
 		if last is None:
 			return None
-		if self.caching: c[target] = (last["rule"], last)
 		msg.log(_("`%s' is `%s', made from `%s' by rule `%s'") %
 				(target, last["target"], last["source"], last["name"]))
 		return conv.convert(last["rule"], last, self)
@@ -523,29 +506,3 @@ class Environment:
 		ret = process.wait()
 		msg.log(_("process %d (%s) returned %d") % (process.pid, prog[0],ret))
 		return ret
-
-	#--  A cache system  {{{2
-
-	def cache_activate (self):
-		path = os.path.join(self.vars["cwd"], "rubber.cache")
-		try:
-			file = open(path, "rb")
-			msg.log(_("loading cache file %s") % msg.simplify(path))
-			import pickle
-			self.cache = pickle.load(file)
-			file.close()
-		except IOError:
-			msg.log(_("no cache file found"))
-			self.cache = {}
-		except EOFError:
-			msg.log(_("invalid cache file"))
-			self.cache = {}
-		self.caching = 1
-
-	def cache_dump (self):
-		path = os.path.join(self.vars["cwd"], "rubber.cache")
-		msg.log(_("saving cache file %s") % msg.simplify(path))
-		file = open(path, "wb")
-		import pickle
-		pickle.dump(self.cache, file, pickle.HIGHEST_PROTOCOL)
-		file.close()

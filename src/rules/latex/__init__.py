@@ -508,10 +508,6 @@ class SourceParser (Parser):
 			vars['line'] = self.pos_line
 			args = parse_line(match.group("arg"), vars)
 
-			if self.latex_dep.env.caching:
-				self.latex_dep.env.cache_list.append(
-					("cmd", match.group("cmd"), args, vars))
-
 			self.latex_dep.command(match.group("cmd"), args, vars)
 		return False
 
@@ -562,10 +558,6 @@ class LaTeXDep (Node):
 		self.log = LogCheck()
 		self.modules = Modules(self)
 
-		if env.caching:
-			if not env.cache.has_key("latex"):
-				env.cache["latex"] = {}
-
 		self.vars = Variables(env.vars, {
 			"program": "latex",
 			"engine": "TeX",
@@ -580,8 +572,6 @@ class LaTeXDep (Node):
 			"job": None,
 			"graphics_suffixes" : [] })
 		self.vars_stack = []
-
-		self.cache_list = []
 
 		self.cmdline = ["\\nonstopmode", "\\input{%s}"]
 
@@ -772,29 +762,6 @@ class LaTeXDep (Node):
 		if path not in self.sources:
 			self.add_source(path)
 
-		if self.env.caching:
-			if self.env.cache["latex"].has_key(path):
-				(date, list) = self.env.cache["latex"][path]
-				fdate = getmtime(path)
-
-				if fdate <= date:
-					msg.log(_("using cache for %s") % path)
-					for elem in list:
-						if elem[0] == "hook":
-							try:
-								self.hooks[elem[1]](elem[2])
-							except EndInput:
-								pass
-						elif elem[0] == "cmd":
-							self.command(*elem[1:])
-					return
-
-				else:
-					msg.log(_("cache for %s is obsolete") % path)
-
-			saved_cache = self.cache_list
-			self.cache_list = []
-
 		try:
 			saved_vars = self.vars
 			try:
@@ -810,11 +777,6 @@ class LaTeXDep (Node):
 			finally:
 				self.vars = saved_vars
 				msg.debug(_("end of %s") % path)
-
-				if self.env.caching:
-					self.env.cache["latex"][path] = (
-						getmtime(path), self.cache_list)
-					self.cache_list = saved_cache
 
 		except EndInput:
 			pass
