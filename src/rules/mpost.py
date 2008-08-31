@@ -18,6 +18,9 @@ from rubber import *
 from rubber.depend import Node
 from rubber.rules.latex import LogCheck
 
+def check (source, target, context):
+	return prog_available('mpost')
+
 re_input = re.compile("input\\s+(?P<file>[^\\s;]+)")
 # This is very restrictive, and so is the parsing routine. FIXME?
 re_mpext = re.compile("[0-9]+|mpx|log")
@@ -120,17 +123,17 @@ class Dep (Node):
 	method simply creates one node for the figures and one leaf node for all
 	sources.
 	"""
-	def __init__ (self, env, target, source):
+	def __init__ (self, set, target, source, context):
 		sources = []
 		self.cmd_pwd = os.path.dirname(source)
 		self.include(os.path.basename(source), sources)
 		msg.log(_("%s is made from %r") % (target, sources))
-		Node.__init__(self, env.depends, [target], sources)
-		self.env = env
+		Node.__init__(self, set, [target], sources)
+		self.env = context['_environment']
 		self.base = source[:-3]
 		self.cmd = ["mpost", "\\batchmode;input %s" %
 			os.path.basename(self.base)]
-		if env.path == [""]:
+		if self.env.path == [""]:
 			self.penv = {}
 		else:
 			path = string.join(self.env.path, ":")
@@ -214,17 +217,11 @@ class Dep (Node):
 
 files = {}
 
-def check (vars, env):
-	if not prog_available("mpost"):
-		return None
-	return vars
-
-def convert (vars, env):
-	source = vars["source"]
-	if files.has_key(source):
+def convert (source, target, context, set):
+	if source in files:
 		dep = files[source]
-		dep.add_product(vars["target"])
+		dep.add_product(target)
 	else:
-		dep = Dep(env, vars["target"], source)
+		dep = Dep(set, target, source, context)
 		files[source] = dep
 	return dep

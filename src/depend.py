@@ -267,12 +267,12 @@ class Shell (Node):
 	"""
 	This class specializes Node for generating files using shell commands.
 	"""
-	def __init__ (self, env, command, products, sources):
+	def __init__ (self, set, command, products, sources):
 		Node.__init__(self, set, products, sources)
 		self.command = command
 
 	def run (self):
-		msg.progress(_("running %s") % self.command[0])
+		msg.progress(_("running: %s") % ' '.join(self.command))
 		process = Popen(self.command)
 		if process.wait() != 0:
 			msg.error(_("execution of %s failed") % self.command[0])

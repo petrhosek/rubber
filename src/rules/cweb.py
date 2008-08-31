@@ -7,30 +7,15 @@ This module handles CWEB by weaving source files into the LaTeX source when
 needed.
 """
 
-import rubber
-from rubber import _
-from rubber import *
-from rubber.depend import Node
+from rubber.util import prog_available
+from rubber.depend import Shell
 
-class CWebDep (Node):
-	def __init__ (self, env, target, source):
-		tg_base = target[:-4]
-		Node.__init__(self, env.depends,
-			[target, tg_base + ".idx", tg_base + ".scn"], [source])
-		self.env = env
-		self.source = source
-		self.target = target
-		self.cmd = ["cweave", source, target]
+def check (source, target, context):
+	return prog_available('cweave')
 
-	def run (self):
-		msg.progress(_("weaving %s") % self.source)
-		if self.env.execute(self.cmd):
-			msg.error(_("weaving of %s failed") % self.source)
-			return 1
-		return 0
-
-
-def check (vars, env):
-	return vars
-def convert (vars, env):
-	return CWebDep(vars["source"], vars["target"], env)
+def convert (source, target, context, set):
+	base = target[:-4]
+	return Shell(set,
+		["cweave", source, target],
+		[target, base + ".idx", base + ".scn"],
+		[source])

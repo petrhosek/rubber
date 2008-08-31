@@ -795,7 +795,7 @@ class LaTeXDep (Node):
 
 		for path in self.env.path:
 			pname = join(path, name)
-			dep = self.env.convert(pname, suffixes=[".tex",""], doc=self)
+			dep = self.env.convert(pname, suffixes=[".tex",""], context=self.vars)
 			if dep:
 				file = dep.products[0]
 			else:
@@ -915,7 +915,7 @@ class LaTeXDep (Node):
 		if name is None:
 			msg.warn(_("cannot read rule file %s") % file, **self.vars)
 		else:
-			self.env.user_rules.read_ini(name)
+			self.env.converter.read_ini(name)
 
 	def do_set (self, name, *val):
 		if name in self.list_vars:

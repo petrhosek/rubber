@@ -7,33 +7,28 @@ This module handles Literate Haskell by using the lhs2TeX processor to
 pretty-print Haskell code in the source file when needed.
 """
 
-import rubber
-from rubber import _
-from rubber import *
+from subprocess import Popen
+from rubber.util import prog_available
 from rubber.depend import Node
 
+def check (source, target, context):
+	return prog_available('lhs2tex')
+
 class LHSDep (Node):
-	def __init__ (self, env, target, source):
-		Node.__init__(self, env.depends, [target], [source])
-		self.env = env
+	def __init__ (self, set, target, source):
+		Node.__init__(self, set, [target], [source])
 		self.source = source
 		self.target = target
-		self.cmd = ["lhs2TeX", "--poly", source]
 
 	def run (self):
 		msg.progress(_("pretty-printing %s") % self.source)
-		out = open(self.target, 'w')
-		def w (line, file=out):
-			file.write(line)
-			file.flush()
-		if self.env.execute(self.cmd, out=w):
-			out.close()
+		output = open(self.target, 'w')
+		process = Popen(['lhs2tex', '--poly', self.source], stdout=output)
+		if process.wait() != 0:
 			msg.error(_("pretty-printing of %s failed") % self.source)
-			return 1
-		out.close()
-		return 0
+			return False
+		output.close()
+		return True
 
-def check (vars, env):
-	return vars
-def convert (vars, env):
-	return LHSDep(env, vars["target"], vars["source"])
+def convert (source, target, context, set):
+	return LHSDep(set, target, source)

@@ -129,7 +129,7 @@ class Module (rubber.rules.latex.Module):
 			return 1
 
 		d = self.env.convert(name, suffixes=suffixes, prefixes=self.prefixes,
-				check=check, pos=loc)
+				check=check, context=self.doc.vars)
 
 		if d:
 			msg.log(_("graphics `%s' found") % name, pkg="graphics")
