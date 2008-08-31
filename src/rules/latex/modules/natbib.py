@@ -21,5 +21,5 @@ class Module (rubber.rules.latex.Module):
 		for line in self.doc.log.lines:
 			if re_rerun.match(line):
 				self.doc.must_compile = 1
-				return 0
-		return 0
+				return True
+		return True

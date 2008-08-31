@@ -137,7 +137,7 @@ class Bibliography:
 		if self.doc.must_compile:
 			# If a LaTeX compilation is going to happen, it is not necessary
 			# to bother with BibTeX yet.
-			return 0
+			return True
 		if self.run_needed:
 			return self.run()
 
@@ -145,7 +145,7 @@ class Bibliography:
 		if exists(bbl):
 			if getmtime(bbl) > getmtime(self.doc.target + ".log"):
 				self.doc.must_compile = 1
-		return 0
+		return True
 
 	def first_run_needed (self):
 		"""
@@ -234,7 +234,7 @@ class Bibliography:
 		"""
 		if not self.bibtex_needed():
 			msg.log(_("no BibTeXing needed"), pkg="bibtex")
-			return 0
+			return True
 		return self.run()
 
 	def run (self):
@@ -258,10 +258,10 @@ class Bibliography:
 		process.communicate()
 		if process.wait() != 0:
 			msg.info(_("There were errors making the bibliography."))
-			return 1
+			return False
 		self.run_needed = 0
 		self.doc.must_compile = 1
-		return 0
+		return True
 
 	def bibtex_needed (self):
 		"""

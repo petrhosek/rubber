@@ -25,7 +25,7 @@ class Dep (Node):
 		out.write(file.read())
 		file.close()
 		out.close()
-		return 0
+		return True
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):

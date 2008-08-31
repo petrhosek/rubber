@@ -1213,7 +1213,7 @@ class LaTeXDep (Node):
 		msg.log(_("building additional files..."))
 
 		for mod in self.modules.objects.values():
-			if mod.pre_compile():
+			if not mod.pre_compile():
 				self.failed_module = mod
 				return False
 		return True
@@ -1236,7 +1236,7 @@ class LaTeXDep (Node):
 			self.onchange_md5[file] = new
 
 		for mod in self.modules.objects.values():
-			if mod.post_compile():
+			if not mod.post_compile():
 				self.failed_module = mod
 				return False
 		return True
@@ -1434,17 +1434,17 @@ class Module (object):
 		"""
 		This method is called before the first LaTeX compilation. It is
 		supposed to build any file that LaTeX would require to compile the
-		document correctly. The method must return true on failure.
+		document correctly. The method must return true on success.
 		"""
-		return 0
+		return True
 
 	def post_compile (self):
 		"""
 		This method is called after each LaTeX compilation. It is supposed to
 		process the compilation results and possibly request a new
-		compilation. The method must return true on failure.
+		compilation. The method must return true on success.
 		"""
-		return 0
+		return True
 
 	def clean (self):
 		"""

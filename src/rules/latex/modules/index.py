@@ -105,9 +105,9 @@ class Index (rubber.rules.latex.Module):
 		"""
 		if not os.path.exists(self.source):
 			msg.log(_("strange, there is no %s") % self.source, pkg="index")
-			return 0
+			return True
 		if not self.run_needed():
-			return 0
+			return True
 
 		msg.progress(_("processing index %s") % msg.simplify(self.source))
 
@@ -148,10 +148,10 @@ class Index (rubber.rules.latex.Module):
 			env = {}
 		if self.doc.env.execute(cmd, env):
 			msg.error(_("could not make index %s") % self.target)
-			return 1
+			return False
 
 		self.doc.must_compile = 1
-		return 0
+		return True
 
 	def run_needed (self):
 		"""
@@ -242,9 +242,9 @@ class Module (rubber.rules.latex.Module):
 
 	def post_compile (self):
 		for index in self.indices.values():
-			if index.post_compile():
-				return 1
-		return 0
+			if not index.post_compile():
+				return False
+		return True
 
 	def clean (self):
 		for index in self.indices.values():

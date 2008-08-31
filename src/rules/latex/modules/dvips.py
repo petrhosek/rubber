@@ -36,8 +36,8 @@ class Dep (Node):
 		cmd.extend(self.options + ["-o", self.target, self.source])
 		if self.env.execute(cmd, kpse=1):
 			msg.error(_("%s failed on %s") % (cmd[0], self.source))
-			return 1
-		return 0
+			return False
+		return True
 
 class Module (rubber.rules.latex.Module):
 	def __init__ (self, doc, dict):

@@ -72,13 +72,15 @@ class Module (rubber.rules.latex.Module):
 
 	def pre_compile (self):
 		for bib in self.bibs.values():
-			if bib.pre_compile():
-				return 1
+			if not bib.pre_compile():
+				return False
+		return True
 
 	def post_compile (self):
 		for bib in self.bibs.values():
-			if bib.post_compile():
-				return 1
+			if not bib.post_compile():
+				return False
+		return True
 
 	def clean (self):
 		for bib in self.bibs.keys():

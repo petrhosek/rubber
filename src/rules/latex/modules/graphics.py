@@ -199,7 +199,7 @@ class Module (rubber.rules.latex.Module):
 		"""
 		for dep in self.files:
 			dep.make()
-		return 0
+		return True
 
 	def clean (self):
 		"""
