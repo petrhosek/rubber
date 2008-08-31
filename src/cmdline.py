@@ -20,6 +20,7 @@ class Main (object):
 		self.max_errors = 10
 		self.include_only = None
 		self.path = []
+		self.compress = None
 		msg.write = self.stderr_write
 
 	def stderr_write (self, text, level=0):
@@ -83,14 +84,13 @@ available options:
 
 		extra = []
 		using_dvips = 0
-		final = None
 
 		for (opt,arg) in opts:
 			if opt in ("-b", "--bzip2"):
-				if final is not None and final != "bzip2":
+				if self.compress is not None and self.compress != "bzip2":
 					msg.warn(_("warning: ignoring option %s") % opt)
 				else:
-					final = "bzip2"
+					self.compress = "bzip2"
 			elif opt == "--cache":
 				print 'warning: cache is currently disabled'
 			elif opt == "--clean":
@@ -102,10 +102,10 @@ available options:
 			elif opt in ("-f", "--force"):
 				self.force = 1
 			elif opt in ("-z", "--gzip"):
-				if final is not None and final != "gz":
+				if self.compress is not None and self.compress != "gz":
 					msg.warn(_("warning: ignoring option %s") % opt)
 				else:
-					final = "gz"
+					self.compress = "gzip"
 			elif opt in ("-h", "--help"):
 				self.help()
 				sys.exit(0)
@@ -171,8 +171,6 @@ available options:
 			else:
 				extra.extend([arg, opt])
 
-		if final is not None:
-			self.epilogue.append("module " + final)
 		return extra + args
 
 	def main (self, cmdline):
@@ -254,6 +252,18 @@ available options:
 				cmd = parse_line(cmd, env.main.vars)
 				env.main.command(cmd[0], cmd[1:], {'file': 'command line'})
 			env.main.vars = saved_vars
+
+			if self.compress is not None:
+				last_node = env.final
+				filename = last_node.products[0]
+				if self.compress == 'gzip':
+					from rubber.rules.gz import GzipDep
+					env.final = GzipDep(env.depends,
+							filename + '.gz', filename)
+				elif self.compress == 'bzip2':
+					from rubber.rules.bzip2 import Bzip2Dep
+					env.final = Bzip2Dep(env.depends,
+							filename + '.bz2', filename)
 
 			# Compile the document
 

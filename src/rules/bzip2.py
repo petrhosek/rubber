@@ -6,12 +6,12 @@ Compressing the output of Rubber with bzip2.
 
 from bz2 import BZ2File
 
-import rubber
 from rubber import _, msg
-from rubber import *
 from rubber.depend import Node
 
-class Dep (Node):
+class Bzip2Dep (Node):
+	def __init__ (self, set, target, source):
+		Node.__init__(self, set, [target], [source])
 	def run (self):
 		msg.progress(_("compressing %s") % self.sources[0])
 		out = BZ2File(self.products[0], 'w')
@@ -20,9 +20,3 @@ class Dep (Node):
 		file.close()
 		out.close()
 		return True
-
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		file = doc.env.final.products[0]
-		bz2 = Dep(doc.env.depends, [file + ".bz2"], [file])
-		doc.env.final = bz2
