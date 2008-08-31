@@ -17,6 +17,7 @@ from __future__ import generators
 import os, sys
 from os.path import *
 import re, string
+from subprocess import Popen, PIPE
 
 from rubber import _
 from rubber import *
@@ -33,30 +34,20 @@ re_undef = re.compile("LaTeX Warning: Citation `(?P<cite>.*)' .*undefined.*")
 re_error = re.compile(
 	"---(line (?P<line>[0-9]+) of|while reading) file (?P<file>.*)")
 
-class Module (rubber.rules.latex.Module):
+class Bibliography:
 	"""
-	This class is the module that handles BibTeX in Rubber. It provides the
-	funcionality required when compiling documents as well as material to
-	parse blg files for diagnostics.
+	This class represents a single bibliography for a document.
 	"""
-	def __init__ (self, doc, dict, base=None):
+	def __init__ (self, document, basename):
 		"""
-		Initialize the state of the module and register appropriate functions
-		in the main process. The extra arugment 'base' can be used to specify
-		the base name of the aux file, it defaults to the document name.
+		Initialise the bibiliography for the given document. The base name is
+		that of the aux file from which citations are taken.
 		"""
-		self.doc = doc
-		self.env = doc.env
+		self.doc = document
+		self.base = basename
 
-		if base is None:
-			self.base = doc.target
-		else:
-			self.base = base
-
-		cwd = self.env.vars["cwd"]
-		self.bib_path = [cwd]
-		if doc.vars["path"] != cwd:
-			self.bib_path.append(doc.vars["path"])
+		cwd = document.vars["cwd"]
+		self.bib_path = [cwd, document.vars["path"]]
 		self.bst_path = [cwd]
 
 		self.undef_cites = None
@@ -84,6 +75,13 @@ class Module (rubber.rules.latex.Module):
 
 	def do_sorted (self, mode):
 		self.sorted = mode in ("true", "yes", "1")
+
+	def hook_bibliography (self, loc, bibs):
+		for bib in string.split(bibs, ","):
+			self.add_db(bib.strip())
+
+	def hook_bibliographystyle (self, loc, style):
+		self.set_style(style)
 
 	def add_db (self, name):
 		"""
@@ -256,7 +254,9 @@ class Module (rubber.rules.latex.Module):
 			cmd = ["bibtex", self.base]
 		else:
 			cmd = ["bibtex", "-min-crossrefs=" + self.crossrefs, self.base]
-		if self.env.execute(cmd, doc):
+		process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+		process.communicate()
+		if process.wait() != 0:
 			msg.info(_("There were errors making the bibliography."))
 			return 1
 		self.run_needed = 0
@@ -408,3 +408,19 @@ class Module (rubber.rules.latex.Module):
 			line = log.readline()
 		log.close()
 		return
+
+class Module (rubber.rules.latex.Module):
+	def __init__ (self, doc, dict, base=None):
+		self.biblio = Bibliography(doc, doc.target)
+		doc.hook_macro("bibliography", "a",
+				self.biblio.hook_bibliography)
+		doc.hook_macro("bibliographystyle", "a",
+				self.biblio.hook_bibliographystyle)
+	def command (self, command, args):
+		getattr(self.biblio, 'do_' + command)(*args)
+	def pre_compile (self):
+		return self.biblio.pre_compile()
+	def post_compile (self):
+		return self.biblio.post_compile()
+	def get_errors (self):
+		return self.biblio.get_errors()

@@ -20,19 +20,7 @@ import re, string
 
 import rubber, rubber.rules.latex, rubber.rules.latex.modules.bibtex
 from rubber import _, msg
-
-class Biblio (rubber.rules.latex.modules.bibtex.Module):
-	def __init__ (self, doc, name):
-		rubber.rules.latex.modules.bibtex.Module.__init__(self, doc, {}, name)
-		doc.hook_macro("bibliographystyle" + name, "a", self.bibstyle)
-		doc.hook_macro("bibliography" + name, "a", self.biblio)
-
-	def bibstyle (self, loc, style):
-		self.set_style(style)
-
-	def biblio (self, loc, bibs):
-		for bib in string.split(bibs, ","):
-			self.add_db(bib.strip())
+from rubber.rules.latex.modules.bibtex import Bibliography
 
 re_optarg = re.compile("\((?P<list>[^()]*)\) *")
 
@@ -70,7 +58,11 @@ class Module (rubber.rules.latex.Module):
 		"""
 		Register a new bibliography.
 		"""
-		bib = self.bibs[name] = Biblio(self.doc, name)
+		bib = self.bibs[name] = Bibliography(self.doc, name)
+		self.doc.hook_macro("bibliography" + name, "a",
+				bib.hook_bibliography)
+		self.doc.hook_macro("bibliographystyle" + name, "a",
+				bib.hook_bibligraphystyle)
 		for cmd in self.defaults:
 			bib.command(*cmd)
 		if self.commands.has_key(name):

@@ -1076,8 +1076,7 @@ class LaTeXDep (Node):
 		databases.
 		"""
 		self.modules.register("bibtex", dict)
-		for db in names.split(","):
-			self.modules["bibtex"].add_db(db.strip())
+		self.modules["bibtex"].biblio.hook_bibliography(loc, names)
 
 	def h_bibliographystyle (self, loc, name):
 		"""
@@ -1086,7 +1085,7 @@ class LaTeXDep (Node):
 		module.
 		"""
 		self.modules.register("bibtex", dict)
-		self.modules["bibtex"].set_style(name)
+		self.modules["bibtex"].biblio.hook_bibliographystyle(loc, name)
 
 	def h_begin_verbatim (self, dict, env="verbatim"):
 		"""
