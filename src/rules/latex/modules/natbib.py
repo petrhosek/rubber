@@ -8,18 +8,15 @@ extra compilation may be needed when using this package.
 """
 
 import re
-
-import rubber
-
 re_rerun = re.compile("\(natbib\).*Rerun ")
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		self.doc = doc
+def setup (document, context):
+	global doc
+	doc = document
 
-	def post_compile (self):
-		for line in self.doc.log.lines:
-			if re_rerun.match(line):
-				self.doc.must_compile = 1
-				return True
-		return True
+def post_compile ():
+	for line in doc.log.lines:
+		if re_rerun.match(line):
+			doc.must_compile = True
+			return True
+	return True

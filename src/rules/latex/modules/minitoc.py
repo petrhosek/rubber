@@ -11,26 +11,25 @@ these.
 TODO: handle the shortext option
 """
 
-import os, os.path
+import os
 import re
 
-import rubber
 from rubber import _, msg
 
 re_tocext = re.compile("[mps](tc|l[ft])[0-9]+")
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		self.doc = doc
+def setup (document, context):
+	global doc
+	doc = document
 
-	def clean (self):
-		self.doc.remove_suffixes([".bmt"])
-		base = self.doc.target + "."
-		ln = len(base)
-		for file in os.listdir("."):
-			if file[:ln] == base:
-				ext = file[ln:]
-				m = re_tocext.match(ext)
-				if m and ext[m.end():] == "":
-					msg.log(_("removing %s") % file, pkg="minitoc")
-					os.unlink(file)
+def clean ():
+	doc.remove_suffixes(['.bmt'])
+	base = doc.target + '.'
+	ln = len(base)
+	for file in os.listdir('.'):
+		if file[:ln] == base:
+			ext = file[ln:]
+			m = re_tocext.match(ext)
+			if m and ext[m.end():] == "":
+				msg.log(_("removing %s") % file, pkg='minitoc')
+				os.unlink(file)

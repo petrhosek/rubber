@@ -19,8 +19,7 @@ from os.path import *
 import re, string
 from subprocess import Popen, PIPE
 
-from rubber import _
-from rubber import *
+from rubber import _, msg
 
 re_bibdata = re.compile(r"\\bibdata{(?P<data>.*)}")
 re_citation = re.compile(r"\\citation{(?P<cite>.*)}")
@@ -409,18 +408,18 @@ class Bibliography:
 		log.close()
 		return
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict, base=None):
-		self.biblio = Bibliography(doc, doc.target)
-		doc.hook_macro("bibliography", "a",
-				self.biblio.hook_bibliography)
-		doc.hook_macro("bibliographystyle", "a",
-				self.biblio.hook_bibliographystyle)
-	def command (self, command, args):
-		getattr(self.biblio, 'do_' + command)(*args)
-	def pre_compile (self):
-		return self.biblio.pre_compile()
-	def post_compile (self):
-		return self.biblio.post_compile()
-	def get_errors (self):
-		return self.biblio.get_errors()
+def setup (doc, context):
+	global biblio
+	biblio = Bibliography(doc, doc.target)
+	doc.hook_macro('bibliography', 'a', biblio.hook_bibliography)
+	doc.hook_macro('bibliographystyle', 'a', biblio.hook_bibliographystyle)
+def command (command, args):
+	getattr(biblio, 'do_' + command)(*args)
+def pre_compile ():
+	return biblio.pre_compile()
+def post_compile ():
+	return biblio.post_compile()
+def get_errors ():
+	return biblio.get_errors()
+def clean ():
+	biblio.clean()

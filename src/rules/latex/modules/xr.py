@@ -8,22 +8,19 @@ The xr package allows one to put references in one document to other
 file, so this support package registers these files as dependencies.
 """
 
-import rubber
-from rubber import _
-from rubber import *
+from rubber import _, msg
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		self.doc = doc
-		self.env = doc.env
-		doc.hook_macro("externaldocument", "oa", self.externaldocument)
+def setup (document, context):
+	global doc
+	doc = document
+	doc.hook_macro('externaldocument', 'oa', hook_externaldocument)
 
-	def externaldocument (self, loc, opt, name):
-		aux = self.env.find_file(name + ".aux")
-		if aux:
-			self.doc.add_source(aux)
-			msg.log( _(
-				"dependency %s added for external references") % aux, pkg="xr")
-		else:
-			msg.log(_(
-				"file %s is required by xr package but not found") % aux, pkg="xr")
+def hook_externaldocument (loc, opt, name):
+	aux = doc.env.find_file(name + '.aux')
+	if aux:
+		doc.add_source(aux)
+		msg.log( _(
+			"dependency %s added for external references") % aux, pkg='xr')
+	else:
+		msg.log(_(
+			"file %s is required by xr package but not found") % aux, pkg='xr')

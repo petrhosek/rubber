@@ -12,32 +12,33 @@ way the package deals with \\documentclass and \\usepackage.
 """
 
 from os.path import basename
-import rubber
+from rubber.rules.latex import EndDocument
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		self.doc = doc
-		doc.hook_begin("document", self.begin)
-		doc.hook_end("document", self.end)
-		doc.hook_macro("import", "a", self.import_doc)
-		self.combine_level = 0
+combine_level = 0
 
-	def begin (self, loc):
-		self.combine_level += 1
+def setup (document, context):
+	global doc
+	doc = document
+	doc.hook_begin('document', begin)
+	doc.hook_end('document', end)
+	doc.hook_macro('import', 'a', import_doc)
 
-	def end (self, loc):
-		if self.combine_level == 1:
-			raise rubber.rules.latex.EndDocument
-		self.combine_level -= 1
+def begin (loc):
+	combine_level += 1
 
-	def import_doc (self, loc, name):
-		file, _ = self.doc.input_file(name + ".tex")
-		if not file:
-			return 0
-		base = basename(file[:-4])
+def end (loc):
+	if combine_level == 1:
+		raise EndDocument
+	combine_level -= 1
 
-		# Here we should temporarily change the base name instead of
-		# forcefully remove .toc and similar files.
+def import_doc (loc, name):
+	file, _ = doc.input_file(name + '.tex')
+	if file:
+		return
+	base = basename(file[:-4])
 
-		self.doc.removed_files.extend(
-			[base + ".aux", base + ".toc", base + ".lof", base + ".lot"])
+	# Here we should temporarily change the base name instead of
+	# forcefully remove .toc and similar files.
+
+	doc.removed_files.extend(
+		[base + '.aux', base + '.toc', base + '.lof', base + '.lot'])

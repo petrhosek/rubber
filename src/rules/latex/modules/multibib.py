@@ -14,78 +14,78 @@ optional argument first, enclosed in parentheses as in "multibib.path
 argument, they apply to all bibliographies.
 """
 
-import os
-from os.path import *
-import re, string
+import os, os.path, re
 
-import rubber, rubber.rules.latex, rubber.rules.latex.modules.bibtex
 from rubber import _, msg
 from rubber.rules.latex.modules.bibtex import Bibliography
 
-re_optarg = re.compile("\((?P<list>[^()]*)\) *")
+re_optarg = re.compile(r'\((?P<list>[^()]*)\) *')
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		"""
-		Initialize the module with no extra bibliography.
-		"""
-		self.doc = doc
-		self.bibs = {}
-		self.defaults = []
-		self.commands = {}
-		doc.hook_macro("newcites", "a", self.newcites)
+def setup (document, context):
+	global doc, bibs, defaults, commands
+	doc = document
+	bibs = {}
+	defaults = []
+	commands = {}
+	doc.hook_macro('newcites', 'a', hook_newcites)
 
-	def command (self, cmd, args):
-		bibs = self.bibs
-		names = None
-		if len(args) > 0:
-			m = re_optarg.match(args[0])
-			if m:
-				names = m.group("list").split(",")
-				args = args[1:]
-		if names is None:
-			self.defaults.append([cmd, args])
-			names = bibs.keys()
-		for name in names:
-			if bibs.has_key(name):
-				bibs[name].command(cmd, args)
-			elif self.commands.has_key(name):
-				self.commands[name].append([cmd, args])
-			else:
-				self.commands[name] = [[cmd, args]]
+def command (cmd, args):
+	names = None
 
-	def newcites (self, loc, name):
-		"""
-		Register a new bibliography.
-		"""
-		bib = self.bibs[name] = Bibliography(self.doc, name)
-		self.doc.hook_macro("bibliography" + name, "a",
-				bib.hook_bibliography)
-		self.doc.hook_macro("bibliographystyle" + name, "a",
-				bib.hook_bibligraphystyle)
-		for cmd in self.defaults:
+	# Check if there is the optional argument.
+
+	if len(args) > 0:
+		match = re_optarg.match(args[0])
+		if match:
+			names = match.group('list').split(',')
+			args = args[1:]
+
+	# If not, this command will also be executed for newly created indices
+	# later on.
+
+	if names is None:
+		defaults.append([cmd, args])
+		names = bibs.keys()
+
+	# Then run the command for each index it concerns.
+
+	for name in names:
+		if name in bibs:
+			bibs[name].command(cmd, args)
+		elif name in commands:
+			commands[name].append([cmd, args])
+		else:
+			commands[name] = [[cmd, args]]
+
+def hook_newcites (loc, name):
+	bib = bibs[name] = Bibliography(doc, name)
+	doc.hook_macro('bibliography' + name, 'a',
+			bib.hook_bibliography)
+	doc.hook_macro('bibliographystyle' + name, 'a',
+			bib.hook_bibligraphystyle)
+	for cmd in defaults:
+		bib.command(*cmd)
+	if name in commands:
+		for cmd in commands[name]:
 			bib.command(*cmd)
-		if self.commands.has_key(name):
-			for cmd in self.commands[name]:
-				bib.command(*cmd)
-		msg.log(_("bibliography %s registered") % name, pkg="multibib")
+	msg.log(_("bibliography %s registered") % name, pkg='multibib')
 
-	def pre_compile (self):
-		for bib in self.bibs.values():
-			if not bib.pre_compile():
-				return False
-		return True
+def pre_compile ():
+	for bib in bibs.values():
+		if not bib.pre_compile():
+			return False
+	return True
 
-	def post_compile (self):
-		for bib in self.bibs.values():
-			if not bib.post_compile():
-				return False
-		return True
+def post_compile ():
+	for bib in bibs.values():
+		if not bib.post_compile():
+			return False
+	return True
 
-	def clean (self):
-		for bib in self.bibs.keys():
-			for suffix in ".aux", ".bbl", ".blg":
-				file = bib + suffix
-				if exists(file):
-					msg.log(_("removing %s") % file, pkg="multibib")
-					os.unlink(file)
+def clean ():
+	for bib in bibs.keys():
+		for suffix in '.aux', '.bbl', '.blg':
+			file = bib + suffix
+			if os.path.exists(file):
+				msg.log(_("removing %s") % file, pkg='multibib')
+				os.unlink(file)

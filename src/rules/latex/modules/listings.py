@@ -4,24 +4,18 @@
 Dependency analysis and environment parsing for package 'listings' in Rubber.
 """
 
-from os.path import basename
-import rubber
-from rubber import *
+def setup (document, context):
+	global doc
+	doc = document
+	doc.hook_macro('lstinputlisting', 'oa', hook_input)
+	doc.hook_macro('lstnewenvironment', 'a', hook_newenvironment)
+	doc.hook_begin('lstlisting',
+		lambda loc: doc.h_begin_verbatim(loc, env='lstlisting'))
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		self.doc = doc
-		self.env = doc.env
-		doc.hook_macro("lstinputlisting", "oa", self.input)
-		doc.hook_macro("lstnewenvironment", "a", self.newenvironment)
-		doc.hook_begin("lstlisting",
-			lambda loc: doc.h_begin_verbatim(loc, env="lstlisting"))
+def hook_input (loc, opt, file):
+	if file.find('\\') < 0 and file.find('#') < 0:
+		doc.add_source(file)
 
-	def input (self, loc, opt, file):
-		if file.find("\\") < 0 and file.find("#") < 0:
-			self.doc.add_source(file)
-
-	def newenvironment (self, loc, name):
-		def func (loc):
-			self.doc.h_begin_verbatim(loc, env=name)
-		self.doc.hook_begin(name, func)
+def hook_newenvironment (loc, name):
+	doc.hook_begin(name,
+		lambda loc: doc.h_begin_verbatim(loc, env=name))

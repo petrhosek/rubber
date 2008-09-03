@@ -11,19 +11,18 @@ default, switching to PS is possible by using the module option "ps".
 
 import rubber
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		doc.vars["engine"] = "VTeX"
-		if dict['opt'] == "ps":
-			if doc.env.final != doc and doc.products[0][-4:] != ".ps":
-				msg.error(_("there is already a post-processor registered"))
-				sys.exit(2)
-			doc.vars["program"] = "vlatexp"
-			doc.reset_products([doc.target + ".ps"])
-		else:
-			if doc.env.final != doc and doc.products[0][-4:] != ".pdf":
-				msg.error(_("there is already a post-processor registered"))
-				sys.exit(2)
-			doc.vars["program"] = "vlatex"
-			doc.reset_products([doc.target + ".pdf"])
-		doc.cmdline = ["-n1", "@latex", "%s"]
+def setup (doc, context):
+	doc.vars['engine'] = 'VTeX'
+	if context['opt'] == 'ps':
+		if doc.env.final != doc and doc.products[0][-4:] != '.ps':
+			msg.error(_("there is already a post-processor registered"))
+			sys.exit(2)
+		doc.vars['program'] = 'vlatexp'
+		doc.reset_products([doc.target + '.ps'])
+	else:
+		if doc.env.final != doc and doc.products[0][-4:] != '.pdf':
+			msg.error(_("there is already a post-processor registered"))
+			sys.exit(2)
+		doc.vars['program'] = 'vlatex'
+		doc.reset_products([doc.target + '.pdf'])
+	doc.cmdline = ['-n1', '@latex', '%s']

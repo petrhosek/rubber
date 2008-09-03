@@ -38,15 +38,12 @@ this argument, they apply to all indices declared at the point where they
 occur.
 """
 
-import os
-from os.path import *
-import re, string
+import os, os.path, re
 
-import rubber
 from rubber import _, msg
 from rubber.util import *
 
-class Index (rubber.rules.latex.Module):
+class Index:
 	"""
 	This class represents a single index.
 	"""
@@ -142,8 +139,7 @@ class Index (rubber.rules.latex.Module):
 			path_var = "XINDY_SEARCHPATH"
 
 		if self.path != []:
-			env = { path_var:
-				string.join(self.path + [os.getenv(path_var, "")], ":") }
+			env = { path_var: ':'.join(self.path + [os.getenv(path_var, '')]) }
 		else:
 			env = {}
 		if self.doc.env.execute(cmd, env):
@@ -178,75 +174,73 @@ class Index (rubber.rules.latex.Module):
 		Remove all generated files related to the index.
 		"""
 		for file in self.source, self.target, self.transcript:
-			if exists(file):
+			if os.path.exists(file):
 				msg.log(_("removing %s") % file, pkg="index")
 				os.unlink(file)
 
-re_newindex = re.compile(" *{(?P<idx>[^{}]*)} *{(?P<ind>[^{}]*)}")
-re_optarg = re.compile("\((?P<list>[^()]*)\) *")
+re_optarg = re.compile(r'\((?P<list>[^()]*)\) *')
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		"""
-		Initialize the module with no index.
-		"""
-		self.doc = doc
-		self.indices = {}
-		self.defaults = []
-		self.commands = {}
-		doc.hook_macro("makeindex", "", self.makeindex)
-		doc.hook_macro("newindex", "aaa", self.newindex)
+def setup (document, context):
+	global doc, indices, defaults, commands
+	doc = document
+	indices = {}
+	defaults = []
+	commands = {}
+	doc.hook_macro('makeindex', '', hook_makeindex)
+	doc.hook_macro('newindex', 'aaa', hook_newindex)
 
-	def register (self, name, idx, ind, ilg):
-		"""
-		Register a new index.
-		"""
-		index = self.indices[name] = Index(self.doc, idx, ind, ilg)
-		for cmd in self.defaults:
-			index.command(*cmd)
-		if self.commands.has_key(name):
-			for cmd in self.commands[name]:
-				index.command(*cmd)
+def register (name, idx, ind, ilg):
+	"""
+	Register a new index.
+	"""
+	index = indices[name] = Index(doc, idx, ind, ilg)
+	for command in defaults:
+		index.command(*command)
+	if name in commands:
+		for command in commands[name]:
+			index.command(*command)
 
-	def makeindex (self, loc):
-		"""
-		Register the standard index.
-		"""
-		self.register("default", "idx", "ind", "ilg")
+def hook_makeindex (loc):
+	register('default', 'idx', 'ind', 'ilg')
 
-	def newindex (self, loc, index, idx, ind):
-		"""
-		Register a new index.
-		"""
-		self.register(index, idx, ind, "ilg")
-		msg.log(_("index %s registered") % index, pkg="index")
+def hook_newindex (loc, index, idx, ind):
+	register(index, idx, ind, 'ilg')
+	msg.log(_("index %s registered") % index, pkg='index')
 
-	def command (self, cmd, args):
-		indices = self.indices
-		names = None
-		if len(args) > 0:
-			m = re_optarg.match(args[0])
-			if m:
-				names = m.group("list").split(",")
-				args = args[1:]
-		if names is None:
-			self.defaults.append([cmd, args])
-			names = indices.keys()
-		for index in names:
-			if indices.has_key(index):
-				indices[index].command(cmd, args[1:])
-			elif self.commands.has_key(index):
-				self.commands[index].append([cmd, args])
-			else:
-				self.commands[index] = [[cmd, args]]
+def command (cmd, args):
+	names = None
 
-	def post_compile (self):
-		for index in self.indices.values():
-			if not index.post_compile():
-				return False
-		return True
+	# Check if there is the optional argument.
 
-	def clean (self):
-		for index in self.indices.values():
-			index.clean()
-		return 0
+	if len(args) > 0:
+		match = re_optarg.match(args[0])
+		if match:
+			names = match.group('list').split(',')
+			args = args[1:]
+
+	# If not, this command will also be executed for newly created indices
+	# later on.
+
+	if names is None:
+		defaults.append([cmd, args])
+		names = indices.keys()
+
+	# Then run the command for each index it concerns.
+
+	for name in names:
+		if name in indices:
+			indices[name].command(cmd, args)
+		elif name in commands:
+			commands[name].append([cmd, args])
+		else:
+			commands[name] = [[cmd, args]]
+
+def post_compile ():
+	for index in indices.values():
+		if not index.post_compile():
+			return False
+	return True
+
+def clean ():
+	for index in indices.values():
+		index.clean()

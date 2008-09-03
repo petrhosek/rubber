@@ -8,28 +8,21 @@ that simply provides a macro \\psfig with a keyval list argument to include
 an EPS figure file.
 """
 
-import rubber, rubber.util
-import rubber.rules.latex.modules.graphics
+from rubber.util import parse_keyval
 
-class Module (rubber.rules.latex.modules.graphics.Module):
-	def __init__ (self, doc, dict):
-		"""
-		This initialization method calls the one from module 'graphics', which
-		registers its specific macros. This is not wrong: the epsfig package
-		does that too.
-		"""
-		rubber.rules.latex.modules.graphics.Module.__init__(self, doc, dict)
-		doc.hook_macro("epsfbox", "oa", self.includegraphics)
-		doc.hook_macro("epsffile", "oa", self.includegraphics)
-		doc.hook_macro("epsfig", "a", self.epsfig)
-		doc.hook_macro("psfig", "a", self.epsfig)
+def setup (doc, context):
+	global hook_includegraphics
+	doc.do_module('graphics')
+	_, hook_includegraphics = doc.hooks['includegraphics']
+	# We proceed as if \epsfbox and \includegraphics were equivalent.
+	doc.hook_macro('epsfbox', 'oa', hook_includegraphics)
+	doc.hook_macro('epsffile', 'oa', hook_includegraphics)
+	doc.hook_macro('epsfig', 'a', hook_epsfig)
+	doc.hook_macro('psfig', 'a', hook_epsfig)
 
-	def epsfig (self, loc, arg):
-		"""
-		This macro is called when a \\psfig or \\epsfig macro is found. It
-		mainly translates it into a call to \\includegraphics.
-		"""
-		opts = rubber.util.parse_keyval(arg)
-		if not opts.has_key("file"):
-			return
-		self.includegraphics(loc, arg, opts["file"])
+def hook_epsfig (loc, argument):
+	# We just translate this into an equivalent call to \includegraphics.
+	options = parse_keyval(argument)
+	if 'file' not in options:
+		return
+	hook_includegraphics(loc, argument, options['file'])

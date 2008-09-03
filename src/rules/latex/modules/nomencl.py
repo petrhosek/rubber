@@ -7,10 +7,15 @@ This module simply wraps the functionality of the 'index' module with default
 values for the 'nomencl' package.
 """
 
-import rubber
 from rubber.rules.latex.modules.index import Index
 
-class Module (Index, rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		Index.__init__(self, doc, "nlo", "nls", "ilg")
-		self.do_style("nomencl.ist")
+def setup (document, context):
+	global index
+	index = Index(document, 'nlo', 'nls', 'ilg')
+	index.do_style('nomencl.ist')
+
+def post_compile ():
+	return index.post_compile()
+
+def command (command, args):
+	getattr(index, 'do_' + command)(*args)

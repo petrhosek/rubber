@@ -14,17 +14,12 @@ Currently, only dependency analysis is provided. The command parsing is
 incomplete, because \\includegraphics can have a complex format.
 """
 
-import os
-from os.path import *
+import os, os.path
 import string, re
 
-import rubber
-from rubber import _
-from rubber import *
-from rubber.util import *
-import rubber.rules
-
-from rubber.rules.latex.io import Parser
+from rubber import _, msg
+from rubber.util import parse_keyval
+from rubber.rules.latex.io import parse_string
 
 # default suffixes for each device driver (taken from the .def files)
 
@@ -52,166 +47,139 @@ drv_suffixes = {
 	          ".eps", ".ps", ".mps", ".emf", ".wmf"]
 }
 
-# These regular expressions are used to parse path lists in \graphicspath and
-# arguments in \DeclareGraphicsRule respectively.
+def setup (document, context):
+	global doc, prefixes, suffixes, files
 
-re_grule = re.compile("{(?P<type>[^{}]*)}\\s*\
-{(?P<read>[^{}]*)}\\s*{(?P<command>[^{}]*)}")
+	doc = document
+	doc.hook_macro('includegraphics', 'oa', hook_includegraphics)
+	doc.hook_macro('graphicspath', 'a', hook_graphicspath)
+	doc.hook_macro('DeclareGraphicsExtensions', 'a', hook_declareExtensions)
+	doc.hook_macro('DeclareGraphicsRule', 'aaaa', hook_declareRule)
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		"""
-		Initialize the module by defining the search path and the list of
-		possible extensions from de compiler's name and the package's options.
-		"""
-		self.doc = doc
-		self.env = doc.env
-		doc.hook_macro("includegraphics", "oa", self.includegraphics)
-		doc.hook_macro("graphicspath", "a", self.graphicspath)
-		doc.hook_macro("DeclareGraphicsExtensions", "a", self.declareExtensions)
-		doc.hook_macro("DeclareGraphicsRule", "aaaa", self.declareRule)
+	prefixes = [os.path.join(x, '') for x in doc.env.path]
+	files = []
 
-		self.prefixes = map(lambda x: join(x, ""), doc.env.path)
-		self.files = []
+	# I take dvips as the default, but it is not portable.
 
-		# I take dvips as the default, but it is not portable.
-		if doc.vars["engine"] == "pdfTeX" and doc.products[0][-4:] == ".pdf":
-			self.suffixes = drv_suffixes["pdftex"]
-		elif doc.vars["engine"] == "VTeX":
-			self.suffixes = drv_suffixes["vtex"]
-		else:
-			self.suffixes = drv_suffixes["dvips"]
+	if doc.vars['engine'] == 'pdfTeX' and doc.products[0][-4:] == '.pdf':
+		suffixes = drv_suffixes['pdftex']
+	elif doc.vars['engine'] == 'VTeX':
+		suffixes = drv_suffixes['vtex']
+	else:
+		suffixes = drv_suffixes['dvips']
 
-		if dict.has_key("opt") and dict["opt"]:
-			self.opts = parse_keyval(dict["opt"])
-		else:
-			self.opts = {}
+	# If the package was loaded with an option that matches the name of a
+	# driver, use that driver instead.
 
-		for opt in self.opts.keys():
-			if drv_suffixes.has_key(opt):
-				self.suffixes = drv_suffixes[opt]
+	if 'opt' in context and context['opt']:
+		opts = parse_keyval(context['opt'])
+	else:
+		opts = {}
 
-		doc.vars["graphics_suffixes"] = self.suffixes
+	for opt in opts.keys():
+		if drv_suffixes.has_key(opt):
+			suffixes = drv_suffixes[opt]
 
-	#  supported macros
+	doc.vars['graphics_suffixes'] = suffixes
 
-	def includegraphics (self, loc, opt, name):
-		"""
-		This method is triggered by the \\includegraphics macro, it looks for
-		the graphics file specified as argument and adds it either to the
-		dependencies or to the list of graphics not found.
-		"""
-		suffixes = self.suffixes
+# Supported macros
 
-		if opt is not None:
-			opts = parse_keyval(opt)
-			if opts.has_key("ext"):
-				# no suffixes are tried when the extension is explicit
-				suffixes = [""]
-				if opts["ext"]:
-					name = name + opts["ext"]
+def hook_includegraphics (loc, optional, name):
+	# no suffixes are tried when the extension is explicit
 
-		if name.find("\\") >= 0 or name.find("#") >= 0:
-			return
+	allowed_suffixes = suffixes
 
-		# We only accept conversions from file types we don't know and cannot
-		# produce.
+	if optional is not None:
+		options = parse_keyval(optional)
+		if 'ext' in options:
+			allowed_suffixes = ['']
+			if options['ext']:
+				name = name + options['ext']
 
-		def check (vars, suffixes=suffixes):
-			source = vars["source"]
-			if exists(vars["target"]) and self.env.may_produce(source):
-				return 0
-			if suffixes == [""]:
-				return 1
-			for suffix in suffixes:
-				if source[-len(suffix):] == suffix:
-					return 0
-			return 1
+	for suffix in suffixes:
+		if name[-len(suffix):] == suffix:
+			allowed_suffixes = ['']
+			break
 
-		d = self.env.convert(name, suffixes=suffixes, prefixes=self.prefixes,
-				check=check, context=self.doc.vars)
+	# If the file name looks like it contains a control sequence or a macro
+	# argument, forget about this \includegraphics.
 
-		if d:
-			msg.log(_("graphics `%s' found") % name, pkg="graphics")
-			for file in d.products:
-				self.doc.add_source(file)
-			self.files.append(d)
-		else:
-			msg.warn(_("graphics `%s' not found") % name, **loc)
+	if name.find('\\') >= 0 or name.find('#') >= 0:
+		return
 
-	def graphicspath (self, loc, arg):
-		"""
-		This method is triggered by the \\graphicspath macro. The macro's
-		argument is a list of prefixes that can be added to the file names
-		(not only directory names).
-		"""
-		parser = parse_string(arg)
-		while True:
-			arg = parser.get_argument_text()
-			if arg is None:
-				break
-			self.prefixes.insert(0, arg)
+	# We only accept conversions from file types we don't know and cannot
+	# produce.
 
-	def declareExtensions (self, loc, list):
-		"""
-		This method is triggered by the \\DeclareGraphicsExtensions macro. It
-		registers new suffixes for graphics inclusion.
-		"""
-		for suffix in list.split(","):
-			self.suffixes.insert(0, string.strip(suffix))
-
-	def declareRule (self, loc, ext, type, read, command):
-		"""
-		This method is triggered by the \\DeclareGraphicsRule macro. It
-		declares a rule to include a given graphics file type.
-		This implementation is preliminary, its correctness chould be checked.
-		"""
-		if read in self.suffixes:
-			return
-		self.suffixes.insert(0, read)
-		msg.log("*** FIXME ***  rule %s -> %s [%s]" % (
-			string.strip(ext), read, type),
-			pkg="graphics")
-
-	#  auxiliary method
-
-	def find_input (self, name):
-		"""
-		Look for a source file with the given name and one of the registered
-		suffixes, and return either the	complete path to the actual file or
-		None if the file is not found.
-		"""
-		for prefix in self.prefixes:
-			test = prefix + name
-			if exists(test):
-				return test
-			for suffix in self.suffixes:
-				if exists(test + suffix):
-					return test + suffix
-		return None
-
-	#  module interface
-
-	def pre_compile (self):
-		"""
-		Prepare the graphics before compilation. Currently, this only means
-		printing warnings if some graphics are not found.
-		"""
-		for dep in self.files:
-			dep.make()
+	def check (vars):
+		source = vars['source']
+		if os.path.exists(vars['target']) and doc.env.may_produce(source):
+			return False
+		if suffixes == ['']:
+			return True
+		for suffix in allowed_suffixes:
+			if source[-len(suffix):] == suffix:
+				return False
 		return True
 
-	def clean (self):
-		"""
-		Remove all graphics files that are produced by the transformation of
-		some other file.
-		"""
-		for dep in self.files:
-			dep.clean()
+	node = doc.env.convert(name, suffixes=allowed_suffixes, prefixes=prefixes,
+			check=check, context=doc.vars)
 
-	def convert (self, source, target, env, loc={}):
-		"""
-		Return a dependency node (or None) for the conversion of the given
-		source figure into the given target LaTeX source.
-		"""
-		return PSTDep(source, target, env, self, loc)
+	if node:
+		msg.log(_("graphics `%s' found") % name, pkg='graphics')
+		for file in node.products:
+			doc.add_source(file)
+		files.append(node)
+	else:
+		msg.warn(_("graphics `%s' not found") % name, **loc)
+
+def hook_graphicspath (loc, arg):
+	# The argument of \graphicspath is a list (in the sense of TeX) of
+	# prefixes that can be put in front of graphics names.
+	parser = parse_string(arg)
+	while True:
+		arg = parser.get_argument_text()
+		if arg is None:
+			break
+		prefixes.insert(0, arg)
+
+def hook_declareExtensions (loc, list):
+	for suffix in list.split(","):
+		suffixes.insert(0, string.strip(suffix))
+
+def hook_declareRule (loc, ext, type, read, command):
+	if read in suffixes:
+		return
+	suffixes.insert(0, read)
+	msg.log("*** FIXME ***  rule %s -> %s [%s]" % (
+		string.strip(ext), read, type), pkg='graphics')
+
+#  auxiliary method
+
+def find_input (name):
+	"""
+	Look for a source file with the given name and one of the registered
+	suffixes, and return either the	complete path to the actual file or
+	None if the file is not found.
+	"""
+	for prefix in prefixes:
+		test = prefix + name
+		if exists(test):
+			return test
+		for suffix in suffixes:
+			if exists(test + suffix):
+				return test + suffix
+	return None
+
+#  module interface
+
+def pre_compile ():
+	# Pre-compilation means running all needed conversions. This is not done
+	# through the standard dependency mechanism because we do not want to
+	# interrupt compilation when a graphic is not found.
+	for node in files:
+		node.make()
+	return True
+
+def clean ():
+	for node in files:
+		node.clean()

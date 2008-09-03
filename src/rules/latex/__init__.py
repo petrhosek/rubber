@@ -10,8 +10,7 @@ building a LaTeX document from start to finish.
 # Stop python 2.2 from calling "yield" statements syntax errors.
 from __future__ import generators
 
-import os, sys, posix
-from os.path import *
+import os, os.path, sys
 import re
 import string
 
@@ -25,7 +24,7 @@ from rubber.rules.latex.io import Parser, EOF, OPEN, SPACE, END_LINE
 
 #----  Module handler  ----{{{1
 
-class Modules (Plugins):
+class Modules:
 	"""
 	This class gathers all operations related to the management of modules.
 	The modules are	searched for first in the current directory, then as
@@ -33,7 +32,6 @@ class Modules (Plugins):
 	as a Python module in the package `rubber.latex'.
 	"""
 	def __init__ (self, env):
-		Plugins.__init__(self, rubber.rules.latex.modules.__path__)
 		self.env = env
 		self.objects = {}
 		self.commands = {}
@@ -52,11 +50,10 @@ class Modules (Plugins):
 
 	def register (self, name, dict={}):
 		"""
-		Attempt to register a package with the specified name. If a module is
-		found, create an object from the module's class called `Module',
-		passing it the environment and `dict' as arguments, and execute all
-		delayed commands for this module. The dictionary describes the
-		command that caused the registration.
+		Attempt to register a module with the specified name. If the module is
+		already loaded, do nothing. If it is found and not yet loaded, then
+		load it, initialise it (using the context passed as optional argument)
+		and run any delayed commands for it.
 		"""
 		if self.has_key(name):
 			msg.debug(_("module %s already registered") % name)
@@ -65,9 +62,9 @@ class Modules (Plugins):
 		# First look for a script
 
 		mod = None
-		for path in "", join(moddir, "modules"):
-			file = join(path, name + ".rub")
-			if exists(file):
+		for path in "", os.path.join(moddir, "modules"):
+			file = os.path.join(path, name + ".rub")
+			if os.path.exists(file):
 				mod = ScriptModule(self.env, file)
 				msg.log(_("script module %s registered") % name)
 				break
@@ -75,11 +72,16 @@ class Modules (Plugins):
 		# Then look for a Python module
 
 		if not mod:
-			if Plugins.register(self, name) == 0:
+			try:
+				file, path, descr = imp.find_module(name,
+						rubber.rules.latex.modules.__path__)
+				pymodule = imp.load_module(name, file, path, descr)
+				file.close()
+				mod = PyModule(self.env, pymodule, dict)
+				msg.log(_("built-in module %s registered") % name)
+			except ImportError:
 				msg.debug(_("no support found for %s") % name)
 				return 0
-			mod = self.modules[name].Module(self.env, dict)
-			msg.log(_("built-in module %s registered") % name)
 
 		# Run any delayed commands.
 
@@ -106,14 +108,6 @@ class Modules (Plugins):
 
 		self.objects[name] = mod
 		return 1
-
-	def clear (self):
-		"""
-		Unregister all modules.
-		"""
-		Plugins.clear(self)
-		self.objects = {}
-		self.commands = {}
 
 	def command (self, mod, cmd, args):
 		"""
@@ -641,9 +635,9 @@ class LaTeXDep (Node):
 			return 1
 		self.reset_sources()
 		self.vars['source'] = name
-		(src_path, name) = split(name)
+		(src_path, name) = os.path.split(name)
 		self.vars['path'] = src_path
-		(job, self.vars['ext']) = splitext(name)
+		(job, self.vars['ext']) = os.path.splitext(name)
 		if jobname is None:
 			self.set_job = 0
 		else:
@@ -655,7 +649,7 @@ class LaTeXDep (Node):
 			self.vars['base'] = job
 		else:
 			self.env.path.append(src_path)
-			self.vars['base'] = join(src_path, job)
+			self.vars['base'] = os.path.join(src_path, job)
 
 		source = self.source()
 		prefix = os.path.join(self.vars["cwd"], "")
@@ -707,8 +701,8 @@ class LaTeXDep (Node):
 		if ref is None and self.vars.has_key("file"):
 			ref = self.vars["file"]
 		if ref is not None:
-			path = join(path, dirname(ref))
-		return abspath(join(path, expanduser(name)))
+			path = os.path.join(path, os.path.dirname(ref))
+		return os.path.abspath(os.path.join(path, os.path.expanduser(name)))
 
 	#--  LaTeX source parsing  {{{2
 
@@ -794,7 +788,7 @@ class LaTeXDep (Node):
 			return None, None
 
 		for path in self.env.path:
-			pname = join(path, name)
+			pname = os.path.join(path, name)
 			dep = self.env.convert(pname, suffixes=[".tex",""], context=self.vars)
 			if dep:
 				file = dep.products[0]
@@ -830,15 +824,15 @@ class LaTeXDep (Node):
 		# Calls to this method are actually translated into calls to "do_*"
 		# methods, except for calls to module directives.
 		lst = string.split(cmd, ".", 1)
-		try:
-			if len(lst) > 1:
-				self.modules.command(lst[0], lst[1], args)
-			elif not hasattr(self, "do_" + cmd):
-				msg.warn(_("unknown directive '%s'") % cmd, **pos)
-			else:
-				getattr(self, "do_" + cmd)(*args)
-		except TypeError:
-			msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
+		#try:
+		if len(lst) > 1:
+			self.modules.command(lst[0], lst[1], args)
+		elif not hasattr(self, "do_" + cmd):
+			msg.warn(_("unknown directive '%s'") % cmd, **pos)
+		else:
+			getattr(self, "do_" + cmd)(*args)
+		#except TypeError:
+		#	msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
 
 	def do_alias (self, name, val):
 		if self.hooks.has_key(val):
@@ -880,7 +874,7 @@ class LaTeXDep (Node):
 	def do_onchange (self, file, cmd):
 		file = self.abspath(file)
 		self.onchange_cmd[file] = cmd
-		if exists(file):
+		if os.path.exists(file):
 			self.onchange_md5[file] = md5_file(file)
 		else:
 			self.onchange_md5[file] = None
@@ -977,15 +971,15 @@ class LaTeXDep (Node):
 			return
 
 		if mode == 0:
-			if self.modules.has_key("pdftex"):
-				self.modules["pdftex"].mode_dvi()
+			if 'pdftex' in self.modules:
+				self.modules['pdftex'].pymodule.mode_dvi()
 			else:
-				self.modules.register("pdftex", {"opt": "dvi"})
+				self.modules.register('pdftex', {'opt': 'dvi'})
 		else:
-			if self.modules.has_key("pdftex"):
-				self.modules["pdftex"].mode_pdf()
+			if 'pdftex' in self.modules:
+				self.modules['pdftex'].pymodule.mode_pdf()
 			else:
-				self.modules.register("pdftex")
+				self.modules.register('pdftex')
 
 	def h_input (self, loc):
 		"""
@@ -1015,7 +1009,7 @@ class LaTeXDep (Node):
 			aux = filename + ".aux"
 			self.removed_files.append(aux)
 			self.aux_old[aux] = None
-			if exists(aux):
+			if os.path.exists(aux):
 				self.aux_md5[aux] = md5_file(aux)
 			else:
 				self.aux_md5[aux] = None
@@ -1056,7 +1050,7 @@ class LaTeXDep (Node):
 		for name in string.split(names, ","):
 			name = name.strip()
 			file = self.env.find_file(name + ".sty")
-			if file and not exists(name + ".py"):
+			if file and not os.path.exists(name + ".py"):
 				self.process(file)
 			else:
 				dict = Variables(self.vars, { 'opt': opt })
@@ -1076,7 +1070,11 @@ class LaTeXDep (Node):
 		databases.
 		"""
 		self.modules.register("bibtex", dict)
-		self.modules["bibtex"].biblio.hook_bibliography(loc, names)
+		# This registers the actual hooks, so that subsequent occurrences of
+		# \bibliography and \bibliographystyle will be caught by the module.
+		# However, the first time, we have to call the hooks from here. The
+		# line below assumes that the new hook has the same syntax.
+		self.hooks['bibliography'][1](loc, names)
 
 	def h_bibliographystyle (self, loc, name):
 		"""
@@ -1085,7 +1083,8 @@ class LaTeXDep (Node):
 		module.
 		"""
 		self.modules.register("bibtex", dict)
-		self.modules["bibtex"].biblio.hook_bibliographystyle(loc, name)
+		# The same remark as in 'h_bibliography' applies here.
+		self.hooks['bibliographystyle'][1](loc, name)
 
 	def h_begin_verbatim (self, dict, env="verbatim"):
 		"""
@@ -1227,7 +1226,7 @@ class LaTeXDep (Node):
 		msg.log(_("running post-compilation scripts..."))
 
 		for file, md5 in self.onchange_md5.items():
-			if not exists(file):
+			if not os.path.exists(file):
 				continue
 			new = md5_file(file)
 			if md5 != new:
@@ -1248,7 +1247,7 @@ class LaTeXDep (Node):
 		self.remove_suffixes([".log", ".aux", ".toc", ".lof", ".lot"])
 
 		for file in self.products + self.removed_files:
-			if exists(file):
+			if os.path.exists(file):
 				msg.log(_("removing %s") % file)
 				os.unlink(file)
 
@@ -1309,10 +1308,10 @@ class LaTeXDep (Node):
 		if self.must_compile:
 			return 1
 		msg.log(_("checking if compiling is necessary..."))
-		if not exists(self.products[0]):
+		if not os.path.exists(self.products[0]):
 			msg.debug(_("the output file doesn't exist"))
 			return 1
-		if not exists(self.target + ".log"):
+		if not os.path.exists(self.target + ".log"):
 			msg.debug(_("the log file does not exist"))
 			return 1
 		if getmtime(self.products[0]) < getmtime(self.source()):
@@ -1384,7 +1383,7 @@ class LaTeXDep (Node):
 		watched. When the file changes during a compilation, it means that
 		another compilation has to be done.
 		"""
-		if exists(file):
+		if os.path.exists(file):
 			self.watched_files[file] = md5_file(file)
 		else:
 			self.watched_files[file] = None
@@ -1396,7 +1395,7 @@ class LaTeXDep (Node):
 		"""
 		changed = None
 		for file in self.watched_files.keys():
-			if exists(file):
+			if os.path.exists(file):
 				new = md5_file(file)
 				if self.watched_files[file] != new:
 					changed = file
@@ -1410,7 +1409,7 @@ class LaTeXDep (Node):
 		"""
 		for suffix in list:
 			file = self.target + suffix
-			if exists(file):
+			if os.path.exists(file):
 				msg.log(_("removing %s") % file)
 				os.unlink(file)
 
@@ -1490,3 +1489,34 @@ class ScriptModule (Module):
 			lst = parse_line(line, vars)
 			env.command(lst[0], lst[1:], vars)
 		file.close()
+
+class PyModule (Module):
+	def __init__ (self, document, pymodule, context):
+		self.pymodule = pymodule
+		if hasattr(pymodule, 'setup'):
+			pymodule.setup(document, context)
+
+	def pre_compile (self):
+		if hasattr(self.pymodule, 'pre_compile'):
+			return self.pymodule.pre_compile()
+		return True
+
+	def post_compile (self):
+		if hasattr(self.pymodule, 'post_compile'):
+			return self.pymodule.post_compile()
+		return True
+
+	def clean (self):
+		if hasattr(self.pymodule, 'clean'):
+			self.pymodule.clean()
+
+	def command (self, cmd, args):
+		if hasattr(self.pymodule, 'command'):
+			self.pymodule.command(cmd, args)
+		else:
+			getattr(self.pymodule, "do_" + cmd)(*args)
+
+	def get_errors (self):
+		if hasattr(self.pymodule, 'get_errors'):
+			return self.pymodule.get_errors()
+		return []

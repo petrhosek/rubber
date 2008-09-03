@@ -173,7 +173,6 @@ class Environment:
 		if cwd is None: cwd = os.getcwd()
 		self.vars = Variables(items = { 'cwd': cwd, '_environment': self })
 		self.path = [cwd]
-		self.plugins = Plugins(rubber.rules.__path__)
 		self.conv_prefs = {}
 		self.depends = rubber.depend.Set()
 		self.converter = Converter(self.depends)

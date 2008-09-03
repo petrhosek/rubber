@@ -99,61 +99,6 @@ def prog_available (prog):
 	return None
 
 
-#-- Plugin management --{{{1
-
-class Plugins (object):
-	"""
-	This class gathers operations related to the management of external Python
-	modules. Modules are requested through the `register' method, and
-	they are searched for first in the current directory, then in the
-	(possibly) specified Python package (using Python's path).
-	"""
-	def __init__ (self, path = None):
-		"""
-		Initialize the module set, possibly setting a path name in which
-		modules will be searched for.
-		"""
-		self.modules = {}
-		self.path = path
-
-	def __getitem__ (self, name):
-		"""
-		Return the module object of the given name.
-		"""
-		return self.modules[name]
-
-	def register (self, name):
-		"""
-		Attempt to register a module with the specified name. If an
-		appropriate module is found, load it and store it in the object's
-		dictionary. Return 0 if no module was found, 1 if a module was found
-		and loaded, and 2 if the module was found but already loaded.
-		"""
-		if self.modules.has_key(name):
-			return 2
-		try:
-			file, path, descr = imp.find_module(name, [""])
-		except ImportError:
-			if not self.path:
-				return 0
-			try:
-				file, path, descr = imp.find_module(name, self.path)
-			except ImportError:
-				return 0
-		module = imp.load_module(name, file, path, descr)
-		file.close()
-		self.modules[name] = module
-		return 1
-
-	def clear(self):
-		"""
-		Empty the module table, unregistering every module registered. No
-		modules are unloaded, however, but this has no other effect than
-		speeding the registration if the modules are loaded again.
-		"""
-		self.modules.clear()
-
-
 #-- Variable handling --{{{1
 
 import UserDict

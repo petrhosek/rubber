@@ -11,9 +11,7 @@ is "Omega" (instead of "TeX" for instance), then "odvips" is used instead of
 import sys
 from os.path import *
 
-import rubber
-from rubber import _
-from rubber import *
+from rubber import _, msg
 from rubber.depend import Node
 
 class Dep (Node):
@@ -26,29 +24,28 @@ class Dep (Node):
 		self.options = []
 
 	def run (self):
-		if self.doc.vars["engine"] == "Omega":
-			cmd = ["odvips"]
+		if self.doc.vars['engine'] == 'Omega':
+			cmd = ['odvips']
 		else:
-			cmd = ["dvips"]
+			cmd = ['dvips']
 		msg.progress(_("running %s on %s") % (cmd[0], self.source))
-		for opt in self.doc.vars["paper"].split():
-			cmd.extend(["-t", opt])
-		cmd.extend(self.options + ["-o", self.target, self.source])
+		for opt in self.doc.vars['paper'].split():
+			cmd.extend(['-t', opt])
+		cmd.extend(self.options + ['-o', self.target, self.source])
 		if self.env.execute(cmd, kpse=1):
 			msg.error(_("%s failed on %s") % (cmd[0], self.source))
 			return False
 		return True
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		self.doc = doc
-		if doc.env.final.products[0][-4:] != ".dvi":
-			msg.error(_("I can't use dvips when not producing a DVI"))
-			sys.exit(2)
-		dvi = doc.env.final.products[0]
-		ps = dvi[:-3] + "ps"
-		self.dep = Dep(doc, ps, dvi)
-		doc.env.final = self.dep
+def setup (doc, context):
+	dvi = doc.env.final.products[0]
+	if dvi[-4:] != '.dvi':
+		msg.error(_("I can't use dvips when not producing a DVI"))
+		sys.exit(2)
+	ps = dvi[:-3] + 'ps'
+	global dep
+	dep = Dep(doc, ps, dvi)
+	doc.env.final = dep
 
-	def do_options (self, *args):
-		self.dep.options.extend(args)
+def do_options (*args):
+	dep.options.extend(args)

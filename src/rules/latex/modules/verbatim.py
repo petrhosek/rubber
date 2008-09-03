@@ -4,18 +4,13 @@
 Dependency analysis and environment parsing for package 'verbatim' in Rubber.
 """
 
-from os.path import basename
-import rubber
-from rubber import *
+def setup (document, context):
+	global doc
+	doc = document
+	doc.hook_macro('verbatiminput', 'a', hook_input)
+	doc.hook_begin('comment',
+		lambda loc: doc.h_begin_verbatim(loc, env='comment'))
 
-class Module (rubber.rules.latex.Module):
-	def __init__ (self, doc, dict):
-		self.doc = doc
-		self.env = doc.env
-		doc.hook_macro("verbatiminput", "a", self.input)
-		doc.hook_begin("comment",
-			lambda loc: doc.h_begin_verbatim(loc, env="comment"))
-
-	def input (self, loc, file):
-		if file.find("\\") < 0 and file.find("#") < 0:
-			self.doc.add_source(file)
+def hook_input (loc, file):
+	if file.find('\\') < 0 and file.find('#') < 0:
+		doc.add_source(file)
