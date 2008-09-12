@@ -257,11 +257,11 @@ available options:
 				last_node = env.final
 				filename = last_node.products[0]
 				if self.compress == 'gzip':
-					from rubber.rules.gz import GzipDep
+					from rubber.converters.gz import GzipDep
 					env.final = GzipDep(env.depends,
 							filename + '.gz', filename)
 				elif self.compress == 'bzip2':
-					from rubber.rules.bzip2 import Bzip2Dep
+					from rubber.converters.bzip2 import Bzip2Dep
 					env.final = Bzip2Dep(env.depends,
 							filename + '.bz2', filename)
 

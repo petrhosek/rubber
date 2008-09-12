@@ -7,7 +7,7 @@ import re, imp, os.path
 from ConfigParser import *
 
 from rubber import _, msg
-import rubber.rules
+import rubber.converters
 from rubber.util import Variables
 
 re_variable = re.compile('[a-zA-Z]+')
@@ -103,7 +103,7 @@ class Converter (object):
 	cost that indicates how expensive the translation is.
 
 	Each rule contains a module name. The module is searched for in the
-	package rubber.rules and it is supposed to contain two functions:
+	package rubber.converters and it is supposed to contain two functions:
 
 	- check(source, target, context):
 	    Returns True if conversion from 'source' to 'target' is possible (i.e.
@@ -170,7 +170,7 @@ class Converter (object):
 		if name in self.modules:
 			return self.modules[name] is not None
 		try:
-			answer = imp.find_module(name, rubber.rules.__path__)
+			answer = imp.find_module(name, rubber.converters.__path__)
 		except ImportError:
 			self.modules[name] = None
 			return False

@@ -19,7 +19,7 @@ import string, re
 
 from rubber import _, msg
 from rubber.util import parse_keyval
-from rubber.rules.latex.io import parse_string
+from rubber.tex import parse_string
 
 # default suffixes for each device driver (taken from the .def files)
 

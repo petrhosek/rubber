@@ -147,7 +147,7 @@ from rubber.util import *
 
 #----  Building environments  ----{{{1
 
-import rubber.rules
+import rubber.converters
 import rubber.depend
 from rubber.convert import Converter
 
@@ -212,10 +212,10 @@ class Environment:
 					return 1
 				src = path[:-len(ext)] + "tex"
 				if ext == "w":
-					from rubber.rules.cweb import CWebDep
+					from rubber.converters.cweb import CWebDep
 					self.src_node = CWebDep(self, src, path)
 				elif ext == "lhs":
-					from rubber.rules.lhs2TeX import LHSDep
+					from rubber.converters.lhs2TeX import LHSDep
 					self.src_node = LHSDep(self, src, path)
 
 		if src is None:
@@ -226,8 +226,8 @@ class Environment:
 			src = path
 			self.src_node = None
 
-		import rubber.rules.latex
-		self.main = rubber.rules.latex.LaTeXDep(self)
+		from rubber.converters.latex import LaTeXDep
+		self.main = LaTeXDep(self)
 		if os.path.exists(src):
 			if self.main.set_source(src, jobname):
 				return 1

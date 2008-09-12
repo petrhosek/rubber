@@ -7,7 +7,7 @@ This module simply wraps the functionality of the 'index' module with default
 values for the 'nomencl' package.
 """
 
-from rubber.rules.latex.modules.index import Index
+from rubber.latex_modules.index import Index
 
 def setup (document, context):
 	global index

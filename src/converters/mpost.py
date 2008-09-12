@@ -16,7 +16,7 @@ import re, string
 from rubber import _
 from rubber import *
 from rubber.depend import Node
-from rubber.rules.latex import LogCheck
+from rubber.converters.latex import LogCheck
 
 def check (source, target, context):
 	return prog_available('mpost')

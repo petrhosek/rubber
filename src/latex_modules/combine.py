@@ -12,7 +12,7 @@ way the package deals with \\documentclass and \\usepackage.
 """
 
 from os.path import basename
-from rubber.rules.latex import EndDocument
+from rubber.converters.latex import EndDocument
 
 combine_level = 0
 

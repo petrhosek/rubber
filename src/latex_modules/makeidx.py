@@ -1,7 +1,7 @@
 # This file is part of Rubber and thus covered by the GPL
 # (c) Emmanuel Beffara, 2002--2006
 
-from rubber.rules.latex.modules.index import Index
+from rubber.latex_modules.index import Index
 
 def setup (document, context):
 	global index

@@ -18,9 +18,9 @@ from rubber import _
 from rubber import *
 from rubber.depend import Node
 from rubber.version import moddir
-import rubber.rules.latex.modules
+import rubber.latex_modules
 
-from rubber.rules.latex.io import Parser, EOF, OPEN, SPACE, END_LINE
+from rubber.tex import Parser, EOF, OPEN, SPACE, END_LINE
 
 #----  Module handler  ----{{{1
 
@@ -74,7 +74,7 @@ class Modules:
 		if not mod:
 			try:
 				file, path, descr = imp.find_module(name,
-						rubber.rules.latex.modules.__path__)
+						rubber.latex_modules.__path__)
 				pymodule = imp.load_module(name, file, path, descr)
 				file.close()
 				mod = PyModule(self.env, pymodule, dict)
@@ -1314,7 +1314,7 @@ class LaTeXDep (Node):
 		if not os.path.exists(self.target + ".log"):
 			msg.debug(_("the log file does not exist"))
 			return 1
-		if getmtime(self.products[0]) < getmtime(self.source()):
+		if os.path.getmtime(self.products[0]) < os.path.getmtime(self.source()):
 			msg.debug(_("the source is younger than the output file"))
 			return 1
 		if self.log.read(self.target + ".log"):
@@ -1334,7 +1334,7 @@ class LaTeXDep (Node):
 			msg.debug(_("last compilation failed"))
 			self.update_watches()
 			return 1
-		if self.deps_modified(getmtime(self.products[0])):
+		if self.deps_modified(os.path.getmtime(self.products[0])):
 			msg.debug(_("dependencies were modified"))
 			self.update_watches()
 			return 1
