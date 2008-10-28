@@ -160,7 +160,7 @@ if len(sys.argv) > 1:
 		make_files(sub, [
 			"rubber.spec",
 			"Makefile", "doc/Makefile",
-			"rubber", "rubber-info", "rubber-pipe", "src/version.py"])
+			"src/version.py"])
 		print ("""
 Rubber is now configured. It will use the following Python interpreter:
     %s
@@ -179,10 +179,7 @@ It will be installed in the following directories:
 		sub = settings.sub
 		sub["prefix"] = sys.argv[2]
 		del sys.argv[2]
-		sys.argv = sys.argv + [
-			"--prefix", sub["prefix"],
-			"--install-lib", expand_vars(sub, sub["moddir"]),
-			"--install-scripts", expand_vars(sub, sub["bindir"])]
+		sys.argv = sys.argv + ["--prefix", sub["prefix"]]
 		sys.argv[1] = "install"
 		do_setup()
 	else:
