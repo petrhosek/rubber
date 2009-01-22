@@ -52,6 +52,25 @@ for i in range(0,26):
 	catcodes[chr(ord('A')+i)] = LETTER
 	catcodes[chr(ord('a')+i)] = LETTER
 
+class Position:
+	"""
+	A class to represent positions in a source file.
+	"""
+	def __init__ (self, file=None, line=None, char=None):
+		self.file = file
+		self.line = line
+		self.char = char
+	def __str__ (self):
+		text = ''
+		if self.file:
+			text = file + ':'
+		if self.line is not None:
+			if text != '':
+				text += ':'
+			text += '%d' % self.line
+			if self.char is not None:
+				text += ':%d' % self.char
+		return text
 
 class Token:
 	"""
@@ -59,11 +78,33 @@ class Token:
 	(for control sequences) and the raw text that represents them in the input
 	file.
 	"""
-	def __init__ (self, cat, val=None, raw=None):
+	def __init__ (self, cat, val=None, raw=None, pos=None):
 		self.cat = cat
 		self.val = val
 		self.raw = raw
+		self.pos = pos
 
+class TokenList (list):
+	"""
+	This class represents a token list. It behaves as a standard list with
+	some extra functionality.
+	"""
+	def __init__ (self, data=[], pos=None):
+		list.__init__(self, data)
+		if pos is None and len(data) > 0:
+			self.pos = list[0].pos
+		else:
+			self.pos = pos
+
+	def raw_text (self):
+		"""
+		Return the textual representation of the token list by concatenating
+		the raw text of the tokens.
+		"""
+		text = ''
+		for token in self:
+			text += token.raw
+		return text
 
 class ParserBase:
 	"""
@@ -77,6 +118,7 @@ class ParserBase:
 		self.next = []
 		self.math_mode = 0
 		self.last_is_math = 0
+		self.pos = None
 
 	def catcode (self, char):
 		"""
@@ -159,7 +201,7 @@ class ParserBase:
 		Get the list of tokens up to the next closing brace, and drop the
 		closing brace.
 		"""
-		value = []
+		value = TokenList()
 		level = 1
 		while 1:
 			token = self.get_token()
@@ -203,9 +245,9 @@ class ParserBase:
 		self.skip_space()
 		token = self.get_token()
 		if token.cat == EOF:
-			return []
+			return TokenList()
 		if token.cat != OPEN:
-			return [token]
+			return TokenList([token])
 		return self.get_group()
 
 	def get_argument_text (self):
@@ -222,10 +264,10 @@ class ParserBase:
 			return token.raw
 		return self.get_group_text()
 
-	def get_latex_optional_text (self):
+	def get_latex_optional (self):
 		"""
 		Check if a LaTeX-style optional argument is present. If such an
-		argument is present, return it as text, otherwise return None.
+		argument is present, return it as a token list, otherwise return None.
 		"""
 		next = self.get_token()
 
@@ -234,7 +276,7 @@ class ParserBase:
 			return None
 
 		level = 0
-		text = ""
+		list = TokenList()
 		while True:
 			token = self.get_token()
 			if token.cat == EOF:
@@ -247,9 +289,19 @@ class ParserBase:
 				if level == 0:
 					break
 				level -= 1
-			text += token.raw
+			list.append(token)
 
-		return text
+		return list
+
+	def get_latex_optional_text (self):
+		"""
+		Check if a LaTeX-style optional argument is present. If such an
+		argument is present, return it as text, otherwise return None.
+		"""
+		list = self.get_latex_optional()
+		if list is None:
+			return None
+		return list.raw_text()
 
 def re_set (set, complement=False):
 	"""
@@ -330,13 +382,14 @@ class Parser (ParserBase):
 		c = self.line[0]
 		self.line = self.line[1:]
 
+		pos = Position(line=self.pos_line, char=self.pos_char)
 		if c == '\n':
 			self.pos_line += 1
 			self.pos_char = 1
 		else:
 			self.pos_char += 1
 
-		return Token(self.catcode(c), raw=c)
+		return Token(self.catcode(c), raw=c, pos=pos)
 
 	def read_token (self):
 		"""
@@ -347,6 +400,7 @@ class Parser (ParserBase):
 			if token.cat in (LETTER, OTHER):
 				token.val = token.raw
 			return token
+		pos = token.pos
 		raw = token.raw
 		token = self.read_char()
 		if token.cat != LETTER:
@@ -363,7 +417,7 @@ class Parser (ParserBase):
 			raw += token.raw
 			token = self.read_char()
 		self.next_char = token
-		return Token(CSEQ, name, raw)
+		return Token(CSEQ, name, raw, pos=pos)
 
 	def re_cat (self, *cat):
 		"""
