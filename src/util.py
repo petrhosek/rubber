@@ -5,7 +5,7 @@ This module contains utility functions and classes used by the main system and
 by the modules for various tasks.
 """
 
-import md5
+import hashlib
 import os, stat, time
 import imp
 import re, string
@@ -19,7 +19,7 @@ def md5_file (fname):
 	"""
 	Compute the MD5 sum of a given file.
 	"""
-	m = md5.new()
+	m = hashlib.md5()
 	file = open(fname)
 	for line in file.readlines():
 		m.update(line)
@@ -102,7 +102,6 @@ def prog_available (prog):
 #-- Variable handling --{{{1
 
 import UserDict
-from sets import Set
 
 class Variables (UserDict.DictMixin):
 	"""
@@ -157,9 +156,9 @@ class Variables (UserDict.DictMixin):
 		Return the set of keys defined in this environment and its parents.
 		"""
 		if self.parent is None:
-			return Set(self.dict.keys())
+			return set(self.dict.keys())
 		else:
-			return Set(self.parent.keys()) | Set(self.dict.keys())
+			return set(self.parent.keys()) | set(self.dict.keys())
 
 	def new_key (self, key, value):
 		"""
