@@ -912,7 +912,7 @@ class LaTeXDep (Node):
 			self.env.converter.read_ini(name)
 
 	def do_set (self, name, *val):
-		if name in self.list_vars:
+		if name in self.vars:
 			self.vars[name] = val
 		elif len(val) != 1:
 			raise TypeError()

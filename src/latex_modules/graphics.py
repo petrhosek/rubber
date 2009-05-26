@@ -130,7 +130,7 @@ def hook_includegraphics (loc, optional, name):
 			doc.add_source(file)
 		files.append(node)
 	else:
-		msg.warn(_("graphics `%s' not found") % name, **loc)
+		msg.warn(_("graphics `%s' not found") % name, **dict(loc))
 
 def hook_graphicspath (loc, arg):
 	# The argument of \graphicspath is a list (in the sense of TeX) of

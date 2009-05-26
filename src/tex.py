@@ -92,7 +92,7 @@ class TokenList (list):
 	def __init__ (self, data=[], pos=None):
 		list.__init__(self, data)
 		if pos is None and len(data) > 0:
-			self.pos = list[0].pos
+			self.pos = data[0].pos
 		else:
 			self.pos = pos
 
@@ -247,7 +247,7 @@ class ParserBase:
 		if token.cat == EOF:
 			return TokenList()
 		if token.cat != OPEN:
-			return TokenList([token])
+			return TokenList(data=[token])
 		return self.get_group()
 
 	def get_argument_text (self):
