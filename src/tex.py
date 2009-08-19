@@ -29,6 +29,27 @@ ACTIVE = 13
 COMMENT = 14
 INVALID = 15
 
+cat_names = {
+	-2: 'EOF',
+	-1: 'CSEQ',
+	0: 'ESCAPE',
+	1: 'OPEN',
+	2: 'CLOSE',
+	3: 'MATH',
+	4: 'ALIGN',
+	5: 'END_LINE',
+	6: 'ARGUMENT',
+	7: 'SUPER',
+	8: 'SUB',
+	9: 'IGNORE',
+	10: 'SPACE',
+	11: 'LETTER',
+	12: 'OTHER',
+	13: 'ACTIVE',
+	14: 'COMMENT',
+	15: 'INVALID'
+}
+
 # The default categories
 
 catcodes = {
@@ -83,6 +104,12 @@ class Token:
 		self.val = val
 		self.raw = raw
 		self.pos = pos
+
+	def __repr__ (self):
+		text = 'Token(' + cat_names[self.cat]
+		if self.val is not None:
+			text += ', ' + repr(self.val)
+		return text + ')'
 
 class TokenList (list):
 	"""
