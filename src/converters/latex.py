@@ -913,7 +913,7 @@ class LaTeXDep (Node):
 
 	def do_set (self, name, *val):
 		if name in self.vars:
-			self.vars[name] = val
+			self.vars[name] = val[0]
 		elif len(val) != 1:
 			raise TypeError()
 		else:
