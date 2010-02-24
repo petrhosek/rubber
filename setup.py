@@ -34,12 +34,6 @@ I could not import distutils.core. You need the Distutils to install Rubber.
 (You don't need them to run Rubber, so you can try configuring and installing
 it by hand if you are brave.)"""
 		return 1
-	import os
-	if "fork" not in dir(os):
-		print """
-There is no os.fork() function. Rubber needs it to run external programs, so
-it won't run on this system."""
-	print "There is a function os.fork(), good."
 	return 0
 
 

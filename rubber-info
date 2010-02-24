@@ -1,0 +1,4 @@
+#!/usr/bin/python
+import sys
+from rubber.cmd_info import Main
+sys.exit(Main()(sys.argv[1:]))

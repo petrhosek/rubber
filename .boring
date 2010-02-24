@@ -13,7 +13,6 @@
 ^build($|/)
 \.info$
 ^Makefile$
-^rubber(|-[a-z]*)$
 ^settings\.py$
 ^src/version\.py$
 ^rubber\.spec$
