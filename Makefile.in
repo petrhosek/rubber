@@ -21,7 +21,7 @@ clean-local:
 	find . \( -name '*~' -or -name '*.py[co]' \) -exec rm {} \;
 
 distclean: clean-local
-	rm -f rubber.spec Makefile rubber rubber-info rubber-pipe settings.py src/version.py
+	rm -f rubber.spec Makefile settings.py src/version.py
 	cd doc && $(MAKE) distclean
 
 install:
