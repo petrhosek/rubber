@@ -54,6 +54,6 @@ def convert (source, target, context, set):
 			['fig2dev', '-L', language, source, image_file],
 			[image_file], [source])
 		return Shell(set,
-			['fig2dev', '-L', target[target.rfind('.')+1:],
+			['fig2dev', '-L', language + '_t',
 				'-p', image_reference, source, target],
 			[target], [source, image_file])
