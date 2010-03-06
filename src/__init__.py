@@ -7,9 +7,6 @@ Message class and msg object). Environment is the main class containing all
 information about a given building process.
 """
 
-# Stop python 2.2 from calling "yield" statements syntax errors.
-from __future__ import generators
-
 import os, os.path, sys, subprocess, thread
 import re, string
 from subprocess import Popen

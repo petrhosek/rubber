@@ -11,9 +11,6 @@ The module provides the following commands:
   stylepath <dir> = adds <dir> to the search path for styles
 """
 
-# Stop python 2.2 from calling "yield" statements syntax errors.
-from __future__ import generators
-
 import os, sys
 from os.path import *
 import re, string

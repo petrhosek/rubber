@@ -7,9 +7,6 @@ This module contains all the code in Rubber that actually does the job of
 building a LaTeX document from start to finish.
 """
 
-# Stop python 2.2 from calling "yield" statements syntax errors.
-from __future__ import generators
-
 import os, os.path, sys
 import re
 import string

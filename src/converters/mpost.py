@@ -7,9 +7,6 @@ The module parses input files for dependencies and does some checkings on
 Metapost's log files after the process. Is it enough?
 """
 
-# Stop python 2.2 from calling "yield" statements syntax errors.
-from __future__ import generators
-
 import os, os.path
 import re, string
 
