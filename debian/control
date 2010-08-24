@@ -9,7 +9,8 @@ Standards-Version: 3.6.2
 
 Package: rubber
 Architecture: all
-Depends: ${python:Depends}, tetex-bin | texlive-latex-base
+Depends: ${python:Depends}
+Recommends: tetex-bin | texlive-latex-base
 Suggests: imagemagick, transfig, sam2p
 Description: an automated system for building LaTeX documents
  This is a building system for LaTeX documents. It is based on a routine that

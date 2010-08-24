@@ -1,3 +1,9 @@
+rubber (1.1-1.2) unstable; urgency=low
+
+  * Changed dependency on TeX into Recommends.
+
+ -- Emmanuel Beffara <manu@beffara.org>  Tue, 24 Aug 2010 17:55:31 +0200
+
 rubber (1.1-1.1) unstable; urgency=low
 
   * Non-maintainer upload.
