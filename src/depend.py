@@ -4,7 +4,8 @@ This module contains code for handling dependency graphs.
 
 import os, time
 from subprocess import Popen
-from rubber import msg, _
+
+from rubber.util import _, msg
 
 class Set (dict):
 	"""

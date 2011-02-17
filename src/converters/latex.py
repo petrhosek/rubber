@@ -7,12 +7,12 @@ This module contains all the code in Rubber that actually does the job of
 building a LaTeX document from start to finish.
 """
 
-import os, os.path, sys
+import os, os.path, sys, imp
 import re
 import string
 
 from rubber import _
-from rubber import *
+from rubber.util import *
 from rubber.depend import Node
 from rubber.version import moddir
 import rubber.latex_modules

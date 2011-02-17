@@ -247,9 +247,11 @@ class Bibliography:
 			doc["BSTINPUTS"] = string.join(self.bst_path +
 				[os.getenv("BSTINPUTS", "")], ":")
 		if self.crossrefs is None:
-			cmd = ["bibtex", self.base]
+			cmd = ["bibtex"]
 		else:
-			cmd = ["bibtex", "-min-crossrefs=" + self.crossrefs, self.base]
+			cmd = ["bibtex", "-min-crossrefs=" + self.crossrefs]
+		cmd.append(self.doc.env.file_name(self.base))
+		msg.log(_("executing: %s") % " ".join(cmd), pkg="bibtex")
 		process = Popen(cmd, stdout=PIPE, stderr=PIPE)
 		process.communicate()
 		if process.wait() != 0:

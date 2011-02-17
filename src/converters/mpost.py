@@ -11,7 +11,7 @@ import os, os.path
 import re, string
 
 from rubber import _
-from rubber import *
+from rubber.util import *
 from rubber.depend import Node
 from rubber.converters.latex import LogCheck
 

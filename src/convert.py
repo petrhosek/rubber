@@ -6,9 +6,8 @@ rule management.
 import re, imp, os.path
 from ConfigParser import *
 
-from rubber import _, msg
+from rubber.util import _, msg, Variables
 import rubber.converters
-from rubber.util import Variables
 
 re_variable = re.compile('[a-zA-Z]+')
 

@@ -1,149 +1,18 @@
 # This file is part of Rubber and thus covered by the GPL
 # (c) Emmanuel Beffara, 2002--2006
 """
-This is the main module of rubber. It includes code related to guessing of
-conversion rules (the Converter class) and formatted message output (the
-Message class and msg object). Environment is the main class containing all
-information about a given building process.
+This module contains the code for formatted message output (the Message class)
+and the class Environment, which contains all information about a given
+building process.
 """
 
 import os, os.path, sys, subprocess, thread
 import re, string
 from subprocess import Popen
 
-# The function `_' is defined here to prepare for internationalization.
-def _ (txt): return txt
-
-from rubber.version import version, moddir
-__version__ = version
-
-#----  Message writers  ----{{{1
-
-class Message (object):
-	"""
-	All messages in the program are output using the `msg' object in the
-	main package. This class defines the interface for this object.
-	"""
-	def __init__ (self, level=1, write=None):
-		"""
-		Initialize the object with the specified verbosity level and an
-		optional writing function. If no such function is specified, no
-		message will be output until the 'write' field is changed.
-		"""
-		self.level = level
-		self.write = write
-		self.short = 0
-		self.path = ""
-		self.cwd = "./"
-		self.pos = []
-
-	def push_pos (self, pos):
-		self.pos.append(pos)
-	def pop_pos (self):
-		del self.pos[-1]
-
-	def __call__ (self, level, text):
-		"""
-		This is the low level printing function, it receives a line of text
-		with an associated verbosity level, so that output can be filtered
-		depending on command-line options.
-		"""
-		if self.write and level <= self.level:
-			self.write(text, level=level)
-
-	def display (self, kind, text, **info):
-		"""
-		Print an error or warning message. The argument 'kind' indicates the
-		kind of message, among "error", "warning", "abort", the argument
-		'text' is the main text of the message, the other arguments provide
-		additional information, including the location of the error.
-		"""
-		if kind == "error":
-			if text[0:13] == "LaTeX Error: ":
-				text = text[13:]
-			self(0, self.format_pos(info, text))
-			if info.has_key("code") and info["code"] and not self.short:
-				if info.has_key("macro"):
-					del info["macro"]
-				self(0, self.format_pos(info,
-					_("leading text: ") + info["code"]))
-
-		elif kind == "abort":
-			if self.short:
-				msg = _("compilation aborted ") + info["why"]
-			else:
-				msg = _("compilation aborted: %s %s") % (text, info["why"])
-			self(0, self.format_pos(info, msg))
-
-		elif kind == "warning":
-			self(0, self.format_pos(info, text))
-
-	def error (self, text, **info):
-		self.display(kind="error", text=text, **info)
-	def warn (self, what, **where):
-		self(0, self.format_pos(where, what))
-	def progress (self, what, **where):
-		self(1, self.format_pos(where, what + "..."))
-	def info (self, what, **where):
-		self(2, self.format_pos(where, what))
-	def log (self, what, **where):
-		self(3, self.format_pos(where, what))
-	def debug (self, what, **where):
-		self(4, self.format_pos(where, what))
-
-	def format_pos (self, where, text):
-		"""
-		Format the given text into a proper error message, with file and line
-		information in the standard format. Position information is taken from
-		the dictionary given as first argument.
-		"""
-		if len(self.pos) > 0:
-			if where is None or not where.has_key("file"):
-				where = self.pos[-1]
-		elif where is None or where == {}:
-			return text
-
-		if where.has_key("file") and where["file"] is not None:
-			pos = self.simplify(where["file"])
-			if where.has_key("line") and where["line"]:
-				pos = "%s:%d" % (pos, int(where["line"]))
-				if where.has_key("last"):
-					if where["last"] != where["line"]:
-						pos = "%s-%d" % (pos, int(where["last"]))
-			pos = pos + ": "
-		else:
-			pos = ""
-		if where.has_key("macro"):
-			text = "%s (in macro %s)" % (text, where["macro"])
-		if where.has_key("page"):
-			text = "%s (page %d)" % (text, int(where["page"]))
-		if where.has_key("pkg"):
-			text = "[%s] %s" % (where["pkg"], text)
-		return pos + text
-
-	def simplify (self, name):
-		"""
-		Simplify an path name by removing the current directory if the
-		specified path is in a subdirectory.
-		"""
-		path = os.path.normpath(os.path.join(self.path, name))
-		if path[:len(self.cwd)] == self.cwd:
-			return path[len(self.cwd):]
-		return path
-
-	def display_all (self, generator):
-		something = 0
-		for msg in generator:
-			self.display(**msg)
-			something = 1
-		return something
-
-msg = Message()
+from rubber.version import moddir
+from rubber.util import _
 from rubber.util import *
-
-
-#----  Building environments  ----{{{1
-
 import rubber.converters
 import rubber.depend
 from rubber.convert import Converter
@@ -310,7 +179,16 @@ class Environment:
 		"""
 		return self.converter.may_produce(name)
 
-	#--  Executing external programs  {{{2
+	def file_name (self, path):
+		"""
+		Return a path equivalent to the one passed as argument, but relative
+		to the reference working directory.
+		"""
+		full_path = os.path.abspath(path)
+		cwd = os.path.join(self.vars['cwd'], '')
+		if full_path[:len(cwd)] == cwd:
+			return full_path[len(cwd):]
+		return full_path
 
 	def execute (self, prog, env={}, pwd=None, out=None, kpse=0):
 		"""
