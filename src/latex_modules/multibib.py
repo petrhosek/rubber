@@ -62,7 +62,7 @@ def hook_newcites (loc, name):
 	doc.hook_macro('bibliography' + name, 'a',
 			bib.hook_bibliography)
 	doc.hook_macro('bibliographystyle' + name, 'a',
-			bib.hook_bibligraphystyle)
+			bib.hook_bibliographystyle)
 	for cmd in defaults:
 		bib.command(*cmd)
 	if name in commands:
