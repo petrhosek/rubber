@@ -10,9 +10,10 @@ import string
 import re
 from getopt import *
 
-from rubber import _
-from rubber import *
+from rubber import _, msg
+from rubber.environment import Environment
 from rubber.version import *
+from rubber.util import parse_line
 from rubber.depend import ERROR, CHANGED, UNCHANGED
 import rubber.cmdline
 
