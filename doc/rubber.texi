@@ -449,8 +449,13 @@ Read extra conversion rules from the specified file. The format of this file
 is the same as that of @file{rules.ini}, see @ref{rules.ini}.
 
 @item set <name> <value>
-Set the value of a variable. For details on the existing variables and their
-meaning, see @ref{Variables}.
+Set the value of a variable as a string. For details on the existing variables
+and their meaning, see @ref{Variables}.
+
+@item setlist <name> <values>
+Set the value of a variable as a list of strings. The list is space-separated,
+possibly empty. For details on the existing variables and their meaning, see
+@ref{Variables}.
 
 @item watch <file>
 Watch the specified file for changes. If the contents of this file has
@@ -462,14 +467,15 @@ useful in the case of tables of contents, for instance.
 @section Variables
 
 The following variables are defined by Rubber (or its modules) and used by
-various modules to influence compilation.
+various modules to influence compilation. All variables are strings that
+should be defined by the @code{set} directive, unless explicitly specified.
 
 @table @command
-@item arguments
+@item arguments (list)
 Extra command-line arguments that are passed to the compiler. Note that this
 is potentially dangerous and has no reason to be portable across different
-compilers. This variable can contain a list of arguments, all the arguments to
-the @code{set} directive are kept when defining it.
+compilers. This variable contains a list of strings, it should be set using
+the @code{setlist} directive.
 
 @item base
 The base name of the main source file, including its path but without the

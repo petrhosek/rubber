@@ -908,13 +908,17 @@ class LaTeXDep (Node):
 		else:
 			self.env.converter.read_ini(name)
 
-	def do_set (self, name, *val):
-		if name in self.vars:
-			self.vars[name] = val[0]
-		elif len(val) != 1:
-			raise TypeError()
-		else:
-			self.vars[name] = val[0]
+	def do_set (self, name, val):
+		try:
+			self.vars[name] = val
+		except KeyError:
+			msg.warn(_("unknown variable: %s") % name, **self.vars)
+
+	def do_setlist (self, name, *val):
+		try:
+			self.vars[name] = val
+		except KeyError:
+			msg.warn(_("unknown variable: %s") % name, **self.vars)
 
 	def do_watch (self, *args):
 		for arg in args:
