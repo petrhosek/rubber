@@ -201,7 +201,7 @@ class Environment:
 		messages from Kpathsea are processed (to indicate e.g. font
 		compilation), otherwise the error output is kept untouched.
 		"""
-		msg.log(_("executing: %s") % string.join(prog))
+		msg.info(_("executing: %s") % string.join(prog))
 		if pwd:
 			msg.log(_("  in directory %s") % pwd)
 		if env != {}:

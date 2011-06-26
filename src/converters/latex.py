@@ -53,7 +53,7 @@ class Modules:
 		and run any delayed commands for it.
 		"""
 		if self.has_key(name):
-			msg.debug(_("module %s already registered") % name)
+			msg.debug(_("module %s already registered") % name, pkg='latex')
 			return 2
 
 		# First look for a script
@@ -63,7 +63,7 @@ class Modules:
 			file = os.path.join(path, name + ".rub")
 			if os.path.exists(file):
 				mod = ScriptModule(self.env, file)
-				msg.log(_("script module %s registered") % name)
+				msg.log(_("script module %s registered") % name, pkg='latex')
 				break
 
 		# Then look for a Python module
@@ -75,9 +75,9 @@ class Modules:
 				pymodule = imp.load_module(name, file, path, descr)
 				file.close()
 				mod = PyModule(self.env, pymodule, dict)
-				msg.log(_("built-in module %s registered") % name)
+				msg.log(_("built-in module %s registered") % name, pkg='latex')
 			except ImportError:
-				msg.debug(_("no support found for %s") % name)
+				msg.debug(_("no support found for %s") % name, pkg='latex')
 				return 0
 
 		# Run any delayed commands.
@@ -121,7 +121,7 @@ class Modules:
 
 #----  Log parser  ----{{{1
 
-re_loghead = re.compile("This is [0-9a-zA-Z-]*(TeX|Omega)")
+re_loghead = re.compile("This is [0-9a-zA-Z-]*")
 re_rerun = re.compile("LaTeX Warning:.*Rerun")
 re_file = re.compile("(\\((?P<file>[^ \n\t(){}]*)|\\))")
 re_badbox = re.compile(r"(Ov|Und)erfull \\[hv]box ")
@@ -712,7 +712,7 @@ class LaTeXDep (Node):
 		except EndDocument:
 			pass
 		self.set_date()
-		msg.log(_("dependencies: %r") % self.sources)
+		msg.log(_("dependencies: %r") % self.sources, pkg='latex')
 
 	def parse_file (self, file):
 		"""
@@ -747,7 +747,7 @@ class LaTeXDep (Node):
 		must be a valid file name.
 		"""
 		if self.processed_sources.has_key(path):
-			msg.debug(_("%s already parsed") % path)
+			msg.debug(_("%s already parsed") % path, pkg='latex')
 			return
 		self.processed_sources[path] = None
 		if path not in self.sources:
@@ -756,7 +756,7 @@ class LaTeXDep (Node):
 		try:
 			saved_vars = self.vars
 			try:
-				msg.log(_("parsing %s") % path)
+				msg.log(_("parsing %s") % path, pkg='latex')
 				self.vars = Variables(saved_vars,
 					{ "file": path, "line": None })
 				file = open(path)
@@ -767,7 +767,7 @@ class LaTeXDep (Node):
 
 			finally:
 				self.vars = saved_vars
-				msg.debug(_("end of %s") % path)
+				msg.debug(_("end of %s") % path, pkg='latex')
 
 		except EndInput:
 			pass
@@ -827,6 +827,7 @@ class LaTeXDep (Node):
 		elif not hasattr(self, "do_" + cmd):
 			msg.warn(_("unknown directive '%s'") % cmd, **pos)
 		else:
+			msg.log(_("directive: %s") % ' '.join([cmd]+args), pkg='latex')
 			getattr(self, "do_" + cmd)(*args)
 		#except TypeError:
 		#	msg.warn(_("wrong syntax for '%s'") % cmd, **pos)
@@ -1210,7 +1211,7 @@ class LaTeXDep (Node):
 		self.must_compile = force
 		self.must_compile = self.compile_needed()
 
-		msg.log(_("building additional files..."))
+		msg.log(_("building additional files..."), pkg='latex')
 
 		for mod in self.modules.objects.values():
 			if not mod.pre_compile():
@@ -1224,7 +1225,7 @@ class LaTeXDep (Node):
 		each compilation of the main source. Returns true on success or false
 		on failure.
 		"""
-		msg.log(_("running post-compilation scripts..."))
+		msg.log(_("running post-compilation scripts..."), pkg='latex')
 
 		for file, md5 in self.onchange_md5.items():
 			if not os.path.exists(file):
@@ -1249,10 +1250,10 @@ class LaTeXDep (Node):
 
 		for file in self.products + self.removed_files:
 			if os.path.exists(file):
-				msg.log(_("removing %s") % file)
+				msg.log(_("removing %s") % file, pkg='latex')
 				os.unlink(file)
 
-		msg.log(_("cleaning additional files..."))
+		msg.log(_("cleaning additional files..."), pkg='latex')
 
 		for dep in self.source_nodes():
 			dep.clean()
@@ -1308,18 +1309,18 @@ class LaTeXDep (Node):
 		"""
 		if self.must_compile:
 			return 1
-		msg.log(_("checking if compiling is necessary..."))
+		msg.log(_("checking if compiling is necessary..."), pkg='latex')
 		if not os.path.exists(self.products[0]):
-			msg.debug(_("the output file doesn't exist"))
+			msg.debug(_("the output file doesn't exist"), pkg='latex')
 			return 1
 		if not os.path.exists(self.target + ".log"):
-			msg.debug(_("the log file does not exist"))
+			msg.debug(_("the log file does not exist"), pkg='latex')
 			return 1
 		if os.path.getmtime(self.products[0]) < os.path.getmtime(self.source()):
-			msg.debug(_("the source is younger than the output file"))
+			msg.debug(_("the source is younger than the output file"), pkg='latex')
 			return 1
 		if self.log.read(self.target + ".log"):
-			msg.debug(_("the log file is not produced by TeX"))
+			msg.debug(_("the log file is not produced by TeX"), pkg='latex')
 			return 1
 		return self.recompile_needed()
 
@@ -1332,29 +1333,29 @@ class LaTeXDep (Node):
 			self.update_watches()
 			return 1
 		if self.log.errors():
-			msg.debug(_("last compilation failed"))
+			msg.debug(_("last compilation failed"), pkg='latex')
 			self.update_watches()
 			return 1
 		if self.deps_modified(os.path.getmtime(self.products[0])):
-			msg.debug(_("dependencies were modified"))
+			msg.debug(_("dependencies were modified"), pkg='latex')
 			self.update_watches()
 			return 1
 		suffix = self.update_watches()
 		if suffix:
-			msg.debug(_("the %s file has changed") % suffix)
+			msg.debug(_("the %s file has changed") % suffix, pkg='latex')
 			return 1
 		if self.log.run_needed():
-			msg.debug(_("LaTeX asks to run again"))
+			msg.debug(_("LaTeX asks to run again"), pkg='latex')
 			aux_changed = 0
 			for aux, md5 in self.aux_md5.items():
 				if md5 is not None and md5 != self.aux_old[aux]:
 					aux_changed = 1
 					break
 			if not aux_changed:
-				msg.debug(_("but the aux files are unchanged"))
+				msg.debug(_("but the aux files are unchanged"), pkg='latex')
 				return 0
 			return 1
-		msg.debug(_("no new compilation is needed"))
+		msg.debug(_("no new compilation is needed"), pkg='latex')
 		return 0
 
 	def deps_modified (self, date):
@@ -1411,7 +1412,7 @@ class LaTeXDep (Node):
 		for suffix in list:
 			file = self.target + suffix
 			if os.path.exists(file):
-				msg.log(_("removing %s") % file)
+				msg.log(_("removing %s") % file, pkg='latex')
 				os.unlink(file)
 
 
