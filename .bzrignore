@@ -1,0 +1,6 @@
+./Makefile
+./rubber.spec
+./settings.py
+src/version.py
+doc/rubber.info
+./build
