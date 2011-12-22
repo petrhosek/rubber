@@ -566,6 +566,9 @@ class LaTeXDep (Node):
 
 		self.cmdline = ["\\nonstopmode", "\\input{%s}"]
 
+		if self.vars.get('shell_escape', 0):
+			self.cmdline.insert(0, '--shell-escape')
+
 		# the initial hooks:
 
 		self.comment_mark = "%"

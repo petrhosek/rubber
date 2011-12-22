@@ -63,6 +63,7 @@ available options:
   -q, --quiet              suppress messages
   -r, --read=FILE          read additional directives from FILE
   -S, --src-specials       enable insertion of source specials
+      --shell-escape       allows execution of arbitrary write18 commands
   -s, --short              display errors in a compact form
   -I, --texpath=DIR        add DIR to the search path for LaTeX
   -v, --verbose            increase verbosity
@@ -77,7 +78,8 @@ available options:
 				["bzip2", "cache", "clean", "command=", "epilogue=", "force", "gzip",
 				 "help", "inplace", "into=", "jobname=", "keep", "landcape", "maxerr=",
 				 "module=", "only=", "post=", "pdf", "ps", "quiet", "read=",
-				 "src-sepcials", "short", "texpath=", "verbose", "version", "warn="] + long)
+				 "src-sepcials", "shell-escape", "short", "texpath=", "verbose", "version",
+				 "warn="] + long)
 		except GetoptError, e:
 			print e
 			sys.exit(1)
@@ -143,6 +145,8 @@ available options:
 				self.prologue.append("read " + arg)
 			elif opt in ("-S", "--src-specials"):
 				self.prologue.append("set src-specials yes")
+			elif opt in ("--shell-escape"):
+				self.shell_escape = 1
 			elif opt in ("-s", "--short"):
 				msg.short = 1
 			elif opt in ("-I", "--texpath"):
@@ -185,6 +189,7 @@ available options:
 		self.epilogue = []
 		self.clean = 0
 		self.force = 0
+		self.shell_escape = 0
 
 		self.warn = 0
 		self.warn_boxes = 0
@@ -220,6 +225,8 @@ available options:
 			# Check the source and prepare it for processing
 	
 			env = Environment()
+
+			env.vars.new_key('shell_escape', self.shell_escape)
 
 			if env.set_source(src, jobname=self.jobname):
 				return 1
