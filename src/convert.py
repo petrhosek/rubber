@@ -215,7 +215,7 @@ class Converter (object):
 
 		candidates.sort()
 		for cost, source, target, rule in candidates:
-			instance = Variables(context, rule)
+			instance = Variables(context, dict(rule))
 			instance['source'] = source
 			instance['target'] = target
 			if check is not None and not check(instance):
