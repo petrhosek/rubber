@@ -207,3 +207,10 @@ I don't know the action `%s'. This should not happen.\n") % act)
 		except KeyboardInterrupt:
 			msg(0, _("*** interrupted"))
 			return 2
+
+def script_entry_point():
+	"""
+	Entry point for setuptools generated console scripts
+	"""
+	import sys
+	return Main()(sys.argv[1:])

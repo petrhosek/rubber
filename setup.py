@@ -29,7 +29,11 @@ Metapost compilation).\
                                     os.path.basename(gv.__version_file)
                                    ]
                        },
-        scripts = ["rubber", "rubber-info", "rubber-pipe"],
+        entry_points = { 'console_scripts': ['rubber = rubber.cmdline:script_entry_point',
+                                             'rubber-info = rubber.cmd_info:script_entry_point',
+                                             'rubber-pipe = rubber.cmd_pipe:script_entry_point',
+                                            ]
+                       }
         # FIXME: Find a clean way to install documentation via setuptools
         #data_files =
         #[(moddir + "/modules", glob.glob("data/modules/*.rub")),
