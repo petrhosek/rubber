@@ -33,7 +33,7 @@
 
 __all__ = ("get_git_version")
 
-__version_file = 'src/RELEASE-VERSION'
+__version_file = 'rubber/RELEASE-VERSION'
 
 from subprocess import Popen, PIPE
 
