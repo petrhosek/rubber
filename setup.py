@@ -22,7 +22,6 @@ Metapost compilation).\
         url = "http://rubber.sourceforge.net/",
         license = "GPL",
         packages = ["rubber", "rubber.converters", "rubber.latex_modules"],
-        package_dir = {"rubber": "src"},
         package_data = { 'rubber': ['data/modules/*.rub',
                                     'data/rules.ini',
                                     'data/_rubber', # Do we need this?

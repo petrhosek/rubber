@@ -11,6 +11,11 @@ compilation. The associated tool "rubber-info" extracts information, such as
 dependency relations or post-compilation diagnostics.
 
 
+* Running directly from the repository
+
+It is possible to run rubber directly from the repository without installation.
+Just add the ``bin/`` directory to your PATH.
+
 * Installation
 
 Compiling and running Rubber just requires Python version 2.2 or newer. For

@@ -1,6 +1,6 @@
 # Files for versioning
 include git_version.py
-include src/RELEASE-VERSION
+include rubber/RELEASE-VERSION
 
 include README
 include NEWS

@@ -6,6 +6,6 @@ MANIFEST
 rubber.egg-info/
 
 # File used for reporting rubber version
-src/RELEASE-VERSION
+rubber/RELEASE-VERSION
 
 doc/rubber.info
