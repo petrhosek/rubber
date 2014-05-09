@@ -1,7 +1,13 @@
 #!/usr/bin/python
 import os
+import sys
 from setuptools import setup
 import git_version as gv
+
+# If using virtualenv we don't want to install
+# to /usr/ which would break the install so use
+# sys.exec_prefix instead
+doc_install_root = sys.exec_prefix + '/share/doc'
 
 setup(
         name = "rubber",
@@ -32,14 +38,19 @@ Metapost compilation).\
                                              'rubber-info = rubber.cmd_info:script_entry_point',
                                              'rubber-pipe = rubber.cmd_pipe:script_entry_point',
                                             ]
-                       }
-        # FIXME: Find a clean way to install documentation via setuptools
-        #data_files =
-        #[(moddir + "/modules", glob.glob("data/modules/*.rub")),
-        # (moddir, ["data/rules.ini"]),
-        # (mandir + "/man1",
-        #        ["doc/man-en/rubber.1", "doc/man-en/rubber-info.1", "doc/man-en/rubber-pipe.1"]),
-        # (mandir + "/fr/man1",
-        #        ["doc/man-fr/rubber.1", "doc/man-fr/rubber-info.1", "doc/man-fr/rubber-pipe.1"]),
-        # (infodir, ["doc/rubber.info"])]
+                       },
+        # FIXME: Find a clean way to install info page
+        data_files = [ ( doc_install_root + '/man1',
+                         [ "doc/man-en/rubber.1",
+                           "doc/man-en/rubber-info.1",
+                           "doc/man-en/rubber-pipe.1"
+                         ]
+                       ),
+                       ( doc_install_root + '/fr/man1',
+                         [ "doc/man-fr/rubber.1",
+                           "doc/man-fr/rubber-info.1",
+                           "doc/man-fr/rubber-pipe.1"
+                         ]
+                       )
+                     ]
     )
