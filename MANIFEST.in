@@ -5,3 +5,6 @@ include rubber/RELEASE-VERSION
 include README
 include NEWS
 include COPYING
+
+# Man pages
+recursive-include doc *.1
