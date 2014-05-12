@@ -1,0 +1,11 @@
+*.pyc
+
+# setup.py generate files
+dist/
+MANIFEST
+rubber.egg-info/
+
+# File used for reporting rubber version
+rubber/RELEASE-VERSION
+
+doc/rubber.info

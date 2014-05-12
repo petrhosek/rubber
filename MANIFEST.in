@@ -1,11 +1,10 @@
-include *.in
-include src/version.py.in
-exclude src/version.py
-include configure
+# Files for versioning
+include git_version.py
+include rubber/RELEASE-VERSION
+
 include README
 include NEWS
 include COPYING
-include doc/Makefile
-include doc/rubber.texi
+
+# Man pages
 recursive-include doc *.1
-recursive-include data *
