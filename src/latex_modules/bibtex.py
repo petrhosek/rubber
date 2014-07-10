@@ -405,7 +405,7 @@ class Bibliography:
 
 def setup (doc, context):
 	global biblio
-	biblio = Bibliography(doc, doc.target)
+	biblio = Bibliography(doc, basename(doc.target))
 	doc.hook_macro('bibliography', 'a', biblio.hook_bibliography)
 	doc.hook_macro('bibliographystyle', 'a', biblio.hook_bibliographystyle)
 def command (command, args):
