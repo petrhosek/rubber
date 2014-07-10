@@ -212,7 +212,7 @@ def prog_available (prog):
 	"""
 	if checked_progs.has_key(prog):
 		return checked_progs[prog]
-	for path in os.getenv("PATH").split(":"):
+	for path in os.getenv("PATH").split(os.pathsep):
 		file = os.path.join(path, prog)
 		if os.path.exists(file):
 			st = os.stat(file)
