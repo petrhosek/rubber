@@ -1,17 +1,17 @@
 # This file is part of Rubber and thus covered by the GPL
 # (c) Emmanuel Beffara, 2002--2006
 """
-XeLaTeX support for Rubber.
+XeTeX support for Rubber.
 
 When this module is loaded with the otion 'xdv', the document is compiled to
-XDV using XeLaTeX.
+XDV using XeTeX.
 """
 
 from rubber import _, msg
 
 def setup(doc, context):
-    doc.vars['program'] = 'xelatex'
-    doc.vars['engine'] = 'XeLaTeX'
+    doc.vars['program'] = 'xetex'
+    doc.vars['engine'] = 'XeTeX'
     if 'opt' in context and context['opt'] == 'xdv':
 		mode_xdv()
 	else:
