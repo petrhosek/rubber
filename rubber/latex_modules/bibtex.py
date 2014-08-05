@@ -250,7 +250,8 @@ class Bibliography:
 			cmd = ["bibtex"]
 		else:
 			cmd = ["bibtex", "-min-crossrefs=" + self.crossrefs]
-		if self.doc.env.execute(['bibtex', self.base], doc):
+		cmd.append(self.doc.env.file_name(self.base))
+		if self.doc.env.execute(cmd, doc):
 			msg.info(_("There were errors making the bibliography."))
 			return False
 		self.run_needed = 0
