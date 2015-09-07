@@ -37,7 +37,7 @@ def setup (doc, context):
 		sys.exit(2)
 	pdf = dvi[:-3] + 'pdf'
 	global dep
-	dep = Dep(doc, pdf, dvi, doc.env.final)
+	dep = Dep(doc, pdf, dvi)
 	doc.env.final = dep
 
 def do_options (*args):
