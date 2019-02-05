@@ -14,7 +14,8 @@ dependency relations or post-compilation diagnostics.
 * Running directly from the repository
 
 It is possible to run rubber directly from the repository without installation.
-Just add the ``bin/`` directory to your PATH.
+Just add the ``bin/`` directory to your PATH, or add a symbolic link
+to the repository's ``bin/rubber`` from a file in your existing PATH.
 
 * Installation
 
